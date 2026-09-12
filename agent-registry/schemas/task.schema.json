@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cadgrounded.local/schemas/task.schema.json",
+  "title": "CADGrounded Engineering Task",
+  "type": "object",
+  "required": ["task_id", "title", "created_by", "document_id", "status", "goal", "constraints"],
+  "properties": {
+    "task_id": { "type": "string", "minLength": 1 },
+    "title": { "type": "string", "minLength": 1 },
+    "created_by": { "type": "string", "minLength": 1 },
+    "assigned_to": { "type": ["string", "null"] },
+    "document_id": { "type": "string", "minLength": 1 },
+    "baseline": { "type": ["string", "null"] },
+    "status": {
+      "type": "string",
+      "enum": ["planned", "ready", "executing", "blocked", "review_required", "approved", "failed", "complete"]
+    },
+    "goal": { "type": "string", "minLength": 1 },
+    "constraints": { "type": "array", "items": { "type": "string" } },
+    "acceptance_criteria": { "type": "array", "items": { "type": "string" } },
+    "created_at": { "type": ["string", "null"], "format": "date-time" }
+  },
+  "additionalProperties": false
+}
