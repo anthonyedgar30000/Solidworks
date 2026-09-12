@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cadgrounded.local/schemas/result.schema.json",
+  "title": "CADGrounded Job Result",
+  "type": "object",
+  "required": ["job_id", "status", "executed_by", "result"],
+  "properties": {
+    "job_id": { "type": "string", "minLength": 1 },
+    "status": { "type": "string", "enum": ["completed", "failed", "rejected", "cancelled"] },
+    "executed_by": { "type": "string", "minLength": 1 },
+    "revision_before": { "type": ["integer", "null"], "minimum": 0 },
+    "revision_after": { "type": ["integer", "null"], "minimum": 0 },
+    "result": { "type": "object" },
+    "verification": { "type": ["object", "null"] },
+    "error": { "type": ["object", "null"] },
+    "completed_at": { "type": ["string", "null"], "format": "date-time" }
+  },
+  "additionalProperties": false
+}
