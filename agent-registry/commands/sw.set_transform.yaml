@@ -1,0 +1,29 @@
+command: sw.set_transform
+version: 1
+mode: write_safe
+handler: SolidWorks.SetTransform
+requires_lock: true
+requires_revision: true
+requires_fencing_token: true
+requires_idempotency_key: true
+capability: cad.write.safe
+preflight_required: true
+schema:
+  component_name:
+    type: string
+  rotation9:
+    type: array
+    length: 9
+  translation_mm:
+    type: array
+    length: 3
+  expected_before:
+    type: object
+    optional: true
+rules:
+  - Exact top-level Component2.Name2 is required.
+  - Target component must be floating.
+  - Live document title must match the prior read.
+  - Use apply=false before apply=true.
+  - A failed or timed-out write requires state reread before retry.
+  - Prefer component compare-and-set through expected_before whenever prior transform state is known.
