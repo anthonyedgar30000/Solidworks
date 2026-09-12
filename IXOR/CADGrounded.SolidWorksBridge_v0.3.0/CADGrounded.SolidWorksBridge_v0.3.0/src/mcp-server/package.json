@@ -1,0 +1,22 @@
+{
+  "name": "cadgrounded-solidworks-mcp",
+  "version": "0.3.0",
+  "private": true,
+  "type": "module",
+  "description": "SOLIDWORKS MCP bridge with optional trusted C# API execution",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "node --test scripts/insertion-handler.test.mjs scripts/execution-handler.test.mjs",
+    "start": "node server.mjs",
+    "smoke:status": "node scripts/pipe-smoke.mjs sw_status",
+    "smoke:components": "node scripts/pipe-smoke.mjs sw_query_components",
+    "verify:benchmark": "node scripts/verify-current-benchmark.mjs"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/node": "2.0.0",
+    "@modelcontextprotocol/server": "2.0.0",
+    "zod": "^4.0.0"
+  }
+}

@@ -1,0 +1,79 @@
+{
+  "benchmark_id": "IXOR_Benchmark_v11_CANONICAL_BASE",
+  "document_title_contains": "IXOR_Benchmark_v11",
+  "tolerances": {
+    "rotation_abs": 1e-09,
+    "translation_mm_abs": 0.001,
+    "getbox_mm_abs": 0.01
+  },
+  "components": [
+    {
+      "name2": "IXOR_6130800_NATIVE-1",
+      "fixed": true,
+      "rotation9": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        -1,
+        0
+      ],
+      "translation_mm": [
+        154.24,
+        -200,
+        1000
+      ],
+      "bounding_box_mm_approx": {
+        "min": [
+          -78.76,
+          -360.325,
+          948.0
+        ],
+        "max": [
+          416.24,
+          -143.0,
+          1541.0
+        ]
+      }
+    },
+    {
+      "name2": "5983425_01_Floor_stand_Bodenstativ_1632.stp-1",
+      "fixed": true,
+      "rotation9": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        -1,
+        0
+      ],
+      "translation_mm": [
+        0,
+        0,
+        0
+      ],
+      "bounding_box_mm_approx": {
+        "min": [
+          -324.0,
+          -692.5,
+          0.0
+        ],
+        "max": [
+          324.0,
+          217.5,
+          1682.0
+        ]
+      }
+    }
+  ],
+  "classification_notes": {
+    "transform": "deterministic benchmark transform re-read from SOLIDWORKS API",
+    "bounding_box": "Component2.GetBox(false,false); approximate sanity/orientation check only"
+  }
+}
