@@ -25,9 +25,14 @@ v17
 - v17 — conveyor + bottles
 
 ## Source authority
-- GitHub — project files, version history, and handoff state
-- Google Drive — reference/archive material once upload/indexing is complete
-- SOLIDWORKS MCP — live mechanical geometry, mates, transforms, interference, and assembly state
+- GitHub — authoritative project files, version history, and handoff state
+- Google Drive — active mirror/reference/archive source for `C:\ChatGPT`; IXOR reference folder: `ChatGPT/Solidworks/IXOR/CAB_IXOR_6130800`
+- SOLIDWORKS MCP — authoritative live mechanical geometry, mates, transforms, interference, and assembly state
+
+## Google Drive reference
+- ChatGPT root folder: https://drive.google.com/drive/folders/1VS1Xeb6CA9HdZPP4RrhG0-8xNgi4Gd54
+- IXOR reference folder: https://drive.google.com/drive/folders/1rbDZJkYu7Dkk_x-gHrzECFwYWcIPMyrz
+- Upload/indexing status: active and accessible from ChatGPT
 
 ## Next CAD action
 1. Verify v17 live in SOLIDWORKS before modifying.
@@ -36,4 +41,4 @@ v17
 4. Create the next numbered working version for any new CAD changes.
 
 ## Startup prompt
-`@GitHub read IXOR/CAB_IXOR_6130800/PROJECT_STATE.md, then @CADGrounded SOLIDWORKS verify the live assembly and continue.`
+`@GitHub read IXOR/CAB_IXOR_6130800/PROJECT_STATE.md, @Google Drive use ChatGPT/Solidworks/IXOR/CAB_IXOR_6130800 for supporting reference/archive material, then @CADGrounded SOLIDWORKS verify the live assembly and continue.`
