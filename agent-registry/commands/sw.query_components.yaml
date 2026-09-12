@@ -1,0 +1,22 @@
+command: sw.query_components
+version: 1
+mode: read
+handler: SolidWorks.QueryComponents
+requires_lock: false
+requires_revision: true
+capability: cad.read
+schema:
+  top_level_only:
+    type: boolean
+    default: true
+result_contract:
+  must_include:
+    - document_title
+    - components[].name2
+    - components[].path
+    - components[].fixed
+    - components[].suppressed
+    - components[].rotation9
+    - components[].translation_mm
+notes:
+  - Bounding boxes are approximate evidence only and do not establish mechanical correctness.
