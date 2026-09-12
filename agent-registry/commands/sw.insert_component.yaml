@@ -1,0 +1,31 @@
+command: sw.insert_component
+version: 1
+mode: write_safe
+handler: SolidWorks.InsertComponent
+requires_lock: true
+requires_revision: true
+requires_fencing_token: true
+requires_idempotency_key: true
+capability: cad.write.safe
+preflight_required: true
+schema:
+  source_path:
+    type: string
+  configuration:
+    type: string
+    default: Default
+  expected_source_instances:
+    type: integer
+  rotation9:
+    type: array
+    length: 9
+  translation_mm:
+    type: array
+    length: 3
+rules:
+  - Source must be a saved native SLDPRT or SLDASM.
+  - Exact active document title and path are required.
+  - Current source-instance count must match before commit.
+  - Use apply=false first and consume the returned preflight token for apply=true.
+  - Every additional instance requires a fresh preflight and current source count.
+  - On timeout or partial failure, query live state before retrying.

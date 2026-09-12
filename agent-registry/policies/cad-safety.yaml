@@ -1,0 +1,61 @@
+policy_version: 1
+roles:
+  human:
+    capabilities:
+      - cad.read
+      - cad.write.safe
+      - cad.write.document
+      - cad.execute.privileged
+      - task.create
+      - task.approve
+      - task.cancel
+  planner:
+    capabilities:
+      - cad.read
+      - task.create
+      - task.review
+      - job.submit
+  executor:
+    capabilities:
+      - cad.read
+      - cad.write.safe
+      - job.submit
+  reviewer:
+    capabilities:
+      - cad.read
+      - task.review
+  bridge:
+    capabilities:
+      - bridge.execute
+
+global_rules:
+  - SOLIDWORKS live state overrides agent assumptions and cached registry state.
+  - Every write requires expected_revision, a valid lease, and the current fencing token.
+  - Every write requires an idempotency key.
+  - Failed or timed-out writes force a live reread before retry.
+  - Existing versioned baselines are immutable unless explicitly authorized.
+  - Execution success is not mechanical correctness.
+  - Verification evidence is stored separately from command success.
+  - Manual or out-of-band SOLIDWORKS edits invalidate stale registry state.
+  - Agents may not silently overwrite another agent's work.
+  - Every accepted write must be auditable.
+
+privileged_commands:
+  sw.execute_code:
+    capability: cad.execute.privileged
+    default_for_executor: deny
+    human_approval_required: true
+    reason: >-
+      Executes trusted C# inside the SOLIDWORKS process with broad API and local
+      filesystem/process access. Timeout does not cancel execution and there is no
+      automatic rollback.
+
+baseline_policy:
+  default: immutable
+  save_as_creates_lineage: true
+  child_revision_start: 1
+
+lease_policy:
+  default_seconds: 300
+  renewal_allowed: true
+  fencing_tokens_monotonic: true
