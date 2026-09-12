@@ -1,0 +1,1 @@
+﻿"""CADGrounded Shared Agent Registry."""
