@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cadgrounded.local/schemas/job.schema.json",
+  "title": "CADGrounded Job",
+  "type": "object",
+  "required": [
+    "job_id",
+    "requested_by",
+    "command",
+    "document_id",
+    "status",
+    "arguments"
+  ],
+  "properties": {
+    "job_id": { "type": "string", "minLength": 1 },
+    "task_id": { "type": ["string", "null"] },
+    "requested_by": { "type": "string", "minLength": 1 },
+    "command": { "type": "string", "minLength": 1 },
+    "command_version": { "type": "integer", "minimum": 1, "default": 1 },
+    "document_id": { "type": "string", "minLength": 1 },
+    "expected_revision": { "type": ["integer", "null"], "minimum": 0 },
+    "lease_id": { "type": ["string", "null"] },
+    "fence_token": { "type": ["integer", "null"], "minimum": 1 },
+    "idempotency_key": { "type": ["string", "null"] },
+    "arguments": { "type": "object" },
+    "status": {
+      "type": "string",
+      "enum": ["queued", "claimed", "running", "completed", "failed", "rejected", "cancelled"]
+    },
+    "created_at": { "type": ["string", "null"], "format": "date-time" }
+  },
+  "additionalProperties": false
+}

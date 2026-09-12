@@ -1,0 +1,15 @@
+command: sw.status
+version: 1
+mode: read
+handler: SolidWorks.Status
+requires_lock: false
+requires_revision: false
+capability: cad.read
+arguments: {}
+result_contract:
+  must_include:
+    - active_document.title
+    - active_document.path
+    - active_document.document_type
+notes:
+  - SOLIDWORKS live state is authoritative.
