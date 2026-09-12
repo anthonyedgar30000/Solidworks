@@ -33,6 +33,32 @@ CAB provides three relevant wipe-down adjustments:
 2. Lower end position of roller relative to the product.
 3. Wipe-down force onto the product by spring preload.
 
+OEM manual Figures 47–48 identify the roller shaft insertion into the lever, the retaining screw, the carriage/guide distance adjustment, the lower-end adjustment screw, and the eccentric preload adjustment.
+
+## Verified v18 geometry
+Measured from the live v17 SOLIDWORKS assembly and the OEM `6130460` STEP on 2026-09-12:
+
+- AR60 overall envelope: approximately 89.2 × 25 × 25 mm.
+- Foam roller: Ø25 mm, 61 mm axial length.
+- Terminal mounting shaft: Ø7 mm.
+- Matching SP100 internal receiver bore: Ø7 mm.
+- Receiver axis: global `X = -164.500 mm`, `Y = -192.000 mm`.
+- Receiver axial limits: global `Z = 1035.866667 ... 1038.500000 mm`.
+- Bottle 3 center: global `X = -153.750 mm`, `Y = -224.000 mm`.
+- Roller/bottle center distance in the conveyor plane: approximately 33.757 mm.
+- Nominal compliant radial overlap: approximately 2.743 mm for a 12.5 mm roller radius and 24 mm bottle radius.
+
+The receiver was selected from the actual SP100 B-rep because it is an internal Ø7 mm cylinder, is nearest the D48 bottle path, and matches the OEM AR60 terminal shaft. The other Ø7 mm SP100 bores are not at the product-contact side.
+
+## Deterministic insertion proposal — not yet applied
+For the manual-shown downward roller orientation, with the AR60 shaft shoulder seated at the lower receiver face:
+
+- `rotation9 = [0, 0, 1, 1, 0, 0, 0, 1, 0]`
+- `translation_mm = [-123.518666439269, -64.228755736082, 1006.359219397215]`
+- Proposed foam working span: approximately `Z = 963.166667 ... 1024.166667 mm`
+
+The transform is a deterministic proposal derived from the measured STEP and receiver geometry. It is not engineering truth until the native AR60 part is loaded and the shaft/bore and shoulder seating are read back from live SOLIDWORKS geometry.
+
 ## v18 CAD procedure
 1. Open and verify the v17 assembly live before editing.
 2. Save a new working assembly as `IXOR_Benchmark_v18_WIPEDOWN_CONTACT_WORKING_PORTABLE.SLDASM` under a new `v18_PORTABLE` folder.
@@ -68,6 +94,25 @@ If the bottle can move away from the applicator, yaw, tip, or rotate unpredictab
 - Bottle centerline and conveyor path remain valid.
 - Wipe-down preload/contact direction is physically supported.
 - Decision recorded: `OEM wipe-down sufficient` or `opposing restraint required`.
+
+## Execution status — 2026-09-12
+- v17 was verified live and preserved.
+- Pack-and-Go created `v18_PORTABLE` and the exact target v18 assembly.
+- After a clean close/reopen, all top-level external references resolved from `v18_PORTABLE`; virtual components remained SOLIDWORKS-managed.
+- The OEM AR60 STEP was copied into `v18_PORTABLE`.
+- The native conversion attempt returned STEP import error 1, after which the SOLIDWORKS/CADGrounded named pipe disappeared.
+- No AR60 component was inserted; no assembly mate or transform was changed.
+- Interference, peel-edge spacing, remaining freedom, and bottle-stability checks remain pending.
+
+## Recovery sequence
+1. Restart SOLIDWORKS and load the CADGrounded add-in.
+2. Run `sw_status` read-only.
+3. Confirm or reopen `v18_PORTABLE/IXOR_Benchmark_v18_WIPEDOWN_CONTACT_WORKING_PORTABLE.SLDASM`.
+4. Run `sw_query_components` and verify the existing 13 top-level components and `v18_PORTABLE` paths.
+5. Confirm `6130460_03_Wipe-down_roller_Andruckrolle_AR_60.stp` exists and no AR60 instance is present.
+6. Retry native conversion to `6130460_03_AR60_NATIVE_PORTABLE_V18.SLDPRT` without assembly insertion.
+7. Re-query the native AR60 B-rep, revalidate the proposed transform, then insert exactly one instance.
+8. Complete the verification checks and decision gate above before accepting v18.
 
 ## Expected output
 Preserve v17 untouched and produce a mechanically reviewed v18 checkpoint focused only on wipe-down contact geometry and bottle stability. Do not solve wrap-control hardware until this contact test establishes whether it is needed.
