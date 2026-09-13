@@ -40,12 +40,16 @@ if (-not (Test-Path -LiteralPath $cadHelper -PathType Leaf)) {
     throw 'cad-geometry.ps1 must be beside cad.ps1.'
 }
 
-function Convert-ToNumberArray {
+function Convert-ToDoubleArray {
     param([AllowNull()][object]$Value)
 
-    if ($null -eq $Value) { return @() }
+    if ($null -eq $Value) {
+        return ,@()
+    }
+
     $items = @($Value)
-    $out = @()
+    $numbers = New-Object System.Collections.Generic.List[double]
+
     foreach ($item in $items) {
         $number = 0.0
         if (-not [double]::TryParse(
@@ -54,20 +58,25 @@ function Convert-ToNumberArray {
             [System.Globalization.CultureInfo]::InvariantCulture,
             [ref]$number
         )) {
-            return @()
+            return ,@()
         }
-        $out += $number
+        $numbers.Add($number)
     }
-    return @($out)
+
+    return ,([double[]]$numbers.ToArray())
 }
 
 function New-Vector3 {
-    param([double[]]$Values)
-    if ($null -eq $Values -or $Values.Count -lt 3) { return $null }
+    param(
+        [double]$X,
+        [double]$Y,
+        [double]$Z
+    )
+
     return [pscustomobject][ordered]@{
-        x = $Values[0]
-        y = $Values[1]
-        z = $Values[2]
+        x = $X
+        y = $Y
+        z = $Z
     }
 }
 
@@ -99,41 +108,64 @@ $matches = @($components | Where-Object {
 
 $reports = @()
 foreach ($component in $matches) {
-    $translation = Convert-ToNumberArray -Value $component.translation_mm
-    $rotation = Convert-ToNumberArray -Value $component.rotation9
+    [double[]]$translation = Convert-ToDoubleArray -Value $component.translation_mm
+    [double[]]$rotation = Convert-ToDoubleArray -Value $component.rotation9
 
-    $boxMin = @()
-    $boxMax = @()
+    [double[]]$boxMin = @()
+    [double[]]$boxMax = @()
     $boxSource = $null
     $boxClassification = $null
+
     if ($null -ne $component.bounding_box_mm_approx) {
-        $boxMin = Convert-ToNumberArray -Value $component.bounding_box_mm_approx.min
-        $boxMax = Convert-ToNumberArray -Value $component.bounding_box_mm_approx.max
+        [double[]]$boxMin = Convert-ToDoubleArray -Value $component.bounding_box_mm_approx.min
+        [double[]]$boxMax = Convert-ToDoubleArray -Value $component.bounding_box_mm_approx.max
         $boxSource = $component.bounding_box_mm_approx.source
         $boxClassification = $component.bounding_box_mm_approx.source_classification
     }
 
-    $boxSize = @()
-    $boxCenter = @()
+    $translationVector = $null
+    if ($translation.Count -ge 3) {
+        $translationVector = New-Vector3 `
+            -X ([double]$translation[0]) `
+            -Y ([double]$translation[1]) `
+            -Z ([double]$translation[2])
+    }
+
+    $boxMinVector = $null
+    $boxMaxVector = $null
+    $boxSizeVector = $null
+    $boxCenterVector = $null
+
     if ($boxMin.Count -ge 3 -and $boxMax.Count -ge 3) {
-        $boxSize = @(
-            $boxMax[0] - $boxMin[0],
-            $boxMax[1] - $boxMin[1],
-            $boxMax[2] - $boxMin[2]
-        )
-        $boxCenter = @(
-            ($boxMin[0] + $boxMax[0]) / 2.0,
-            ($boxMin[1] + $boxMax[1]) / 2.0,
-            ($boxMin[2] + $boxMax[2]) / 2.0
-        )
+        # Force each coordinate to a scalar before arithmetic. In Windows
+        # PowerShell, comma-separated arithmetic expressions can otherwise bind
+        # as Object[] operands and produce an op_Subtraction error.
+        [double]$minX = $boxMin[0]
+        [double]$minY = $boxMin[1]
+        [double]$minZ = $boxMin[2]
+        [double]$maxX = $boxMax[0]
+        [double]$maxY = $boxMax[1]
+        [double]$maxZ = $boxMax[2]
+
+        [double]$sizeX = $maxX - $minX
+        [double]$sizeY = $maxY - $minY
+        [double]$sizeZ = $maxZ - $minZ
+        [double]$centerX = ($minX + $maxX) / 2.0
+        [double]$centerY = ($minY + $maxY) / 2.0
+        [double]$centerZ = ($minZ + $maxZ) / 2.0
+
+        $boxMinVector = New-Vector3 -X $minX -Y $minY -Z $minZ
+        $boxMaxVector = New-Vector3 -X $maxX -Y $maxY -Z $maxZ
+        $boxSizeVector = New-Vector3 -X $sizeX -Y $sizeY -Z $sizeZ
+        $boxCenterVector = New-Vector3 -X $centerX -Y $centerY -Z $centerZ
     }
 
     $rotationRows = $null
     if ($rotation.Count -ge 9) {
         $rotationRows = @(
-            @($rotation[0], $rotation[1], $rotation[2]),
-            @($rotation[3], $rotation[4], $rotation[5]),
-            @($rotation[6], $rotation[7], $rotation[8])
+            ,([double[]]@($rotation[0], $rotation[1], $rotation[2]))
+            ,([double[]]@($rotation[3], $rotation[4], $rotation[5]))
+            ,([double[]]@($rotation[6], $rotation[7], $rotation[8]))
         )
     }
 
@@ -144,13 +176,13 @@ foreach ($component in $matches) {
         suppressed = [bool]$component.suppressed
         transform_source = $component.transform_source
         transform_classification = $component.source_classification
-        translation_mm = (New-Vector3 -Values $translation)
-        rotation9 = @($rotation)
+        translation_mm = $translationVector
+        rotation9 = $rotation
         rotation_rows = $rotationRows
-        bounding_box_min_mm = (New-Vector3 -Values $boxMin)
-        bounding_box_max_mm = (New-Vector3 -Values $boxMax)
-        bounding_box_size_mm = (New-Vector3 -Values $boxSize)
-        bounding_box_center_mm = (New-Vector3 -Values $boxCenter)
+        bounding_box_min_mm = $boxMinVector
+        bounding_box_max_mm = $boxMaxVector
+        bounding_box_size_mm = $boxSizeVector
+        bounding_box_center_mm = $boxCenterVector
         bounding_box_source = $boxSource
         bounding_box_classification = $boxClassification
     }
@@ -201,21 +233,21 @@ foreach ($report in $reports) {
         Suppressed = $report.suppressed
         TransformSource = $report.transform_source
         TransformClassification = $report.transform_classification
-        TranslationX_mm = $report.translation_mm.x
-        TranslationY_mm = $report.translation_mm.y
-        TranslationZ_mm = $report.translation_mm.z
-        BoxMinX_mm = $report.bounding_box_min_mm.x
-        BoxMinY_mm = $report.bounding_box_min_mm.y
-        BoxMinZ_mm = $report.bounding_box_min_mm.z
-        BoxMaxX_mm = $report.bounding_box_max_mm.x
-        BoxMaxY_mm = $report.bounding_box_max_mm.y
-        BoxMaxZ_mm = $report.bounding_box_max_mm.z
-        BoxSizeX_mm = $report.bounding_box_size_mm.x
-        BoxSizeY_mm = $report.bounding_box_size_mm.y
-        BoxSizeZ_mm = $report.bounding_box_size_mm.z
-        BoxCenterX_mm = $report.bounding_box_center_mm.x
-        BoxCenterY_mm = $report.bounding_box_center_mm.y
-        BoxCenterZ_mm = $report.bounding_box_center_mm.z
+        TranslationX_mm = $(if ($null -ne $report.translation_mm) { $report.translation_mm.x } else { $null })
+        TranslationY_mm = $(if ($null -ne $report.translation_mm) { $report.translation_mm.y } else { $null })
+        TranslationZ_mm = $(if ($null -ne $report.translation_mm) { $report.translation_mm.z } else { $null })
+        BoxMinX_mm = $(if ($null -ne $report.bounding_box_min_mm) { $report.bounding_box_min_mm.x } else { $null })
+        BoxMinY_mm = $(if ($null -ne $report.bounding_box_min_mm) { $report.bounding_box_min_mm.y } else { $null })
+        BoxMinZ_mm = $(if ($null -ne $report.bounding_box_min_mm) { $report.bounding_box_min_mm.z } else { $null })
+        BoxMaxX_mm = $(if ($null -ne $report.bounding_box_max_mm) { $report.bounding_box_max_mm.x } else { $null })
+        BoxMaxY_mm = $(if ($null -ne $report.bounding_box_max_mm) { $report.bounding_box_max_mm.y } else { $null })
+        BoxMaxZ_mm = $(if ($null -ne $report.bounding_box_max_mm) { $report.bounding_box_max_mm.z } else { $null })
+        BoxSizeX_mm = $(if ($null -ne $report.bounding_box_size_mm) { $report.bounding_box_size_mm.x } else { $null })
+        BoxSizeY_mm = $(if ($null -ne $report.bounding_box_size_mm) { $report.bounding_box_size_mm.y } else { $null })
+        BoxSizeZ_mm = $(if ($null -ne $report.bounding_box_size_mm) { $report.bounding_box_size_mm.z } else { $null })
+        BoxCenterX_mm = $(if ($null -ne $report.bounding_box_center_mm) { $report.bounding_box_center_mm.x } else { $null })
+        BoxCenterY_mm = $(if ($null -ne $report.bounding_box_center_mm) { $report.bounding_box_center_mm.y } else { $null })
+        BoxCenterZ_mm = $(if ($null -ne $report.bounding_box_center_mm) { $report.bounding_box_center_mm.z } else { $null })
         BoxSource = $report.bounding_box_source
         BoxClassification = $report.bounding_box_classification
     } | Format-List
