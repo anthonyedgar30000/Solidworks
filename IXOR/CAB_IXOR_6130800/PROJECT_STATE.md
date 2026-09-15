@@ -1,24 +1,39 @@
 # IXOR Project State
 
 ## Current working version
-v18 WIP — portable checkpoint created, AR60 insertion not yet completed or mechanically accepted
+v21 — AR60 carriage fit-check checkpoint; live assembly verified, but the AR60/carriage arrangement is not mechanically accepted as an operating label-application configuration.
 
 ## Preserved baseline
 `v17_PORTABLE/IXOR_Benchmark_v17_CONVEYOR_BOTTLES_WORKING_PORTABLE.SLDASM`
 
-The v17 baseline was verified live and was not overwritten.
+The v17 conveyor+bottle baseline remains a preserved reference and should not be overwritten.
 
-## Current working assembly
-`v18_PORTABLE/IXOR_Benchmark_v18_WIPEDOWN_CONTACT_WORKING_PORTABLE.SLDASM`
+## Current live assembly
+`C:\ChatGPT\Solidworks\IXOR\CAB_IXOR_6130800\IXOR_Benchmark_v21_AR60_CARRIAGE_FIT_CHECK_PORTABLE.SLDASM`
 
-## Current design
-- CAB IXOR 6130800 labeling head
-- SP100 demand module
-- 6120069 mounting rods
-- 6130411 tie rod
-- 6130737 GHF 120 support
-- Bench conveyor
-- D48 H180 bottles
+Live title:
+`IXOR_Benchmark_v21_AR60_CARRIAGE_FIT_CHECK_PORTABLE`
+
+## Current design / top-level content
+Verified from the live SOLIDWORKS assembly on 2026-09-15: 15 top-level components, none suppressed.
+
+- `IXOR_6130800_NATIVE_PORTABLE_V17-1`
+- `SP100_6130656_NATIVE_PORTABLE_V17-1`
+- `6130460_03_AR60_NATIVE_PORTABLE_V18-2`
+- `6130649_01_Carriage_Schlitten_AR_NATIVE_PORTABLE_V20-1`
+- `6130737_03_GHF_120_NATIVE_PORTABLE_V17-1`
+- `6130411_01_Tie_rod_NATIVE_PORTABLE_V17-1`
+- `6120069_02_Mounting_rod_NATIVE_PORTABLE_V17-1`
+- `6120069_02_Mounting_rod_NATIVE_PORTABLE_V17-2`
+- `BENCH_CONVEYOR_L900_W82_H950-1`
+- `BENCH_BOTTLE_D48_H180-1`
+- `BENCH_BOTTLE_D48_H180-2`
+- `BENCH_BOTTLE_D48_H180-3`
+- `BENCH_BOTTLE_D48_H180-4`
+- `BENCH_BOTTLE_D48_H180-5`
+- `5983425_01_Floor_stand_Bodenstativ_1632^IXOR_Benchmark_v21_AR60_CARRIAGE_FIT_CHECK_PORTABLE-1`
+
+The floor-stand entry is a SOLIDWORKS virtual component and may resolve through a temporary/internal path. Do not treat that alone as a portability failure.
 
 ## Version lineage
 - v11 — canonical baseline
@@ -28,65 +43,85 @@ The v17 baseline was verified live and was not overwritten.
 - v15 — support stack
 - v16 — physical support mates
 - v17 — conveyor + bottles; preserved baseline
-- v18 — WIP: portable checkpoint created; OEM wipe-down insertion and mechanical review pending
+- v18 — AR60 introduction work began; historical checkpoint retained below
+- v19-v20 — intermediate development checkpoints; do not reconstruct details without Git/CAD evidence
+- v21 — current live AR60 carriage fit-check assembly
 
 ## Source authority
-- GitHub — authoritative project files, version history, and handoff state
-- Google Drive — active mirror/reference/archive source for `C:\ChatGPT`; IXOR reference folder: `ChatGPT/Solidworks/IXOR/CAB_IXOR_6130800`
-- SOLIDWORKS MCP — authoritative live mechanical geometry, mates, transforms, interference, and assembly state
+1. OEM STEP/CAD
+2. OEM manuals/specifications
+3. OEM photographs
+4. Deterministic calculations/geometry created in this project
+5. Trusted third-party CAD
+6. General web references
+7. Generative images — visualization only, never ground truth
 
-## Google Drive reference
-- ChatGPT root folder: https://drive.google.com/drive/folders/1VS1Xeb6CA9HdZPP4RrhG0-8xNgi4Gd54
-- IXOR reference folder: https://drive.google.com/drive/folders/1rbDZJkYu7Dkk_x-gHrzECFwYWcIPMyrz
-- Upload/indexing status: active and accessible from ChatGPT
+Operationally:
+- SOLIDWORKS is authoritative for current live geometry and component state.
+- GitHub is authoritative for versioned project source, policy, history, and durable handoff state.
+- Google Drive is a mirror/reference/archive surface, not the source of live CAD truth.
 
-## v18 implementation brief
-`V18_WIPEDOWN_CONTACT_IMPLEMENTATION.md`
+## Live verification completed on 2026-09-15
+Verified from live CAD reads after laptop reboot and stack recovery:
 
-Primary OEM benchmark part:
-- CAB `6130460` — AR 60 wipe-down roller
-- GitHub/Drive source file: `IXOR/6130460_03_Wipe-down_roller_Andruckrolle_AR_60 (2).zip`
+- CADGrounded SOLIDWORKS bridge v0.3.0 is online.
+- Active document is `IXOR_Benchmark_v21_AR60_CARRIAGE_FIT_CHECK_PORTABLE.SLDASM`.
+- Active path is `C:\ChatGPT\Solidworks\IXOR\CAB_IXOR_6130800\IXOR_Benchmark_v21_AR60_CARRIAGE_FIT_CHECK_PORTABLE.SLDASM`.
+- 15 top-level components are present.
+- 0 top-level components are suppressed.
+- Independent local registry/worker reads and ChatGPT Work MCP reads agreed on the active v21 assembly and component count.
+- `6130460_03_AR60_NATIVE_PORTABLE_V18-2` and `6130649_01_Carriage_Schlitten_AR_NATIVE_PORTABLE_V20-1` are present and floating.
+- The AR60/carriage are in a remote fit-check workspace rather than an accepted bottle application position.
 
-Food/cleanroom alternative:
-- CAB `6130621` — ARS 60 wipe-down roller
+## Mechanical acceptance status
+NOT ACCEPTED.
 
-## Live verification completed on 2026-09-12
-- SOLIDWORKS bridge v0.3.0 was live.
-- Active baseline was the exact v17 assembly listed above.
-- Thirteen expected top-level components were present and unsuppressed.
-- OEM manual Figures 47–48 confirm that the AR60 stepped shaft inserts into the SP100 lever and is retained by the lever screw; carriage position and eccentric preload provide the OEM adjustments.
-- OEM AR60 STEP measured as one solid, approximately 89.2 × 25 × 25 mm overall, with a Ø25 mm foam roller 61 mm long and a terminal Ø7 mm shaft segment.
-- The matching SP100 internal Ø7 mm receiver bore was identified from live B-rep geometry at global axis `X = -164.500 mm`, `Y = -192.000 mm`, with bore end planes at `Z = 1035.866667 mm` and `Z = 1038.500000 mm`.
-- Bottle 3 center is `X = -153.750 mm`, `Y = -224.000 mm`; roller/bottle axis distance is about 33.757 mm. With radii 12.5 mm and 24 mm, the nominal radial overlap is about 2.743 mm and must be treated as compliant preload, not hard-solid clearance.
+The current v21 assembly is a fit-check/research state. The following must not yet be claimed:
 
-## v18 checkpoint status
-- Pack-and-Go created `v18_PORTABLE`.
-- The target v18 assembly opens successfully.
-- A clean reopen verified that its top-level external references resolve from `v18_PORTABLE`; virtual components remain SOLIDWORKS-managed.
-- The OEM STEP was copied to `v18_PORTABLE/6130460_03_Wipe-down_roller_Andruckrolle_AR_60.stp`.
-- Native AR60 conversion stopped when the STEP import returned error 1; immediately afterward SOLIDWORKS/CADGrounded went offline.
-- No AR60 component was inserted. No mates or component transforms were changed. Bottle-stability and interference checks are still pending.
+- accepted AR60-to-bottle application contact
+- accepted AR60 shaft seating
+- accepted carriage operating position
+- accepted bottle restraint / pinning mechanism
+- accepted label-web path
+- accepted peel-plate relationship
+- accepted clearances or interference state for the operating arrangement
+- accepted bottle lift/release mechanism
+- validated production operating sequence
 
-## Deterministic AR60 placement proposal — not yet applied
-Using the measured Ø7 receiver, the OEM shaft shoulder seated at the lower bore face, and the manual-shown downward roller orientation:
+No AI-generated image may be used as evidence for any of those points.
 
-- `rotation9 = [0, 0, 1, 1, 0, 0, 0, 1, 0]`
-- `translation_mm = [-123.518666439269, -64.228755736082, 1006.359219397215]`
-- Proposed foam working span: approximately `Z = 963.166667 ... 1024.166667 mm`
+## Historical v18 evidence retained
+The earlier v18 checkpoint documented the following source/CAD findings on 2026-09-12:
 
-This transform must be revalidated against the live native AR60 part before insertion. After insertion, verify shaft/bore coaxiality and seating, peel-edge spacing, SP100/IXOR/rail/bottle interference, and bottle stability before accepting v18.
+- OEM manual Figures 47–48 were used to establish that the AR60 stepped shaft inserts into the SP100 lever and is retained by the lever screw; carriage position and eccentric preload provide adjustment.
+- OEM AR60 STEP was measured as one solid, approximately 89.2 × 25 × 25 mm overall, with a Ø25 mm foam roller about 61 mm long and a terminal Ø7 mm shaft segment.
+- A matching SP100 internal Ø7 mm receiver bore was identified in live B-rep geometry.
+
+These are historical source/CAD findings. They remain useful design evidence, but any placement coordinates or transforms from v18 must be revalidated against the current v21 live assembly before use.
+
+## Current engineering objective
+Determine a mechanically plausible bottle-labeling arrangement using genuine CAB IXOR/AR60 geometry plus deterministic conveyor, bottle, mounting, and restraint geometry.
+
+The current focus is not visualization. First establish and verify the mechanical arrangement deterministically.
 
 ## Next CAD action
-1. Restart SOLIDWORKS and ensure the CADGrounded add-in is loaded.
-2. Run `sw_status` read-only.
-3. Confirm or reopen `v18_PORTABLE/IXOR_Benchmark_v18_WIPEDOWN_CONTACT_WORKING_PORTABLE.SLDASM`.
-4. Run `sw_query_components`; confirm the 13 expected top-level components and that external paths resolve from `v18_PORTABLE`.
-5. Confirm the copied OEM STEP exists and that no AR60 native/component instance exists.
-6. Convert the OEM STEP to `6130460_03_AR60_NATIVE_PORTABLE_V18.SLDPRT` without altering the assembly.
-7. Revalidate the proposed transform from the native part's live B-rep, then insert once.
-8. Verify contact, clearances, interference, remaining degrees of freedom, lateral stability, yaw, tipping, and rotation.
-9. Add an opposing restraint only if the measured OEM arrangement proves it is required.
-10. Save and read back the accepted v18 assembly.
+1. Read the current live transforms and approximate envelopes for the exact AR60, carriage, Bottle 3, conveyor, IXOR head, and SP100 components.
+2. Record exact component identities using `Component2.Name2`; do not use loose `AR60` substring selectors because the assembly title/virtual component can create ambiguity.
+3. Establish the intended application-station coordinate frame and the OEM-supported mechanical relationships before proposing any move.
+4. Verify AR60-to-carriage/SP100 seating, bottle contact geometry, opposing restraint requirements, peel-edge relationship, and product-flow clearance using deterministic CAD evidence.
+5. Use closest-distance/interference tools only as measurements; API success alone is not mechanical acceptance.
+6. Only after the target transform is mechanically justified, perform a dry-run/preflight transform proposal. Do not write merely because MaxControl is enabled.
+7. After any authorized CAD change, reread the live state and record geometry evidence before visualization work.
+
+## Infrastructure / reboot state verified 2026-09-15
+- Local Agent Registry: `http://127.0.0.1:18181` — healthy in `read-only-bootstrap` mode.
+- Registry worker: `solidworks-bridge-01` — responding.
+- CADGrounded MCP: `http://127.0.0.1:8765/mcp` — running with v0.3.0.
+- OpenAI tunnel profile: `solidworks-local` — successfully initialized against the local MCP target.
+- ChatGPT Work successfully reached the local MCP through the tunnel and returned live SOLIDWORKS status/components.
+
+## Historical implementation brief
+`V18_WIPEDOWN_CONTACT_IMPLEMENTATION.md` remains a historical v18 design/evidence document. It is not the current project-state authority.
 
 ## Startup prompt
-`@GitHub read IXOR/CAB_IXOR_6130800/PROJECT_STATE.md and V18_WIPEDOWN_CONTACT_IMPLEMENTATION.md, @Google Drive use ChatGPT/Solidworks/IXOR and the CAB IXOR manuals/CAD archives as OEM reference, then @CADGrounded SOLIDWORKS run sw_status and resume the documented v18 WIP checkpoint without modifying v17.`
+`@GitHub read IXOR/CAB_IXOR_6130800/PROJECT_STATE.md, @Google Drive use the IXOR reference folder and CAB OEM manuals/CAD as supporting evidence, then @CADGrounded SOLIDWORKS run read-only status and component queries. Treat the live v21 SOLIDWORKS assembly as current geometry authority. Do not make CAD changes until the target mechanical relationship is deterministically established and preflighted.`
