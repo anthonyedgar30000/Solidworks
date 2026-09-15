@@ -17,3 +17,6 @@ agent-registry/logs/
 agent-registry/.venv/
 agent-registry/__pycache__/
 agent-registry/app/__pycache__/
+agent-registry/workers/CadGrounded.SolidWorksWorker/bin/
+agent-registry/workers/CadGrounded.SolidWorksWorker/obj/
+agent-registry/workers/CadGrounded.SolidWorksWorker/Program.cs.bak*
