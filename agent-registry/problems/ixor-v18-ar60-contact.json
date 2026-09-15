@@ -1,8 +1,13 @@
 {
   "id": "ixor-v18-ar60-contact",
-  "version": 1,
+  "version": 2,
   "mode": "proposal_only",
   "description": "Establish valid AR60 wipe-down contact with Bottle 3 while preserving clearance from the conveyor and Bottle 4.",
+  "expected_document": "IXOR_Benchmark_v18_WIPEDOWN_CONTACT_WORKING_PORTABLE",
+  "identity_notes": {
+    "ar60_exact_name2": "6130460_03_AR60_NATIVE_PORTABLE_V18-2",
+    "reason": "Broad selector AR60 became ambiguous in v21 because a virtual floor-stand component inherited an assembly title containing AR60."
+  },
   "facts": {
     "ar60_bottle3.aabb_overlap_all_axes": {
       "value": true,
@@ -70,7 +75,7 @@
       "priority": 100,
       "cost": 1.0,
       "payload": {
-        "a_name_contains": "AR60",
+        "a_name_contains": "6130460_03_AR60_NATIVE_PORTABLE_V18-2",
         "b_name_contains": "BENCH_BOTTLE_D48_H180-3"
       },
       "produces": [
@@ -89,7 +94,7 @@
       "priority": 80,
       "cost": 1.0,
       "payload": {
-        "a_name_contains": "AR60",
+        "a_name_contains": "6130460_03_AR60_NATIVE_PORTABLE_V18-2",
         "b_name_contains": "BENCH_CONVEYOR"
       },
       "produces": [
@@ -108,7 +113,7 @@
       "priority": 60,
       "cost": 1.0,
       "payload": {
-        "a_name_contains": "AR60",
+        "a_name_contains": "6130460_03_AR60_NATIVE_PORTABLE_V18-2",
         "b_name_contains": "BENCH_BOTTLE_D48_H180-4"
       },
       "produces": [
@@ -126,7 +131,7 @@
     {
       "id": "retreat_ar60_y_plus_0_5mm",
       "kind": "proposal_only",
-      "component_contains": "AR60",
+      "component_contains": "6130460_03_AR60_NATIVE_PORTABLE_V18-2",
       "translation_delta_mm": [0.0, 0.5, 0.0],
       "rotation_delta_deg": [0.0, 0.0, 0.0],
       "when": {
@@ -140,7 +145,7 @@
     {
       "id": "retreat_ar60_y_plus_1_0mm",
       "kind": "proposal_only",
-      "component_contains": "AR60",
+      "component_contains": "6130460_03_AR60_NATIVE_PORTABLE_V18-2",
       "translation_delta_mm": [0.0, 1.0, 0.0],
       "rotation_delta_deg": [0.0, 0.0, 0.0],
       "when": {
@@ -154,7 +159,7 @@
     {
       "id": "approach_ar60_y_minus_0_5mm",
       "kind": "proposal_only",
-      "component_contains": "AR60",
+      "component_contains": "6130460_03_AR60_NATIVE_PORTABLE_V18-2",
       "translation_delta_mm": [0.0, -0.5, 0.0],
       "rotation_delta_deg": [0.0, 0.0, 0.0],
       "when": {
