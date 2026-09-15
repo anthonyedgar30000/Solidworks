@@ -20,3 +20,6 @@ agent-registry/app/__pycache__/
 agent-registry/workers/CadGrounded.SolidWorksWorker/bin/
 agent-registry/workers/CadGrounded.SolidWorksWorker/obj/
 agent-registry/workers/CadGrounded.SolidWorksWorker/Program.cs.bak*
+agent-registry/reasoning-db/reasoning.db
+agent-registry/reasoning-db/__pycache__/
+agent-registry/reasoning-db/*.json
