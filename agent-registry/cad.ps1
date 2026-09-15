@@ -8,7 +8,7 @@
     directly, enable CAD writes, alter execution policy, or call an LLM.
 
     The existing registry, bridge worker, CADGrounded server, and SOLIDWORKS
-    must be running for new status/components jobs. Stored results need only
+    must be running for new status/components/interference jobs. Stored results need only
     the registry. Results are timestamped snapshots, not mechanical approval.
 
     A timeout stops this client waiting; it does not cancel the queued job.
@@ -21,6 +21,8 @@
 .EXAMPLE
     .\cad.ps1 components -AllLevels -Json
 .EXAMPLE
+    .\cad.ps1 interference -ANameContains AR60 -BNameContains Carriage
+.EXAMPLE
     .\cad.ps1 result db3b2247-315d-4b01-a379-a483f417deaa
 .EXAMPLE
     .\cad.ps1 jobs
@@ -28,11 +30,17 @@
 [CmdletBinding()]
 param(
     [Parameter(Position = 0)]
-    [ValidateSet('help', 'status', 'components', 'result', 'jobs')]
+    [ValidateSet('help', 'status', 'components', 'interference', 'result', 'jobs')]
     [string]$Command = 'help',
 
     [Parameter(Position = 1)]
     [string]$JobId,
+
+    [ValidateLength(1, 128)]
+    [string]$ANameContains,
+
+    [ValidateLength(1, 128)]
+    [string]$BNameContains,
 
     [ValidateRange(1, 120)]
     [int]$WaitSeconds = 30,
@@ -51,6 +59,9 @@ Local CAD read commands (use the existing running worker):
   .\cad.ps1 components             Queue a top-level component read
   .\cad.ps1 components -AllLevels   Include nested components
   .\cad.ps1 components -Json        Return one JSON snapshot
+  .\cad.ps1 interference `
+      -ANameContains AR60 `
+      -BNameContains Carriage        Exact read-only distance/interference check
   .\cad.ps1 result <job-id>         Retrieve a stored snapshot; no CAD call
   .\cad.ps1 jobs                   List the 20 most recent registry jobs
 
@@ -65,6 +76,14 @@ if ($JobId -and $Command -ne 'result') {
 }
 if ($AllLevels -and $Command -ne 'components') {
     throw '-AllLevels is accepted only with the components command.'
+}
+if (($ANameContains -or $BNameContains) -and $Command -ne 'interference') {
+    throw '-ANameContains and -BNameContains are accepted only with the interference command.'
+}
+if ($Command -eq 'interference' -and
+    ([string]::IsNullOrWhiteSpace($ANameContains) -or
+     [string]::IsNullOrWhiteSpace($BNameContains))) {
+    throw 'Use: .\cad.ps1 interference -ANameContains <text> -BNameContains <text>'
 }
 
 function Invoke-CadRegistry {
@@ -126,6 +145,13 @@ if ($Command -eq 'result') {
         $registryCommand = 'sw.query_components'
         $arguments = @{ top_level_only = (-not $AllLevels.IsPresent) }
     }
+    if ($Command -eq 'interference') {
+        $registryCommand = 'sw.check_interference_pair'
+        $arguments = @{
+            a_name_contains = $ANameContains
+            b_name_contains = $BNameContains
+        }
+    }
 
     try {
         $job = Invoke-CadRegistry -Route '/jobs' -Method Post -Payload @{
@@ -163,8 +189,12 @@ if ($Command -eq 'result') {
     }
 }
 
-if ($job.command_id -notin @('sw.status', 'sw.query_components')) {
-    throw 'This helper displays only status and component-read results.'
+if ($job.command_id -notin @(
+    'sw.status',
+    'sw.query_components',
+    'sw.check_interference_pair'
+)) {
+    throw 'This helper displays only registered CAD read results.'
 }
 
 $snapshot = [ordered]@{
@@ -198,6 +228,11 @@ if ($job.command_id -eq 'sw.query_components' -and $null -eq $data.components) {
 if ($job.command_id -eq 'sw.status' -and $data.PSObject.Properties.Name -notcontains 'active_document') {
     throw "Job $($job.id) has no active_document field."
 }
+if ($job.command_id -eq 'sw.check_interference_pair' -and
+    ($data.PSObject.Properties.Name -notcontains 'classification' -or
+     $data.PSObject.Properties.Name -notcontains 'minimum_distance_mm')) {
+    throw "Job $($job.id) has no complete pair-measurement result."
+}
 $snapshot['data'] = $data
 
 if ($Json) {
@@ -216,9 +251,20 @@ if ($job.command_id -eq 'sw.status') {
     $summary['Path'] = $data.active_document.path
     $summary['Type'] = $data.active_document.document_type
     $summary['Bridge'] = $data.bridge_version
-} else {
+} elseif ($job.command_id -eq 'sw.query_components') {
     $summary['Document'] = $data.document_title
     $summary['Components'] = @($data.components).Count
+} else {
+    $summary['Document'] = $data.document_title
+    $summary['ComponentA'] = $data.component_a
+    $summary['ComponentB'] = $data.component_b
+    $summary['Classification'] = $data.classification
+    $summary['MinimumDistance_mm'] = $data.minimum_distance_mm
+    $summary['ClosestPointA_mm'] = @($data.closest_point_a_mm) -join ', '
+    $summary['ClosestPointB_mm'] = @($data.closest_point_b_mm) -join ', '
+    $summary['PhysicalEntries'] = $data.physical_component_entries
+    $summary['CoincidentEntries'] = $data.coincident_component_entries
+    $summary['Bridge'] = $data.bridge_version
 }
 [pscustomobject]$summary | Format-List
 

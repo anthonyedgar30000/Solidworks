@@ -1,0 +1,31 @@
+command: sw.check_interference_pair
+version: 1
+mode: read
+handler: SolidWorks.CheckInterferencePair
+requires_lock: false
+requires_revision: true
+capability: cad.read
+schema:
+  a_name_contains:
+    type: string
+    min_length: 1
+    max_length: 128
+  b_name_contains:
+    type: string
+    min_length: 1
+    max_length: 128
+result_contract:
+  must_include:
+    - document_title
+    - component_a
+    - component_b
+    - classification
+    - minimum_distance_mm
+    - physical_component_entries
+    - coincident_component_entries
+notes:
+  - Matches exactly one unsuppressed top-level component for each name substring.
+  - Uses IModelDoc2.ClosestDistance for minimum distance and closest points.
+  - Runs IAssemblyDoc.ToolsCheckInterference2 both with and without coincident interference.
+  - Does not move components, create geometry, save documents, or expose arbitrary code execution.
+  - A successful API call is measurement evidence, not mechanical approval.

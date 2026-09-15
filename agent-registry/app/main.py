@@ -26,6 +26,7 @@ app = FastAPI(
 READ_COMMANDS = {
     "sw.status": ("READ", 1),
     "sw.query_components": ("READ", 1),
+    "sw.check_interference_pair": ("READ", 1),
 }
 PROTECTED_COMMANDS = {
     "sw.set_transform": ("WRITE_SAFE", 0),

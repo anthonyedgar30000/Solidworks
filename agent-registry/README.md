@@ -27,6 +27,11 @@ The first vertical slice is deliberately read-only:
 
 - `sw.status`
 - `sw.query_components`
+- `sw.check_interference_pair`
+
+The pair checker accepts two component-name substrings, requires each to match
+one unsuppressed top-level component, and returns native SOLIDWORKS minimum-distance
+and interference evidence. It does not expose arbitrary code or modify the model.
 
 After the registry can reliably identify the active document and current component state, the first protected write will be `sw.set_transform` with revision, lease/fencing, and component compare-and-set guards.
 

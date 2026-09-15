@@ -13,6 +13,7 @@
     HARD ALLOWLIST:
       sw.status
       sw.query_components
+      sw.check_interference_pair
 
     HARD BLOCKED:
       sw.set_transform
@@ -29,7 +30,7 @@
     CAD Agent Registry base URL.
 
 .PARAMETER McpUrl
-    Retained only for backward-compatible launch scripts. Ignored by v0.2.
+    Retained only for backward-compatible launch scripts. Ignored by v0.3.
 
 .PARAMETER BridgeAgentId
     Registry identity used by this worker.
@@ -72,8 +73,9 @@ param(
 $ErrorActionPreference = "Stop"
 
 $AllowedRegistryCommands = @{
-    "sw.status"           = $true
-    "sw.query_components" = $true
+    "sw.status"                  = $true
+    "sw.query_components"        = $true
+    "sw.check_interference_pair" = $true
 }
 
 function Write-Log {
@@ -126,7 +128,8 @@ function Register-BridgeHeartbeat {
             "claim-read-jobs",
             "return-results",
             "local-interop:sw.status",
-            "local-interop:sw.query_components"
+            "local-interop:sw.query_components",
+            "local-interop:sw.check_interference_pair"
         )
     } | ConvertTo-Json -Depth 10
 
@@ -161,7 +164,7 @@ function Initialize-SolidWorksInterop {
     Write-Log "SOLIDWORKS interop assemblies loaded into the worker AppDomain." "PASS"
 
     if ($McpUrl) {
-        Write-Log "McpUrl was supplied but is ignored by local-interop worker v0.2." "WARN"
+        Write-Log "McpUrl was supplied but is ignored by local-interop worker v0.3." "WARN"
     }
 
     $isAdmin = Test-IsAdministrator
@@ -281,6 +284,27 @@ public static class CadLocalBridge2026
     private static void AddError(List<string> errors, string field, Exception ex)
     {
         errors.Add(field + ": " + ex.Message);
+    }
+
+    private static int CountArray(object raw)
+    {
+        Array array = raw as Array;
+        return array == null ? 0 : array.Length;
+    }
+
+    private static double[] PointMillimetres(object raw)
+    {
+        double[] point = ToDoubleArray(raw);
+
+        if (point == null || point.Length < 3)
+            return null;
+
+        return new double[]
+        {
+            point[0] * 1000.0,
+            point[1] * 1000.0,
+            point[2] * 1000.0
+        };
     }
 
     public static Dictionary<string, object> Status()
@@ -535,6 +559,157 @@ public static class CadLocalBridge2026
 
         return result;
     }
+
+    public static Dictionary<string, object> CheckInterferencePair(
+        string aNameContains,
+        string bNameContains
+    )
+    {
+        if (String.IsNullOrWhiteSpace(aNameContains))
+            throw new ArgumentException("a_name_contains must not be empty.");
+
+        if (String.IsNullOrWhiteSpace(bNameContains))
+            throw new ArgumentException("b_name_contains must not be empty.");
+
+        ISldWorks sw = GetApp();
+        ModelDoc2 doc = sw.ActiveDoc as ModelDoc2;
+
+        if (doc == null)
+            throw new InvalidOperationException("No active SOLIDWORKS document.");
+
+        int documentType = doc.GetType();
+
+        if (documentType != SW_DOC_ASSEMBLY)
+        {
+            throw new InvalidOperationException(
+                "sw.check_interference_pair requires an active assembly. " +
+                "Active document type is " + DocumentTypeName(documentType) + "."
+            );
+        }
+
+        AssemblyDoc assembly = (AssemblyDoc)doc;
+        Array componentArray = assembly.GetComponents(true) as Array;
+
+        if (componentArray == null)
+            throw new InvalidOperationException("Top-level components are unavailable.");
+
+        Component2 componentA = null;
+        Component2 componentB = null;
+        int aMatches = 0;
+        int bMatches = 0;
+
+        foreach (object rawComponent in componentArray)
+        {
+            Component2 component = rawComponent as Component2;
+
+            if (component == null || component.IsSuppressed())
+                continue;
+
+            string name = component.Name2 ?? String.Empty;
+
+            if (name.IndexOf(aNameContains, StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                componentA = component;
+                aMatches++;
+            }
+
+            if (name.IndexOf(bNameContains, StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                componentB = component;
+                bMatches++;
+            }
+        }
+
+        if (aMatches != 1 || bMatches != 1)
+        {
+            throw new InvalidOperationException(
+                "Component matching must be unique among unsuppressed top-level components. " +
+                "a_matches=" + aMatches + ", b_matches=" + bMatches + "."
+            );
+        }
+
+        if (String.Equals(componentA.Name2, componentB.Name2, StringComparison.Ordinal))
+            throw new InvalidOperationException("The two component selectors resolved to the same component.");
+
+        object closestPointA;
+        object closestPointB;
+        double distanceM = doc.ClosestDistance(
+            componentA,
+            componentB,
+            out closestPointA,
+            out closestPointB
+        );
+
+        object physicalComponents;
+        object physicalFaces;
+        object[] physicalPair = new object[] { componentA, componentB };
+
+        assembly.ToolsCheckInterference2(
+            2,
+            physicalPair,
+            false,
+            out physicalComponents,
+            out physicalFaces
+        );
+
+        object coincidentComponents;
+        object coincidentFaces;
+        object[] coincidentPair = new object[] { componentA, componentB };
+
+        assembly.ToolsCheckInterference2(
+            2,
+            coincidentPair,
+            true,
+            out coincidentComponents,
+            out coincidentFaces
+        );
+
+        int physicalComponentEntries = CountArray(physicalComponents);
+        int physicalFaceEntries = CountArray(physicalFaces);
+        int coincidentComponentEntries = CountArray(coincidentComponents);
+        int coincidentFaceEntries = CountArray(coincidentFaces);
+
+        // One micrometre is intentionally much smaller than the benchmark's
+        // millimetre-scale clearances while remaining above floating-point noise.
+        const double contactToleranceM = 0.000001;
+        string classification;
+
+        if (physicalComponentEntries > 0 || physicalFaceEntries > 0)
+            classification = "physical_interference";
+        else if (distanceM >= 0.0 && distanceM <= contactToleranceM)
+            classification = "exact_contact_or_coincidence";
+        else if (distanceM >= 0.0)
+            classification = "clearance";
+        else
+            classification = "measurement_failed";
+
+        Dictionary<string, object> result =
+            new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+
+        result["ok"] = (classification != "measurement_failed");
+        result["adapter"] = "compiled-csharp-isldworks";
+        result["document_title"] = doc.GetTitle();
+        result["document_path"] = doc.GetPathName();
+        result["component_a"] = componentA.Name2;
+        result["component_b"] = componentB.Name2;
+        result["classification"] = classification;
+        result["minimum_distance_mm"] = distanceM < 0.0
+            ? (object)null
+            : distanceM * 1000.0;
+        result["closest_point_a_mm"] = PointMillimetres(closestPointA);
+        result["closest_point_b_mm"] = PointMillimetres(closestPointB);
+        result["contact_tolerance_mm"] = contactToleranceM * 1000.0;
+        result["physical_component_entries"] = physicalComponentEntries;
+        result["physical_face_entries"] = physicalFaceEntries;
+        result["coincident_component_entries"] = coincidentComponentEntries;
+        result["coincident_face_entries"] = coincidentFaceEntries;
+        result["source_classification"] = "verified_from_solidworks_api";
+        result["api_distance"] = "IModelDoc2.ClosestDistance";
+        result["api_interference"] = "IAssemblyDoc.ToolsCheckInterference2";
+        result["read_only"] = true;
+
+        return result;
+    }
 }
 '@
 
@@ -665,7 +840,7 @@ function Invoke-AllowedCadTool {
         throw "POLICY_BLOCK: command is not on worker allowlist: $registryCommand"
     }
 
-    $bridgeVersion = "local-interop-v0.2.2"
+    $bridgeVersion = "local-interop-v0.3.0"
     $data = $null
 
     switch ($registryCommand) {
@@ -767,6 +942,49 @@ function Invoke-AllowedCadTool {
             }
         }
 
+        "sw.check_interference_pair" {
+            if ($null -eq $Job.payload) {
+                throw "sw.check_interference_pair requires a payload."
+            }
+
+            $payloadFields = @($Job.payload.PSObject.Properties.Name)
+            $unknownFields = @(
+                $payloadFields |
+                    Where-Object { $_ -notin @("a_name_contains", "b_name_contains") }
+            )
+
+            if ($unknownFields.Count -gt 0) {
+                throw "Unsupported sw.check_interference_pair payload field(s): $($unknownFields -join ', ')"
+            }
+
+            $aNameContains = [string]$Job.payload.a_name_contains
+            $bNameContains = [string]$Job.payload.b_name_contains
+
+            if ([string]::IsNullOrWhiteSpace($aNameContains) -or
+                $aNameContains.Length -gt 128) {
+                throw "a_name_contains must contain 1 to 128 characters."
+            }
+
+            if ([string]::IsNullOrWhiteSpace($bNameContains) -or
+                $bNameContains.Length -gt 128) {
+                throw "b_name_contains must contain 1 to 128 characters."
+            }
+
+            Write-Log "Executing exact read-only pair check for job $($Job.id): '$aNameContains' versus '$bNameContains'."
+
+            $raw = [CadLocalBridge2026]::CheckInterferencePair(
+                $aNameContains,
+                $bNameContains
+            )
+
+            if (-not [bool]$raw["ok"]) {
+                throw "SOLIDWORKS pair measurement failed."
+            }
+
+            $data = $raw
+            $data["bridge_version"] = $bridgeVersion
+        }
+
         default {
             throw "POLICY_BLOCK: unsupported command: $registryCommand"
         }
@@ -792,7 +1010,7 @@ function Invoke-AllowedCadTool {
         source = "solidworks-local-interop"
         registry_command = $registryCommand
         adapter = "CadLocalBridge2026"
-        policy = "read-only-worker-v0.2.2"
+        policy = "read-only-worker-v0.3.0"
         result = $structuredCadResult
     }
 }
@@ -845,7 +1063,7 @@ function Process-OneJob {
             -Output @{
                 source = "solidworks-local-interop"
                 registry_command = [string]$claimed.command_id
-                policy = "read-only-worker-v0.2.2"
+                policy = "read-only-worker-v0.3.0"
             }
     }
 
@@ -858,7 +1076,7 @@ function Process-OneJob {
 
 Write-Host ""
 Write-Host "============================================================" -ForegroundColor Cyan
-Write-Host " CADGrounded Local SOLIDWORKS Registry Bridge Worker v0.2.2" -ForegroundColor Cyan
+Write-Host " CADGrounded Local SOLIDWORKS Registry Bridge Worker v0.3.0" -ForegroundColor Cyan
 Write-Host "============================================================" -ForegroundColor Cyan
 Write-Host "Registry : $RegistryUrl"
 Write-Host "Agent    : $BridgeAgentId"
@@ -868,6 +1086,7 @@ Write-Host ""
 Write-Host "Allowed:"
 Write-Host "  sw.status"
 Write-Host "  sw.query_components"
+Write-Host "  sw.check_interference_pair"
 Write-Host ""
 Write-Host "Hard blocked:"
 Write-Host "  sw.set_transform"
