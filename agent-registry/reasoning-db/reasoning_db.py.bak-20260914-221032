@@ -1,0 +1,382 @@
+#!/usr/bin/env python3
+from __future__ import annotations
+
+import argparse
+import json
+import sqlite3
+import sys
+import tempfile
+import uuid
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any
+
+EVIDENCE = {
+    "unknown": 0,
+    "inferred": 1,
+    "approximate_getbox": 2,
+    "verified_solidworks_api": 3,
+    "human_mechanical_review": 4,
+}
+
+ALLEN = {
+    "before", "meets", "overlaps", "finished_by", "contains", "starts",
+    "equals", "started_by", "during", "finishes", "overlapped_by",
+    "met_by", "after",
+}
+ALLEN_INVERSE = {
+    "before": "after",
+    "after": "before",
+    "meets": "met_by",
+    "met_by": "meets",
+    "overlaps": "overlapped_by",
+    "overlapped_by": "overlaps",
+    "finished_by": "finishes",
+    "finishes": "finished_by",
+    "contains": "during",
+    "during": "contains",
+    "starts": "started_by",
+    "started_by": "starts",
+    "equals": "equals",
+}
+
+RCC8 = {"dc", "ec", "po", "tpp", "ntpp", "eq", "tppi", "ntppi"}
+RCC8_INVERSE = {
+    "dc": "dc", "ec": "ec", "po": "po", "eq": "eq",
+    "tpp": "tppi", "tppi": "tpp",
+    "ntpp": "ntppi", "ntppi": "ntpp",
+}
+
+class RDBError(RuntimeError):
+    pass
+
+def utc_now() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+def new_id(prefix: str) -> str:
+    return prefix + "-" + uuid.uuid4().hex
+
+def connect(db: Path) -> sqlite3.Connection:
+    c = sqlite3.connect(db)
+    c.row_factory = sqlite3.Row
+    c.execute("PRAGMA foreign_keys = ON")
+    return c
+
+def init_db(db: Path, schema: Path) -> None:
+    db.parent.mkdir(parents=True, exist_ok=True)
+    with connect(db) as c:
+        c.executescript(schema.read_text(encoding="utf-8"))
+
+def json_text(value: Any) -> str:
+    return json.dumps(value, separators=(",", ":"), sort_keys=True)
+
+def truth_state(t: int, f: int) -> str:
+    if t and not f: return "true_only"
+    if f and not t: return "false_only"
+    if t and f: return "both"
+    return "neither"
+
+def allen_classify(a0: float, a1: float, b0: float, b1: float, eps: float = 1e-9) -> str:
+    if a1 < a0 or b1 < b0:
+        raise RDBError("Intervals require start <= end")
+
+    eq = lambda x, y: abs(x-y) <= eps
+
+    if a1 < b0 - eps: return "before"
+    if eq(a1, b0): return "meets"
+    if a0 < b0 - eps and b0 < a1 - eps and a1 < b1 - eps: return "overlaps"
+    if a0 < b0 - eps and eq(a1, b1): return "finished_by"
+    if a0 < b0 - eps and a1 > b1 + eps: return "contains"
+    if eq(a0, b0) and a1 < b1 - eps: return "starts"
+    if eq(a0, b0) and eq(a1, b1): return "equals"
+    if eq(a0, b0) and a1 > b1 + eps: return "started_by"
+    if a0 > b0 + eps and a1 < b1 - eps: return "during"
+    if a0 > b0 + eps and eq(a1, b1): return "finishes"
+    if b0 < a0 - eps and a0 < b1 - eps and b1 < a1 - eps: return "overlapped_by"
+    if eq(a0, b1): return "met_by"
+    if a0 > b1 + eps: return "after"
+    raise RDBError(f"Could not classify intervals A=({a0},{a1}) B=({b0},{b1})")
+
+def require_entity(c: sqlite3.Connection, entity_id: str) -> sqlite3.Row:
+    row = c.execute("SELECT * FROM entities WHERE id=?", (entity_id,)).fetchone()
+    if row is None:
+        raise RDBError(f"Unknown entity: {entity_id}")
+    return row
+
+def cmd_world(args):
+    with connect(args.db) as c:
+        c.execute(
+            "INSERT INTO worlds(id,kind,title,source_system,source_path,revision,created_at,metadata_json) "
+            "VALUES(?,?,?,?,?,?,?,?)",
+            (args.id, args.kind, args.title, args.source_system, args.source_path,
+             args.revision, utc_now(), json_text({}))
+        )
+    print(args.id)
+
+def cmd_entity(args):
+    with connect(args.db) as c:
+        c.execute(
+            "INSERT INTO entities(id,world_id,kind,canonical_name,source_ref,parent_entity_id,metadata_json) "
+            "VALUES(?,?,?,?,?,?,?)",
+            (args.id, args.world, args.kind, args.name, args.source_ref, args.parent, json_text({}))
+        )
+    print(args.id)
+
+def cmd_observe(args):
+    payload = json.loads(args.payload)
+    oid = args.id or new_id("obs")
+    with connect(args.db) as c:
+        c.execute(
+            "INSERT INTO observations(id,world_id,source_class,source_ref,observed_at,payload_json,mapped) "
+            "VALUES(?,?,?,?,?,?,?)",
+            (oid, args.world, args.source_class, args.source_ref, utc_now(),
+             json_text(payload), 1 if args.mapped else 0)
+        )
+    print(oid)
+
+def cmd_assert(args):
+    aid = args.id or new_id("asrt")
+    literal = None if args.object else json_text(json.loads(args.literal))
+    if not args.object and args.literal is None:
+        raise RDBError("Use --object or --literal")
+    if args.true_support is None and args.false_support is None:
+        raise RDBError("Set at least one of --true-support or --false-support")
+    t = 1 if args.true_support else 0
+    f = 1 if args.false_support else 0
+    with connect(args.db) as c:
+        require_entity(c, args.subject)
+        if args.object:
+            require_entity(c, args.object)
+        c.execute(
+            "INSERT INTO assertions("
+            "id,world_id,subject_entity_id,predicate,object_entity_id,literal_json,"
+            "supports_true,supports_false,evidence_class,evidence_rank,"
+            "source_observation_id,recorded_at,metadata_json"
+            ") VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            (aid, args.world, args.subject, args.predicate, args.object, literal,
+             t, f, args.evidence, EVIDENCE[args.evidence],
+             args.observation, utc_now(), json_text({}))
+        )
+    print(aid)
+
+def cmd_proposition(args):
+    with connect(args.db) as c:
+        rows = c.execute(
+            "SELECT id,supports_true,supports_false,evidence_class,evidence_rank,"
+            "source_observation_id,recorded_at,literal_json "
+            "FROM assertions WHERE world_id=? AND subject_entity_id=? AND predicate=? "
+            "AND COALESCE(object_entity_id,'')=COALESCE(?, '') ORDER BY recorded_at",
+            (args.world, args.subject, args.predicate, args.object)
+        ).fetchall()
+    t = max((r["supports_true"] for r in rows), default=0)
+    f = max((r["supports_false"] for r in rows), default=0)
+    out = {
+        "world": args.world,
+        "subject": args.subject,
+        "predicate": args.predicate,
+        "object": args.object,
+        "truth_state": truth_state(t, f),
+        "supports_true": bool(t),
+        "supports_false": bool(f),
+        "assertion_count": len(rows),
+        "assertions": [dict(r) for r in rows],
+    }
+    print(json.dumps(out, indent=2))
+
+def cmd_relation(args):
+    relation = args.relation.lower()
+    if args.algebra == "allen":
+        valid = ALLEN
+        inverse = ALLEN_INVERSE
+    else:
+        valid = RCC8
+        inverse = RCC8_INVERSE
+    if relation not in valid:
+        raise RDBError(f"Invalid {args.algebra} relation: {relation}")
+    rid = args.id or new_id("rel")
+    inv_id = new_id("rel") if args.with_inverse else None
+    with connect(args.db) as c:
+        require_entity(c, args.subject)
+        require_entity(c, args.object)
+        c.execute(
+            "INSERT INTO qualitative_relations("
+            "id,world_id,algebra,axis,subject_entity_id,object_entity_id,relation,"
+            "evidence_class,evidence_rank,source_observation_id,recorded_at,metadata_json"
+            ") VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",
+            (rid,args.world,args.algebra,args.axis,args.subject,args.object,relation,
+             args.evidence,EVIDENCE[args.evidence],args.observation,utc_now(),json_text({}))
+        )
+        if inv_id:
+            c.execute(
+                "INSERT INTO qualitative_relations("
+                "id,world_id,algebra,axis,subject_entity_id,object_entity_id,relation,"
+                "evidence_class,evidence_rank,source_observation_id,recorded_at,metadata_json"
+                ") VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",
+                (inv_id,args.world,args.algebra,args.axis,args.object,args.subject,inverse[relation],
+                 args.evidence,EVIDENCE[args.evidence],args.observation,utc_now(),
+                 json_text({"derived_as_inverse_of":rid}))
+            )
+    print(json.dumps({"relation_id": rid, "inverse_relation_id": inv_id}, indent=2))
+
+def cmd_allen_classify(args):
+    rel = allen_classify(args.a0,args.a1,args.b0,args.b1,args.epsilon)
+    print(json.dumps({"relation": rel, "inverse": ALLEN_INVERSE[rel]}, indent=2))
+
+def cmd_discovery(args):
+    did = args.id or new_id("disc")
+    detail = json.loads(args.detail)
+    with connect(args.db) as c:
+        c.execute(
+            "INSERT INTO discovery_signals(id,world_id,kind,severity,status,detail_json,created_at) "
+            "VALUES(?,?,?,?,?,?,?)",
+            (did,args.world,args.kind,args.severity,"open",json_text(detail),utc_now())
+        )
+    print(did)
+
+def cmd_open_discovery(args):
+    with connect(args.db) as c:
+        rows = c.execute(
+            "SELECT id,kind,severity,status,detail_json,created_at FROM discovery_signals "
+            "WHERE world_id=? AND status='open' ORDER BY "
+            "CASE severity WHEN 'critical' THEN 5 WHEN 'high' THEN 4 WHEN 'medium' THEN 3 "
+            "WHEN 'low' THEN 2 ELSE 1 END DESC, created_at",
+            (args.world,)
+        ).fetchall()
+    print(json.dumps([dict(r) for r in rows], indent=2))
+
+def cmd_unmapped(args):
+    with connect(args.db) as c:
+        rows = c.execute(
+            "SELECT id,source_class,source_ref,observed_at,payload_json "
+            "FROM observations WHERE world_id=? AND mapped=0 ORDER BY observed_at",
+            (args.world,)
+        ).fetchall()
+    print(json.dumps([dict(r) for r in rows], indent=2))
+
+def cmd_selftest(args):
+    schema = Path(__file__).with_name("schema.sql")
+    with tempfile.TemporaryDirectory() as td:
+        db = Path(td) / "test.db"
+        init_db(db, schema)
+        with connect(db) as c:
+            now = utc_now()
+            c.execute("INSERT INTO worlds(id,title,created_at) VALUES('w','test',?)",(now,))
+            c.execute("INSERT INTO entities(id,world_id,kind,canonical_name) VALUES('a','w','part','A')")
+            c.execute("INSERT INTO entities(id,world_id,kind,canonical_name) VALUES('b','w','part','B')")
+            c.execute(
+                "INSERT INTO assertions(id,world_id,subject_entity_id,predicate,object_entity_id,"
+                "supports_true,supports_false,evidence_class,evidence_rank,recorded_at) "
+                "VALUES('x1','w','a','touches','b',1,0,'verified_solidworks_api',3,?)",(now,))
+            c.execute(
+                "INSERT INTO assertions(id,world_id,subject_entity_id,predicate,object_entity_id,"
+                "supports_true,supports_false,evidence_class,evidence_rank,recorded_at) "
+                "VALUES('x2','w','a','touches','b',0,1,'verified_solidworks_api',3,?)",(now,))
+            row = c.execute(
+                "SELECT truth_state FROM proposition_epistemic_state "
+                "WHERE world_id='w' AND subject_entity_id='a' AND predicate='touches' "
+                "AND object_entity_id='b'"
+            ).fetchone()
+            assert row and row["truth_state"] == "both"
+        cases = [
+            ((0,1,2,3),"before"),
+            ((0,1,1,3),"meets"),
+            ((0,2,1,3),"overlaps"),
+            ((0,3,1,3),"finished_by"),
+            ((0,4,1,3),"contains"),
+            ((0,2,0,3),"starts"),
+            ((0,3,0,3),"equals"),
+            ((0,4,0,3),"started_by"),
+            ((1,2,0,3),"during"),
+            ((1,3,0,3),"finishes"),
+            ((1,4,0,3),"overlapped_by"),
+            ((3,4,0,3),"met_by"),
+            ((4,5,0,3),"after"),
+        ]
+        for vals, expected in cases:
+            actual = allen_classify(*vals)
+            assert actual == expected, (vals, actual, expected)
+            assert ALLEN_INVERSE[ALLEN_INVERSE[actual]] == actual
+        assert len(ALLEN) == 13
+        assert len(RCC8) == 8
+    print("PASS: reasoning-db v0 self-test; Belnap contradiction + 13 Allen relations + RCC8 vocabulary")
+
+def parser():
+    p=argparse.ArgumentParser(description="CADGrounded reasoning database v0")
+    p.add_argument("--db", type=Path, default=Path(__file__).with_name("reasoning.db"))
+    sp=p.add_subparsers(dest="cmd",required=True)
+
+    q=sp.add_parser("init"); q.set_defaults(func=lambda a:init_db(a.db,Path(__file__).with_name("schema.sql")))
+
+    q=sp.add_parser("world")
+    q.add_argument("--id",required=True); q.add_argument("--title",required=True)
+    q.add_argument("--kind",default="cad"); q.add_argument("--source-system")
+    q.add_argument("--source-path"); q.add_argument("--revision"); q.set_defaults(func=cmd_world)
+
+    q=sp.add_parser("entity")
+    q.add_argument("--id",required=True); q.add_argument("--world",required=True)
+    q.add_argument("--kind",required=True); q.add_argument("--name",required=True)
+    q.add_argument("--source-ref"); q.add_argument("--parent"); q.set_defaults(func=cmd_entity)
+
+    q=sp.add_parser("observe")
+    q.add_argument("--id"); q.add_argument("--world",required=True)
+    q.add_argument("--source-class",required=True); q.add_argument("--source-ref")
+    q.add_argument("--payload",required=True); q.add_argument("--mapped",action="store_true")
+    q.set_defaults(func=cmd_observe)
+
+    q=sp.add_parser("assert")
+    q.add_argument("--id"); q.add_argument("--world",required=True)
+    q.add_argument("--subject",required=True); q.add_argument("--predicate",required=True)
+    q.add_argument("--object"); q.add_argument("--literal")
+    q.add_argument("--true-support",action="store_true",default=None)
+    q.add_argument("--false-support",action="store_true",default=None)
+    q.add_argument("--evidence",choices=EVIDENCE,default="unknown")
+    q.add_argument("--observation"); q.set_defaults(func=cmd_assert)
+
+    q=sp.add_parser("proposition")
+    q.add_argument("--world",required=True); q.add_argument("--subject",required=True)
+    q.add_argument("--predicate",required=True); q.add_argument("--object")
+    q.set_defaults(func=cmd_proposition)
+
+    q=sp.add_parser("relation")
+    q.add_argument("--id"); q.add_argument("--world",required=True)
+    q.add_argument("--algebra",choices=["allen","rcc8"],required=True)
+    q.add_argument("--axis",choices=["x","y","z","time"])
+    q.add_argument("--subject",required=True); q.add_argument("--object",required=True)
+    q.add_argument("--relation",required=True)
+    q.add_argument("--evidence",choices=EVIDENCE,default="inferred")
+    q.add_argument("--observation"); q.add_argument("--with-inverse",action="store_true")
+    q.set_defaults(func=cmd_relation)
+
+    q=sp.add_parser("allen-classify")
+    q.add_argument("a0",type=float); q.add_argument("a1",type=float)
+    q.add_argument("b0",type=float); q.add_argument("b1",type=float)
+    q.add_argument("--epsilon",type=float,default=1e-9); q.set_defaults(func=cmd_allen_classify)
+
+    q=sp.add_parser("discovery")
+    q.add_argument("--id"); q.add_argument("--world",required=True)
+    q.add_argument("--kind",required=True)
+    q.add_argument("--severity",choices=["info","low","medium","high","critical"],required=True)
+    q.add_argument("--detail",required=True); q.set_defaults(func=cmd_discovery)
+
+    q=sp.add_parser("open-discovery")
+    q.add_argument("--world",required=True); q.set_defaults(func=cmd_open_discovery)
+
+    q=sp.add_parser("unmapped-observations")
+    q.add_argument("--world",required=True); q.set_defaults(func=cmd_unmapped)
+
+    q=sp.add_parser("selftest"); q.set_defaults(func=cmd_selftest)
+    return p
+
+def main():
+    args=parser().parse_args()
+    try:
+        result=args.func(args)
+        if args.cmd=="init":
+            print(f"Initialized {args.db}")
+        return result or 0
+    except (sqlite3.Error,RDBError,json.JSONDecodeError) as exc:
+        print(f"ERROR: {exc}",file=sys.stderr)
+        return 2
+
+if __name__=="__main__":
+    raise SystemExit(main())
