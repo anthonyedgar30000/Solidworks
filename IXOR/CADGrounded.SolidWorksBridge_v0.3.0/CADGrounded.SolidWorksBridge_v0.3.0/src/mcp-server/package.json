@@ -8,7 +8,7 @@
     "node": ">=20"
   },
   "scripts": {
-    "test": "node --test scripts/insertion-handler.test.mjs scripts/execution-handler.test.mjs scripts/read-intent-handler.test.mjs",
+    "test": "node --test scripts/insertion-handler.test.mjs scripts/execution-handler.test.mjs scripts/read-intent-handler.test.mjs scripts/server-profile.test.mjs",
     "start": "node server.mjs",
     "smoke:status": "node scripts/pipe-smoke.mjs sw_status",
     "smoke:components": "node scripts/pipe-smoke.mjs sw_query_components",

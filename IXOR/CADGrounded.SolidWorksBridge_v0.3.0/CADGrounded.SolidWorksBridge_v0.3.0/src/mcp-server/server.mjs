@@ -6,11 +6,13 @@ import { executeCode } from "./execution-handler.mjs";
 import { bridgeCall } from "./pipe-client.mjs";
 import { insertComponent } from "./insertion-handler.mjs";
 import { readCadIntent } from "./read-intent-handler.mjs";
+import { resolveServerProfile } from "./server-profile.mjs";
 
 const HOST = process.env.SWBRIDGE_HOST ?? "127.0.0.1";
 const PORT = Number(process.env.SWBRIDGE_PORT ?? "8765");
-const MAX_CONTROL = process.env.SWBRIDGE_MAX_CONTROL === "1";
-const ALLOW_WRITES = process.env.SWBRIDGE_ALLOW_WRITES === "1";
+const PROFILE = resolveServerProfile();
+const MAX_CONTROL = PROFILE.maxControl;
+const ALLOW_WRITES = PROFILE.allowWrites;
 
 const rotationSchema = z.array(z.number().finite()).length(9);
 const translationSchema = z.array(z.number().finite()).length(3);
@@ -60,13 +62,16 @@ function buildServer() {
     { name: "cadgrounded-solidworks-bridge", version: "0.3.0" },
     {
       capabilities: { tools: {} },
-      instructions:
-        "SOLIDWORKS is the geometry authority. Read actual state before proposing writes. " +
-        "Do not infer mechanical correctness from a successful API operation. " +
-        "Use sw_set_transform with apply=false first; actual writes require the local write gate and a floating component.",
+      instructions: PROFILE.exposeDirectTools
+        ? "SOLIDWORKS is the geometry authority. Read actual state before proposing writes. " +
+          "Do not infer mechanical correctness from a successful API operation. " +
+          "Use sw_set_transform with apply=false first; actual writes require the local write gate and a floating component."
+        : "This Work-facing profile exposes only cad_read_intent. It permits active-document status and component-list snapshots only. " +
+          "Results are not mechanical conclusions or authority for CAD changes.",
     },
   );
 
+  if (PROFILE.exposeDirectTools) {
   server.registerTool(
     "sw_status",
     {
@@ -103,6 +108,7 @@ function buildServer() {
       await bridgeCall("sw_query_components", { top_level_only }),
     ),
   );
+  }
 
   server.registerTool(
     "cad_read_intent",
@@ -124,6 +130,7 @@ function buildServer() {
     async ({ request }) => asToolResult(await readCadIntent({ request })),
   );
 
+  if (PROFILE.exposeDirectTools) {
   server.registerTool(
     "sw_set_transform",
     {
@@ -241,6 +248,7 @@ function buildServer() {
   }, async (params) => asToolResult(await executeCode(params, {
     allowWrites: ALLOW_WRITES, maxControl: MAX_CONTROL, call: bridgeCall,
   })));
+  }
 
   return server;
 }
@@ -257,6 +265,7 @@ const httpServer = createServer(async (req, res) => {
       ok: true,
       bridge: "cadgrounded-solidworks-bridge",
       version: "0.3.0",
+      tool_profile: PROFILE.toolProfile,
       writes_enabled: ALLOW_WRITES,
       max_control_enabled: MAX_CONTROL,
     }));
@@ -274,5 +283,6 @@ const httpServer = createServer(async (req, res) => {
 
 httpServer.listen(PORT, HOST, () => {
   console.log(`CADGrounded SolidWorks MCP v0.3.0 listening on http://${HOST}:${PORT}/mcp`);
+  console.log(`Tool profile: ${PROFILE.toolProfile}`);
   console.log(`Writes enabled: ${ALLOW_WRITES ? "YES" : "NO (recommended for first acceptance)"}`);
 });

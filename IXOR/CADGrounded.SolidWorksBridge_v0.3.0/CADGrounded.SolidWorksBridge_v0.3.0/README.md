@@ -153,6 +153,20 @@ http://127.0.0.1:8765/health
 
 The server binds to loopback by default.
 
+For the Work-facing endpoint, start the restricted profile from the repository root:
+
+```powershell
+.\scripts\start-server.ps1 -ToolProfile intent-readonly
+```
+
+This profile advertises only `cad_read_intent` and forces the write and maximum-control gates off. A separate full-profile server can remain local on another loopback port when engineering control is explicitly needed:
+
+```powershell
+.\scripts\start-server.ps1 -ToolProfile full -Port 8766
+```
+
+Do not tunnel the full-profile endpoint as the normal Work connection.
+
 ## 4. Connect ChatGPT
 
 ChatGPT does not connect directly to a developer machine's `localhost`. For a local/private MCP server, use OpenAI's **Secure MCP Tunnel** (where available for your ChatGPT plan/workspace) rather than exposing this bridge directly to the public internet.
@@ -166,7 +180,7 @@ Current OpenAI product details can change, so use the current ChatGPT Developer 
 From ChatGPT with the custom app selected:
 
 ```text
-Use sw_status, then sw_query_components. Do not modify anything.
+Using only cad_read_intent, report which assembly is active. Do not call another CAD action.
 ```
 
 We expect the API-returned active assembly and component transforms to match `docs/ACCEPTANCE_TEST.md`.
@@ -174,7 +188,7 @@ We expect the API-returned active assembly and component transforms to match `do
 That round trip is the v0.1 read-path acceptance gate:
 
 ```text
-ChatGPT -> MCP -> named pipe -> SOLIDWORKS API -> actual benchmark state -> ChatGPT
+ChatGPT -> cad_read_intent -> local validated router -> registry -> worker -> SOLIDWORKS API -> timestamped snapshot -> ChatGPT
 ```
 
 ## 6. Write-path staging
