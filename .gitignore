@@ -11,6 +11,9 @@ agent-registry/*.db-wal
 agent-registry/*.db-shm
 agent-registry/logs/
 
+# Read-only CAD snapshot relay runtime output
+IXOR/CAB_IXOR_6130800/LIVE_CAD_SNAPSHOT.json
+
 # Local secrets / environment
 .env
 *.secret
