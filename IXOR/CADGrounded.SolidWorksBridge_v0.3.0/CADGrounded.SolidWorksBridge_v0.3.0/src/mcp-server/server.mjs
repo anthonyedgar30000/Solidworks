@@ -5,6 +5,7 @@ import * as z from "zod/v4";
 import { executeCode } from "./execution-handler.mjs";
 import { bridgeCall } from "./pipe-client.mjs";
 import { insertComponent } from "./insertion-handler.mjs";
+import { readCadIntent } from "./read-intent-handler.mjs";
 
 const HOST = process.env.SWBRIDGE_HOST ?? "127.0.0.1";
 const PORT = Number(process.env.SWBRIDGE_PORT ?? "8765");
@@ -101,6 +102,26 @@ function buildServer() {
     async ({ top_level_only }) => asToolResult(
       await bridgeCall("sw_query_components", { top_level_only }),
     ),
+  );
+
+  server.registerTool(
+    "cad_read_intent",
+    {
+      title: "Read SOLIDWORKS State from Natural Language",
+      description:
+        "Routes one natural-language request through the local, validated read-only CAD adapter. " +
+        "Only active-document status and component-list reads are permitted. Results are timestamped CAD snapshots, not mechanical conclusions.",
+      inputSchema: z.object({
+        request: z.string().trim().min(1).max(1000).describe("One request for active-document status or a component list."),
+      }),
+      annotations: {
+        readOnlyHint: true,
+        destructiveHint: false,
+        idempotentHint: false,
+        openWorldHint: false,
+      },
+    },
+    async ({ request }) => asToolResult(await readCadIntent({ request })),
   );
 
   server.registerTool(
