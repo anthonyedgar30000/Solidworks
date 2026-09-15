@@ -1,0 +1,41 @@
+{
+  "context": {
+    "document_title": "IXOR_Benchmark_v21_AR60_CARRIAGE_FIT_CHECK_PORTABLE",
+    "source": "observed_from_worker_startup"
+  },
+  "facts": {
+    "observed.ar60_exact_name2": {
+      "value": "6130460_03_AR60_NATIVE_PORTABLE_V18-2",
+      "evidence": "verified_solidworks_api"
+    },
+    "observed.floor_stand_name2": {
+      "value": "5983425_01_Floor_stand_Bodenstativ_1632^IXOR_Benchmark_v21_AR60_CARRIAGE_FIT_CHECK_PORTABLE-1",
+      "evidence": "verified_solidworks_api"
+    }
+  },
+  "selector_diagnostics": [
+    {
+      "selector": "AR60",
+      "matches": [
+        "5983425_01_Floor_stand_Bodenstativ_1632^IXOR_Benchmark_v21_AR60_CARRIAGE_FIT_CHECK_PORTABLE-1",
+        "6130460_03_AR60_NATIVE_PORTABLE_V18-2"
+      ],
+      "result": "refused_non_unique_match"
+    }
+  ],
+  "observations": [
+    {
+      "summary": "A virtual floor-stand Name2 matched AR60 only because the active assembly title contained AR60.",
+      "category": "identity_model_gap",
+      "explained_by": null,
+      "modeled_fact": null
+    }
+  ],
+  "events": [
+    {
+      "type": "model_incomplete",
+      "severity": "high",
+      "summary": "Broad component substring matching is insufficient for this assembly baseline."
+    }
+  ]
+}
