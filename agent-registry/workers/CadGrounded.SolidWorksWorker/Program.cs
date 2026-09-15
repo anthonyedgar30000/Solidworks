@@ -330,46 +330,161 @@ internal sealed class SolidWorksSession : IDisposable
 
         var rows = components.Select(c =>
         {
-            var suppressionState = c.GetSuppression2();
-            var transform = c.Transform2;
-            double[]? translationMm = null;
+            var fieldErrors = new List<string>();
 
-            if (transform is not null)
+            var suppressionState = c.GetSuppression2();
+            var fixedComponent = SafeBool(() => c.IsFixed());
+
+            IComponent2? parent = null;
+            try
             {
-                var array = ToDoubleArray(transform.ArrayData);
-                if (array is { Length: >= 12 })
+                parent = c.GetParent() as IComponent2;
+            }
+            catch (Exception ex)
+            {
+                fieldErrors.Add("GetParent: " + ex.Message);
+            }
+
+            double[]? transformArray = null;
+            double[]? rotation9 = null;
+            double[]? translationM = null;
+            double[]? translationMm = null;
+            double? transformScale = null;
+
+            try
+            {
+                var transform = c.Transform2;
+
+                if (transform is not null)
                 {
-                    translationMm = new[]
+                    transformArray = ToDoubleArray(transform.ArrayData);
+
+                    if (transformArray is { Length: >= 12 })
                     {
-                        array[9] * 1000.0,
-                        array[10] * 1000.0,
-                        array[11] * 1000.0
+                        rotation9 = transformArray
+                            .Take(9)
+                            .ToArray();
+
+                        translationM = new[]
+                        {
+                            transformArray[9],
+                            transformArray[10],
+                            transformArray[11]
+                        };
+
+                        translationMm = Scale(translationM, 1000.0);
+
+                        if (transformArray.Length >= 13)
+                            transformScale = transformArray[12];
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                fieldErrors.Add("Transform2: " + ex.Message);
+            }
+
+            double[]? getBoxM = null;
+            double[]? getBoxMm = null;
+            double[]? boxMinMm = null;
+            double[]? boxMaxMm = null;
+
+            try
+            {
+                var rawBox = c.GetBox(false, false);
+                getBoxM = ToDoubleArray(rawBox);
+
+                if (getBoxM is { Length: >= 6 })
+                {
+                    getBoxMm = Scale(getBoxM, 1000.0);
+
+                    boxMinMm = new[]
+                    {
+                        getBoxM[0] * 1000.0,
+                        getBoxM[1] * 1000.0,
+                        getBoxM[2] * 1000.0
+                    };
+
+                    boxMaxMm = new[]
+                    {
+                        getBoxM[3] * 1000.0,
+                        getBoxM[4] * 1000.0,
+                        getBoxM[5] * 1000.0
                     };
                 }
+            }
+            catch (Exception ex)
+            {
+                fieldErrors.Add("GetBox: " + ex.Message);
+            }
+
+            object? boundingBoxApprox = null;
+
+            if (boxMinMm is not null && boxMaxMm is not null)
+            {
+                boundingBoxApprox = new
+                {
+                    min = boxMinMm,
+                    max = boxMaxMm,
+                    source = "Component2.GetBox(false,false)",
+                    source_classification =
+                        "approximate_from_solidworks_getbox"
+                };
             }
 
             return new
             {
                 name2 = c.Name2,
                 path = c.GetPathName(),
-                referenced_configuration = c.ReferencedConfiguration,
+
+                referenced_configuration =
+                    c.ReferencedConfiguration,
+
                 suppression_state = suppressionState,
-                suppressed = suppressionState == (int)SwConst.swComponentSuppressionState_e.swComponentSuppressed,
-                fixed_component = SafeBool(() => c.IsFixed()),
+                suppressed =
+                    suppressionState ==
+                    (int)SwConst.swComponentSuppressionState_e
+                        .swComponentSuppressed,
+
+                @fixed = fixedComponent,
+                fixed_component = fixedComponent,
+
+                parent_name = parent?.Name2,
+                is_top_level = parent is null,
+
+                transform_array = transformArray,
+                rotation9 = rotation9,
+                translation_m = translationM,
                 translation_mm = translationMm,
-                source_classification = "solidworks_api"
+                scale = transformScale,
+
+                transform_source = "Component2.Transform2",
+                source_classification = "solidworks_api",
+
+                bounding_box_mm_approx = boundingBoxApprox,
+
+                getbox_m = getBoxM,
+                getbox_mm = getBoxMm,
+                box_min_mm = boxMinMm,
+                box_max_mm = boxMaxMm,
+
+                geometry_note =
+                    "Component2.GetBox(false,false) is approximate screening geometry, not exact body geometry.",
+
+                field_errors = fieldErrors.ToArray()
             };
         }).ToArray();
 
         return new
         {
             document = _doc.GetTitle(),
+            document_title = _doc.GetTitle(),
+            document_path = _doc.GetPathName(),
             top_level_only = topLevelOnly,
             component_count = rows.Length,
             components = rows
         };
     }
-
     public object ClosestDistancePair(string aExact, string bExact)
     {
         var assembly = RequireAssembly();
@@ -700,6 +815,7 @@ internal sealed class CadGroundedException : Exception
         Code = code;
     }
 }
+
 
 
 
