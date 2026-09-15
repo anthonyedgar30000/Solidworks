@@ -1,0 +1,175 @@
+{
+  "id": "ixor-v18-ar60-contact",
+  "version": 1,
+  "mode": "proposal_only",
+  "description": "Establish valid AR60 wipe-down contact with Bottle 3 while preserving clearance from the conveyor and Bottle 4.",
+  "facts": {
+    "ar60_bottle3.aabb_overlap_all_axes": {
+      "value": true,
+      "evidence": "approximate_getbox"
+    },
+    "ar60_bottle3.aabb_y_overlap_mm": {
+      "value": 4.5,
+      "evidence": "approximate_getbox"
+    },
+    "ar60_bottle4.aabb_y_gap_mm": {
+      "value": 21.5,
+      "evidence": "approximate_getbox"
+    },
+    "ar60_bottle3.classification": {
+      "value": null,
+      "evidence": "unknown"
+    },
+    "ar60_bottle3.minimum_distance_mm": {
+      "value": null,
+      "evidence": "unknown"
+    },
+    "ar60_conveyor.classification": {
+      "value": null,
+      "evidence": "unknown"
+    },
+    "ar60_conveyor.minimum_distance_mm": {
+      "value": null,
+      "evidence": "unknown"
+    },
+    "ar60_bottle4.classification": {
+      "value": null,
+      "evidence": "unknown"
+    },
+    "ar60_bottle4.minimum_distance_mm": {
+      "value": null,
+      "evidence": "unknown"
+    }
+  },
+  "goals": [
+    {
+      "fact": "ar60_bottle3.classification",
+      "op": "eq",
+      "value": "exact_contact_or_coincidence",
+      "minimum_evidence": "verified_solidworks_api"
+    }
+  ],
+  "hard_constraints": [
+    {
+      "fact": "ar60_conveyor.classification",
+      "op": "ne",
+      "value": "physical_interference",
+      "minimum_evidence": "verified_solidworks_api"
+    },
+    {
+      "fact": "ar60_bottle4.classification",
+      "op": "ne",
+      "value": "physical_interference",
+      "minimum_evidence": "verified_solidworks_api"
+    }
+  ],
+  "knowledge_actions": [
+    {
+      "id": "measure_ar60_bottle3",
+      "command": "sw.check_interference_pair",
+      "priority": 100,
+      "cost": 1.0,
+      "payload": {
+        "a_name_contains": "AR60",
+        "b_name_contains": "BENCH_BOTTLE_D48_H180-3"
+      },
+      "produces": [
+        "ar60_bottle3.classification",
+        "ar60_bottle3.minimum_distance_mm"
+      ],
+      "result_map": {
+        "ar60_bottle3.classification": "classification",
+        "ar60_bottle3.minimum_distance_mm": "minimum_distance_mm"
+      },
+      "evidence": "verified_solidworks_api"
+    },
+    {
+      "id": "measure_ar60_conveyor",
+      "command": "sw.check_interference_pair",
+      "priority": 80,
+      "cost": 1.0,
+      "payload": {
+        "a_name_contains": "AR60",
+        "b_name_contains": "BENCH_CONVEYOR"
+      },
+      "produces": [
+        "ar60_conveyor.classification",
+        "ar60_conveyor.minimum_distance_mm"
+      ],
+      "result_map": {
+        "ar60_conveyor.classification": "classification",
+        "ar60_conveyor.minimum_distance_mm": "minimum_distance_mm"
+      },
+      "evidence": "verified_solidworks_api"
+    },
+    {
+      "id": "measure_ar60_bottle4",
+      "command": "sw.check_interference_pair",
+      "priority": 60,
+      "cost": 1.0,
+      "payload": {
+        "a_name_contains": "AR60",
+        "b_name_contains": "BENCH_BOTTLE_D48_H180-4"
+      },
+      "produces": [
+        "ar60_bottle4.classification",
+        "ar60_bottle4.minimum_distance_mm"
+      ],
+      "result_map": {
+        "ar60_bottle4.classification": "classification",
+        "ar60_bottle4.minimum_distance_mm": "minimum_distance_mm"
+      },
+      "evidence": "verified_solidworks_api"
+    }
+  ],
+  "candidate_moves": [
+    {
+      "id": "retreat_ar60_y_plus_0_5mm",
+      "kind": "proposal_only",
+      "component_contains": "AR60",
+      "translation_delta_mm": [0.0, 0.5, 0.0],
+      "rotation_delta_deg": [0.0, 0.0, 0.0],
+      "when": {
+        "fact": "ar60_bottle3.classification",
+        "op": "eq",
+        "value": "physical_interference"
+      },
+      "risk_penalty": 0.2,
+      "uncertainty_penalty": 0.5
+    },
+    {
+      "id": "retreat_ar60_y_plus_1_0mm",
+      "kind": "proposal_only",
+      "component_contains": "AR60",
+      "translation_delta_mm": [0.0, 1.0, 0.0],
+      "rotation_delta_deg": [0.0, 0.0, 0.0],
+      "when": {
+        "fact": "ar60_bottle3.classification",
+        "op": "eq",
+        "value": "physical_interference"
+      },
+      "risk_penalty": 0.3,
+      "uncertainty_penalty": 0.5
+    },
+    {
+      "id": "approach_ar60_y_minus_0_5mm",
+      "kind": "proposal_only",
+      "component_contains": "AR60",
+      "translation_delta_mm": [0.0, -0.5, 0.0],
+      "rotation_delta_deg": [0.0, 0.0, 0.0],
+      "when": {
+        "fact": "ar60_bottle3.classification",
+        "op": "eq",
+        "value": "clearance"
+      },
+      "risk_penalty": 0.2,
+      "uncertainty_penalty": 0.5
+    }
+  ],
+  "scoring": {
+    "movement_weight": 1.0,
+    "rotation_weight": 2.0,
+    "risk_weight": 5.0,
+    "uncertainty_weight": 5.0
+  }
+}
