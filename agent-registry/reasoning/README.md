@@ -20,7 +20,9 @@ The important idea is that **a NULL is not treated as an empty hole**. The graph
 - `graph.json` — small IXOR/AR60 example knowledge graph.
 - `reasoner.py` — deterministic project-health and exposure propagation.
 - `ollama_worker.py` — optional local LLM planner; it can choose the next investigation but cannot verify facts.
-- `test_reasoner.py` — sanity tests.
+- `evidence_ingest.py` — validates and normalizes completed read-only `sw.query_components` observations into evidence transactions.
+- `test_reasoner.py` — reasoner regression tests.
+- `test_evidence_ingest.py` — evidence-boundary regression tests.
 
 ## Run
 
@@ -54,6 +56,28 @@ The Ollama worker defaults to:
 ```text
 http://127.0.0.1:11434/api/chat
 ```
+
+## Ingest a live read-only SOLIDWORKS observation
+
+Given a completed CADGrounded `sw.query_components` envelope such as:
+
+```text
+C:\ChatGPT\Solidworks\IXOR\CAB_IXOR_6130800\LIVE_CAD_ALL_COMPONENTS.json
+```
+
+run:
+
+```powershell
+python .\evidence_ingest.py `
+  "C:\ChatGPT\Solidworks\IXOR\CAB_IXOR_6130800\LIVE_CAD_ALL_COMPONENTS.json" `
+  --expected-document "IXOR_Benchmark_v21_AR60_CARRIAGE_FIT_CHECK_PORTABLE" `
+  --out .\runtime\v21-components-evidence.json `
+  --summary
+```
+
+The importer admits only a completed `sw.query_components` observation with no reported error, validates component count and exact `Component2.Name2` identity, preserves transform/GetBox/provenance fields, and records a SHA-256 of the raw observation.
+
+A successful import grants **observation authority only**. It explicitly does not establish valid contact, clearance, mechanical suitability, operating sequence, or project acceptance.
 
 ## Expected initial result
 
