@@ -1,0 +1,458 @@
+{
+  "health": {
+    "project": {
+      "id": "IXOR_V21_LIVE",
+      "name": "IXOR v21 live evidence project-health graph",
+      "acceptance_obligation": "V21_ACCEPTANCE",
+      "document_title": "IXOR_Benchmark_v21_AR60_CARRIAGE_FIT_CHECK_PORTABLE",
+      "source_raw_sha256": "e5d48f922fc44876b70cf936e7e989b990665acca1b74c649370a1dd6ae2ce32",
+      "graph_basis": "admitted SOLIDWORKS evidence + deterministic geometry projection",
+      "mechanical_acceptance_granted": false
+    },
+    "overall_state": "EXPOSED",
+    "acceptance_obligation": "V21_ACCEPTANCE",
+    "obligations": [
+      {
+        "node_id": "NO_CONVEYOR_INTERFERENCE",
+        "kind": "invariant",
+        "effective_state": "EXPOSED",
+        "description": "The accepted operating configuration must not structurally interfere with the conveyor or required product-flow envelope.",
+        "criticality": 5,
+        "acceptance_gate": false
+      },
+      {
+        "node_id": "BOTTLE_CONTACT_ACHIEVABLE",
+        "kind": "invariant",
+        "effective_state": "EXPOSED",
+        "description": "The application roller must reach the intended bottle contact condition under verified travel and restraint geometry.",
+        "criticality": 5,
+        "acceptance_gate": false
+      },
+      {
+        "node_id": "VALID_APPLICATION_GEOMETRY",
+        "kind": "obligation",
+        "effective_state": "EXPOSED",
+        "description": "Application geometry, peel-edge relation, bottle restraint, clearances, and product flow are mechanically coherent enough to advance beyond fit-check.",
+        "criticality": 5,
+        "acceptance_gate": false
+      },
+      {
+        "node_id": "V21_ACCEPTANCE",
+        "kind": "obligation",
+        "effective_state": "EXPOSED",
+        "description": "v21 is acceptable as an operating-configuration candidate rather than only an AR60/carriage fit-check.",
+        "criticality": 5,
+        "acceptance_gate": true
+      }
+    ],
+    "acceptance_blockers": [
+      {
+        "node_id": "VALID_APPLICATION_GEOMETRY",
+        "effective_state": "EXPOSED",
+        "description": "Application geometry, peel-edge relation, bottle restraint, clearances, and product flow are mechanically coherent enough to advance beyond fit-check.",
+        "relation": "depends_on",
+        "path": [
+          "V21_ACCEPTANCE",
+          "VALID_APPLICATION_GEOMETRY"
+        ]
+      },
+      {
+        "node_id": "BOTTLE_CONTACT_ACHIEVABLE",
+        "effective_state": "EXPOSED",
+        "description": "The application roller must reach the intended bottle contact condition under verified travel and restraint geometry.",
+        "relation": "depends_on",
+        "path": [
+          "V21_ACCEPTANCE",
+          "VALID_APPLICATION_GEOMETRY",
+          "BOTTLE_CONTACT_ACHIEVABLE"
+        ]
+      },
+      {
+        "node_id": "BOTTLE_RESTRAINT_GEOMETRY",
+        "effective_state": "UNRESOLVED",
+        "description": "Bottle support/restraint geometry is defined for the intended labeling condition.",
+        "relation": "depends_on",
+        "path": [
+          "V21_ACCEPTANCE",
+          "VALID_APPLICATION_GEOMETRY",
+          "BOTTLE_RESTRAINT_GEOMETRY"
+        ]
+      },
+      {
+        "node_id": "NO_CONVEYOR_INTERFERENCE",
+        "effective_state": "EXPOSED",
+        "description": "The accepted operating configuration must not structurally interfere with the conveyor or required product-flow envelope.",
+        "relation": "depends_on",
+        "path": [
+          "V21_ACCEPTANCE",
+          "VALID_APPLICATION_GEOMETRY",
+          "NO_CONVEYOR_INTERFERENCE"
+        ]
+      },
+      {
+        "node_id": "PEEL_EDGE_BOTTLE_RELATION",
+        "effective_state": "UNRESOLVED",
+        "description": "Deterministic peel-edge relationship to the bottle at the intended application station.",
+        "relation": "depends_on",
+        "path": [
+          "V21_ACCEPTANCE",
+          "VALID_APPLICATION_GEOMETRY",
+          "PEEL_EDGE_BOTTLE_RELATION"
+        ]
+      },
+      {
+        "node_id": "PRODUCT_FLOW_MECHANICS",
+        "effective_state": "UNRESOLVED",
+        "description": "Bottle entry, application, release, and downstream flow mechanics are deterministically established.",
+        "relation": "depends_on",
+        "path": [
+          "V21_ACCEPTANCE",
+          "VALID_APPLICATION_GEOMETRY",
+          "PRODUCT_FLOW_MECHANICS"
+        ]
+      },
+      {
+        "node_id": "CONTACT_REACHABLE_WITHIN_TRAVEL",
+        "effective_state": "UNRESOLVED",
+        "description": "Required operating contact position is reachable within verified AR carriage travel.",
+        "relation": "depends_on",
+        "path": [
+          "V21_ACCEPTANCE",
+          "VALID_APPLICATION_GEOMETRY",
+          "BOTTLE_CONTACT_ACHIEVABLE",
+          "CONTACT_REACHABLE_WITHIN_TRAVEL"
+        ]
+      },
+      {
+        "node_id": "INTENDED_APPLICATION_STATION_TRANSFORM",
+        "effective_state": "UNRESOLVED",
+        "description": "Intended mechanically valid AR60/carriage application-station transform relative to the bottle path, IXOR peel edge, and mounting structure.",
+        "relation": "depends_on",
+        "path": [
+          "V21_ACCEPTANCE",
+          "VALID_APPLICATION_GEOMETRY",
+          "NO_CONVEYOR_INTERFERENCE",
+          "INTENDED_APPLICATION_STATION_TRANSFORM"
+        ]
+      },
+      {
+        "node_id": "AR60_CONTACT_POSITION",
+        "effective_state": "UNRESOLVED",
+        "description": "Operating AR60 contact position relative to the intended bottle application condition.",
+        "relation": "depends_on",
+        "path": [
+          "V21_ACCEPTANCE",
+          "VALID_APPLICATION_GEOMETRY",
+          "BOTTLE_CONTACT_ACHIEVABLE",
+          "CONTACT_REACHABLE_WITHIN_TRAVEL",
+          "AR60_CONTACT_POSITION"
+        ]
+      },
+      {
+        "node_id": "AR60_MAX_TRAVEL",
+        "effective_state": "UNRESOLVED",
+        "description": "Verified usable AR carriage travel along the mechanically relevant adjustment axis.",
+        "relation": "depends_on",
+        "path": [
+          "V21_ACCEPTANCE",
+          "VALID_APPLICATION_GEOMETRY",
+          "BOTTLE_CONTACT_ACHIEVABLE",
+          "CONTACT_REACHABLE_WITHIN_TRAVEL",
+          "AR60_MAX_TRAVEL"
+        ]
+      }
+    ],
+    "known_violations": []
+  },
+  "effective_states": {
+    "AR60_COMPONENT_IDENTITY": "VERIFIED",
+    "AR60_TRANSFORM": "VERIFIED",
+    "AR60_APPROX_ENVELOPE": "VERIFIED",
+    "CARRIAGE_COMPONENT_IDENTITY": "VERIFIED",
+    "CARRIAGE_TRANSFORM": "VERIFIED",
+    "CONVEYOR_APPROX_ENVELOPE": "VERIFIED",
+    "BOTTLE_PATH_APPROX_ENVELOPES": "VERIFIED",
+    "AR60_NEAREST_BOTTLE_AABB_SEPARATION": "VERIFIED",
+    "AR60_AABB_DISJOINT_FROM_ALL_BOTTLES": "VERIFIED",
+    "AR60_CARRIAGE_AABB_RELATION": "VERIFIED",
+    "AR60_CONVEYOR_AABB_RELATION": "VERIFIED",
+    "INTENDED_APPLICATION_STATION_TRANSFORM": "UNRESOLVED",
+    "AR60_CONTACT_POSITION": "UNRESOLVED",
+    "AR60_MAX_TRAVEL": "UNRESOLVED",
+    "CONTACT_REACHABLE_WITHIN_TRAVEL": "UNRESOLVED",
+    "PEEL_EDGE_BOTTLE_RELATION": "UNRESOLVED",
+    "BOTTLE_RESTRAINT_GEOMETRY": "UNRESOLVED",
+    "PRODUCT_FLOW_MECHANICS": "UNRESOLVED",
+    "NO_CONVEYOR_INTERFERENCE": "EXPOSED",
+    "BOTTLE_CONTACT_ACHIEVABLE": "EXPOSED",
+    "VALID_APPLICATION_GEOMETRY": "EXPOSED",
+    "V21_ACCEPTANCE": "EXPOSED"
+  },
+  "risk_footprints": [
+    {
+      "node_id": "INTENDED_APPLICATION_STATION_TRANSFORM",
+      "state": "NULL",
+      "description": "Intended mechanically valid AR60/carriage application-station transform relative to the bottle path, IXOR peel edge, and mounting structure.",
+      "downstream_count": 9,
+      "affected_obligations": [
+        "BOTTLE_CONTACT_ACHIEVABLE",
+        "NO_CONVEYOR_INTERFERENCE",
+        "V21_ACCEPTANCE",
+        "VALID_APPLICATION_GEOMETRY"
+      ],
+      "acceptance_gates_exposed": [
+        "V21_ACCEPTANCE"
+      ],
+      "risk_exposure": 25.0,
+      "investigation_score": 34.5,
+      "expected_authority": [
+        "OEM_CAD",
+        "OEM_MANUAL",
+        "SOLIDWORKS_MEASUREMENT",
+        "DETERMINISTIC_DERIVATION"
+      ],
+      "why_it_matters": "The current fit-check transform is remote from the bottles; operating contact, clearance, and reachability cannot be evaluated until the intended station geometry is established."
+    },
+    {
+      "node_id": "AR60_CONTACT_POSITION",
+      "state": "NULL",
+      "description": "Operating AR60 contact position relative to the intended bottle application condition.",
+      "downstream_count": 4,
+      "affected_obligations": [
+        "BOTTLE_CONTACT_ACHIEVABLE",
+        "V21_ACCEPTANCE",
+        "VALID_APPLICATION_GEOMETRY"
+      ],
+      "acceptance_gates_exposed": [
+        "V21_ACCEPTANCE"
+      ],
+      "risk_exposure": 20.0,
+      "investigation_score": 27.0,
+      "expected_authority": [
+        "SOLIDWORKS_MEASUREMENT",
+        "DETERMINISTIC_DERIVATION"
+      ],
+      "why_it_matters": "Blocks proof of bottle contact, carriage reachability, and conveyor clearance."
+    },
+    {
+      "node_id": "AR60_MAX_TRAVEL",
+      "state": "NULL",
+      "description": "Verified usable AR carriage travel along the mechanically relevant adjustment axis.",
+      "downstream_count": 4,
+      "affected_obligations": [
+        "BOTTLE_CONTACT_ACHIEVABLE",
+        "V21_ACCEPTANCE",
+        "VALID_APPLICATION_GEOMETRY"
+      ],
+      "acceptance_gates_exposed": [
+        "V21_ACCEPTANCE"
+      ],
+      "risk_exposure": 20.0,
+      "investigation_score": 27.0,
+      "expected_authority": [
+        "OEM_CAD",
+        "OEM_MANUAL",
+        "SOLIDWORKS_MEASUREMENT"
+      ],
+      "why_it_matters": "Travel must be verified from authoritative evidence before reachability can be accepted."
+    },
+    {
+      "node_id": "BOTTLE_RESTRAINT_GEOMETRY",
+      "state": "NULL",
+      "description": "Bottle support/restraint geometry is defined for the intended labeling condition.",
+      "downstream_count": 4,
+      "affected_obligations": [
+        "BOTTLE_CONTACT_ACHIEVABLE",
+        "V21_ACCEPTANCE",
+        "VALID_APPLICATION_GEOMETRY"
+      ],
+      "acceptance_gates_exposed": [
+        "V21_ACCEPTANCE"
+      ],
+      "risk_exposure": 20.0,
+      "investigation_score": 27.0,
+      "expected_authority": [
+        "OEM_CAD",
+        "OEM_MANUAL",
+        "DETERMINISTIC_PROJECT_GEOMETRY",
+        "SOLIDWORKS_MEASUREMENT"
+      ],
+      "why_it_matters": "Bottle contact without controlled seating/restraint does not establish an operating arrangement."
+    },
+    {
+      "node_id": "CONTACT_REACHABLE_WITHIN_TRAVEL",
+      "state": "NULL",
+      "description": "Required operating contact position is reachable within verified AR carriage travel.",
+      "downstream_count": 3,
+      "affected_obligations": [
+        "BOTTLE_CONTACT_ACHIEVABLE",
+        "V21_ACCEPTANCE",
+        "VALID_APPLICATION_GEOMETRY"
+      ],
+      "acceptance_gates_exposed": [
+        "V21_ACCEPTANCE"
+      ],
+      "risk_exposure": 20.0,
+      "investigation_score": 26.5,
+      "expected_authority": [
+        "DETERMINISTIC_DERIVATION"
+      ],
+      "why_it_matters": "Directly gates whether the AR60 can reach the intended bottle without inventing unsupported adjustment range."
+    },
+    {
+      "node_id": "PEEL_EDGE_BOTTLE_RELATION",
+      "state": "NULL",
+      "description": "Deterministic peel-edge relationship to the bottle at the intended application station.",
+      "downstream_count": 2,
+      "affected_obligations": [
+        "V21_ACCEPTANCE",
+        "VALID_APPLICATION_GEOMETRY"
+      ],
+      "acceptance_gates_exposed": [
+        "V21_ACCEPTANCE"
+      ],
+      "risk_exposure": 15.0,
+      "investigation_score": 21.0,
+      "expected_authority": [
+        "OEM_CAD",
+        "SOLIDWORKS_MEASUREMENT",
+        "DETERMINISTIC_DERIVATION"
+      ],
+      "why_it_matters": "A plausible application station requires label presentation geometry, not only roller proximity."
+    },
+    {
+      "node_id": "PRODUCT_FLOW_MECHANICS",
+      "state": "NULL",
+      "description": "Bottle entry, application, release, and downstream flow mechanics are deterministically established.",
+      "downstream_count": 2,
+      "affected_obligations": [
+        "V21_ACCEPTANCE",
+        "VALID_APPLICATION_GEOMETRY"
+      ],
+      "acceptance_gates_exposed": [
+        "V21_ACCEPTANCE"
+      ],
+      "risk_exposure": 15.0,
+      "investigation_score": 21.0,
+      "expected_authority": [
+        "OEM_MANUAL",
+        "OEM_CAD",
+        "DETERMINISTIC_DERIVATION",
+        "SOLIDWORKS_MEASUREMENT"
+      ],
+      "why_it_matters": "Static fit alone is not proof of a workable product-flow sequence."
+    }
+  ],
+  "next_investigation_candidates": [
+    {
+      "node_id": "INTENDED_APPLICATION_STATION_TRANSFORM",
+      "state": "NULL",
+      "description": "Intended mechanically valid AR60/carriage application-station transform relative to the bottle path, IXOR peel edge, and mounting structure.",
+      "downstream_count": 9,
+      "affected_obligations": [
+        "BOTTLE_CONTACT_ACHIEVABLE",
+        "NO_CONVEYOR_INTERFERENCE",
+        "V21_ACCEPTANCE",
+        "VALID_APPLICATION_GEOMETRY"
+      ],
+      "acceptance_gates_exposed": [
+        "V21_ACCEPTANCE"
+      ],
+      "risk_exposure": 25.0,
+      "investigation_score": 34.5,
+      "expected_authority": [
+        "OEM_CAD",
+        "OEM_MANUAL",
+        "SOLIDWORKS_MEASUREMENT",
+        "DETERMINISTIC_DERIVATION"
+      ],
+      "why_it_matters": "The current fit-check transform is remote from the bottles; operating contact, clearance, and reachability cannot be evaluated until the intended station geometry is established."
+    },
+    {
+      "node_id": "AR60_CONTACT_POSITION",
+      "state": "NULL",
+      "description": "Operating AR60 contact position relative to the intended bottle application condition.",
+      "downstream_count": 4,
+      "affected_obligations": [
+        "BOTTLE_CONTACT_ACHIEVABLE",
+        "V21_ACCEPTANCE",
+        "VALID_APPLICATION_GEOMETRY"
+      ],
+      "acceptance_gates_exposed": [
+        "V21_ACCEPTANCE"
+      ],
+      "risk_exposure": 20.0,
+      "investigation_score": 27.0,
+      "expected_authority": [
+        "SOLIDWORKS_MEASUREMENT",
+        "DETERMINISTIC_DERIVATION"
+      ],
+      "why_it_matters": "Blocks proof of bottle contact, carriage reachability, and conveyor clearance."
+    },
+    {
+      "node_id": "AR60_MAX_TRAVEL",
+      "state": "NULL",
+      "description": "Verified usable AR carriage travel along the mechanically relevant adjustment axis.",
+      "downstream_count": 4,
+      "affected_obligations": [
+        "BOTTLE_CONTACT_ACHIEVABLE",
+        "V21_ACCEPTANCE",
+        "VALID_APPLICATION_GEOMETRY"
+      ],
+      "acceptance_gates_exposed": [
+        "V21_ACCEPTANCE"
+      ],
+      "risk_exposure": 20.0,
+      "investigation_score": 27.0,
+      "expected_authority": [
+        "OEM_CAD",
+        "OEM_MANUAL",
+        "SOLIDWORKS_MEASUREMENT"
+      ],
+      "why_it_matters": "Travel must be verified from authoritative evidence before reachability can be accepted."
+    },
+    {
+      "node_id": "BOTTLE_RESTRAINT_GEOMETRY",
+      "state": "NULL",
+      "description": "Bottle support/restraint geometry is defined for the intended labeling condition.",
+      "downstream_count": 4,
+      "affected_obligations": [
+        "BOTTLE_CONTACT_ACHIEVABLE",
+        "V21_ACCEPTANCE",
+        "VALID_APPLICATION_GEOMETRY"
+      ],
+      "acceptance_gates_exposed": [
+        "V21_ACCEPTANCE"
+      ],
+      "risk_exposure": 20.0,
+      "investigation_score": 27.0,
+      "expected_authority": [
+        "OEM_CAD",
+        "OEM_MANUAL",
+        "DETERMINISTIC_PROJECT_GEOMETRY",
+        "SOLIDWORKS_MEASUREMENT"
+      ],
+      "why_it_matters": "Bottle contact without controlled seating/restraint does not establish an operating arrangement."
+    },
+    {
+      "node_id": "CONTACT_REACHABLE_WITHIN_TRAVEL",
+      "state": "NULL",
+      "description": "Required operating contact position is reachable within verified AR carriage travel.",
+      "downstream_count": 3,
+      "affected_obligations": [
+        "BOTTLE_CONTACT_ACHIEVABLE",
+        "V21_ACCEPTANCE",
+        "VALID_APPLICATION_GEOMETRY"
+      ],
+      "acceptance_gates_exposed": [
+        "V21_ACCEPTANCE"
+      ],
+      "risk_exposure": 20.0,
+      "investigation_score": 26.5,
+      "expected_authority": [
+        "DETERMINISTIC_DERIVATION"
+      ],
+      "why_it_matters": "Directly gates whether the AR60 can reach the intended bottle without inventing unsupported adjustment range."
+    }
+  ]
+}

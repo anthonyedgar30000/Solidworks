@@ -1,0 +1,2050 @@
+{
+  "transaction_type": "cad_observation_evidence",
+  "schema_version": 1,
+  "admission_status": "ADMITTED_OBSERVATION",
+  "mechanical_acceptance_granted": false,
+  "source_authority": "SOLIDWORKS_LIVE_STATE",
+  "source_classification": "verified_from_solidworks_api",
+  "raw_observation": {
+    "source_file": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\LIVE_CAD_ALL_COMPONENTS.json",
+    "sha256": "e5d48f922fc44876b70cf936e7e989b990665acca1b74c649370a1dd6ae2ce32",
+    "job_id": "bb9d47cc-c75f-4709-8691-af5721f26589",
+    "command": "sw.query_components",
+    "state": "completed",
+    "worker": "solidworks-bridge-01",
+    "recorded_at": "2026-09-16T00:48:11.039430+00:00"
+  },
+  "document": {
+    "title": "IXOR_Benchmark_v21_AR60_CARRIAGE_FIT_CHECK_PORTABLE",
+    "path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v21_AR60_CARRIAGE_FIT_CHECK_PORTABLE.SLDASM",
+    "bridge_version": "local-interop-v0.3.0",
+    "adapter": "compiled-csharp-isldworks",
+    "top_level_only": false
+  },
+  "component_count": 21,
+  "components": [
+    {
+      "name2": "6130737_03_GHF_120_NATIVE_PORTABLE_V17-1",
+      "path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\6130737_03_GHF_120_NATIVE_PORTABLE_V17.SLDPRT",
+      "parent_name": null,
+      "is_top_level": true,
+      "referenced_configuration": "Default",
+      "fixed": false,
+      "suppressed": false,
+      "suppression_state": 2,
+      "translation_mm": [
+        0,
+        -55.765,
+        1022
+      ],
+      "translation_m": [
+        0,
+        -0.055765,
+        1.022
+      ],
+      "rotation9": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        -1,
+        0
+      ],
+      "scale": 1,
+      "transform_array": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        -1,
+        0,
+        0,
+        -0.055765,
+        1.022,
+        1,
+        0,
+        0,
+        0
+      ],
+      "transform_source": "Component2.Transform2",
+      "getbox_mm": [
+        -17,
+        -281.76500000000004,
+        1007.0000000000001,
+        17,
+        -15.765,
+        1221
+      ],
+      "getbox_m": [
+        -0.017,
+        -0.28176500000000004,
+        1.0070000000000001,
+        0.017,
+        -0.015765,
+        1.221
+      ],
+      "box_min_mm": [
+        -17,
+        -281.76500000000004,
+        1007.0000000000001
+      ],
+      "box_max_mm": [
+        17,
+        -15.765,
+        1221
+      ],
+      "bounding_box_mm_approx": {
+        "source_classification": "approximate_from_solidworks_getbox",
+        "min": [
+          -17,
+          -281.76500000000004,
+          1007.0000000000001
+        ],
+        "source": "Component2.GetBox(false,false)",
+        "max": [
+          17,
+          -15.765,
+          1221
+        ]
+      },
+      "geometry_note": "GetBox is approximate SOLIDWORKS geometry and is not a precision interference measurement.",
+      "source_classification": "solidworks_api",
+      "field_errors": [],
+      "evidence_kind": "solidworks_component_observation",
+      "identity_basis": "Component2.Name2"
+    },
+    {
+      "name2": "BENCH_CONVEYOR_L900_W82_H950-1",
+      "path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\BENCH_CONVEYOR_L900_W82_H950.SLDPRT",
+      "parent_name": null,
+      "is_top_level": true,
+      "referenced_configuration": "Default",
+      "fixed": true,
+      "suppressed": false,
+      "suppression_state": 2,
+      "translation_mm": [
+        -153.75,
+        -224,
+        950
+      ],
+      "translation_m": [
+        -0.15375,
+        -0.224,
+        0.95
+      ],
+      "rotation9": [
+        0,
+        1,
+        0,
+        -1,
+        0,
+        0,
+        0,
+        0,
+        1
+      ],
+      "scale": 1,
+      "transform_array": [
+        0,
+        1,
+        0,
+        -1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        -0.15375,
+        -0.224,
+        0.95,
+        1,
+        0,
+        0,
+        0
+      ],
+      "transform_source": "Component2.Transform2",
+      "getbox_mm": [
+        -218.75,
+        -674,
+        5.551115123125783e-14,
+        -88.75,
+        226,
+        990
+      ],
+      "getbox_m": [
+        -0.21875,
+        -0.674,
+        5.551115123125783e-17,
+        -0.08875,
+        0.226,
+        0.99
+      ],
+      "box_min_mm": [
+        -218.75,
+        -674,
+        5.551115123125783e-14
+      ],
+      "box_max_mm": [
+        -88.75,
+        226,
+        990
+      ],
+      "bounding_box_mm_approx": {
+        "source_classification": "approximate_from_solidworks_getbox",
+        "min": [
+          -218.75,
+          -674,
+          5.551115123125783e-14
+        ],
+        "source": "Component2.GetBox(false,false)",
+        "max": [
+          -88.75,
+          226,
+          990
+        ]
+      },
+      "geometry_note": "GetBox is approximate SOLIDWORKS geometry and is not a precision interference measurement.",
+      "source_classification": "solidworks_api",
+      "field_errors": [],
+      "evidence_kind": "solidworks_component_observation",
+      "identity_basis": "Component2.Name2"
+    },
+    {
+      "name2": "BENCH_BOTTLE_D48_H180-3",
+      "path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\BENCH_BOTTLE_D48_H180.SLDPRT",
+      "parent_name": null,
+      "is_top_level": true,
+      "referenced_configuration": "Default",
+      "fixed": true,
+      "suppressed": false,
+      "suppression_state": 2,
+      "translation_mm": [
+        -153.75,
+        -224,
+        950.0000000000001
+      ],
+      "translation_m": [
+        -0.15375,
+        -0.224,
+        0.9500000000000001
+      ],
+      "rotation9": [
+        0,
+        1,
+        0,
+        -1,
+        0,
+        0,
+        0,
+        0,
+        1
+      ],
+      "scale": 1,
+      "transform_array": [
+        0,
+        1,
+        0,
+        -1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        -0.15375,
+        -0.224,
+        0.9500000000000001,
+        1,
+        0,
+        0,
+        0
+      ],
+      "transform_source": "Component2.Transform2",
+      "getbox_mm": [
+        -177.75,
+        -248,
+        950.0000000000001,
+        -129.75,
+        -200,
+        1130.0000000000002
+      ],
+      "getbox_m": [
+        -0.17775,
+        -0.248,
+        0.9500000000000001,
+        -0.12975,
+        -0.2,
+        1.1300000000000001
+      ],
+      "box_min_mm": [
+        -177.75,
+        -248,
+        950.0000000000001
+      ],
+      "box_max_mm": [
+        -129.75,
+        -200,
+        1130.0000000000002
+      ],
+      "bounding_box_mm_approx": {
+        "source_classification": "approximate_from_solidworks_getbox",
+        "min": [
+          -177.75,
+          -248,
+          950.0000000000001
+        ],
+        "source": "Component2.GetBox(false,false)",
+        "max": [
+          -129.75,
+          -200,
+          1130.0000000000002
+        ]
+      },
+      "geometry_note": "GetBox is approximate SOLIDWORKS geometry and is not a precision interference measurement.",
+      "source_classification": "solidworks_api",
+      "field_errors": [],
+      "evidence_kind": "solidworks_component_observation",
+      "identity_basis": "Component2.Name2"
+    },
+    {
+      "name2": "BENCH_BOTTLE_D48_H180-2",
+      "path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\BENCH_BOTTLE_D48_H180.SLDPRT",
+      "parent_name": null,
+      "is_top_level": true,
+      "referenced_configuration": "Default",
+      "fixed": true,
+      "suppressed": false,
+      "suppression_state": 2,
+      "translation_mm": [
+        -153.75,
+        -314,
+        950.0000000000001
+      ],
+      "translation_m": [
+        -0.15375,
+        -0.314,
+        0.9500000000000001
+      ],
+      "rotation9": [
+        0,
+        1,
+        0,
+        -1,
+        0,
+        0,
+        0,
+        0,
+        1
+      ],
+      "scale": 1,
+      "transform_array": [
+        0,
+        1,
+        0,
+        -1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        -0.15375,
+        -0.314,
+        0.9500000000000001,
+        1,
+        0,
+        0,
+        0
+      ],
+      "transform_source": "Component2.Transform2",
+      "getbox_mm": [
+        -177.75,
+        -338,
+        950.0000000000001,
+        -129.75,
+        -290,
+        1130.0000000000002
+      ],
+      "getbox_m": [
+        -0.17775,
+        -0.338,
+        0.9500000000000001,
+        -0.12975,
+        -0.29,
+        1.1300000000000001
+      ],
+      "box_min_mm": [
+        -177.75,
+        -338,
+        950.0000000000001
+      ],
+      "box_max_mm": [
+        -129.75,
+        -290,
+        1130.0000000000002
+      ],
+      "bounding_box_mm_approx": {
+        "source_classification": "approximate_from_solidworks_getbox",
+        "min": [
+          -177.75,
+          -338,
+          950.0000000000001
+        ],
+        "source": "Component2.GetBox(false,false)",
+        "max": [
+          -129.75,
+          -290,
+          1130.0000000000002
+        ]
+      },
+      "geometry_note": "GetBox is approximate SOLIDWORKS geometry and is not a precision interference measurement.",
+      "source_classification": "solidworks_api",
+      "field_errors": [],
+      "evidence_kind": "solidworks_component_observation",
+      "identity_basis": "Component2.Name2"
+    },
+    {
+      "name2": "BENCH_BOTTLE_D48_H180-1",
+      "path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\BENCH_BOTTLE_D48_H180.SLDPRT",
+      "parent_name": null,
+      "is_top_level": true,
+      "referenced_configuration": "Default",
+      "fixed": true,
+      "suppressed": false,
+      "suppression_state": 2,
+      "translation_mm": [
+        -153.75,
+        -404,
+        950.0000000000001
+      ],
+      "translation_m": [
+        -0.15375,
+        -0.404,
+        0.9500000000000001
+      ],
+      "rotation9": [
+        0,
+        1,
+        0,
+        -1,
+        0,
+        0,
+        0,
+        0,
+        1
+      ],
+      "scale": 1,
+      "transform_array": [
+        0,
+        1,
+        0,
+        -1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        -0.15375,
+        -0.404,
+        0.9500000000000001,
+        1,
+        0,
+        0,
+        0
+      ],
+      "transform_source": "Component2.Transform2",
+      "getbox_mm": [
+        -177.75,
+        -428.00000000000006,
+        950.0000000000001,
+        -129.75,
+        -380,
+        1130.0000000000002
+      ],
+      "getbox_m": [
+        -0.17775,
+        -0.42800000000000005,
+        0.9500000000000001,
+        -0.12975,
+        -0.38,
+        1.1300000000000001
+      ],
+      "box_min_mm": [
+        -177.75,
+        -428.00000000000006,
+        950.0000000000001
+      ],
+      "box_max_mm": [
+        -129.75,
+        -380,
+        1130.0000000000002
+      ],
+      "bounding_box_mm_approx": {
+        "source_classification": "approximate_from_solidworks_getbox",
+        "min": [
+          -177.75,
+          -428.00000000000006,
+          950.0000000000001
+        ],
+        "source": "Component2.GetBox(false,false)",
+        "max": [
+          -129.75,
+          -380,
+          1130.0000000000002
+        ]
+      },
+      "geometry_note": "GetBox is approximate SOLIDWORKS geometry and is not a precision interference measurement.",
+      "source_classification": "solidworks_api",
+      "field_errors": [],
+      "evidence_kind": "solidworks_component_observation",
+      "identity_basis": "Component2.Name2"
+    },
+    {
+      "name2": "6130460_03_AR60_NATIVE_PORTABLE_V18-2",
+      "path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\6130460_03_AR60_NATIVE_PORTABLE_V18.SLDPRT",
+      "parent_name": null,
+      "is_top_level": true,
+      "referenced_configuration": "Default",
+      "fixed": false,
+      "suppressed": false,
+      "suppression_state": 2,
+      "translation_mm": [
+        484.7308852396768,
+        527.8630980015928,
+        1512.441354942933
+      ],
+      "translation_m": [
+        0.48473088523967683,
+        0.5278630980015928,
+        1.512441354942933
+      ],
+      "rotation9": [
+        1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1
+      ],
+      "scale": 1,
+      "transform_array": [
+        1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1,
+        0.48473088523967683,
+        0.5278630980015928,
+        1.512441354942933,
+        1,
+        0,
+        0,
+        0
+      ],
+      "transform_source": "Component2.Transform2",
+      "getbox_mm": [
+        433.03833250912817,
+        474.3817644408614,
+        1372.170110679015,
+        522.2383325091288,
+        499.3817644408614,
+        1397.170110679015
+      ],
+      "getbox_m": [
+        0.43303833250912815,
+        0.4743817644408614,
+        1.372170110679015,
+        0.5222383325091288,
+        0.4993817644408614,
+        1.3971701106790149
+      ],
+      "box_min_mm": [
+        433.03833250912817,
+        474.3817644408614,
+        1372.170110679015
+      ],
+      "box_max_mm": [
+        522.2383325091288,
+        499.3817644408614,
+        1397.170110679015
+      ],
+      "bounding_box_mm_approx": {
+        "source_classification": "approximate_from_solidworks_getbox",
+        "min": [
+          433.03833250912817,
+          474.3817644408614,
+          1372.170110679015
+        ],
+        "source": "Component2.GetBox(false,false)",
+        "max": [
+          522.2383325091288,
+          499.3817644408614,
+          1397.170110679015
+        ]
+      },
+      "geometry_note": "GetBox is approximate SOLIDWORKS geometry and is not a precision interference measurement.",
+      "source_classification": "solidworks_api",
+      "field_errors": [],
+      "evidence_kind": "solidworks_component_observation",
+      "identity_basis": "Component2.Name2"
+    },
+    {
+      "name2": "BENCH_BOTTLE_D48_H180-5",
+      "path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\BENCH_BOTTLE_D48_H180.SLDPRT",
+      "parent_name": null,
+      "is_top_level": true,
+      "referenced_configuration": "Default",
+      "fixed": true,
+      "suppressed": false,
+      "suppression_state": 2,
+      "translation_mm": [
+        -153.75,
+        -44,
+        950.0000000000001
+      ],
+      "translation_m": [
+        -0.15375,
+        -0.044,
+        0.9500000000000001
+      ],
+      "rotation9": [
+        0,
+        1,
+        0,
+        -1,
+        0,
+        0,
+        0,
+        0,
+        1
+      ],
+      "scale": 1,
+      "transform_array": [
+        0,
+        1,
+        0,
+        -1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        -0.15375,
+        -0.044,
+        0.9500000000000001,
+        1,
+        0,
+        0,
+        0
+      ],
+      "transform_source": "Component2.Transform2",
+      "getbox_mm": [
+        -177.75,
+        -68,
+        950.0000000000001,
+        -129.75,
+        -19.999999999999996,
+        1130.0000000000002
+      ],
+      "getbox_m": [
+        -0.17775,
+        -0.068,
+        0.9500000000000001,
+        -0.12975,
+        -0.019999999999999997,
+        1.1300000000000001
+      ],
+      "box_min_mm": [
+        -177.75,
+        -68,
+        950.0000000000001
+      ],
+      "box_max_mm": [
+        -129.75,
+        -19.999999999999996,
+        1130.0000000000002
+      ],
+      "bounding_box_mm_approx": {
+        "source_classification": "approximate_from_solidworks_getbox",
+        "min": [
+          -177.75,
+          -68,
+          950.0000000000001
+        ],
+        "source": "Component2.GetBox(false,false)",
+        "max": [
+          -129.75,
+          -19.999999999999996,
+          1130.0000000000002
+        ]
+      },
+      "geometry_note": "GetBox is approximate SOLIDWORKS geometry and is not a precision interference measurement.",
+      "source_classification": "solidworks_api",
+      "field_errors": [],
+      "evidence_kind": "solidworks_component_observation",
+      "identity_basis": "Component2.Name2"
+    },
+    {
+      "name2": "6130411_01_Tie_rod_NATIVE_PORTABLE_V17-1",
+      "path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\6130411_01_Tie_rod_NATIVE_PORTABLE_V17.SLDPRT",
+      "parent_name": null,
+      "is_top_level": true,
+      "referenced_configuration": "Default",
+      "fixed": false,
+      "suppressed": false,
+      "suppression_state": 2,
+      "translation_mm": [
+        0,
+        -42,
+        1022
+      ],
+      "translation_m": [
+        0,
+        -0.042,
+        1.022
+      ],
+      "rotation9": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        -1,
+        0
+      ],
+      "scale": 1,
+      "transform_array": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        -1,
+        0,
+        0,
+        -0.042,
+        1.022,
+        1,
+        0,
+        0,
+        0
+      ],
+      "transform_source": "Component2.Transform2",
+      "getbox_mm": [
+        -32,
+        -76.39999999999999,
+        990,
+        32,
+        -40,
+        1223
+      ],
+      "getbox_m": [
+        -0.032,
+        -0.0764,
+        0.99,
+        0.032,
+        -0.04,
+        1.223
+      ],
+      "box_min_mm": [
+        -32,
+        -76.39999999999999,
+        990
+      ],
+      "box_max_mm": [
+        32,
+        -40,
+        1223
+      ],
+      "bounding_box_mm_approx": {
+        "source_classification": "approximate_from_solidworks_getbox",
+        "min": [
+          -32,
+          -76.39999999999999,
+          990
+        ],
+        "source": "Component2.GetBox(false,false)",
+        "max": [
+          32,
+          -40,
+          1223
+        ]
+      },
+      "geometry_note": "GetBox is approximate SOLIDWORKS geometry and is not a precision interference measurement.",
+      "source_classification": "solidworks_api",
+      "field_errors": [],
+      "evidence_kind": "solidworks_component_observation",
+      "identity_basis": "Component2.Name2"
+    },
+    {
+      "name2": "BENCH_BOTTLE_D48_H180-4",
+      "path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\BENCH_BOTTLE_D48_H180.SLDPRT",
+      "parent_name": null,
+      "is_top_level": true,
+      "referenced_configuration": "Default",
+      "fixed": true,
+      "suppressed": false,
+      "suppression_state": 2,
+      "translation_mm": [
+        -153.75,
+        -134,
+        950.0000000000001
+      ],
+      "translation_m": [
+        -0.15375,
+        -0.134,
+        0.9500000000000001
+      ],
+      "rotation9": [
+        0,
+        1,
+        0,
+        -1,
+        0,
+        0,
+        0,
+        0,
+        1
+      ],
+      "scale": 1,
+      "transform_array": [
+        0,
+        1,
+        0,
+        -1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        -0.15375,
+        -0.134,
+        0.9500000000000001,
+        1,
+        0,
+        0,
+        0
+      ],
+      "transform_source": "Component2.Transform2",
+      "getbox_mm": [
+        -177.75,
+        -158,
+        950.0000000000001,
+        -129.75,
+        -110.00000000000001,
+        1130.0000000000002
+      ],
+      "getbox_m": [
+        -0.17775,
+        -0.158,
+        0.9500000000000001,
+        -0.12975,
+        -0.11000000000000001,
+        1.1300000000000001
+      ],
+      "box_min_mm": [
+        -177.75,
+        -158,
+        950.0000000000001
+      ],
+      "box_max_mm": [
+        -129.75,
+        -110.00000000000001,
+        1130.0000000000002
+      ],
+      "bounding_box_mm_approx": {
+        "source_classification": "approximate_from_solidworks_getbox",
+        "min": [
+          -177.75,
+          -158,
+          950.0000000000001
+        ],
+        "source": "Component2.GetBox(false,false)",
+        "max": [
+          -129.75,
+          -110.00000000000001,
+          1130.0000000000002
+        ]
+      },
+      "geometry_note": "GetBox is approximate SOLIDWORKS geometry and is not a precision interference measurement.",
+      "source_classification": "solidworks_api",
+      "field_errors": [],
+      "evidence_kind": "solidworks_component_observation",
+      "identity_basis": "Component2.Name2"
+    },
+    {
+      "name2": "6130649_01_Carriage_Schlitten_AR_NATIVE_PORTABLE_V20-1",
+      "path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\6130649_01_Carriage_Schlitten_AR_NATIVE_PORTABLE_V20.SLDPRT",
+      "parent_name": null,
+      "is_top_level": true,
+      "referenced_configuration": "Default",
+      "fixed": false,
+      "suppressed": false,
+      "suppression_state": 2,
+      "translation_mm": [
+        500,
+        500,
+        1500
+      ],
+      "translation_m": [
+        0.5,
+        0.5,
+        1.5
+      ],
+      "rotation9": [
+        1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1
+      ],
+      "scale": 1,
+      "transform_array": [
+        1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1,
+        0.5,
+        0.5,
+        1.5,
+        1,
+        0,
+        0,
+        0
+      ],
+      "transform_source": "Component2.Transform2",
+      "getbox_mm": [
+        514.2383325091286,
+        473.5398158861732,
+        1376.670110679015,
+        547.7383325091287,
+        519.30191118979,
+        1480.7164860430848
+      ],
+      "getbox_m": [
+        0.5142383325091285,
+        0.47353981588617317,
+        1.376670110679015,
+        0.5477383325091286,
+        0.51930191118979,
+        1.4807164860430848
+      ],
+      "box_min_mm": [
+        514.2383325091286,
+        473.5398158861732,
+        1376.670110679015
+      ],
+      "box_max_mm": [
+        547.7383325091287,
+        519.30191118979,
+        1480.7164860430848
+      ],
+      "bounding_box_mm_approx": {
+        "source_classification": "approximate_from_solidworks_getbox",
+        "min": [
+          514.2383325091286,
+          473.5398158861732,
+          1376.670110679015
+        ],
+        "source": "Component2.GetBox(false,false)",
+        "max": [
+          547.7383325091287,
+          519.30191118979,
+          1480.7164860430848
+        ]
+      },
+      "geometry_note": "GetBox is approximate SOLIDWORKS geometry and is not a precision interference measurement.",
+      "source_classification": "solidworks_api",
+      "field_errors": [],
+      "evidence_kind": "solidworks_component_observation",
+      "identity_basis": "Component2.Name2"
+    },
+    {
+      "name2": "IXOR_6130800_NATIVE_PORTABLE_V17-1",
+      "path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_6130800_NATIVE_PORTABLE_V17.SLDASM",
+      "parent_name": null,
+      "is_top_level": true,
+      "referenced_configuration": "Default",
+      "fixed": false,
+      "suppressed": false,
+      "suppression_state": 2,
+      "translation_mm": [
+        121,
+        -199.99999999999994,
+        1000
+      ],
+      "translation_m": [
+        0.121,
+        -0.19999999999999996,
+        1
+      ],
+      "rotation9": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        -1,
+        0
+      ],
+      "scale": 1,
+      "transform_array": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        -1,
+        0,
+        0.121,
+        -0.19999999999999996,
+        1,
+        1,
+        0,
+        0,
+        0
+      ],
+      "transform_source": "Component2.Transform2",
+      "getbox_mm": [
+        -112.0000000000001,
+        -360.325475993095,
+        947.9999999999998,
+        382.99999999999966,
+        -142.99999999999997,
+        1541.0000000000002
+      ],
+      "getbox_m": [
+        -0.1120000000000001,
+        -0.360325475993095,
+        0.9479999999999997,
+        0.3829999999999997,
+        -0.14299999999999996,
+        1.5410000000000001
+      ],
+      "box_min_mm": [
+        -112.0000000000001,
+        -360.325475993095,
+        947.9999999999998
+      ],
+      "box_max_mm": [
+        382.99999999999966,
+        -142.99999999999997,
+        1541.0000000000002
+      ],
+      "bounding_box_mm_approx": {
+        "source_classification": "approximate_from_solidworks_getbox",
+        "min": [
+          -112.0000000000001,
+          -360.325475993095,
+          947.9999999999998
+        ],
+        "source": "Component2.GetBox(false,false)",
+        "max": [
+          382.99999999999966,
+          -142.99999999999997,
+          1541.0000000000002
+        ]
+      },
+      "geometry_note": "GetBox is approximate SOLIDWORKS geometry and is not a precision interference measurement.",
+      "source_classification": "solidworks_api",
+      "field_errors": [],
+      "evidence_kind": "solidworks_component_observation",
+      "identity_basis": "Component2.Name2"
+    },
+    {
+      "name2": "IXOR_6130800_NATIVE_PORTABLE_V17-1/6130800_01_Labeling_head_Etikettiergeraet_IXOR_50_D310_V_62_L^IXOR_6130800_NATIVE_PORTABLE_V17-1",
+      "path": "C:\\Users\\user\\AppData\\Local\\Temp\\swx14556\\VC~~\\IXOR_6130800_NATIVE_PORTABLE_V17\\6130800_01_Labeling_head_Etikettiergeraet_IXOR_50_D310_V_62_L^IXOR_6130800_NATIVE_PORTABLE_V17.SLDASM",
+      "parent_name": "IXOR_6130800_NATIVE_PORTABLE_V17-1",
+      "is_top_level": false,
+      "referenced_configuration": "Default",
+      "fixed": null,
+      "suppressed": false,
+      "suppression_state": 2,
+      "translation_mm": [
+        121,
+        -199.99999999999994,
+        1000
+      ],
+      "translation_m": [
+        0.121,
+        -0.19999999999999996,
+        1
+      ],
+      "rotation9": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        -1,
+        0
+      ],
+      "scale": 1,
+      "transform_array": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        -1,
+        0,
+        0.121,
+        -0.19999999999999996,
+        1,
+        1,
+        0,
+        0,
+        0
+      ],
+      "transform_source": "Component2.Transform2",
+      "getbox_mm": [
+        -112.0000000000001,
+        -360.325475993095,
+        947.9999999999998,
+        382.99999999999966,
+        -142.99999999999997,
+        1541.0000000000002
+      ],
+      "getbox_m": [
+        -0.1120000000000001,
+        -0.360325475993095,
+        0.9479999999999997,
+        0.3829999999999997,
+        -0.14299999999999996,
+        1.5410000000000001
+      ],
+      "box_min_mm": [
+        -112.0000000000001,
+        -360.325475993095,
+        947.9999999999998
+      ],
+      "box_max_mm": [
+        382.99999999999966,
+        -142.99999999999997,
+        1541.0000000000002
+      ],
+      "bounding_box_mm_approx": {
+        "source_classification": "approximate_from_solidworks_getbox",
+        "min": [
+          -112.0000000000001,
+          -360.325475993095,
+          947.9999999999998
+        ],
+        "source": "Component2.GetBox(false,false)",
+        "max": [
+          382.99999999999966,
+          -142.99999999999997,
+          1541.0000000000002
+        ]
+      },
+      "geometry_note": "GetBox is approximate SOLIDWORKS geometry and is not a precision interference measurement.",
+      "source_classification": "solidworks_api",
+      "field_errors": [],
+      "evidence_kind": "solidworks_component_observation",
+      "identity_basis": "Component2.Name2"
+    },
+    {
+      "name2": "IXOR_6130800_NATIVE_PORTABLE_V17-1/6130800_01_Labeling_head_Etikettiergeraet_IXOR_50_D310_V_62_L^IXOR_6130800_NATIVE_PORTABLE_V17-1/S-1059153^6130800_01_Labeling_head_Etikettiergeraet_IXOR_50_D310_V_62_L_IXOR_6130800_NATIVE_PORTABLE_V17-1",
+      "path": "C:\\Users\\user\\AppData\\Local\\Temp\\swx14556\\VC~~\\4184894337\\S-1059153^6130800_01_Labeling_head_Etikettiergeraet_IXOR_50_D310_V_62_L_IXOR_6130800_NATIVE_PORTABLE_V17.SLDPRT",
+      "parent_name": "IXOR_6130800_NATIVE_PORTABLE_V17-1/6130800_01_Labeling_head_Etikettiergeraet_IXOR_50_D310_V_62_L^IXOR_6130800_NATIVE_PORTABLE_V17-1",
+      "is_top_level": false,
+      "referenced_configuration": "Default",
+      "fixed": null,
+      "suppressed": false,
+      "suppression_state": 2,
+      "translation_mm": [
+        43,
+        -141.49999999999997,
+        1386.0000000000002
+      ],
+      "translation_m": [
+        0.043,
+        -0.14149999999999996,
+        1.3860000000000001
+      ],
+      "rotation9": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        -1,
+        0
+      ],
+      "scale": 1,
+      "transform_array": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        -1,
+        0,
+        0.043,
+        -0.14149999999999996,
+        1.3860000000000001,
+        1,
+        0,
+        0,
+        0
+      ],
+      "transform_source": "Component2.Transform2",
+      "getbox_mm": [
+        -112.00000000000009,
+        -360.325475993095,
+        1220,
+        245.6155437379619,
+        -142.99999999999997,
+        1541.0000000000002
+      ],
+      "getbox_m": [
+        -0.11200000000000009,
+        -0.360325475993095,
+        1.22,
+        0.2456155437379619,
+        -0.14299999999999996,
+        1.5410000000000001
+      ],
+      "box_min_mm": [
+        -112.00000000000009,
+        -360.325475993095,
+        1220
+      ],
+      "box_max_mm": [
+        245.6155437379619,
+        -142.99999999999997,
+        1541.0000000000002
+      ],
+      "bounding_box_mm_approx": {
+        "source_classification": "approximate_from_solidworks_getbox",
+        "min": [
+          -112.00000000000009,
+          -360.325475993095,
+          1220
+        ],
+        "source": "Component2.GetBox(false,false)",
+        "max": [
+          245.6155437379619,
+          -142.99999999999997,
+          1541.0000000000002
+        ]
+      },
+      "geometry_note": "GetBox is approximate SOLIDWORKS geometry and is not a precision interference measurement.",
+      "source_classification": "solidworks_api",
+      "field_errors": [],
+      "evidence_kind": "solidworks_component_observation",
+      "identity_basis": "Component2.Name2"
+    },
+    {
+      "name2": "IXOR_6130800_NATIVE_PORTABLE_V17-1/6130800_01_Labeling_head_Etikettiergeraet_IXOR_50_D310_V_62_L^IXOR_6130800_NATIVE_PORTABLE_V17-1/S-1059151^6130800_01_Labeling_head_Etikettiergeraet_IXOR_50_D310_V_62_L_IXOR_6130800_NATIVE_PORTABLE_V17-1",
+      "path": "C:\\Users\\user\\AppData\\Local\\Temp\\swx14556\\VC~~\\4184894337\\S-1059151^6130800_01_Labeling_head_Etikettiergeraet_IXOR_50_D310_V_62_L_IXOR_6130800_NATIVE_PORTABLE_V17.SLDPRT",
+      "parent_name": "IXOR_6130800_NATIVE_PORTABLE_V17-1/6130800_01_Labeling_head_Etikettiergeraet_IXOR_50_D310_V_62_L^IXOR_6130800_NATIVE_PORTABLE_V17-1",
+      "is_top_level": false,
+      "referenced_configuration": "Default",
+      "fixed": null,
+      "suppressed": false,
+      "suppression_state": 2,
+      "translation_mm": [
+        121,
+        -199.99999999999994,
+        1000
+      ],
+      "translation_m": [
+        0.121,
+        -0.19999999999999996,
+        1
+      ],
+      "rotation9": [
+        -1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        1,
+        0
+      ],
+      "scale": 1,
+      "transform_array": [
+        -1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        1,
+        0,
+        0.121,
+        -0.19999999999999996,
+        1,
+        1,
+        0,
+        0,
+        0
+      ],
+      "transform_source": "Component2.Transform2",
+      "getbox_mm": [
+        -33.238477726229426,
+        -335.09999999999997,
+        992.0000000000001,
+        134.70027291122884,
+        -142.99999999999997,
+        1236.0000000000002
+      ],
+      "getbox_m": [
+        -0.033238477726229426,
+        -0.33509999999999995,
+        0.9920000000000001,
+        0.13470027291122882,
+        -0.14299999999999996,
+        1.2360000000000002
+      ],
+      "box_min_mm": [
+        -33.238477726229426,
+        -335.09999999999997,
+        992.0000000000001
+      ],
+      "box_max_mm": [
+        134.70027291122884,
+        -142.99999999999997,
+        1236.0000000000002
+      ],
+      "bounding_box_mm_approx": {
+        "source_classification": "approximate_from_solidworks_getbox",
+        "min": [
+          -33.238477726229426,
+          -335.09999999999997,
+          992.0000000000001
+        ],
+        "source": "Component2.GetBox(false,false)",
+        "max": [
+          134.70027291122884,
+          -142.99999999999997,
+          1236.0000000000002
+        ]
+      },
+      "geometry_note": "GetBox is approximate SOLIDWORKS geometry and is not a precision interference measurement.",
+      "source_classification": "solidworks_api",
+      "field_errors": [],
+      "evidence_kind": "solidworks_component_observation",
+      "identity_basis": "Component2.Name2"
+    },
+    {
+      "name2": "IXOR_6130800_NATIVE_PORTABLE_V17-1/6130800_01_Labeling_head_Etikettiergeraet_IXOR_50_D310_V_62_L^IXOR_6130800_NATIVE_PORTABLE_V17-1/S-1059155^6130800_01_Labeling_head_Etikettiergeraet_IXOR_50_D310_V_62_L_IXOR_6130800_NATIVE_PORTABLE_V17-1",
+      "path": "C:\\Users\\user\\AppData\\Local\\Temp\\swx14556\\VC~~\\4184894337\\S-1059155^6130800_01_Labeling_head_Etikettiergeraet_IXOR_50_D310_V_62_L_IXOR_6130800_NATIVE_PORTABLE_V17.SLDPRT",
+      "parent_name": "IXOR_6130800_NATIVE_PORTABLE_V17-1/6130800_01_Labeling_head_Etikettiergeraet_IXOR_50_D310_V_62_L^IXOR_6130800_NATIVE_PORTABLE_V17-1",
+      "is_top_level": false,
+      "referenced_configuration": "Default",
+      "fixed": null,
+      "suppressed": false,
+      "suppression_state": 2,
+      "translation_mm": [
+        278,
+        -141.49999999999997,
+        1053
+      ],
+      "translation_m": [
+        0.278,
+        -0.14149999999999996,
+        1.053
+      ],
+      "rotation9": [
+        0,
+        0,
+        -1,
+        1,
+        0,
+        0,
+        0,
+        -1,
+        0
+      ],
+      "scale": 1,
+      "transform_array": [
+        0,
+        0,
+        -1,
+        1,
+        0,
+        0,
+        0,
+        -1,
+        0,
+        0.278,
+        -0.14149999999999996,
+        1.053,
+        1,
+        0,
+        0,
+        0
+      ],
+      "transform_source": "Component2.Transform2",
+      "getbox_mm": [
+        112.00000000000001,
+        -359.9883941937789,
+        947.9999999999998,
+        382.99999999999966,
+        -143,
+        1157.9999999999998
+      ],
+      "getbox_m": [
+        0.11200000000000002,
+        -0.3599883941937789,
+        0.9479999999999997,
+        0.3829999999999997,
+        -0.143,
+        1.1579999999999997
+      ],
+      "box_min_mm": [
+        112.00000000000001,
+        -359.9883941937789,
+        947.9999999999998
+      ],
+      "box_max_mm": [
+        382.99999999999966,
+        -143,
+        1157.9999999999998
+      ],
+      "bounding_box_mm_approx": {
+        "source_classification": "approximate_from_solidworks_getbox",
+        "min": [
+          112.00000000000001,
+          -359.9883941937789,
+          947.9999999999998
+        ],
+        "source": "Component2.GetBox(false,false)",
+        "max": [
+          382.99999999999966,
+          -143,
+          1157.9999999999998
+        ]
+      },
+      "geometry_note": "GetBox is approximate SOLIDWORKS geometry and is not a precision interference measurement.",
+      "source_classification": "solidworks_api",
+      "field_errors": [],
+      "evidence_kind": "solidworks_component_observation",
+      "identity_basis": "Component2.Name2"
+    },
+    {
+      "name2": "5983425_01_Floor_stand_Bodenstativ_1632^IXOR_Benchmark_v21_AR60_CARRIAGE_FIT_CHECK_PORTABLE-1",
+      "path": "C:\\Users\\user\\AppData\\Local\\Temp\\swx14556\\VC~~\\654332880\\5983425_01_Floor_stand_Bodenstativ_1632^IXOR_Benchmark_v21_AR60_CARRIAGE_FIT_CHECK_PORTABLE.SLDASM",
+      "parent_name": null,
+      "is_top_level": true,
+      "referenced_configuration": "Default",
+      "fixed": true,
+      "suppressed": false,
+      "suppression_state": 2,
+      "translation_mm": [
+        0,
+        0,
+        0
+      ],
+      "translation_m": [
+        0,
+        0,
+        0
+      ],
+      "rotation9": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        -1,
+        0
+      ],
+      "scale": 1,
+      "transform_array": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        -1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0
+      ],
+      "transform_source": "Component2.Transform2",
+      "getbox_mm": [
+        -324.000000000076,
+        -692.500000000108,
+        -1.709743457922741e-11,
+        324.00000000002603,
+        217.49999999995896,
+        1682.0000000004404
+      ],
+      "getbox_m": [
+        -0.324000000000076,
+        -0.692500000000108,
+        -1.709743457922741e-14,
+        0.32400000000002604,
+        0.21749999999995895,
+        1.6820000000004405
+      ],
+      "box_min_mm": [
+        -324.000000000076,
+        -692.500000000108,
+        -1.709743457922741e-11
+      ],
+      "box_max_mm": [
+        324.00000000002603,
+        217.49999999995896,
+        1682.0000000004404
+      ],
+      "bounding_box_mm_approx": {
+        "source_classification": "approximate_from_solidworks_getbox",
+        "min": [
+          -324.000000000076,
+          -692.500000000108,
+          -1.709743457922741e-11
+        ],
+        "source": "Component2.GetBox(false,false)",
+        "max": [
+          324.00000000002603,
+          217.49999999995896,
+          1682.0000000004404
+        ]
+      },
+      "geometry_note": "GetBox is approximate SOLIDWORKS geometry and is not a precision interference measurement.",
+      "source_classification": "solidworks_api",
+      "field_errors": [],
+      "evidence_kind": "solidworks_component_observation",
+      "identity_basis": "Component2.Name2"
+    },
+    {
+      "name2": "5983425_01_Floor_stand_Bodenstativ_1632^IXOR_Benchmark_v21_AR60_CARRIAGE_FIT_CHECK_PORTABLE-1/5983425 abgelei_2^5983425_01_Floor_stand_Bodenstativ_1632_IXOR_Benchmark_v21_AR60_CARRIAGE_FIT_CHECK_PORTABLE-1",
+      "path": "C:\\Users\\user\\AppData\\Local\\Temp\\swx14556\\VC~~\\1230816522\\5983425 abgelei_2^5983425_01_Floor_stand_Bodenstativ_1632_IXOR_Benchmark_v21_AR60_CARRIAGE_FIT_CHECK_PORTABLE.SLDPRT",
+      "parent_name": "5983425_01_Floor_stand_Bodenstativ_1632^IXOR_Benchmark_v21_AR60_CARRIAGE_FIT_CHECK_PORTABLE-1",
+      "is_top_level": false,
+      "referenced_configuration": "Default",
+      "fixed": null,
+      "suppressed": false,
+      "suppression_state": 2,
+      "translation_mm": [
+        0,
+        1e-12,
+        46.102262046678
+      ],
+      "translation_m": [
+        0,
+        1e-15,
+        0.046102262046678
+      ],
+      "rotation9": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        -1,
+        0
+      ],
+      "scale": 1,
+      "transform_array": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        -1,
+        0,
+        0,
+        1e-15,
+        0.046102262046678,
+        1,
+        0,
+        0,
+        0
+      ],
+      "transform_source": "Component2.Transform2",
+      "getbox_mm": [
+        -103.00500099989546,
+        -92.1058772779238,
+        1168.8317838780774,
+        67.50500099990614,
+        -41.994999000137504,
+        1304.1076195236988
+      ],
+      "getbox_m": [
+        -0.10300500099989546,
+        -0.0921058772779238,
+        1.1688317838780775,
+        0.06750500099990614,
+        -0.041994999000137506,
+        1.3041076195236987
+      ],
+      "box_min_mm": [
+        -103.00500099989546,
+        -92.1058772779238,
+        1168.8317838780774
+      ],
+      "box_max_mm": [
+        67.50500099990614,
+        -41.994999000137504,
+        1304.1076195236988
+      ],
+      "bounding_box_mm_approx": {
+        "source_classification": "approximate_from_solidworks_getbox",
+        "min": [
+          -103.00500099989546,
+          -92.1058772779238,
+          1168.8317838780774
+        ],
+        "source": "Component2.GetBox(false,false)",
+        "max": [
+          67.50500099990614,
+          -41.994999000137504,
+          1304.1076195236988
+        ]
+      },
+      "geometry_note": "GetBox is approximate SOLIDWORKS geometry and is not a precision interference measurement.",
+      "source_classification": "solidworks_api",
+      "field_errors": [],
+      "evidence_kind": "solidworks_component_observation",
+      "identity_basis": "Component2.Name2"
+    },
+    {
+      "name2": "5983425_01_Floor_stand_Bodenstativ_1632^IXOR_Benchmark_v21_AR60_CARRIAGE_FIT_CHECK_PORTABLE-1/5983425 abgelei_1^5983425_01_Floor_stand_Bodenstativ_1632_IXOR_Benchmark_v21_AR60_CARRIAGE_FIT_CHECK_PORTABLE-1",
+      "path": "C:\\Users\\user\\AppData\\Local\\Temp\\swx14556\\VC~~\\1230816522\\5983425 abgelei_1^5983425_01_Floor_stand_Bodenstativ_1632_IXOR_Benchmark_v21_AR60_CARRIAGE_FIT_CHECK_PORTABLE.SLDPRT",
+      "parent_name": "5983425_01_Floor_stand_Bodenstativ_1632^IXOR_Benchmark_v21_AR60_CARRIAGE_FIT_CHECK_PORTABLE-1",
+      "is_top_level": false,
+      "referenced_configuration": "Default",
+      "fixed": null,
+      "suppressed": false,
+      "suppression_state": 2,
+      "translation_mm": [
+        0,
+        0,
+        0
+      ],
+      "translation_m": [
+        0,
+        0,
+        0
+      ],
+      "rotation9": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        -1,
+        0
+      ],
+      "scale": 1,
+      "transform_array": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        -1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0
+      ],
+      "transform_source": "Component2.Transform2",
+      "getbox_mm": [
+        -324.000000000076,
+        -692.500000000108,
+        -1.709743457922741e-11,
+        324.00000000002603,
+        217.499999999959,
+        1682.0000000004404
+      ],
+      "getbox_m": [
+        -0.324000000000076,
+        -0.692500000000108,
+        -1.709743457922741e-14,
+        0.32400000000002604,
+        0.21749999999995898,
+        1.6820000000004405
+      ],
+      "box_min_mm": [
+        -324.000000000076,
+        -692.500000000108,
+        -1.709743457922741e-11
+      ],
+      "box_max_mm": [
+        324.00000000002603,
+        217.499999999959,
+        1682.0000000004404
+      ],
+      "bounding_box_mm_approx": {
+        "source_classification": "approximate_from_solidworks_getbox",
+        "min": [
+          -324.000000000076,
+          -692.500000000108,
+          -1.709743457922741e-11
+        ],
+        "source": "Component2.GetBox(false,false)",
+        "max": [
+          324.00000000002603,
+          217.499999999959,
+          1682.0000000004404
+        ]
+      },
+      "geometry_note": "GetBox is approximate SOLIDWORKS geometry and is not a precision interference measurement.",
+      "source_classification": "solidworks_api",
+      "field_errors": [],
+      "evidence_kind": "solidworks_component_observation",
+      "identity_basis": "Component2.Name2"
+    },
+    {
+      "name2": "SP100_6130656_NATIVE_PORTABLE_V17-1",
+      "path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\SP100_6130656_NATIVE_PORTABLE_V17.SLDPRT",
+      "parent_name": null,
+      "is_top_level": true,
+      "referenced_configuration": "Default",
+      "fixed": false,
+      "suppressed": false,
+      "suppression_state": 2,
+      "translation_mm": [
+        -82.6234566659553,
+        -255.39302360668788,
+        987.9408476015319
+      ],
+      "translation_m": [
+        -0.0826234566659553,
+        -0.25539302360668786,
+        0.9879408476015319
+      ],
+      "rotation9": [
+        0,
+        1,
+        0,
+        0.4067366430758009,
+        0,
+        0.9135454576426008,
+        0.9135454576426008,
+        0,
+        -0.4067366430758009
+      ],
+      "scale": 1,
+      "transform_array": [
+        0,
+        1,
+        0,
+        0.4067366430758009,
+        0,
+        0.9135454576426008,
+        0.9135454576426008,
+        0,
+        -0.4067366430758009,
+        -0.0826234566659553,
+        -0.25539302360668786,
+        0.9879408476015319,
+        1,
+        0,
+        0,
+        0
+      ],
+      "transform_source": "Component2.Transform2",
+      "getbox_mm": [
+        -182.40697034931526,
+        -331.00000000000244,
+        987.2158056536838,
+        -40.51713897076553,
+        -178.99997500000237,
+        1095.994141909572
+      ],
+      "getbox_m": [
+        -0.18240697034931525,
+        -0.33100000000000246,
+        0.9872158056536838,
+        -0.04051713897076553,
+        -0.17899997500000236,
+        1.095994141909572
+      ],
+      "box_min_mm": [
+        -182.40697034931526,
+        -331.00000000000244,
+        987.2158056536838
+      ],
+      "box_max_mm": [
+        -40.51713897076553,
+        -178.99997500000237,
+        1095.994141909572
+      ],
+      "bounding_box_mm_approx": {
+        "source_classification": "approximate_from_solidworks_getbox",
+        "min": [
+          -182.40697034931526,
+          -331.00000000000244,
+          987.2158056536838
+        ],
+        "source": "Component2.GetBox(false,false)",
+        "max": [
+          -40.51713897076553,
+          -178.99997500000237,
+          1095.994141909572
+        ]
+      },
+      "geometry_note": "GetBox is approximate SOLIDWORKS geometry and is not a precision interference measurement.",
+      "source_classification": "solidworks_api",
+      "field_errors": [],
+      "evidence_kind": "solidworks_component_observation",
+      "identity_basis": "Component2.Name2"
+    },
+    {
+      "name2": "6120069_02_Mounting_rod_NATIVE_PORTABLE_V17-1",
+      "path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\6120069_02_Mounting_rod_NATIVE_PORTABLE_V17.SLDPRT",
+      "parent_name": null,
+      "is_top_level": true,
+      "referenced_configuration": "Default",
+      "fixed": false,
+      "suppressed": false,
+      "suppression_state": 2,
+      "translation_mm": [
+        -82.00000000000004,
+        -310.99999999999994,
+        1022
+      ],
+      "translation_m": [
+        -0.08200000000000005,
+        -0.31099999999999994,
+        1.022
+      ],
+      "rotation9": [
+        0,
+        1,
+        0,
+        0,
+        0,
+        1,
+        1,
+        0,
+        0
+      ],
+      "scale": 1,
+      "transform_array": [
+        0,
+        1,
+        0,
+        0,
+        0,
+        1,
+        1,
+        0,
+        0,
+        -0.08200000000000005,
+        -0.31099999999999994,
+        1.022,
+        1,
+        0,
+        0,
+        0
+      ],
+      "transform_source": "Component2.Transform2",
+      "getbox_mm": [
+        -82.00000000000004,
+        -318.99999999999994,
+        1014,
+        -17.000000000000043,
+        -302.99999999999994,
+        1030
+      ],
+      "getbox_m": [
+        -0.08200000000000005,
+        -0.31899999999999995,
+        1.014,
+        -0.017000000000000043,
+        -0.30299999999999994,
+        1.03
+      ],
+      "box_min_mm": [
+        -82.00000000000004,
+        -318.99999999999994,
+        1014
+      ],
+      "box_max_mm": [
+        -17.000000000000043,
+        -302.99999999999994,
+        1030
+      ],
+      "bounding_box_mm_approx": {
+        "source_classification": "approximate_from_solidworks_getbox",
+        "min": [
+          -82.00000000000004,
+          -318.99999999999994,
+          1014
+        ],
+        "source": "Component2.GetBox(false,false)",
+        "max": [
+          -17.000000000000043,
+          -302.99999999999994,
+          1030
+        ]
+      },
+      "geometry_note": "GetBox is approximate SOLIDWORKS geometry and is not a precision interference measurement.",
+      "source_classification": "solidworks_api",
+      "field_errors": [],
+      "evidence_kind": "solidworks_component_observation",
+      "identity_basis": "Component2.Name2"
+    },
+    {
+      "name2": "6120069_02_Mounting_rod_NATIVE_PORTABLE_V17-2",
+      "path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\6120069_02_Mounting_rod_NATIVE_PORTABLE_V17.SLDPRT",
+      "parent_name": null,
+      "is_top_level": true,
+      "referenced_configuration": "Default",
+      "fixed": false,
+      "suppressed": false,
+      "suppression_state": 2,
+      "translation_mm": [
+        -82.00000000000004,
+        -206.99999999999997,
+        1022
+      ],
+      "translation_m": [
+        -0.08200000000000005,
+        -0.20699999999999996,
+        1.022
+      ],
+      "rotation9": [
+        0,
+        1,
+        0,
+        0,
+        0,
+        1,
+        1,
+        0,
+        0
+      ],
+      "scale": 1,
+      "transform_array": [
+        0,
+        1,
+        0,
+        0,
+        0,
+        1,
+        1,
+        0,
+        0,
+        -0.08200000000000005,
+        -0.20699999999999996,
+        1.022,
+        1,
+        0,
+        0,
+        0
+      ],
+      "transform_source": "Component2.Transform2",
+      "getbox_mm": [
+        -82.00000000000004,
+        -214.99999999999997,
+        1014,
+        -17.000000000000043,
+        -198.99999999999994,
+        1030
+      ],
+      "getbox_m": [
+        -0.08200000000000005,
+        -0.21499999999999997,
+        1.014,
+        -0.017000000000000043,
+        -0.19899999999999995,
+        1.03
+      ],
+      "box_min_mm": [
+        -82.00000000000004,
+        -214.99999999999997,
+        1014
+      ],
+      "box_max_mm": [
+        -17.000000000000043,
+        -198.99999999999994,
+        1030
+      ],
+      "bounding_box_mm_approx": {
+        "source_classification": "approximate_from_solidworks_getbox",
+        "min": [
+          -82.00000000000004,
+          -214.99999999999997,
+          1014
+        ],
+        "source": "Component2.GetBox(false,false)",
+        "max": [
+          -17.000000000000043,
+          -198.99999999999994,
+          1030
+        ]
+      },
+      "geometry_note": "GetBox is approximate SOLIDWORKS geometry and is not a precision interference measurement.",
+      "source_classification": "solidworks_api",
+      "field_errors": [],
+      "evidence_kind": "solidworks_component_observation",
+      "identity_basis": "Component2.Name2"
+    }
+  ],
+  "prohibited_promotions": [
+    "mechanical_acceptance",
+    "valid_contact",
+    "valid_clearance",
+    "operating_sequence",
+    "functional_suitability"
+  ]
+}

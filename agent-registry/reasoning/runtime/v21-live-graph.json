@@ -1,0 +1,730 @@
+{
+  "project": {
+    "id": "IXOR_V21_LIVE",
+    "name": "IXOR v21 live evidence project-health graph",
+    "acceptance_obligation": "V21_ACCEPTANCE",
+    "document_title": "IXOR_Benchmark_v21_AR60_CARRIAGE_FIT_CHECK_PORTABLE",
+    "source_raw_sha256": "e5d48f922fc44876b70cf936e7e989b990665acca1b74c649370a1dd6ae2ce32",
+    "graph_basis": "admitted SOLIDWORKS evidence + deterministic geometry projection",
+    "mechanical_acceptance_granted": false
+  },
+  "nodes": [
+    {
+      "id": "AR60_COMPONENT_IDENTITY",
+      "kind": "fact",
+      "description": "Exact live SOLIDWORKS identity of the AR60 roller component.",
+      "value": "6130460_03_AR60_NATIVE_PORTABLE_V18-2",
+      "state": "KNOWN",
+      "authority": "SOLIDWORKS_LIVE_STATE",
+      "criticality": 5,
+      "metadata": {
+        "source_transaction": "deterministic_geometry_projection",
+        "raw_observation_sha256": "e5d48f922fc44876b70cf936e7e989b990665acca1b74c649370a1dd6ae2ce32",
+        "source_job_id": "bb9d47cc-c75f-4709-8691-af5721f26589",
+        "source_recorded_at": "2026-09-16T00:48:11.039430+00:00",
+        "document_title": "IXOR_Benchmark_v21_AR60_CARRIAGE_FIT_CHECK_PORTABLE",
+        "mechanical_acceptance_granted": false
+      }
+    },
+    {
+      "id": "AR60_TRANSFORM",
+      "kind": "fact",
+      "description": "Observed AR60 transform in the current v21 fit-check assembly.",
+      "value": {
+        "translation_mm": [
+          484.7308852396768,
+          527.8630980015928,
+          1512.441354942933
+        ],
+        "rotation9": [
+          1,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
+        ],
+        "transform_array": [
+          1,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          1,
+          0.48473088523967683,
+          0.5278630980015928,
+          1.512441354942933,
+          1,
+          0,
+          0,
+          0
+        ],
+        "transform_source": "Component2.Transform2"
+      },
+      "state": "KNOWN",
+      "authority": "SOLIDWORKS_LIVE_STATE",
+      "criticality": 5,
+      "metadata": {
+        "source_transaction": "deterministic_geometry_projection",
+        "raw_observation_sha256": "e5d48f922fc44876b70cf936e7e989b990665acca1b74c649370a1dd6ae2ce32",
+        "source_job_id": "bb9d47cc-c75f-4709-8691-af5721f26589",
+        "source_recorded_at": "2026-09-16T00:48:11.039430+00:00",
+        "document_title": "IXOR_Benchmark_v21_AR60_CARRIAGE_FIT_CHECK_PORTABLE",
+        "mechanical_acceptance_granted": false
+      }
+    },
+    {
+      "id": "AR60_APPROX_ENVELOPE",
+      "kind": "fact",
+      "description": "Observed approximate axis-aligned AR60 envelope from SOLIDWORKS GetBox-derived evidence.",
+      "value": {
+        "box_min_mm": [
+          433.03833250912817,
+          474.3817644408614,
+          1372.170110679015
+        ],
+        "box_max_mm": [
+          522.2383325091288,
+          499.3817644408614,
+          1397.170110679015
+        ]
+      },
+      "state": "KNOWN",
+      "authority": "SOLIDWORKS_LIVE_STATE",
+      "criticality": 4,
+      "metadata": {
+        "source_transaction": "deterministic_geometry_projection",
+        "raw_observation_sha256": "e5d48f922fc44876b70cf936e7e989b990665acca1b74c649370a1dd6ae2ce32",
+        "source_job_id": "bb9d47cc-c75f-4709-8691-af5721f26589",
+        "source_recorded_at": "2026-09-16T00:48:11.039430+00:00",
+        "document_title": "IXOR_Benchmark_v21_AR60_CARRIAGE_FIT_CHECK_PORTABLE",
+        "mechanical_acceptance_granted": false,
+        "engineering_limit": "Approximate AABB; not exact body geometry."
+      }
+    },
+    {
+      "id": "CARRIAGE_COMPONENT_IDENTITY",
+      "kind": "fact",
+      "description": "Exact live SOLIDWORKS identity of the AR carriage component.",
+      "value": "6130649_01_Carriage_Schlitten_AR_NATIVE_PORTABLE_V20-1",
+      "state": "KNOWN",
+      "authority": "SOLIDWORKS_LIVE_STATE",
+      "criticality": 5,
+      "metadata": {
+        "source_transaction": "deterministic_geometry_projection",
+        "raw_observation_sha256": "e5d48f922fc44876b70cf936e7e989b990665acca1b74c649370a1dd6ae2ce32",
+        "source_job_id": "bb9d47cc-c75f-4709-8691-af5721f26589",
+        "source_recorded_at": "2026-09-16T00:48:11.039430+00:00",
+        "document_title": "IXOR_Benchmark_v21_AR60_CARRIAGE_FIT_CHECK_PORTABLE",
+        "mechanical_acceptance_granted": false
+      }
+    },
+    {
+      "id": "CARRIAGE_TRANSFORM",
+      "kind": "fact",
+      "description": "Observed carriage transform in the current v21 fit-check assembly.",
+      "value": {
+        "translation_mm": [
+          500,
+          500,
+          1500
+        ],
+        "rotation9": [
+          1,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
+        ],
+        "transform_array": [
+          1,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          1,
+          0.5,
+          0.5,
+          1.5,
+          1,
+          0,
+          0,
+          0
+        ],
+        "transform_source": "Component2.Transform2"
+      },
+      "state": "KNOWN",
+      "authority": "SOLIDWORKS_LIVE_STATE",
+      "criticality": 5,
+      "metadata": {
+        "source_transaction": "deterministic_geometry_projection",
+        "raw_observation_sha256": "e5d48f922fc44876b70cf936e7e989b990665acca1b74c649370a1dd6ae2ce32",
+        "source_job_id": "bb9d47cc-c75f-4709-8691-af5721f26589",
+        "source_recorded_at": "2026-09-16T00:48:11.039430+00:00",
+        "document_title": "IXOR_Benchmark_v21_AR60_CARRIAGE_FIT_CHECK_PORTABLE",
+        "mechanical_acceptance_granted": false
+      }
+    },
+    {
+      "id": "CONVEYOR_APPROX_ENVELOPE",
+      "kind": "fact",
+      "description": "Observed approximate conveyor envelope in the current v21 assembly.",
+      "value": {
+        "box_min_mm": [
+          -218.75,
+          -674,
+          5.551115123125783e-14
+        ],
+        "box_max_mm": [
+          -88.75,
+          226,
+          990
+        ]
+      },
+      "state": "KNOWN",
+      "authority": "SOLIDWORKS_LIVE_STATE",
+      "criticality": 5,
+      "metadata": {
+        "source_transaction": "deterministic_geometry_projection",
+        "raw_observation_sha256": "e5d48f922fc44876b70cf936e7e989b990665acca1b74c649370a1dd6ae2ce32",
+        "source_job_id": "bb9d47cc-c75f-4709-8691-af5721f26589",
+        "source_recorded_at": "2026-09-16T00:48:11.039430+00:00",
+        "document_title": "IXOR_Benchmark_v21_AR60_CARRIAGE_FIT_CHECK_PORTABLE",
+        "mechanical_acceptance_granted": false,
+        "engineering_limit": "Approximate AABB; not an exact clearance result."
+      }
+    },
+    {
+      "id": "BOTTLE_PATH_APPROX_ENVELOPES",
+      "kind": "fact",
+      "description": "Observed approximate envelopes of the five deterministic bottles in v21.",
+      "value": {
+        "BOTTLE_1": {
+          "component_name2": "BENCH_BOTTLE_D48_H180-1",
+          "box_min_mm": [
+            -177.75,
+            -428.00000000000006,
+            950.0000000000001
+          ],
+          "box_max_mm": [
+            -129.75,
+            -380,
+            1130.0000000000002
+          ]
+        },
+        "BOTTLE_2": {
+          "component_name2": "BENCH_BOTTLE_D48_H180-2",
+          "box_min_mm": [
+            -177.75,
+            -338,
+            950.0000000000001
+          ],
+          "box_max_mm": [
+            -129.75,
+            -290,
+            1130.0000000000002
+          ]
+        },
+        "BOTTLE_3": {
+          "component_name2": "BENCH_BOTTLE_D48_H180-3",
+          "box_min_mm": [
+            -177.75,
+            -248,
+            950.0000000000001
+          ],
+          "box_max_mm": [
+            -129.75,
+            -200,
+            1130.0000000000002
+          ]
+        },
+        "BOTTLE_4": {
+          "component_name2": "BENCH_BOTTLE_D48_H180-4",
+          "box_min_mm": [
+            -177.75,
+            -158,
+            950.0000000000001
+          ],
+          "box_max_mm": [
+            -129.75,
+            -110.00000000000001,
+            1130.0000000000002
+          ]
+        },
+        "BOTTLE_5": {
+          "component_name2": "BENCH_BOTTLE_D48_H180-5",
+          "box_min_mm": [
+            -177.75,
+            -68,
+            950.0000000000001
+          ],
+          "box_max_mm": [
+            -129.75,
+            -19.999999999999996,
+            1130.0000000000002
+          ]
+        }
+      },
+      "state": "KNOWN",
+      "authority": "SOLIDWORKS_LIVE_STATE",
+      "criticality": 5,
+      "metadata": {
+        "source_transaction": "deterministic_geometry_projection",
+        "raw_observation_sha256": "e5d48f922fc44876b70cf936e7e989b990665acca1b74c649370a1dd6ae2ce32",
+        "source_job_id": "bb9d47cc-c75f-4709-8691-af5721f26589",
+        "source_recorded_at": "2026-09-16T00:48:11.039430+00:00",
+        "document_title": "IXOR_Benchmark_v21_AR60_CARRIAGE_FIT_CHECK_PORTABLE",
+        "mechanical_acceptance_granted": false,
+        "engineering_limit": "Bottle AABBs characterize current placement only; they do not define accepted product flow."
+      }
+    },
+    {
+      "id": "AR60_NEAREST_BOTTLE_AABB_SEPARATION",
+      "kind": "fact",
+      "description": "Minimum approximate AABB separation between the current AR60 and the nearest observed bottle candidate.",
+      "value": 787.2676792085082,
+      "state": "KNOWN",
+      "authority": "MEASURED_CALCULATED",
+      "criticality": 5,
+      "metadata": {
+        "source_transaction": "deterministic_geometry_projection",
+        "raw_observation_sha256": "e5d48f922fc44876b70cf936e7e989b990665acca1b74c649370a1dd6ae2ce32",
+        "source_job_id": "bb9d47cc-c75f-4709-8691-af5721f26589",
+        "source_recorded_at": "2026-09-16T00:48:11.039430+00:00",
+        "document_title": "IXOR_Benchmark_v21_AR60_CARRIAGE_FIT_CHECK_PORTABLE",
+        "mechanical_acceptance_granted": false,
+        "nearest_bottle_unique": true,
+        "nearest_bottle_role": "BOTTLE_5",
+        "nearest_bottle_roles": [
+          "BOTTLE_5"
+        ],
+        "axis_gap_mm": {
+          "x": 562.7883325091282,
+          "y": 494.3817644408614,
+          "z": 242.17011067901467
+        },
+        "candidate_axis_gaps_mm": {
+          "BOTTLE_5": {
+            "x": 562.7883325091282,
+            "y": 494.3817644408614,
+            "z": 242.17011067901467
+          }
+        },
+        "engineering_limit": "AABB separation is not exact surface clearance or proof of contact impossibility after repositioning."
+      },
+      "units": "mm"
+    },
+    {
+      "id": "AR60_AABB_DISJOINT_FROM_ALL_BOTTLES",
+      "kind": "fact",
+      "description": "Whether the current AR60 approximate AABB is disjoint from all five observed bottle AABBs.",
+      "value": true,
+      "state": "KNOWN",
+      "authority": "MEASURED_CALCULATED",
+      "criticality": 5,
+      "metadata": {
+        "source_transaction": "deterministic_geometry_projection",
+        "raw_observation_sha256": "e5d48f922fc44876b70cf936e7e989b990665acca1b74c649370a1dd6ae2ce32",
+        "source_job_id": "bb9d47cc-c75f-4709-8691-af5721f26589",
+        "source_recorded_at": "2026-09-16T00:48:11.039430+00:00",
+        "document_title": "IXOR_Benchmark_v21_AR60_CARRIAGE_FIT_CHECK_PORTABLE",
+        "mechanical_acceptance_granted": false,
+        "engineering_limit": "Describes the current fit-check state only; not an operating-position verdict."
+      }
+    },
+    {
+      "id": "AR60_CARRIAGE_AABB_RELATION",
+      "kind": "fact",
+      "description": "Approximate AABB relationship between the current AR60 and carriage.",
+      "value": {
+        "axis_gap_mm": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "minimum_aabb_separation_mm": 0.0,
+        "aabb_intersects_or_touches": true,
+        "positive_volume_aabb_overlap": true,
+        "overlap_extent_mm": {
+          "x": 8.000000000000227,
+          "y": 25.0,
+          "z": 20.5
+        }
+      },
+      "state": "KNOWN",
+      "authority": "MEASURED_CALCULATED",
+      "criticality": 4,
+      "metadata": {
+        "source_transaction": "deterministic_geometry_projection",
+        "raw_observation_sha256": "e5d48f922fc44876b70cf936e7e989b990665acca1b74c649370a1dd6ae2ce32",
+        "source_job_id": "bb9d47cc-c75f-4709-8691-af5721f26589",
+        "source_recorded_at": "2026-09-16T00:48:11.039430+00:00",
+        "document_title": "IXOR_Benchmark_v21_AR60_CARRIAGE_FIT_CHECK_PORTABLE",
+        "mechanical_acceptance_granted": false,
+        "engineering_limit": "AABB overlap is not proof of body interference or mechanical fit."
+      }
+    },
+    {
+      "id": "AR60_CONVEYOR_AABB_RELATION",
+      "kind": "fact",
+      "description": "Approximate AABB relationship between the current AR60 and conveyor.",
+      "value": {
+        "axis_gap_mm": {
+          "x": 521.7883325091282,
+          "y": 248.3817644408614,
+          "z": 382.1701106790149
+        },
+        "minimum_aabb_separation_mm": 692.8279428154025,
+        "aabb_intersects_or_touches": false,
+        "positive_volume_aabb_overlap": false,
+        "overlap_extent_mm": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        }
+      },
+      "state": "KNOWN",
+      "authority": "MEASURED_CALCULATED",
+      "criticality": 4,
+      "metadata": {
+        "source_transaction": "deterministic_geometry_projection",
+        "raw_observation_sha256": "e5d48f922fc44876b70cf936e7e989b990665acca1b74c649370a1dd6ae2ce32",
+        "source_job_id": "bb9d47cc-c75f-4709-8691-af5721f26589",
+        "source_recorded_at": "2026-09-16T00:48:11.039430+00:00",
+        "document_title": "IXOR_Benchmark_v21_AR60_CARRIAGE_FIT_CHECK_PORTABLE",
+        "mechanical_acceptance_granted": false,
+        "engineering_limit": "AABB separation/overlap is not a precise clearance or interference result."
+      }
+    },
+    {
+      "id": "INTENDED_APPLICATION_STATION_TRANSFORM",
+      "kind": "fact",
+      "description": "Intended mechanically valid AR60/carriage application-station transform relative to the bottle path, IXOR peel edge, and mounting structure.",
+      "value": null,
+      "state": "NULL",
+      "authority": null,
+      "expected_authority": [
+        "OEM_CAD",
+        "OEM_MANUAL",
+        "SOLIDWORKS_MEASUREMENT",
+        "DETERMINISTIC_DERIVATION"
+      ],
+      "criticality": 5,
+      "resolution_cost": 1.0,
+      "metadata": {
+        "question": "What transform places the AR60/carriage in the intended application station while respecting OEM mounting architecture and bottle flow?",
+        "why_it_matters": "The current fit-check transform is remote from the bottles; operating contact, clearance, and reachability cannot be evaluated until the intended station geometry is established."
+      }
+    },
+    {
+      "id": "AR60_CONTACT_POSITION",
+      "kind": "fact",
+      "description": "Operating AR60 contact position relative to the intended bottle application condition.",
+      "value": null,
+      "state": "NULL",
+      "authority": null,
+      "expected_authority": [
+        "SOLIDWORKS_MEASUREMENT",
+        "DETERMINISTIC_DERIVATION"
+      ],
+      "criticality": 5,
+      "resolution_cost": 1.0,
+      "metadata": {
+        "question": "Where is the deterministic AR60/bottle contact condition after the intended application-station transform is established?",
+        "why_it_matters": "Blocks proof of bottle contact, carriage reachability, and conveyor clearance."
+      }
+    },
+    {
+      "id": "AR60_MAX_TRAVEL",
+      "kind": "fact",
+      "description": "Verified usable AR carriage travel along the mechanically relevant adjustment axis.",
+      "value": null,
+      "state": "NULL",
+      "authority": null,
+      "expected_authority": [
+        "OEM_CAD",
+        "OEM_MANUAL",
+        "SOLIDWORKS_MEASUREMENT"
+      ],
+      "criticality": 5,
+      "resolution_cost": 1.0,
+      "metadata": {
+        "question": "What is the verified usable carriage travel and axis for this exact AR carriage configuration?",
+        "why_it_matters": "Travel must be verified from authoritative evidence before reachability can be accepted."
+      }
+    },
+    {
+      "id": "CONTACT_REACHABLE_WITHIN_TRAVEL",
+      "kind": "derived_claim",
+      "description": "Required operating contact position is reachable within verified AR carriage travel.",
+      "value": null,
+      "state": "NULL",
+      "authority": null,
+      "expected_authority": [
+        "DETERMINISTIC_DERIVATION"
+      ],
+      "criticality": 5,
+      "resolution_cost": 1.0,
+      "metadata": {
+        "question": "Does the verified travel range contain the required AR60 contact position?",
+        "why_it_matters": "Directly gates whether the AR60 can reach the intended bottle without inventing unsupported adjustment range."
+      }
+    },
+    {
+      "id": "PEEL_EDGE_BOTTLE_RELATION",
+      "kind": "derived_claim",
+      "description": "Deterministic peel-edge relationship to the bottle at the intended application station.",
+      "value": null,
+      "state": "NULL",
+      "authority": null,
+      "expected_authority": [
+        "OEM_CAD",
+        "SOLIDWORKS_MEASUREMENT",
+        "DETERMINISTIC_DERIVATION"
+      ],
+      "criticality": 5,
+      "resolution_cost": 1.0,
+      "metadata": {
+        "question": "Where is the IXOR peel edge relative to the bottle and AR60 contact condition?",
+        "why_it_matters": "A plausible application station requires label presentation geometry, not only roller proximity."
+      }
+    },
+    {
+      "id": "BOTTLE_RESTRAINT_GEOMETRY",
+      "kind": "derived_claim",
+      "description": "Bottle support/restraint geometry is defined for the intended labeling condition.",
+      "value": null,
+      "state": "NULL",
+      "authority": null,
+      "expected_authority": [
+        "OEM_CAD",
+        "OEM_MANUAL",
+        "DETERMINISTIC_PROJECT_GEOMETRY",
+        "SOLIDWORKS_MEASUREMENT"
+      ],
+      "criticality": 5,
+      "resolution_cost": 1.0,
+      "metadata": {
+        "question": "What mechanically supports, locates, and restrains the bottle during label application?",
+        "why_it_matters": "Bottle contact without controlled seating/restraint does not establish an operating arrangement."
+      }
+    },
+    {
+      "id": "PRODUCT_FLOW_MECHANICS",
+      "kind": "derived_claim",
+      "description": "Bottle entry, application, release, and downstream flow mechanics are deterministically established.",
+      "value": null,
+      "state": "NULL",
+      "authority": null,
+      "expected_authority": [
+        "OEM_MANUAL",
+        "OEM_CAD",
+        "DETERMINISTIC_DERIVATION",
+        "SOLIDWORKS_MEASUREMENT"
+      ],
+      "criticality": 5,
+      "resolution_cost": 1.0,
+      "metadata": {
+        "question": "Can a bottle enter, be labeled under restraint, release, and continue without collision or impossible motion?",
+        "why_it_matters": "Static fit alone is not proof of a workable product-flow sequence."
+      }
+    },
+    {
+      "id": "NO_CONVEYOR_INTERFERENCE",
+      "kind": "invariant",
+      "description": "The accepted operating configuration must not structurally interfere with the conveyor or required product-flow envelope.",
+      "value": true,
+      "state": "ASSERTED",
+      "authority": "PROJECT_INVARIANT",
+      "criticality": 5
+    },
+    {
+      "id": "BOTTLE_CONTACT_ACHIEVABLE",
+      "kind": "invariant",
+      "description": "The application roller must reach the intended bottle contact condition under verified travel and restraint geometry.",
+      "value": true,
+      "state": "ASSERTED",
+      "authority": "PROJECT_INVARIANT",
+      "criticality": 5
+    },
+    {
+      "id": "VALID_APPLICATION_GEOMETRY",
+      "kind": "obligation",
+      "description": "Application geometry, peel-edge relation, bottle restraint, clearances, and product flow are mechanically coherent enough to advance beyond fit-check.",
+      "value": true,
+      "state": "ASSERTED",
+      "authority": "PROJECT_ACCEPTANCE_RULE",
+      "criticality": 5
+    },
+    {
+      "id": "V21_ACCEPTANCE",
+      "kind": "obligation",
+      "description": "v21 is acceptable as an operating-configuration candidate rather than only an AR60/carriage fit-check.",
+      "value": true,
+      "state": "ASSERTED",
+      "authority": "PROJECT_ACCEPTANCE_RULE",
+      "criticality": 5,
+      "acceptance_gate": true
+    }
+  ],
+  "relations": [
+    {
+      "from": "INTENDED_APPLICATION_STATION_TRANSFORM",
+      "to": "AR60_TRANSFORM",
+      "type": "depends_on",
+      "strength": 0.8
+    },
+    {
+      "from": "INTENDED_APPLICATION_STATION_TRANSFORM",
+      "to": "CARRIAGE_TRANSFORM",
+      "type": "depends_on",
+      "strength": 0.8
+    },
+    {
+      "from": "INTENDED_APPLICATION_STATION_TRANSFORM",
+      "to": "BOTTLE_PATH_APPROX_ENVELOPES",
+      "type": "depends_on",
+      "strength": 1.0
+    },
+    {
+      "from": "INTENDED_APPLICATION_STATION_TRANSFORM",
+      "to": "CONVEYOR_APPROX_ENVELOPE",
+      "type": "constrained_by",
+      "strength": 1.0
+    },
+    {
+      "from": "AR60_CONTACT_POSITION",
+      "to": "INTENDED_APPLICATION_STATION_TRANSFORM",
+      "type": "depends_on",
+      "strength": 1.0
+    },
+    {
+      "from": "AR60_CONTACT_POSITION",
+      "to": "BOTTLE_PATH_APPROX_ENVELOPES",
+      "type": "depends_on",
+      "strength": 1.0
+    },
+    {
+      "from": "CONTACT_REACHABLE_WITHIN_TRAVEL",
+      "to": "AR60_CONTACT_POSITION",
+      "type": "depends_on",
+      "strength": 1.0
+    },
+    {
+      "from": "CONTACT_REACHABLE_WITHIN_TRAVEL",
+      "to": "AR60_MAX_TRAVEL",
+      "type": "depends_on",
+      "strength": 1.0
+    },
+    {
+      "from": "NO_CONVEYOR_INTERFERENCE",
+      "to": "INTENDED_APPLICATION_STATION_TRANSFORM",
+      "type": "depends_on",
+      "strength": 1.0
+    },
+    {
+      "from": "NO_CONVEYOR_INTERFERENCE",
+      "to": "CONVEYOR_APPROX_ENVELOPE",
+      "type": "depends_on",
+      "strength": 1.0
+    },
+    {
+      "from": "BOTTLE_CONTACT_ACHIEVABLE",
+      "to": "CONTACT_REACHABLE_WITHIN_TRAVEL",
+      "type": "depends_on",
+      "strength": 1.0
+    },
+    {
+      "from": "BOTTLE_CONTACT_ACHIEVABLE",
+      "to": "BOTTLE_RESTRAINT_GEOMETRY",
+      "type": "depends_on",
+      "strength": 1.0
+    },
+    {
+      "from": "PEEL_EDGE_BOTTLE_RELATION",
+      "to": "INTENDED_APPLICATION_STATION_TRANSFORM",
+      "type": "depends_on",
+      "strength": 1.0
+    },
+    {
+      "from": "BOTTLE_RESTRAINT_GEOMETRY",
+      "to": "INTENDED_APPLICATION_STATION_TRANSFORM",
+      "type": "depends_on",
+      "strength": 0.8
+    },
+    {
+      "from": "PRODUCT_FLOW_MECHANICS",
+      "to": "BOTTLE_RESTRAINT_GEOMETRY",
+      "type": "depends_on",
+      "strength": 1.0
+    },
+    {
+      "from": "PRODUCT_FLOW_MECHANICS",
+      "to": "NO_CONVEYOR_INTERFERENCE",
+      "type": "depends_on",
+      "strength": 1.0
+    },
+    {
+      "from": "VALID_APPLICATION_GEOMETRY",
+      "to": "NO_CONVEYOR_INTERFERENCE",
+      "type": "depends_on",
+      "strength": 1.0
+    },
+    {
+      "from": "VALID_APPLICATION_GEOMETRY",
+      "to": "BOTTLE_CONTACT_ACHIEVABLE",
+      "type": "depends_on",
+      "strength": 1.0
+    },
+    {
+      "from": "VALID_APPLICATION_GEOMETRY",
+      "to": "PEEL_EDGE_BOTTLE_RELATION",
+      "type": "depends_on",
+      "strength": 1.0
+    },
+    {
+      "from": "VALID_APPLICATION_GEOMETRY",
+      "to": "BOTTLE_RESTRAINT_GEOMETRY",
+      "type": "depends_on",
+      "strength": 1.0
+    },
+    {
+      "from": "VALID_APPLICATION_GEOMETRY",
+      "to": "PRODUCT_FLOW_MECHANICS",
+      "type": "depends_on",
+      "strength": 1.0
+    },
+    {
+      "from": "V21_ACCEPTANCE",
+      "to": "VALID_APPLICATION_GEOMETRY",
+      "type": "depends_on",
+      "strength": 1.0
+    },
+    {
+      "from": "BOTTLE_CONTACT_ACHIEVABLE",
+      "to": "VALID_APPLICATION_GEOMETRY",
+      "type": "before",
+      "strength": 1.0,
+      "algebra": "allen"
+    }
+  ],
+  "projection_policy": {
+    "toy_placeholder_values_copied": false,
+    "known_values_require_observation_or_deterministic_derivation": true,
+    "aabb_results_do_not_establish_exact_contact_or_interference": true,
+    "llm_may_not_promote_nulls": true
+  }
+}

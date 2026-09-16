@@ -1,0 +1,296 @@
+﻿[
+    {
+        "name2":  "6130460_03_AR60_NATIVE_PORTABLE_V18-2",
+        "path":  "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\6130460_03_AR60_NATIVE_PORTABLE_V18.SLDPRT",
+        "parent_name":  null,
+        "is_top_level":  true,
+        "referenced_configuration":  "Default",
+        "fixed":  false,
+        "suppressed":  false,
+        "suppression_state":  2,
+        "translation_mm":  [
+                               484.7308852396768,
+                               527.8630980015928,
+                               1512.441354942933
+                           ],
+        "translation_m":  [
+                              0.48473088523967683,
+                              0.5278630980015928,
+                              1.512441354942933
+                          ],
+        "rotation9":  [
+                          1,
+                          0,
+                          0,
+                          0,
+                          1,
+                          0,
+                          0,
+                          0,
+                          1
+                      ],
+        "scale":  1,
+        "transform_array":  [
+                                1,
+                                0,
+                                0,
+                                0,
+                                1,
+                                0,
+                                0,
+                                0,
+                                1,
+                                0.48473088523967683,
+                                0.5278630980015928,
+                                1.512441354942933,
+                                1,
+                                0,
+                                0,
+                                0
+                            ],
+        "transform_source":  "Component2.Transform2",
+        "getbox_mm":  [
+                          433.03833250912817,
+                          474.3817644408614,
+                          1372.170110679015,
+                          522.2383325091288,
+                          499.3817644408614,
+                          1397.170110679015
+                      ],
+        "getbox_m":  [
+                         0.43303833250912815,
+                         0.4743817644408614,
+                         1.372170110679015,
+                         0.5222383325091288,
+                         0.4993817644408614,
+                         1.3971701106790149
+                     ],
+        "box_min_mm":  [
+                           433.03833250912817,
+                           474.3817644408614,
+                           1372.170110679015
+                       ],
+        "box_max_mm":  [
+                           522.2383325091288,
+                           499.3817644408614,
+                           1397.170110679015
+                       ],
+        "bounding_box_mm_approx":  {
+                                       "source_classification":  "approximate_from_solidworks_getbox",
+                                       "min":  [
+                                                   433.03833250912817,
+                                                   474.3817644408614,
+                                                   1372.170110679015
+                                               ],
+                                       "source":  "Component2.GetBox(false,false)",
+                                       "max":  [
+                                                   522.2383325091288,
+                                                   499.3817644408614,
+                                                   1397.170110679015
+                                               ]
+                                   },
+        "geometry_note":  "GetBox is approximate SOLIDWORKS geometry and is not a precision interference measurement.",
+        "source_classification":  "solidworks_api",
+        "field_errors":  [
+
+                         ],
+        "evidence_kind":  "solidworks_component_observation",
+        "identity_basis":  "Component2.Name2"
+    },
+    {
+        "name2":  "6130649_01_Carriage_Schlitten_AR_NATIVE_PORTABLE_V20-1",
+        "path":  "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\6130649_01_Carriage_Schlitten_AR_NATIVE_PORTABLE_V20.SLDPRT",
+        "parent_name":  null,
+        "is_top_level":  true,
+        "referenced_configuration":  "Default",
+        "fixed":  false,
+        "suppressed":  false,
+        "suppression_state":  2,
+        "translation_mm":  [
+                               500,
+                               500,
+                               1500
+                           ],
+        "translation_m":  [
+                              0.5,
+                              0.5,
+                              1.5
+                          ],
+        "rotation9":  [
+                          1,
+                          0,
+                          0,
+                          0,
+                          1,
+                          0,
+                          0,
+                          0,
+                          1
+                      ],
+        "scale":  1,
+        "transform_array":  [
+                                1,
+                                0,
+                                0,
+                                0,
+                                1,
+                                0,
+                                0,
+                                0,
+                                1,
+                                0.5,
+                                0.5,
+                                1.5,
+                                1,
+                                0,
+                                0,
+                                0
+                            ],
+        "transform_source":  "Component2.Transform2",
+        "getbox_mm":  [
+                          514.2383325091286,
+                          473.5398158861732,
+                          1376.670110679015,
+                          547.7383325091287,
+                          519.30191118979,
+                          1480.7164860430848
+                      ],
+        "getbox_m":  [
+                         0.5142383325091285,
+                         0.47353981588617317,
+                         1.376670110679015,
+                         0.5477383325091286,
+                         0.51930191118979,
+                         1.4807164860430848
+                     ],
+        "box_min_mm":  [
+                           514.2383325091286,
+                           473.5398158861732,
+                           1376.670110679015
+                       ],
+        "box_max_mm":  [
+                           547.7383325091287,
+                           519.30191118979,
+                           1480.7164860430848
+                       ],
+        "bounding_box_mm_approx":  {
+                                       "source_classification":  "approximate_from_solidworks_getbox",
+                                       "min":  [
+                                                   514.2383325091286,
+                                                   473.5398158861732,
+                                                   1376.670110679015
+                                               ],
+                                       "source":  "Component2.GetBox(false,false)",
+                                       "max":  [
+                                                   547.7383325091287,
+                                                   519.30191118979,
+                                                   1480.7164860430848
+                                               ]
+                                   },
+        "geometry_note":  "GetBox is approximate SOLIDWORKS geometry and is not a precision interference measurement.",
+        "source_classification":  "solidworks_api",
+        "field_errors":  [
+
+                         ],
+        "evidence_kind":  "solidworks_component_observation",
+        "identity_basis":  "Component2.Name2"
+    },
+    {
+        "name2":  "SP100_6130656_NATIVE_PORTABLE_V17-1",
+        "path":  "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\SP100_6130656_NATIVE_PORTABLE_V17.SLDPRT",
+        "parent_name":  null,
+        "is_top_level":  true,
+        "referenced_configuration":  "Default",
+        "fixed":  false,
+        "suppressed":  false,
+        "suppression_state":  2,
+        "translation_mm":  [
+                               -82.6234566659553,
+                               -255.39302360668788,
+                               987.9408476015319
+                           ],
+        "translation_m":  [
+                              -0.0826234566659553,
+                              -0.25539302360668786,
+                              0.9879408476015319
+                          ],
+        "rotation9":  [
+                          0,
+                          1,
+                          0,
+                          0.4067366430758009,
+                          0,
+                          0.9135454576426008,
+                          0.9135454576426008,
+                          0,
+                          -0.4067366430758009
+                      ],
+        "scale":  1,
+        "transform_array":  [
+                                0,
+                                1,
+                                0,
+                                0.4067366430758009,
+                                0,
+                                0.9135454576426008,
+                                0.9135454576426008,
+                                0,
+                                -0.4067366430758009,
+                                -0.0826234566659553,
+                                -0.25539302360668786,
+                                0.9879408476015319,
+                                1,
+                                0,
+                                0,
+                                0
+                            ],
+        "transform_source":  "Component2.Transform2",
+        "getbox_mm":  [
+                          -182.40697034931526,
+                          -331.00000000000244,
+                          987.2158056536838,
+                          -40.51713897076553,
+                          -178.99997500000237,
+                          1095.994141909572
+                      ],
+        "getbox_m":  [
+                         -0.18240697034931525,
+                         -0.33100000000000246,
+                         0.9872158056536838,
+                         -0.04051713897076553,
+                         -0.17899997500000236,
+                         1.095994141909572
+                     ],
+        "box_min_mm":  [
+                           -182.40697034931526,
+                           -331.00000000000244,
+                           987.2158056536838
+                       ],
+        "box_max_mm":  [
+                           -40.51713897076553,
+                           -178.99997500000237,
+                           1095.994141909572
+                       ],
+        "bounding_box_mm_approx":  {
+                                       "source_classification":  "approximate_from_solidworks_getbox",
+                                       "min":  [
+                                                   -182.40697034931526,
+                                                   -331.00000000000244,
+                                                   987.2158056536838
+                                               ],
+                                       "source":  "Component2.GetBox(false,false)",
+                                       "max":  [
+                                                   -40.51713897076553,
+                                                   -178.99997500000237,
+                                                   1095.994141909572
+                                               ]
+                                   },
+        "geometry_note":  "GetBox is approximate SOLIDWORKS geometry and is not a precision interference measurement.",
+        "source_classification":  "solidworks_api",
+        "field_errors":  [
+
+                         ],
+        "evidence_kind":  "solidworks_component_observation",
+        "identity_basis":  "Component2.Name2"
+    }
+]

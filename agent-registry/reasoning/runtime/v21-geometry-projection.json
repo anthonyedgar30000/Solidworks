@@ -1,0 +1,614 @@
+{
+  "transaction_type": "deterministic_geometry_projection",
+  "schema_version": 1,
+  "document": {
+    "title": "IXOR_Benchmark_v21_AR60_CARRIAGE_FIT_CHECK_PORTABLE",
+    "path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v21_AR60_CARRIAGE_FIT_CHECK_PORTABLE.SLDASM",
+    "bridge_version": "local-interop-v0.3.0",
+    "adapter": "compiled-csharp-isldworks",
+    "top_level_only": false
+  },
+  "source_evidence": {
+    "raw_sha256": "e5d48f922fc44876b70cf936e7e989b990665acca1b74c649370a1dd6ae2ce32",
+    "job_id": "bb9d47cc-c75f-4709-8691-af5721f26589",
+    "recorded_at": "2026-09-16T00:48:11.039430+00:00"
+  },
+  "mechanical_acceptance_granted": false,
+  "authority": {
+    "classification": "MEASURED_CALCULATED",
+    "basis": "admitted SOLIDWORKS identity evidence plus deterministic AABB arithmetic",
+    "limitations": [
+      "GetBox-derived envelopes are approximate axis-aligned bounding boxes.",
+      "AABB overlap does not prove body interference.",
+      "AABB separation does not establish exact surface clearance.",
+      "No contact, seating, restraint, product-flow, or operating-sequence claim is established here."
+    ]
+  },
+  "observed_facts": {
+    "AR60_ROLLER": {
+      "state": "KNOWN",
+      "authority": "SOLIDWORKS_LIVE_STATE",
+      "component_name2": "6130460_03_AR60_NATIVE_PORTABLE_V18-2",
+      "translation_mm": [
+        484.7308852396768,
+        527.8630980015928,
+        1512.441354942933
+      ],
+      "rotation9": [
+        1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1
+      ],
+      "transform_array": [
+        1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1,
+        0.48473088523967683,
+        0.5278630980015928,
+        1.512441354942933,
+        1,
+        0,
+        0,
+        0
+      ],
+      "transform_source": "Component2.Transform2",
+      "box_min_mm": [
+        433.03833250912817,
+        474.3817644408614,
+        1372.170110679015
+      ],
+      "box_max_mm": [
+        522.2383325091288,
+        499.3817644408614,
+        1397.170110679015
+      ],
+      "geometry_note": "GetBox is approximate SOLIDWORKS geometry and is not a precision interference measurement.",
+      "source_classification": "solidworks_api"
+    },
+    "AR60_CARRIAGE": {
+      "state": "KNOWN",
+      "authority": "SOLIDWORKS_LIVE_STATE",
+      "component_name2": "6130649_01_Carriage_Schlitten_AR_NATIVE_PORTABLE_V20-1",
+      "translation_mm": [
+        500,
+        500,
+        1500
+      ],
+      "rotation9": [
+        1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1
+      ],
+      "transform_array": [
+        1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1,
+        0.5,
+        0.5,
+        1.5,
+        1,
+        0,
+        0,
+        0
+      ],
+      "transform_source": "Component2.Transform2",
+      "box_min_mm": [
+        514.2383325091286,
+        473.5398158861732,
+        1376.670110679015
+      ],
+      "box_max_mm": [
+        547.7383325091287,
+        519.30191118979,
+        1480.7164860430848
+      ],
+      "geometry_note": "GetBox is approximate SOLIDWORKS geometry and is not a precision interference measurement.",
+      "source_classification": "solidworks_api"
+    },
+    "CONVEYOR": {
+      "state": "KNOWN",
+      "authority": "SOLIDWORKS_LIVE_STATE",
+      "component_name2": "BENCH_CONVEYOR_L900_W82_H950-1",
+      "translation_mm": [
+        -153.75,
+        -224,
+        950
+      ],
+      "rotation9": [
+        0,
+        1,
+        0,
+        -1,
+        0,
+        0,
+        0,
+        0,
+        1
+      ],
+      "transform_array": [
+        0,
+        1,
+        0,
+        -1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        -0.15375,
+        -0.224,
+        0.95,
+        1,
+        0,
+        0,
+        0
+      ],
+      "transform_source": "Component2.Transform2",
+      "box_min_mm": [
+        -218.75,
+        -674,
+        5.551115123125783e-14
+      ],
+      "box_max_mm": [
+        -88.75,
+        226,
+        990
+      ],
+      "geometry_note": "GetBox is approximate SOLIDWORKS geometry and is not a precision interference measurement.",
+      "source_classification": "solidworks_api"
+    },
+    "BOTTLE_1": {
+      "state": "KNOWN",
+      "authority": "SOLIDWORKS_LIVE_STATE",
+      "component_name2": "BENCH_BOTTLE_D48_H180-1",
+      "translation_mm": [
+        -153.75,
+        -404,
+        950.0000000000001
+      ],
+      "rotation9": [
+        0,
+        1,
+        0,
+        -1,
+        0,
+        0,
+        0,
+        0,
+        1
+      ],
+      "transform_array": [
+        0,
+        1,
+        0,
+        -1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        -0.15375,
+        -0.404,
+        0.9500000000000001,
+        1,
+        0,
+        0,
+        0
+      ],
+      "transform_source": "Component2.Transform2",
+      "box_min_mm": [
+        -177.75,
+        -428.00000000000006,
+        950.0000000000001
+      ],
+      "box_max_mm": [
+        -129.75,
+        -380,
+        1130.0000000000002
+      ],
+      "geometry_note": "GetBox is approximate SOLIDWORKS geometry and is not a precision interference measurement.",
+      "source_classification": "solidworks_api"
+    },
+    "BOTTLE_2": {
+      "state": "KNOWN",
+      "authority": "SOLIDWORKS_LIVE_STATE",
+      "component_name2": "BENCH_BOTTLE_D48_H180-2",
+      "translation_mm": [
+        -153.75,
+        -314,
+        950.0000000000001
+      ],
+      "rotation9": [
+        0,
+        1,
+        0,
+        -1,
+        0,
+        0,
+        0,
+        0,
+        1
+      ],
+      "transform_array": [
+        0,
+        1,
+        0,
+        -1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        -0.15375,
+        -0.314,
+        0.9500000000000001,
+        1,
+        0,
+        0,
+        0
+      ],
+      "transform_source": "Component2.Transform2",
+      "box_min_mm": [
+        -177.75,
+        -338,
+        950.0000000000001
+      ],
+      "box_max_mm": [
+        -129.75,
+        -290,
+        1130.0000000000002
+      ],
+      "geometry_note": "GetBox is approximate SOLIDWORKS geometry and is not a precision interference measurement.",
+      "source_classification": "solidworks_api"
+    },
+    "BOTTLE_3": {
+      "state": "KNOWN",
+      "authority": "SOLIDWORKS_LIVE_STATE",
+      "component_name2": "BENCH_BOTTLE_D48_H180-3",
+      "translation_mm": [
+        -153.75,
+        -224,
+        950.0000000000001
+      ],
+      "rotation9": [
+        0,
+        1,
+        0,
+        -1,
+        0,
+        0,
+        0,
+        0,
+        1
+      ],
+      "transform_array": [
+        0,
+        1,
+        0,
+        -1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        -0.15375,
+        -0.224,
+        0.9500000000000001,
+        1,
+        0,
+        0,
+        0
+      ],
+      "transform_source": "Component2.Transform2",
+      "box_min_mm": [
+        -177.75,
+        -248,
+        950.0000000000001
+      ],
+      "box_max_mm": [
+        -129.75,
+        -200,
+        1130.0000000000002
+      ],
+      "geometry_note": "GetBox is approximate SOLIDWORKS geometry and is not a precision interference measurement.",
+      "source_classification": "solidworks_api"
+    },
+    "BOTTLE_4": {
+      "state": "KNOWN",
+      "authority": "SOLIDWORKS_LIVE_STATE",
+      "component_name2": "BENCH_BOTTLE_D48_H180-4",
+      "translation_mm": [
+        -153.75,
+        -134,
+        950.0000000000001
+      ],
+      "rotation9": [
+        0,
+        1,
+        0,
+        -1,
+        0,
+        0,
+        0,
+        0,
+        1
+      ],
+      "transform_array": [
+        0,
+        1,
+        0,
+        -1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        -0.15375,
+        -0.134,
+        0.9500000000000001,
+        1,
+        0,
+        0,
+        0
+      ],
+      "transform_source": "Component2.Transform2",
+      "box_min_mm": [
+        -177.75,
+        -158,
+        950.0000000000001
+      ],
+      "box_max_mm": [
+        -129.75,
+        -110.00000000000001,
+        1130.0000000000002
+      ],
+      "geometry_note": "GetBox is approximate SOLIDWORKS geometry and is not a precision interference measurement.",
+      "source_classification": "solidworks_api"
+    },
+    "BOTTLE_5": {
+      "state": "KNOWN",
+      "authority": "SOLIDWORKS_LIVE_STATE",
+      "component_name2": "BENCH_BOTTLE_D48_H180-5",
+      "translation_mm": [
+        -153.75,
+        -44,
+        950.0000000000001
+      ],
+      "rotation9": [
+        0,
+        1,
+        0,
+        -1,
+        0,
+        0,
+        0,
+        0,
+        1
+      ],
+      "transform_array": [
+        0,
+        1,
+        0,
+        -1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        -0.15375,
+        -0.044,
+        0.9500000000000001,
+        1,
+        0,
+        0,
+        0
+      ],
+      "transform_source": "Component2.Transform2",
+      "box_min_mm": [
+        -177.75,
+        -68,
+        950.0000000000001
+      ],
+      "box_max_mm": [
+        -129.75,
+        -19.999999999999996,
+        1130.0000000000002
+      ],
+      "geometry_note": "GetBox is approximate SOLIDWORKS geometry and is not a precision interference measurement.",
+      "source_classification": "solidworks_api"
+    }
+  },
+  "calculated_facts": {
+    "AR60_NEAREST_BOTTLE_AABB_SEPARATION": {
+      "state": "KNOWN",
+      "authority": "MEASURED_CALCULATED",
+      "derivation": "deterministic AABB arithmetic on admitted SOLIDWORKS observation",
+      "nearest_bottle_unique": true,
+      "nearest_bottle_role": "BOTTLE_5",
+      "nearest_bottle_roles": [
+        "BOTTLE_5"
+      ],
+      "minimum_aabb_separation_mm": 787.2676792085082,
+      "axis_gap_mm": {
+        "x": 562.7883325091282,
+        "y": 494.3817644408614,
+        "z": 242.17011067901467
+      },
+      "candidate_axis_gaps_mm": {
+        "BOTTLE_5": {
+          "x": 562.7883325091282,
+          "y": 494.3817644408614,
+          "z": 242.17011067901467
+        }
+      },
+      "ambiguity_note": null
+    },
+    "AR60_AABB_DISJOINT_FROM_ALL_BOTTLES": {
+      "state": "KNOWN",
+      "authority": "MEASURED_CALCULATED",
+      "derivation": "deterministic AABB arithmetic on admitted SOLIDWORKS observation",
+      "value": true,
+      "per_bottle": [
+        {
+          "role_a": "AR60_ROLLER",
+          "role_b": "BOTTLE_1",
+          "axis_gap_mm": {
+            "x": 562.7883325091282,
+            "y": 854.3817644408614,
+            "z": 242.17011067901467
+          },
+          "minimum_aabb_separation_mm": 1051.3540170293595,
+          "aabb_intersects_or_touches": false,
+          "positive_volume_aabb_overlap": false,
+          "overlap_extent_mm": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          }
+        },
+        {
+          "role_a": "AR60_ROLLER",
+          "role_b": "BOTTLE_2",
+          "axis_gap_mm": {
+            "x": 562.7883325091282,
+            "y": 764.3817644408614,
+            "z": 242.17011067901467
+          },
+          "minimum_aabb_separation_mm": 979.6206161185133,
+          "aabb_intersects_or_touches": false,
+          "positive_volume_aabb_overlap": false,
+          "overlap_extent_mm": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          }
+        },
+        {
+          "role_a": "AR60_ROLLER",
+          "role_b": "BOTTLE_3",
+          "axis_gap_mm": {
+            "x": 562.7883325091282,
+            "y": 674.3817644408614,
+            "z": 242.17011067901467
+          },
+          "minimum_aabb_separation_mm": 911.1354640914054,
+          "aabb_intersects_or_touches": false,
+          "positive_volume_aabb_overlap": false,
+          "overlap_extent_mm": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          }
+        },
+        {
+          "role_a": "AR60_ROLLER",
+          "role_b": "BOTTLE_4",
+          "axis_gap_mm": {
+            "x": 562.7883325091282,
+            "y": 584.3817644408614,
+            "z": 242.17011067901467
+          },
+          "minimum_aabb_separation_mm": 846.6871419395158,
+          "aabb_intersects_or_touches": false,
+          "positive_volume_aabb_overlap": false,
+          "overlap_extent_mm": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          }
+        },
+        {
+          "role_a": "AR60_ROLLER",
+          "role_b": "BOTTLE_5",
+          "axis_gap_mm": {
+            "x": 562.7883325091282,
+            "y": 494.3817644408614,
+            "z": 242.17011067901467
+          },
+          "minimum_aabb_separation_mm": 787.2676792085082,
+          "aabb_intersects_or_touches": false,
+          "positive_volume_aabb_overlap": false,
+          "overlap_extent_mm": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          }
+        }
+      ]
+    },
+    "AR60_CARRIAGE_AABB_RELATION": {
+      "state": "KNOWN",
+      "authority": "MEASURED_CALCULATED",
+      "derivation": "deterministic AABB arithmetic on admitted SOLIDWORKS observation",
+      "role_a": "AR60_ROLLER",
+      "role_b": "AR60_CARRIAGE",
+      "axis_gap_mm": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "minimum_aabb_separation_mm": 0.0,
+      "aabb_intersects_or_touches": true,
+      "positive_volume_aabb_overlap": true,
+      "overlap_extent_mm": {
+        "x": 8.000000000000227,
+        "y": 25.0,
+        "z": 20.5
+      },
+      "engineering_limit": "AABB overlap is not proof of body interference or mechanical fit."
+    },
+    "AR60_CONVEYOR_AABB_RELATION": {
+      "state": "KNOWN",
+      "authority": "MEASURED_CALCULATED",
+      "derivation": "deterministic AABB arithmetic on admitted SOLIDWORKS observation",
+      "role_a": "AR60_ROLLER",
+      "role_b": "CONVEYOR",
+      "axis_gap_mm": {
+        "x": 521.7883325091282,
+        "y": 248.3817644408614,
+        "z": 382.1701106790149
+      },
+      "minimum_aabb_separation_mm": 692.8279428154025,
+      "aabb_intersects_or_touches": false,
+      "positive_volume_aabb_overlap": false,
+      "overlap_extent_mm": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "engineering_limit": "AABB separation/overlap is not a precise clearance or interference result."
+    }
+  },
+  "unresolved_mechanical_claims": [
+    "AR60_CONTACT_POSITION",
+    "CONTACT_REACHABLE_WITHIN_TRAVEL",
+    "BOTTLE_CONTACT_ACHIEVABLE",
+    "NO_CONVEYOR_INTERFERENCE",
+    "VALID_APPLICATION_GEOMETRY",
+    "V21_ACCEPTANCE"
+  ]
+}
