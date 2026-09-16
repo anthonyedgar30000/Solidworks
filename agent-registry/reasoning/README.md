@@ -21,8 +21,11 @@ The important idea is that **a NULL is not treated as an empty hole**. The graph
 - `reasoner.py` — deterministic project-health and exposure propagation.
 - `ollama_worker.py` — optional local LLM planner; it can choose the next investigation but cannot verify facts.
 - `evidence_ingest.py` — validates and normalizes completed read-only `sw.query_components` observations into evidence transactions.
+- `v21_identity_bindings.json` — exact v21 semantic-role to `Component2.Name2` bindings.
+- `identity_bindings.py` — validates those exact bindings against admitted live SOLIDWORKS evidence.
 - `test_reasoner.py` — reasoner regression tests.
 - `test_evidence_ingest.py` — evidence-boundary regression tests.
+- `test_identity_bindings.py` — exact identity binding regression tests.
 
 ## Run
 
@@ -79,6 +82,22 @@ The importer admits only a completed `sw.query_components` observation with no r
 
 A successful import grants **observation authority only**. It explicitly does not establish valid contact, clearance, mechanical suitability, operating sequence, or project acceptance.
 
+## Bind v21 semantic roles to exact live SOLIDWORKS identities
+
+After the evidence transaction exists, run:
+
+```powershell
+python .\identity_bindings.py `
+  .\runtime\v21-components-evidence.json `
+  .\v21_identity_bindings.json `
+  --out .\runtime\v21-identity-evidence.json `
+  --summary
+```
+
+The binding stage requires each configured `Component2.Name2` to match **exactly one** admitted component. Missing or duplicate exact identities are rejected. It copies observed transform/GetBox/provenance fields into the role record but still grants **no mechanical acceptance**.
+
+The current v21 role registry includes the exact live identities for the IXOR head, SP100, AR60 roller, AR carriage, GHF120, tie rod, two mounting rods, conveyor, and five deterministic bottles.
+
 ## Expected initial result
 
 The graph intentionally leaves `AR60_CONTACT_POSITION` unresolved.
@@ -134,13 +153,13 @@ only after authoritative evidence or an accepted deterministic derivation is ava
 
 ## Next architectural increment
 
-The next useful addition is an **evidence transaction** rather than more prompting:
+The next useful addition is graph projection from admitted evidence:
 
-1. the planner requests an investigation;
-2. a deterministic/tool adapter performs it;
-3. evidence is written as a candidate transaction;
-4. authority policy validates the transaction;
-5. the graph is updated;
-6. project health is recomputed.
+1. read admitted SOLIDWORKS observation evidence;
+2. resolve exact semantic identities;
+3. project only observation-backed fields into graph facts;
+4. preserve unresolved mechanical claims as `NULL`;
+5. run deterministic dependency/exposure propagation;
+6. choose the next read-only investigation based on remaining risk exposure.
 
-That is the point where this PoC can connect cleanly to the SOLIDWORKS bridge without giving the LLM authority over engineering truth.
+This preserves the boundary that SOLIDWORKS observations establish live state, deterministic checks establish mechanical relationships, and LLMs only help select or formulate investigations.
