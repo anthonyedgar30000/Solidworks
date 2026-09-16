@@ -1,0 +1,233 @@
+{
+  "project": {
+    "id": "IXOR_V21_POC",
+    "name": "IXOR v21 epistemic project-health proof of concept",
+    "acceptance_obligation": "V21_ACCEPTANCE"
+  },
+  "nodes": [
+    {
+      "id": "BOTTLE_CENTERLINE",
+      "kind": "fact",
+      "description": "Bottle centerline derived from deterministic conveyor/bottle geometry.",
+      "value": 312.4,
+      "units": "mm",
+      "state": "KNOWN",
+      "authority": "SOLIDWORKS_MEASUREMENT",
+      "criticality": 4
+    },
+    {
+      "id": "BOTTLE_OD",
+      "kind": "fact",
+      "description": "Bottle outside diameter.",
+      "value": 48.0,
+      "units": "mm",
+      "state": "KNOWN",
+      "authority": "DETERMINISTIC_PROJECT_GEOMETRY",
+      "criticality": 3
+    },
+    {
+      "id": "AR60_RADIUS",
+      "kind": "fact",
+      "description": "Effective AR60 roller radius.",
+      "value": 30.0,
+      "units": "mm",
+      "state": "KNOWN",
+      "authority": "OEM_CAD",
+      "criticality": 3
+    },
+    {
+      "id": "AR60_MAX_TRAVEL",
+      "kind": "fact",
+      "description": "Available carriage travel along the relevant adjustment axis.",
+      "value": 70.0,
+      "units": "mm",
+      "state": "KNOWN",
+      "authority": "OEM_CAD",
+      "criticality": 4
+    },
+    {
+      "id": "CARRIAGE_TRANSFORM",
+      "kind": "fact",
+      "description": "Current carriage transform in the v21 fit-check assembly.",
+      "value": "measured_transform_v21",
+      "state": "KNOWN",
+      "authority": "SOLIDWORKS_LIVE_STATE",
+      "criticality": 5
+    },
+    {
+      "id": "CONVEYOR_ENVELOPE",
+      "kind": "fact",
+      "description": "Deterministic occupied conveyor envelope.",
+      "value": "verified_envelope",
+      "state": "KNOWN",
+      "authority": "SOLIDWORKS_GEOMETRY",
+      "criticality": 5
+    },
+    {
+      "id": "AR60_CONTACT_POSITION",
+      "kind": "fact",
+      "description": "Operating AR60 contact position relative to the bottle.",
+      "value": null,
+      "units": "mm",
+      "state": "NULL",
+      "authority": null,
+      "expected_authority": [
+        "SOLIDWORKS_MEASUREMENT",
+        "DETERMINISTIC_DERIVATION"
+      ],
+      "criticality": 5,
+      "resolution_cost": 1,
+      "metadata": {
+        "question": "Can a deterministic contact position be established without violating travel or conveyor clearance?",
+        "why_it_matters": "Blocks proof of application geometry and therefore v21 acceptance."
+      }
+    },
+    {
+      "id": "CONTACT_REACHABLE_WITHIN_TRAVEL",
+      "kind": "derived_claim",
+      "description": "Required contact position is reachable within OEM carriage travel.",
+      "value": null,
+      "state": "NULL",
+      "authority": null,
+      "expected_authority": [
+        "DETERMINISTIC_DERIVATION"
+      ],
+      "criticality": 5,
+      "resolution_cost": 1
+    },
+    {
+      "id": "NO_CONVEYOR_INTERFERENCE",
+      "kind": "invariant",
+      "description": "The accepted operating configuration must not structurally interfere with the conveyor envelope.",
+      "value": true,
+      "state": "ASSERTED",
+      "authority": "PROJECT_INVARIANT",
+      "criticality": 5
+    },
+    {
+      "id": "BOTTLE_CONTACT_ACHIEVABLE",
+      "kind": "invariant",
+      "description": "The application roller must be able to reach the intended bottle contact condition.",
+      "value": true,
+      "state": "ASSERTED",
+      "authority": "PROJECT_INVARIANT",
+      "criticality": 5
+    },
+    {
+      "id": "VALID_APPLICATION_GEOMETRY",
+      "kind": "obligation",
+      "description": "Application geometry is mechanically coherent enough to advance beyond fit-check.",
+      "value": true,
+      "state": "ASSERTED",
+      "authority": "PROJECT_ACCEPTANCE_RULE",
+      "criticality": 5
+    },
+    {
+      "id": "V21_ACCEPTANCE",
+      "kind": "obligation",
+      "description": "v21 is acceptable as an operating-configuration candidate rather than only a fit-check.",
+      "value": true,
+      "state": "ASSERTED",
+      "authority": "PROJECT_ACCEPTANCE_RULE",
+      "criticality": 5,
+      "acceptance_gate": true
+    },
+    {
+      "id": "PAINT_COLOUR",
+      "kind": "fact",
+      "description": "Cosmetic paint colour of the support.",
+      "value": null,
+      "state": "NULL",
+      "authority": null,
+      "criticality": 1,
+      "resolution_cost": 1
+    }
+  ],
+  "relations": [
+    {
+      "from": "AR60_CONTACT_POSITION",
+      "to": "BOTTLE_CENTERLINE",
+      "type": "depends_on",
+      "strength": 1.0
+    },
+    {
+      "from": "AR60_CONTACT_POSITION",
+      "to": "BOTTLE_OD",
+      "type": "depends_on",
+      "strength": 0.8
+    },
+    {
+      "from": "AR60_CONTACT_POSITION",
+      "to": "AR60_RADIUS",
+      "type": "depends_on",
+      "strength": 0.8
+    },
+    {
+      "from": "AR60_CONTACT_POSITION",
+      "to": "CARRIAGE_TRANSFORM",
+      "type": "depends_on",
+      "strength": 1.0
+    },
+    {
+      "from": "AR60_CONTACT_POSITION",
+      "to": "CONVEYOR_ENVELOPE",
+      "type": "constrained_by",
+      "strength": 1.0
+    },
+    {
+      "from": "CONTACT_REACHABLE_WITHIN_TRAVEL",
+      "to": "AR60_CONTACT_POSITION",
+      "type": "depends_on",
+      "strength": 1.0
+    },
+    {
+      "from": "CONTACT_REACHABLE_WITHIN_TRAVEL",
+      "to": "AR60_MAX_TRAVEL",
+      "type": "depends_on",
+      "strength": 1.0
+    },
+    {
+      "from": "NO_CONVEYOR_INTERFERENCE",
+      "to": "AR60_CONTACT_POSITION",
+      "type": "depends_on",
+      "strength": 1.0
+    },
+    {
+      "from": "NO_CONVEYOR_INTERFERENCE",
+      "to": "CONVEYOR_ENVELOPE",
+      "type": "depends_on",
+      "strength": 1.0
+    },
+    {
+      "from": "BOTTLE_CONTACT_ACHIEVABLE",
+      "to": "CONTACT_REACHABLE_WITHIN_TRAVEL",
+      "type": "depends_on",
+      "strength": 1.0
+    },
+    {
+      "from": "VALID_APPLICATION_GEOMETRY",
+      "to": "NO_CONVEYOR_INTERFERENCE",
+      "type": "depends_on",
+      "strength": 1.0
+    },
+    {
+      "from": "VALID_APPLICATION_GEOMETRY",
+      "to": "BOTTLE_CONTACT_ACHIEVABLE",
+      "type": "depends_on",
+      "strength": 1.0
+    },
+    {
+      "from": "V21_ACCEPTANCE",
+      "to": "VALID_APPLICATION_GEOMETRY",
+      "type": "depends_on",
+      "strength": 1.0
+    },
+    {
+      "from": "BOTTLE_CONTACT_ACHIEVABLE",
+      "to": "VALID_APPLICATION_GEOMETRY",
+      "type": "before",
+      "strength": 1.0,
+      "algebra": "allen"
+    }
+  ]
+}
