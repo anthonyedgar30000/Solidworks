@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "project": "IXOR v21 AR60 carriage fit-check",
+  "expected_document": "IXOR_Benchmark_v21_AR60_CARRIAGE_FIT_CHECK_PORTABLE",
+  "identity_basis": "Component2.Name2",
+  "roles": {
+    "IXOR_HEAD": "IXOR_6130800_NATIVE_PORTABLE_V17-1",
+    "SP100": "SP100_6130656_NATIVE_PORTABLE_V17-1",
+    "AR60_ROLLER": "6130460_03_AR60_NATIVE_PORTABLE_V18-2",
+    "AR60_CARRIAGE": "6130649_01_Carriage_Schlitten_AR_NATIVE_PORTABLE_V20-1",
+    "GHF120": "6130737_03_GHF_120_NATIVE_PORTABLE_V17-1",
+    "TIE_ROD": "6130411_01_Tie_rod_NATIVE_PORTABLE_V17-1",
+    "MOUNTING_ROD_1": "6120069_02_Mounting_rod_NATIVE_PORTABLE_V17-1",
+    "MOUNTING_ROD_2": "6120069_02_Mounting_rod_NATIVE_PORTABLE_V17-2",
+    "CONVEYOR": "BENCH_CONVEYOR_L900_W82_H950-1",
+    "BOTTLE_1": "BENCH_BOTTLE_D48_H180-1",
+    "BOTTLE_2": "BENCH_BOTTLE_D48_H180-2",
+    "BOTTLE_3": "BENCH_BOTTLE_D48_H180-3",
+    "BOTTLE_4": "BENCH_BOTTLE_D48_H180-4",
+    "BOTTLE_5": "BENCH_BOTTLE_D48_H180-5"
+  },
+  "notes": {
+    "mechanical_acceptance": "Not granted by identity binding.",
+    "nested_ixor_components": "Nested IXOR subcomponents remain observable evidence but are not assigned semantic roles here until explicitly needed.",
+    "selector_policy": "Exact Name2 only. No substring or fuzzy selector is authoritative for writes or mechanical conclusions."
+  }
+}
