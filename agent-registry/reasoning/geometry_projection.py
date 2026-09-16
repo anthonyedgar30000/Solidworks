@@ -9,6 +9,8 @@ mechanical acceptance.
 The output is intentionally conservative:
 - observed transforms/envelopes may become KNOWN facts;
 - AABB separations/overlaps may become MEASURED_CALCULATED facts;
+- equal-distance nearest candidates remain explicitly ambiguous rather than being
+  collapsed to whichever candidate happens to appear first;
 - contact, clearance acceptance, functional suitability, and operating geometry
   remain unresolved until stronger deterministic checks establish them.
 """
@@ -19,7 +21,7 @@ import argparse
 import json
 import math
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Tuple
+from typing import Any, Dict, Tuple
 
 
 class GeometryProjectionError(RuntimeError):
@@ -36,6 +38,8 @@ REQUIRED_ROLES = (
     "BOTTLE_4",
     "BOTTLE_5",
 )
+
+NEAREST_TIE_TOLERANCE_MM = 1e-9
 
 
 def load_json(path: Path) -> Dict[str, Any]:
@@ -170,10 +174,21 @@ def build_projection(tx: Dict[str, Any]) -> Dict[str, Any]:
         pair_metrics("AR60_ROLLER", ar60, bottle_role, roles[bottle_role])
         for bottle_role in bottle_roles
     ]
-    nearest_bottle = min(
-        bottle_metrics,
-        key=lambda item: item["minimum_aabb_separation_mm"],
+    minimum_bottle_separation = min(
+        item["minimum_aabb_separation_mm"] for item in bottle_metrics
     )
+    nearest_candidates = [
+        item
+        for item in bottle_metrics
+        if math.isclose(
+            item["minimum_aabb_separation_mm"],
+            minimum_bottle_separation,
+            rel_tol=0.0,
+            abs_tol=NEAREST_TIE_TOLERANCE_MM,
+        )
+    ]
+    nearest_unique = len(nearest_candidates) == 1
+    nearest_bottle = nearest_candidates[0] if nearest_unique else None
 
     carriage_metrics = pair_metrics("AR60_ROLLER", ar60, "AR60_CARRIAGE", carriage)
     conveyor_metrics = pair_metrics("AR60_ROLLER", ar60, "CONVEYOR", conveyor)
@@ -192,9 +207,19 @@ def build_projection(tx: Dict[str, Any]) -> Dict[str, Any]:
             "state": "KNOWN",
             "authority": "MEASURED_CALCULATED",
             "derivation": "deterministic AABB arithmetic on admitted SOLIDWORKS observation",
-            "nearest_bottle_role": nearest_bottle["role_b"],
-            "minimum_aabb_separation_mm": nearest_bottle["minimum_aabb_separation_mm"],
-            "axis_gap_mm": nearest_bottle["axis_gap_mm"],
+            "nearest_bottle_unique": nearest_unique,
+            "nearest_bottle_role": nearest_bottle["role_b"] if nearest_bottle else None,
+            "nearest_bottle_roles": [item["role_b"] for item in nearest_candidates],
+            "minimum_aabb_separation_mm": minimum_bottle_separation,
+            "axis_gap_mm": nearest_bottle["axis_gap_mm"] if nearest_bottle else None,
+            "candidate_axis_gaps_mm": {
+                item["role_b"]: item["axis_gap_mm"] for item in nearest_candidates
+            },
+            "ambiguity_note": (
+                None
+                if nearest_unique
+                else "Multiple bottle AABBs are equally near within the deterministic tie tolerance; no single nearest role is promoted."
+            ),
         },
         "AR60_AABB_DISJOINT_FROM_ALL_BOTTLES": {
             "state": "KNOWN",
@@ -272,10 +297,14 @@ def main() -> None:
         carriage = result["calculated_facts"]["AR60_CARRIAGE_AABB_RELATION"]
         all_disjoint = result["calculated_facts"]["AR60_AABB_DISJOINT_FROM_ALL_BOTTLES"]
         print(f"DOCUMENT: {result['document']['title']}")
-        print(f"NEAREST BOTTLE: {nearest['nearest_bottle_role']}")
+        if nearest["nearest_bottle_unique"]:
+            print(f"NEAREST BOTTLE: {nearest['nearest_bottle_role']}")
+            gaps = nearest["axis_gap_mm"]
+            print(f"AXIS GAPS: X={gaps['x']:.3f} Y={gaps['y']:.3f} Z={gaps['z']:.3f} mm")
+        else:
+            print("NEAREST BOTTLE: AMBIGUOUS (" + ", ".join(nearest["nearest_bottle_roles"]) + ")")
+            print("AXIS GAPS: candidate-specific; see projection JSON")
         print(f"MIN AABB SEPARATION: {nearest['minimum_aabb_separation_mm']:.3f} mm")
-        gaps = nearest["axis_gap_mm"]
-        print(f"AXIS GAPS: X={gaps['x']:.3f} Y={gaps['y']:.3f} Z={gaps['z']:.3f} mm")
         print(f"AR60 DISJOINT FROM ALL BOTTLE AABBs: {all_disjoint['value']}")
         print(
             "AR60/CARRIAGE POSITIVE-VOLUME AABB OVERLAP: "
