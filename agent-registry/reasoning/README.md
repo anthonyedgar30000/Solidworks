@@ -17,17 +17,19 @@ The important idea is that **a NULL is not treated as an empty hole**. The graph
 
 ## Files
 
-- `graph.json` — small IXOR/AR60 example knowledge graph.
+- `graph.json` — original illustrative IXOR/AR60 example knowledge graph; its numeric geometry values are PoC placeholders, not live engineering evidence.
 - `reasoner.py` — deterministic project-health and exposure propagation.
 - `ollama_worker.py` — optional local LLM planner; it can choose the next investigation but cannot verify facts.
 - `evidence_ingest.py` — validates and normalizes completed read-only `sw.query_components` observations into evidence transactions.
 - `v21_identity_bindings.json` — exact v21 semantic-role to `Component2.Name2` bindings.
 - `identity_bindings.py` — validates those exact bindings against admitted live SOLIDWORKS evidence.
 - `geometry_projection.py` — calculates conservative AABB relations from admitted exact-identity evidence.
+- `graph_projection.py` — creates a fresh runtime epistemic graph from admitted/calculated live evidence without copying toy geometry values.
 - `test_reasoner.py` — reasoner regression tests.
 - `test_evidence_ingest.py` — evidence-boundary regression tests.
 - `test_identity_bindings.py` — exact identity binding regression tests.
 - `test_geometry_projection.py` — deterministic AABB projection regression tests.
+- `test_graph_projection.py` — live-evidence runtime graph regression tests.
 
 ## Run
 
@@ -122,29 +124,45 @@ Its authority is intentionally bounded:
 
 The point is to replace toy geometry facts with reproducible calculations while preserving stronger mechanical claims as unresolved until a suitable deterministic SOLIDWORKS check exists.
 
-## Expected initial result
+## Build the live v21 epistemic graph
 
-The graph intentionally leaves `AR60_CONTACT_POSITION` unresolved.
+After `v21-geometry-projection.json` exists, build a fresh runtime graph:
 
-The deterministic reasoner should therefore conclude approximately:
+```powershell
+python .\graph_projection.py `
+  .\runtime\v21-geometry-projection.json `
+  --out .\runtime\v21-live-graph.json `
+  --summary
+```
+
+Then run the deterministic reasoner against the live graph:
+
+```powershell
+python .\reasoner.py .\runtime\v21-live-graph.json
+```
+
+The runtime graph does **not** copy the illustrative `BOTTLE_CENTERLINE`, `AR60_RADIUS`, or `AR60_MAX_TRAVEL = 70` values from the original PoC graph. Live observation-backed transforms/envelopes and deterministic AABB calculations become `KNOWN`; unverified travel, intended application-station geometry, contact, peel-edge relation, bottle restraint, product flow, and acceptance remain unresolved/exposed.
+
+With the current v21 fit-check evidence, the expected highest-value next investigation is `INTENDED_APPLICATION_STATION_TRANSFORM`, because establishing the intended station geometry exposes or constrains the largest downstream set of contact, clearance, peel-edge, restraint, product-flow, and acceptance obligations.
+
+## Expected project-health semantics
+
+The deterministic reasoner should distinguish:
 
 ```text
-PROJECT: IXOR v21 epistemic project-health proof of concept
 OVERALL STATE: EXPOSED
 KNOWN VIOLATIONS: none
 ```
+
+from either `FAILED` or `VERIFIED`.
 
 The key distinction is:
 
 - the project is **not proven failed**;
 - the project is **not ready to advance**;
-- a critical unresolved field has a risk footprint that propagates into
-  `NO_CONVEYOR_INTERFERENCE`,
-  `BOTTLE_CONTACT_ACHIEVABLE`,
-  `VALID_APPLICATION_GEOMETRY`,
-  and ultimately `V21_ACCEPTANCE`.
-
-Meanwhile `PAINT_COLOUR = NULL` remains unresolved but has no acceptance exposure.
+- unresolved engineering facts have explicit downstream risk footprints;
+- resolving an unknown may reveal either a valid configuration or a real violation;
+- reducing ambiguity is success even if project health becomes worse after stronger evidence is obtained.
 
 That demonstrates the architecture's central idea:
 
@@ -175,14 +193,12 @@ to something such as:
 
 only after authoritative evidence or an accepted deterministic derivation is available.
 
-## Next architectural increment
-
-The next useful addition is graph admission from deterministic projection output:
+## Current deterministic pipeline
 
 1. admit live SOLIDWORKS observations;
 2. resolve exact semantic identities;
 3. calculate bounded deterministic geometry relations;
-4. project only supported observations/calculations into graph facts;
+4. generate a fresh live runtime graph from supported evidence only;
 5. preserve contact/clearance/operating claims as `NULL` unless separately proven;
 6. run dependency/exposure propagation;
 7. choose the next read-only investigation based on remaining risk exposure.
