@@ -1,0 +1,11 @@
+{
+    "schema_version":  1,
+    "job_id":  "smoke-status-20260916T050718Z",
+    "command_id":  "sw.status",
+    "write_authority":  "NONE",
+    "created_utc":  "2026-09-16T05:07:18.9506956+00:00",
+    "source":  "local-smoke-test",
+    "payload":  {
+
+                }
+}

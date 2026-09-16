@@ -1,0 +1,15 @@
+{
+    "schema_version":  1,
+    "job_id":  "smoke-reject-wrong-document-20260916T051219Z",
+    "command_id":  "sw.closest_distance_pair",
+    "write_authority":  "NONE",
+    "created_utc":  "2026-09-16T05:12:19.8637852+00:00",
+    "source":  "local-negative-smoke-test",
+    "preconditions":  {
+                          "document_title_exact":  "THIS_IS_INTENTIONALLY_NOT_V21"
+                      },
+    "payload":  {
+                    "a_name_exact":  "6130460_03_AR60_NATIVE_PORTABLE_V18-2",
+                    "b_name_exact":  "6130649_01_Carriage_Schlitten_AR_NATIVE_PORTABLE_V20-1"
+                }
+}

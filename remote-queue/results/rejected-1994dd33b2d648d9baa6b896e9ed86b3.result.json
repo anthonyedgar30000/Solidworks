@@ -1,0 +1,14 @@
+{
+    "schema_version":  1,
+    "runner_version":  "1.0.0",
+    "state":  "rejected",
+    "job_id":  "rejected-1994dd33b2d648d9baa6b896e9ed86b3",
+    "request_sha256":  "433adb4e15108c2471e74be742ff1a79e1770c53e0fb8649f614b8851b4afa72",
+    "request_file_name":  "smoke-status-20260916T050509Z.job.json",
+    "started_utc":  "2026-09-16T05:05:09.7497809+00:00",
+    "finished_utc":  "2026-09-16T05:05:09.9038313+00:00",
+    "status_observation":  null,
+    "worker_response":  null,
+    "error":  "Cannot bind argument to parameter \u0027Allowed\u0027 because it is an empty array.",
+    "runner_write_authority":  "NONE"
+}

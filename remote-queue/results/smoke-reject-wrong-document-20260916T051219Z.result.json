@@ -1,0 +1,14 @@
+{
+    "schema_version":  1,
+    "runner_version":  "1.0.0",
+    "state":  "rejected",
+    "job_id":  "smoke-reject-wrong-document-20260916T051219Z",
+    "request_sha256":  "a5e9d4f1e0233ba482477119810c509a0cc2c007aa54b83fdaebbb2cb91654bb",
+    "request_file_name":  "smoke-reject-wrong-document-20260916T051219Z.job.json",
+    "started_utc":  "2026-09-16T05:12:21.0327098+00:00",
+    "finished_utc":  "2026-09-16T05:12:21.2629293+00:00",
+    "status_observation":  null,
+    "worker_response":  null,
+    "error":  "Document title precondition failed. Expected=\u0027THIS_IS_INTENTIONALLY_NOT_V21\u0027 Actual=\u0027IXOR_Benchmark_v21_AR60_CARRIAGE_FIT_CHECK_PORTABLE\u0027.",
+    "runner_write_authority":  "NONE"
+}

@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "job_id": "example-ar60-carriage-distance-001",
+  "command_id": "sw.closest_distance_pair",
+  "write_authority": "NONE",
+  "created_utc": "2026-09-16T04:30:00Z",
+  "source": "chatgpt",
+  "preconditions": {
+    "document_title_exact": "IXOR_Benchmark_v21_AR60_CARRIAGE_FIT_CHECK_PORTABLE",
+    "document_path_exact": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v21_AR60_CARRIAGE_FIT_CHECK_PORTABLE.SLDASM"
+  },
+  "payload": {
+    "a_name_exact": "6130460_03_AR60_NATIVE_PORTABLE_V18-2",
+    "b_name_exact": "6130649_01_Carriage_Schlitten_AR_NATIVE_PORTABLE_V20-1"
+  }
+}

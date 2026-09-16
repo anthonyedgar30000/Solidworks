@@ -1,0 +1,11 @@
+{
+    "schema_version":  1,
+    "job_id":  "scheduled-status-20260916T051941Z",
+    "command_id":  "sw.status",
+    "write_authority":  "NONE",
+    "created_utc":  "2026-09-16T05:19:41.4055840+00:00",
+    "source":  "scheduled-task-smoke-test",
+    "payload":  {
+
+                }
+}

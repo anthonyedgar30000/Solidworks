@@ -1,0 +1,46 @@
+{
+    "schema_version":  1,
+    "runner_version":  "1.0.0",
+    "state":  "completed",
+    "job_id":  "smoke-status-20260916T050945Z",
+    "request_sha256":  "17276258c8439377e22cac103fa0a5cf2357c9b42828f3e642561ff385c35174",
+    "request_file_name":  "smoke-status-20260916T050945Z.job.json",
+    "started_utc":  "2026-09-16T05:09:45.6278749+00:00",
+    "finished_utc":  "2026-09-16T05:09:46.1865831+00:00",
+    "status_observation":  {
+                               "ok":  true,
+                               "command_id":  "sw.status",
+                               "source_classification":  "verified_from_solidworks_api",
+                               "data":  {
+                                            "worker_version":  "0.1.0",
+                                            "cad_path":  "native C# -\u003e SOLIDWORKS interop (NO MCP)",
+                                            "write_authority":  "NONE",
+                                            "solidworks_revision":  "34.3.2",
+                                            "solidworks_process_id":  14556,
+                                            "document":  {
+                                                             "title":  "IXOR_Benchmark_v21_AR60_CARRIAGE_FIT_CHECK_PORTABLE",
+                                                             "path":  "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v21_AR60_CARRIAGE_FIT_CHECK_PORTABLE.SLDASM",
+                                                             "type":  "assembly"
+                                                         }
+                                        }
+                           },
+    "worker_response":  {
+                            "ok":  true,
+                            "command_id":  "sw.status",
+                            "source_classification":  "verified_from_solidworks_api",
+                            "data":  {
+                                         "worker_version":  "0.1.0",
+                                         "cad_path":  "native C# -\u003e SOLIDWORKS interop (NO MCP)",
+                                         "write_authority":  "NONE",
+                                         "solidworks_revision":  "34.3.2",
+                                         "solidworks_process_id":  14556,
+                                         "document":  {
+                                                          "title":  "IXOR_Benchmark_v21_AR60_CARRIAGE_FIT_CHECK_PORTABLE",
+                                                          "path":  "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v21_AR60_CARRIAGE_FIT_CHECK_PORTABLE.SLDASM",
+                                                          "type":  "assembly"
+                                                      }
+                                     }
+                        },
+    "error":  "",
+    "runner_write_authority":  "NONE"
+}

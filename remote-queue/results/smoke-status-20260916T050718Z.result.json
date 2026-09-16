@@ -1,0 +1,14 @@
+{
+    "schema_version":  1,
+    "runner_version":  "1.0.0",
+    "state":  "rejected",
+    "job_id":  "smoke-status-20260916T050718Z",
+    "request_sha256":  "d84849b135d498ee2325cd8e39a10292f3110c20d3e7cbe701895f2ff6b35319",
+    "request_file_name":  "smoke-status-20260916T050718Z.job.json",
+    "started_utc":  "2026-09-16T05:07:19.0293675+00:00",
+    "finished_utc":  "2026-09-16T05:07:19.0711663+00:00",
+    "status_observation":  null,
+    "worker_response":  null,
+    "error":  "The property \u0027Count\u0027 cannot be found on this object. Verify that the property exists.",
+    "runner_write_authority":  "NONE"
+}

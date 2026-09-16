@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "job_id": "example-components-v21-001",
+  "command_id": "sw.query_components",
+  "write_authority": "NONE",
+  "created_utc": "2026-09-16T04:30:00Z",
+  "source": "chatgpt",
+  "preconditions": {
+    "document_title_exact": "IXOR_Benchmark_v21_AR60_CARRIAGE_FIT_CHECK_PORTABLE",
+    "document_path_exact": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v21_AR60_CARRIAGE_FIT_CHECK_PORTABLE.SLDASM"
+  },
+  "payload": {
+    "top_level_only": false
+  }
+}

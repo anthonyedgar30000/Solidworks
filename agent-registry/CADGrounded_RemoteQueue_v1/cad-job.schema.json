@@ -1,0 +1,157 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cadgrounded.local/schemas/cad-read-job-v1.schema.json",
+  "title": "CADGrounded read-only remote job v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "job_id",
+    "command_id",
+    "write_authority",
+    "payload"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "job_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"
+    },
+    "command_id": {
+      "enum": [
+        "sw.status",
+        "sw.query_components",
+        "sw.closest_distance_pair"
+      ]
+    },
+    "write_authority": {
+      "const": "NONE"
+    },
+    "created_utc": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "expires_utc": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string",
+      "maxLength": 128
+    },
+    "preconditions": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "document_title_exact": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512
+        },
+        "document_path_exact": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2048
+        }
+      }
+    },
+    "payload": {
+      "type": "object"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "command_id": {
+            "const": "sw.status"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "type": "object",
+            "maxProperties": 0
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "command_id": {
+            "const": "sw.query_components"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "preconditions"
+        ],
+        "properties": {
+          "preconditions": {
+            "required": [
+              "document_title_exact"
+            ]
+          },
+          "payload": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "top_level_only"
+            ],
+            "properties": {
+              "top_level_only": {
+                "type": "boolean"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "command_id": {
+            "const": "sw.closest_distance_pair"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "preconditions"
+        ],
+        "properties": {
+          "preconditions": {
+            "required": [
+              "document_title_exact"
+            ]
+          },
+          "payload": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "a_name_exact",
+              "b_name_exact"
+            ],
+            "properties": {
+              "a_name_exact": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 1024
+              },
+              "b_name_exact": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 1024
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

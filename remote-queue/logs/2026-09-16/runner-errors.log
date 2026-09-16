@@ -1,0 +1,4 @@
+﻿2026-09-16T05:03:43.3882021+00:00	rejected-cc43f2a91b374b71b8efe41bd90f6cf6	Cannot bind argument to parameter 'Allowed' because it is an empty array.
+2026-09-16T05:05:09.9038313+00:00	rejected-1994dd33b2d648d9baa6b896e9ed86b3	Cannot bind argument to parameter 'Allowed' because it is an empty array.
+2026-09-16T05:07:19.0711663+00:00	smoke-status-20260916T050718Z	The property 'Count' cannot be found on this object. Verify that the property exists.
+2026-09-16T05:12:21.2629293+00:00	smoke-reject-wrong-document-20260916T051219Z	Document title precondition failed. Expected='THIS_IS_INTENTIONALLY_NOT_V21' Actual='IXOR_Benchmark_v21_AR60_CARRIAGE_FIT_CHECK_PORTABLE'.

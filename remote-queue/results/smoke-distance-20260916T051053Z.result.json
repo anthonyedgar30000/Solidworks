@@ -1,0 +1,77 @@
+{
+    "schema_version":  1,
+    "runner_version":  "1.0.0",
+    "state":  "completed",
+    "job_id":  "smoke-distance-20260916T051053Z",
+    "request_sha256":  "1ffa226b4f92d676e2caff804121a3731258f5c0df0cc6e76e05b549f935b168",
+    "request_file_name":  "smoke-distance-20260916T051053Z.job.json",
+    "started_utc":  "2026-09-16T05:10:54.7837271+00:00",
+    "finished_utc":  "2026-09-16T05:10:55.7012333+00:00",
+    "status_observation":  {
+                               "ok":  true,
+                               "command_id":  "sw.status",
+                               "source_classification":  "verified_from_solidworks_api",
+                               "data":  {
+                                            "worker_version":  "0.1.0",
+                                            "cad_path":  "native C# -\u003e SOLIDWORKS interop (NO MCP)",
+                                            "write_authority":  "NONE",
+                                            "solidworks_revision":  "34.3.2",
+                                            "solidworks_process_id":  14556,
+                                            "document":  {
+                                                             "title":  "IXOR_Benchmark_v21_AR60_CARRIAGE_FIT_CHECK_PORTABLE",
+                                                             "path":  "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v21_AR60_CARRIAGE_FIT_CHECK_PORTABLE.SLDASM",
+                                                             "type":  "assembly"
+                                                         }
+                                        }
+                           },
+    "worker_response":  {
+                            "ok":  true,
+                            "command_id":  "sw.closest_distance_pair",
+                            "source_classification":  "verified_from_solidworks_api",
+                            "data":  {
+                                         "document":  {
+                                                          "title":  "IXOR_Benchmark_v21_AR60_CARRIAGE_FIT_CHECK_PORTABLE",
+                                                          "path":  "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v21_AR60_CARRIAGE_FIT_CHECK_PORTABLE.SLDASM"
+                                                      },
+                                         "component_a":  {
+                                                             "name2":  "6130460_03_AR60_NATIVE_PORTABLE_V18-2",
+                                                             "path":  "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\6130460_03_AR60_NATIVE_PORTABLE_V18.SLDPRT",
+                                                             "suppression_state":  2
+                                                         },
+                                         "component_b":  {
+                                                             "name2":  "6130649_01_Carriage_Schlitten_AR_NATIVE_PORTABLE_V20-1",
+                                                             "path":  "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\6130649_01_Carriage_Schlitten_AR_NATIVE_PORTABLE_V20.SLDPRT",
+                                                             "suppression_state":  2
+                                                         },
+                                         "minimum_distance_m":  1.2412670766236366E-16,
+                                         "minimum_distance_mm":  1.2412670766236365E-13,
+                                         "closest_point_a_m":  [
+                                                                   0.5142383325091286,
+                                                                   0.4828817644408611,
+                                                                   1.384670110679015
+                                                               ],
+                                         "closest_point_b_m":  [
+                                                                   0.5142383325091285,
+                                                                   0.48288176444086117,
+                                                                   1.384670110679015
+                                                               ],
+                                         "closest_point_a_mm":  [
+                                                                    514.2383325091287,
+                                                                    482.8817644408611,
+                                                                    1384.670110679015
+                                                                ],
+                                         "closest_point_b_mm":  [
+                                                                    514.2383325091286,
+                                                                    482.88176444086116,
+                                                                    1384.670110679015
+                                                                ],
+                                         "metric_relation":  "zero_within_1um",
+                                         "interpretation_note":  "Metric distance alone does not distinguish exact contact from physical interference. No interference API was called.",
+                                         "api":  "IModelDoc2.ClosestDistance",
+                                         "evidence":  "verified_from_solidworks_api",
+                                         "write_authority":  "NONE"
+                                     }
+                        },
+    "error":  "",
+    "runner_write_authority":  "NONE"
+}
