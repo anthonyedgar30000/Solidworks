@@ -1,3 +1,4 @@
+import copy
 import unittest
 
 from geometry_projection import GeometryProjectionError, build_projection
@@ -46,11 +47,26 @@ class GeometryProjectionTests(unittest.TestCase):
         self.assertIn("AR60_CONTACT_POSITION", result["unresolved_mechanical_claims"])
         self.assertNotIn("contact_valid", result["calculated_facts"])
 
-    def test_nearest_bottle_is_selected_by_aabb_distance(self):
+    def test_nearest_bottle_tie_is_preserved_as_ambiguity(self):
         result = build_projection(fixture())
         nearest = result["calculated_facts"]["AR60_NEAREST_BOTTLE_AABB_SEPARATION"]
-        self.assertEqual(nearest["nearest_bottle_role"], "BOTTLE_5")
+        self.assertIs(nearest["nearest_bottle_unique"], False)
+        self.assertIsNone(nearest["nearest_bottle_role"])
+        self.assertEqual(nearest["nearest_bottle_roles"], ["BOTTLE_4", "BOTTLE_5"])
         self.assertGreater(nearest["minimum_aabb_separation_mm"], 0.0)
+        self.assertIsNotNone(nearest["ambiguity_note"])
+
+    def test_unique_nearest_bottle_is_promoted_only_when_unique(self):
+        tx = copy.deepcopy(fixture())
+        tx["resolved_roles"]["BOTTLE_4"]["box_min_mm"] = [0, 70, 0]
+        tx["resolved_roles"]["BOTTLE_4"]["box_max_mm"] = [20, 90, 50]
+        result = build_projection(tx)
+        nearest = result["calculated_facts"]["AR60_NEAREST_BOTTLE_AABB_SEPARATION"]
+        self.assertIs(nearest["nearest_bottle_unique"], True)
+        self.assertEqual(nearest["nearest_bottle_role"], "BOTTLE_5")
+        self.assertEqual(nearest["nearest_bottle_roles"], ["BOTTLE_5"])
+        self.assertIsNotNone(nearest["axis_gap_mm"])
+        self.assertIsNone(nearest["ambiguity_note"])
 
     def test_all_bottle_aabbs_are_reported_disjoint(self):
         result = build_projection(fixture())
