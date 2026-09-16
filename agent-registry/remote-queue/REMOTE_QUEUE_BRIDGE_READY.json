@@ -1,0 +1,8 @@
+{
+    "schema_version":  1,
+    "type":  "CADGrounded_RemoteQueue_Transport",
+    "created_utc":  "2026-09-16T05:38:00.7302605+00:00",
+    "queue_root":  "C:\\ChatGPT\\Solidworks\\agent-registry\\remote-queue",
+    "write_authority":  "NONE",
+    "purpose":  "Google Drive transport verification only"
+}

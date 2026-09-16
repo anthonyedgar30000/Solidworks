@@ -1,0 +1,11 @@
+{
+    "schema_version":  1,
+    "job_id":  "mirror-status-20260916T053954Z",
+    "command_id":  "sw.status",
+    "write_authority":  "NONE",
+    "created_utc":  "2026-09-16T05:39:54.2802835+00:00",
+    "source":  "mirror-transport-smoke-test",
+    "payload":  {
+
+                }
+}
