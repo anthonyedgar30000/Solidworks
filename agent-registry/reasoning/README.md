@@ -23,9 +23,11 @@ The important idea is that **a NULL is not treated as an empty hole**. The graph
 - `evidence_ingest.py` — validates and normalizes completed read-only `sw.query_components` observations into evidence transactions.
 - `v21_identity_bindings.json` — exact v21 semantic-role to `Component2.Name2` bindings.
 - `identity_bindings.py` — validates those exact bindings against admitted live SOLIDWORKS evidence.
+- `geometry_projection.py` — calculates conservative AABB relations from admitted exact-identity evidence.
 - `test_reasoner.py` — reasoner regression tests.
 - `test_evidence_ingest.py` — evidence-boundary regression tests.
 - `test_identity_bindings.py` — exact identity binding regression tests.
+- `test_geometry_projection.py` — deterministic AABB projection regression tests.
 
 ## Run
 
@@ -98,6 +100,28 @@ The binding stage requires each configured `Component2.Name2` to match **exactly
 
 The current v21 role registry includes the exact live identities for the IXOR head, SP100, AR60 roller, AR carriage, GHF120, tie rod, two mounting rods, conveyor, and five deterministic bottles.
 
+## Project deterministic geometry facts
+
+After exact identity binding succeeds, run:
+
+```powershell
+python .\geometry_projection.py `
+  .\runtime\v21-identity-evidence.json `
+  --out .\runtime\v21-geometry-projection.json `
+  --summary
+```
+
+This stage performs deterministic arithmetic on the admitted GetBox-derived approximate axis-aligned bounding boxes. It reports observed transforms/envelopes, per-axis AABB gaps, minimum AABB separation, and AABB overlap relations.
+
+Its authority is intentionally bounded:
+
+- AABB overlap is **not** body interference.
+- AABB separation is **not** exact surface clearance.
+- It does not establish contact, seating, restraint, product flow, operating sequence, or functional suitability.
+- It never grants mechanical acceptance.
+
+The point is to replace toy geometry facts with reproducible calculations while preserving stronger mechanical claims as unresolved until a suitable deterministic SOLIDWORKS check exists.
+
 ## Expected initial result
 
 The graph intentionally leaves `AR60_CONTACT_POSITION` unresolved.
@@ -153,13 +177,14 @@ only after authoritative evidence or an accepted deterministic derivation is ava
 
 ## Next architectural increment
 
-The next useful addition is graph projection from admitted evidence:
+The next useful addition is graph admission from deterministic projection output:
 
-1. read admitted SOLIDWORKS observation evidence;
+1. admit live SOLIDWORKS observations;
 2. resolve exact semantic identities;
-3. project only observation-backed fields into graph facts;
-4. preserve unresolved mechanical claims as `NULL`;
-5. run deterministic dependency/exposure propagation;
-6. choose the next read-only investigation based on remaining risk exposure.
+3. calculate bounded deterministic geometry relations;
+4. project only supported observations/calculations into graph facts;
+5. preserve contact/clearance/operating claims as `NULL` unless separately proven;
+6. run dependency/exposure propagation;
+7. choose the next read-only investigation based on remaining risk exposure.
 
 This preserves the boundary that SOLIDWORKS observations establish live state, deterministic checks establish mechanical relationships, and LLMs only help select or formulate investigations.
