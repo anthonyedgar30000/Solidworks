@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "job_id": "v42-preflight-belt-support1-20260917-a",
+  "command_id": "sw.closest_distance_pair",
+  "write_authority": "NONE",
+  "source": "ChatGPT-v42-mechanical-preflight",
+  "preconditions": {
+    "document_title_exact": "IXOR_Benchmark_v42_ROLLER_GUIDE_HARDSTOP_FIT_CHECK_PORTABLE"
+  },
+  "payload": {
+    "a_name_exact": "FITCHECK_DRIVEN_WRAP_BELT_5x160x93_V25-1",
+    "b_name_exact": "FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25-1"
+  }
+}

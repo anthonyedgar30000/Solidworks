@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "job_id": "v42-preflight-b2-stop1-20260917-a",
+  "command_id": "sw.closest_distance_pair",
+  "write_authority": "NONE",
+  "source": "ChatGPT-CADGrounded",
+  "preconditions": {
+    "document_title_exact": "IXOR_Benchmark_v42_ROLLER_GUIDE_HARDSTOP_FIT_CHECK_PORTABLE"
+  },
+  "payload": {
+    "a_name_exact": "FITCHECK_INDEX_STOP_FINGER_54p25x6x20_V37-1",
+    "b_name_exact": "BENCH_BOTTLE_D48_H180-2"
+  }
+}

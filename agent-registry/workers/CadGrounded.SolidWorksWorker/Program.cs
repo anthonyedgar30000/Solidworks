@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -9,7 +9,7 @@ namespace CadGrounded.SolidWorksWorker;
 
 internal static class Program
 {
-    private const string Version = "0.1.0";
+    private const string Version = "0.2.0";
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         WriteIndented = true,
@@ -208,7 +208,8 @@ internal static class Dispatcher
     {
         "sw.status",
         "sw.query_components",
-        "sw.closest_distance_pair"
+        "sw.closest_distance_pair",
+        "sw.classify_contact_pair"
     };
 
     public static Envelope Execute(string commandId, JsonElement payload)
@@ -237,6 +238,9 @@ internal static class Dispatcher
                 "sw.query_components" => session.QueryComponents(
                     JsonHelpers.GetOptionalBool(payload, "top_level_only", true)),
                 "sw.closest_distance_pair" => session.ClosestDistancePair(
+                    JsonHelpers.GetRequiredString(payload, "a_name_exact"),
+                    JsonHelpers.GetRequiredString(payload, "b_name_exact")),
+                "sw.classify_contact_pair" => session.ClassifyContactPair(
                     JsonHelpers.GetRequiredString(payload, "a_name_exact"),
                     JsonHelpers.GetRequiredString(payload, "b_name_exact")),
                 _ => throw new InvalidOperationException("Unreachable command dispatch.")
@@ -580,6 +584,151 @@ internal sealed class SolidWorksSession : IDisposable
         };
     }
 
+    public object ClassifyContactPair(string aExact, string bExact)
+    {
+        var assembly = RequireAssembly();
+        var components = GetComponents(assembly, topLevelOnly: true);
+
+        var aMatches = components
+            .Where(c => string.Equals(c.Name2, aExact, StringComparison.Ordinal))
+            .ToArray();
+        var bMatches = components
+            .Where(c => string.Equals(c.Name2, bExact, StringComparison.Ordinal))
+            .ToArray();
+
+        if (aMatches.Length != 1 || bMatches.Length != 1)
+        {
+            throw new CadGroundedException(
+                "component_match_not_unique",
+                $"Exact top-level component matching must be unique. " +
+                $"a_matches={aMatches.Length}, b_matches={bMatches.Length}. " +
+                $"a='{aExact}', b='{bExact}'.");
+        }
+
+        var a = aMatches[0];
+        var b = bMatches[0];
+
+        if (string.Equals(a.Name2, b.Name2, StringComparison.Ordinal))
+            throw new CadGroundedException(
+                "same_component",
+                "Contact classification requires two different components.");
+
+        var aState = a.GetSuppression2();
+        var bState = b.GetSuppression2();
+
+        var aResolved =
+            aState == (int)SwConst.swComponentSuppressionState_e.swComponentFullyResolved ||
+            aState == (int)SwConst.swComponentSuppressionState_e.swComponentResolved;
+        var bResolved =
+            bState == (int)SwConst.swComponentSuppressionState_e.swComponentFullyResolved ||
+            bState == (int)SwConst.swComponentSuppressionState_e.swComponentResolved;
+
+        if (!aResolved || !bResolved)
+        {
+            throw new CadGroundedException(
+                "component_not_resolved",
+                $"Contact classification requires resolved components. " +
+                $"a_state={aState}, b_state={bState}.");
+        }
+
+        object pointA;
+        object pointB;
+        double distanceM;
+
+        try
+        {
+            distanceM = _doc.ClosestDistance(a, b, out pointA, out pointB);
+        }
+        catch (COMException ex)
+        {
+            throw new CadGroundedException(
+                "closest_distance_com_fault",
+                $"IModelDoc2.ClosestDistance failed for '{a.Name2}' and '{b.Name2}'.",
+                ex);
+        }
+
+        if (distanceM < 0.0)
+        {
+            throw new CadGroundedException(
+                "closest_distance_failed",
+                $"IModelDoc2.ClosestDistance returned {distanceM} for '{a.Name2}' and '{b.Name2}'.");
+        }
+
+        const double contactToleranceM = 0.000001;       // 0.001 mm
+        const double volumeToleranceM3 = 0.000000000001; // 0.001 mm^3
+
+        var booleanExecuted = distanceM <= contactToleranceM;
+        var booleanErrorCodes = new List<int>();
+        var bodyPairCount = 0;
+        var intersectionBodyCount = 0;
+        var intersectionVolumeM3 = 0.0;
+        var aBodies = Array.Empty<IBody2>();
+        var bBodies = Array.Empty<IBody2>();
+
+        if (booleanExecuted)
+        {
+            aBodies = GetSolidBodies(a);
+            bBodies = GetSolidBodies(b);
+
+            if (aBodies.Length == 0 || bBodies.Length == 0)
+            {
+                return new { document = new { title = _doc.GetTitle(), path = _doc.GetPathName() }, component_a = ComponentIdentity(a, aState), component_b = ComponentIdentity(b, bState), minimum_distance_m = distanceM, minimum_distance_mm = distanceM * 1000.0, closest_point_a_mm = Scale(ToDoubleArray(pointA), 1000.0), closest_point_b_mm = Scale(ToDoubleArray(pointB), 1000.0), classification = "indeterminate_non_solid_geometry", contact_tolerance_mm = contactToleranceM * 1000.0, volume_tolerance_mm3 = volumeToleranceM3 * 1e9, solid_body_count_a = aBodies.Length, solid_body_count_b = bBodies.Length, boolean_executed = true, model_mutation = false, write_authority = "NONE", evidence = "verified_from_solidworks_api" };
+            }
+
+            foreach (var aBody in aBodies)
+            {
+                foreach (var bBody in bBodies)
+                {
+                    bodyPairCount++;
+                    var aCopy = aBody.Copy() as IBody2;
+                    var bCopy = bBody.Copy() as IBody2;
+                    if (aCopy is null || bCopy is null) throw new CadGroundedException("temporary_body_copy_failed", "Body2.Copy did not return two temporary bodies.");
+                    if (!aCopy.ApplyTransform(a.Transform2) || !bCopy.ApplyTransform(b.Transform2)) throw new CadGroundedException("temporary_body_transform_failed", "Failed to transform temporary body copies into assembly coordinates.");
+                    int errorCode; object raw;
+                    try { raw = aCopy.Operations2((int)SwConst.swBodyOperationType_e.SWBODYINTERSECT, bCopy, out errorCode); }
+                    catch (COMException ex) { throw new CadGroundedException(
+                        "body_intersection_com_fault",
+                        $"Body2.Operations2(SWBODYINTERSECT) failed for '{a.Name2}' and '{b.Name2}'.", ex); }
+                    booleanErrorCodes.Add(errorCode);
+                    if (raw is not Array resultBodies) continue;
+                    foreach (var rawBody in resultBodies)
+                    {
+                        if (rawBody is not IBody2 resultBody) continue;
+                        var mass = ToDoubleArray(resultBody.GetMassProperties(1.0));
+                        if (mass is null || mass.Length <= 3) continue;
+                        var volume = mass[3];
+                         if (volume > volumeToleranceM3) { intersectionBodyCount++; intersectionVolumeM3 += volume; }
+                    }
+                }
+            }
+        }
+
+        var distinctErrors = booleanErrorCodes.Distinct().OrderBy(v => v).ToArray();
+        var hasBooleanError = distinctErrors.Any(v => v != 0);
+        string classification;
+
+        if (distanceM > contactToleranceM) classification = "clearance";
+        else if (hasBooleanError) classification = "indeterminate_boolean_error";
+        else if (intersectionVolumeM3 > volumeToleranceM3) classification = "physical_interference";
+        else classification = "contact_or_coincidence_within_tolerance";
+
+        return new { document = new { title = _doc.GetTitle(), path = _doc.GetPathName() }, component_a = ComponentIdentity(a, aState), component_b = ComponentIdentity(b, bState), minimum_distance_m = distanceM, minimum_distance_mm = distanceM * 1000.0, closest_point_a_m = ToDoubleArray(pointA), closest_point_b_m = ToDoubleArray(pointB), closest_point_a_mm = Scale(ToDoubleArray(pointA), 1000.0), closest_point_b_mm = Scale(ToDoubleArray(pointB), 1000.0), classification = classification, contact_tolerance_mm = contactToleranceM * 1000.0, volume_tolerance_mm3 = volumeToleranceM3 * 1e9, solid_body_count_a = booleanExecuted ? aBodies.Length : (int?)null, solid_body_count_b = booleanExecuted ? bBodies.Length : (int?)null, body_pair_count = booleanExecuted ? bodyPairCount : (int?)null, intersection_body_count = booleanExecuted ? intersectionBodyCount : (int?)null, intersection_volume_mm3 = booleanExecuted ? intersectionVolumeM3 * 1e9 : (double?)null, boolean_error_codes = booleanExecuted ? distinctErrors : null, boolean_executed = booleanExecuted, api_distance = "IModelDoc2.ClosestDistance", api_intersection = "IBody2.Operations2(SWBODYINTERSECT) on transformed temporary body copies", interpretation_note = "Positive clearance excludes contact. Near-zero distance is classified with exact B-rep intersection volume on temporary copies; no assembly interference manager is invoked.", model_mutation = false, write_authority = "NONE", evidence = "verified_from_solidworks_api" };
+    }
+
+    private static IBody2[] GetSolidBodies(IComponent2 component)
+    {
+        object bodiesInfo;
+        var raw = component.GetBodies3((int)SwConst.swBodyType_e.swSolidBody, out bodiesInfo);
+        if (raw is null) return Array.Empty<IBody2>();
+        if (raw is object[] objects) return objects.OfType<IBody2>().ToArray();
+        if (raw is Array array)
+        {
+            var list = new List<IBody2>();
+            foreach (var item in array) if (item is IBody2 body) list.Add(body);
+            return list.ToArray();
+        }
+        throw new CadGroundedException("unexpected_body_array", $"IComponent2.GetBodies3 returned unsupported type '{raw.GetType().FullName}'.");
+    }
     private static object ComponentIdentity(IComponent2 c, int state) => new
     {
         name2 = c.Name2,

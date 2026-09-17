@@ -1,0 +1,46 @@
+{
+    "schema_version":  1,
+    "runner_version":  "1.0.0",
+    "state":  "completed",
+    "job_id":  "gdrive-status-20260917T1820Z",
+    "request_sha256":  "b0aabe61664c09085bb34d4cbc9b2537b037b40dccf7df1916d20f5472e56d55",
+    "request_file_name":  "gdrive-status-20260917T1820Z.job.json",
+    "started_utc":  "2026-09-17T18:23:44.3478758+00:00",
+    "finished_utc":  "2026-09-17T18:23:51.3358292+00:00",
+    "status_observation":  {
+                               "ok":  true,
+                               "command_id":  "sw.status",
+                               "source_classification":  "verified_from_solidworks_api",
+                               "data":  {
+                                            "worker_version":  "0.1.0",
+                                            "cad_path":  "native C# -\u003e SOLIDWORKS interop (NO MCP)",
+                                            "write_authority":  "NONE",
+                                            "solidworks_revision":  "34.3.2",
+                                            "solidworks_process_id":  12576,
+                                            "document":  {
+                                                             "title":  "IXOR_Benchmark_v42_ROLLER_GUIDE_HARDSTOP_FIT_CHECK_PORTABLE",
+                                                             "path":  "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v42_ROLLER_GUIDE_HARDSTOP_FIT_CHECK_PORTABLE.SLDASM",
+                                                             "type":  "assembly"
+                                                         }
+                                        }
+                           },
+    "worker_response":  {
+                            "ok":  true,
+                            "command_id":  "sw.status",
+                            "source_classification":  "verified_from_solidworks_api",
+                            "data":  {
+                                         "worker_version":  "0.1.0",
+                                         "cad_path":  "native C# -\u003e SOLIDWORKS interop (NO MCP)",
+                                         "write_authority":  "NONE",
+                                         "solidworks_revision":  "34.3.2",
+                                         "solidworks_process_id":  12576,
+                                         "document":  {
+                                                          "title":  "IXOR_Benchmark_v42_ROLLER_GUIDE_HARDSTOP_FIT_CHECK_PORTABLE",
+                                                          "path":  "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v42_ROLLER_GUIDE_HARDSTOP_FIT_CHECK_PORTABLE.SLDASM",
+                                                          "type":  "assembly"
+                                                      }
+                                     }
+                        },
+    "error":  "",
+    "runner_write_authority":  "NONE"
+}
