@@ -19,7 +19,7 @@ DB_PATH = Path(os.getenv("CAD_REGISTRY_DB", str(RUNTIME_DIR / "registry.db")))
 
 app = FastAPI(
     title="CADGrounded Shared Agent Registry",
-    version="0.1.0",
+    version="0.2.0",
     description="Local coordination plane for ChatGPT, local LLMs, humans, and the SOLIDWORKS bridge.",
 )
 
@@ -457,3 +457,8 @@ def list_events(limit: int = 100) -> list[dict[str, Any]]:
         }
         for r in rows
     ]
+
+# Additive orchestration plane. This does not enable protected CAD commands.
+from .orchestration import register_orchestration
+
+register_orchestration(app, conn, emit, utc_now)

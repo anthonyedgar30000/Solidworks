@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cadgrounded.local/schemas/orchestration-work-item-v0.schema.json",
+  "title": "CADGrounded Orchestration Work Item v0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["worker_class", "work_type"],
+  "properties": {
+    "item_id": {"type": ["string", "null"], "maxLength": 128},
+    "parent_item_id": {"type": ["string", "null"], "maxLength": 128},
+    "worker_class": {
+      "enum": [
+        "coordinator",
+        "cad-evidence",
+        "geometry",
+        "reference-evidence",
+        "visual-inspection",
+        "cad-single-writer"
+      ]
+    },
+    "work_type": {"type": "string", "minLength": 1, "maxLength": 128},
+    "resource_id": {"type": ["string", "null"], "maxLength": 256},
+    "payload": {"type": "object"},
+    "state": {"enum": ["queued", "waiting"], "default": "queued"},
+    "priority": {"type": "integer", "minimum": -1000, "maximum": 1000, "default": 0},
+    "idempotency_key": {"type": ["string", "null"], "maxLength": 256}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"worker_class": {"const": "cad-single-writer"}}},
+      "then": {"required": ["resource_id"]}
+    }
+  ]
+}
