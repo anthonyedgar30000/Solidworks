@@ -18,6 +18,7 @@ IXOR/CAB_IXOR_6130800/LIVE_CAD_SNAPSHOT.json
 .env
 *.secret
 agent-registry/drive-transport-v1/transport-config.json
+agent-registry/drive-transport-v1/mirror-transport-config.json
 agent-registry/.venv/
 agent-registry/__pycache__/
 agent-registry/app/__pycache__/
