@@ -9,7 +9,7 @@ namespace CadGrounded.SolidWorksWorker;
 
 internal static class Program
 {
-    private const string Version = "0.3.0";
+    internal const string Version = "0.3.0";
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         WriteIndented = true,
@@ -208,8 +208,8 @@ internal static class Program
 
     private static void PrintUsage()
     {
-        Console.WriteLine("""
-CadGrounded.SolidWorksWorker v0.3.0
+        Console.WriteLine($"""
+CadGrounded.SolidWorksWorker v{Version}
 
 READ-ONLY COMMANDS
   status
@@ -221,7 +221,7 @@ READ-ONLY COMMANDS
   version
 
 execute-json request:
-  {"command_id":"sw.status","payload":{}}
+  {{"command_id":"sw.status","payload":{{}}}}
 
 serve-stdio:
   One compact JSON request per line; one compact JSON response per line.
@@ -345,7 +345,7 @@ internal sealed class SolidWorksSession : IDisposable
     {
         return new
         {
-            worker_version = VersionString,
+            worker_version = Program.Version,
             cad_path = "native C# -> SOLIDWORKS interop (NO MCP)",
             write_authority = "NONE",
             solidworks_revision = Safe(() => _app.RevisionNumber()),
@@ -358,8 +358,6 @@ internal sealed class SolidWorksSession : IDisposable
             }
         };
     }
-
-    private const string VersionString = "0.3.0";
 
     public object QueryComponents(bool topLevelOnly)
     {
@@ -645,7 +643,7 @@ internal sealed class SolidWorksSession : IDisposable
                         {
                             feature_name = mateFeature.Name,
                             feature_type = mateFeature.GetTypeName2(),
-                            suppressed = SafeBool(() => mateFeature.IsSuppressed2((int)SwConst.swInConfigurationOpts_e.swThisConfiguration, null)),
+                            suppressed = SafeFeatureSuppressed(mateFeature),
                             mate_type = mateType,
                             mate_type_name = mateType.HasValue ? MateTypeName(mateType.Value) : null,
                             alignment = alignment,
@@ -1023,6 +1021,28 @@ internal sealed class SolidWorksSession : IDisposable
     {
         try { return getter(); }
         catch { return null; }
+    }
+
+    private static bool? SafeFeatureSuppressed(IFeature feature)
+    {
+        try
+        {
+            var raw = feature.IsSuppressed2(
+                (int)SwConst.swInConfigurationOpts_e.swThisConfiguration,
+                null);
+
+            if (raw is bool single)
+                return single;
+            if (raw is bool[] values && values.Length > 0)
+                return values[0];
+            if (raw is Array array && array.Length > 0)
+                return Convert.ToBoolean(array.GetValue(0), CultureInfo.InvariantCulture);
+            return null;
+        }
+        catch
+        {
+            return null;
+        }
     }
 
     private static string MateTypeName(int value)
