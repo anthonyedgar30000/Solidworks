@@ -30,9 +30,14 @@ $trigger = New-ScheduledTaskTrigger `
 $settings = New-ScheduledTaskSettingsSet `
     -MultipleInstances IgnoreNew `
     -StartWhenAvailable `
+    -AllowStartIfOnBatteries `
+    -DontStopIfGoingOnBatteries `
     -ExecutionTimeLimit (New-TimeSpan -Minutes 5)
 
 # Drive Desktop and the CAD queue live in the logged-on user's session.
+# This transport is intentionally allowed to run on battery power because it
+# only moves small validated JSON artifacts and must not silently stop the
+# read-only control plane on a laptop merely because AC power is disconnected.
 $userId = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name
 $principal = New-ScheduledTaskPrincipal `
     -UserId $userId `
