@@ -359,6 +359,136 @@ try {
             $raw = Get-Content -LiteralPath $processingPath -Raw
             $job = $raw | ConvertFrom-Json
 
+            # Preserve a syntactically safe request identity before full
+            # validation. This lets terminal validation failures such as TTL
+            # expiry correlate to the original request so transport can retire
+            # it. Unsafe/missing IDs still fall back to rejected-<GUID>.
+            if ((Get-PropertyNames $job) -contains 'job_id') {
+                $candidateJobId = [string]$job.job_id
+                if ((Test-ExactString $candidateJobId 128) -and
+                    ($candidateJobId -match '^[A-Za-z0-9][A-Za-z0-9._-]{0,127}
+
+            $terminalCollision = @(
+                @(
+                    (Join-Path $dirs['results'] "$jobId.result.json"),
+                    (Join-Path $dirs['completed'] "$jobId.request.json"),
+                    (Join-Path $dirs['failed'] "$jobId.request.json"),
+                    (Join-Path $dirs['rejected'] "$jobId.request.json")
+                ) | Where-Object { Test-Path -LiteralPath $_ }
+            )
+
+            if ($terminalCollision.Count -gt 0) {
+                throw "Replay/duplicate rejected: job_id '$jobId' already has terminal state."
+            }
+
+            $base = "$jobId.$requestSha"
+            $statusOut = Join-Path $logDir "$base.status.stdout.json"
+            $statusErr = Join-Path $logDir "$base.status.stderr.txt"
+            $workerOut = Join-Path $logDir "$base.worker.stdout.json"
+            $workerErr = Join-Path $logDir "$base.worker.stderr.txt"
+
+            $statusRequest = [ordered]@{
+                command_id = 'sw.status'
+                payload = [ordered]@{}
+            }
+
+            $statusRun = Invoke-WorkerJson $workerExe $statusRequest $statusOut $statusErr
+            if (-not [bool]$statusRun.Envelope.ok) {
+                throw 'SOLIDWORKS status observation failed.'
+            }
+
+            Test-DocumentPreconditions $job $statusRun.Envelope
+
+            $request = [ordered]@{
+                command_id = [string]$job.command_id
+                payload = $job.payload
+            }
+
+            $workerRun = Invoke-WorkerJson $workerExe $request $workerOut $workerErr
+            $finished = [DateTimeOffset]::UtcNow.ToString('o')
+
+            if ([bool]$workerRun.Envelope.ok) {
+                $state = 'completed'
+                $errorText = $null
+                $terminalDir = $dirs['completed']
+            } else {
+                $state = 'failed'
+                $errorText = 'Native worker returned ok=false.'
+                $terminalDir = $dirs['failed']
+            }
+
+            $record = New-TerminalRecord `
+                $state $jobId $requestSha $incomingFile.Name `
+                $started $finished $statusRun.Envelope $workerRun.Envelope $errorText
+
+            $resultPath = Join-Path $dirs['results'] "$jobId.result.json"
+            Write-Utf8NoBom $resultPath ($record | ConvertTo-Json -Depth 50)
+
+            $archiveRequest = Join-Path $terminalDir "$jobId.request.json"
+            Move-Item -LiteralPath $processingPath -Destination $archiveRequest
+
+            $requestLog = Join-Path $logDir "$base.request.json"
+            Copy-Item -LiteralPath $archiveRequest -Destination $requestLog
+
+            Write-Output "$state`t$jobId`t$resultPath"
+        }
+        catch {
+            $errorText = $_.Exception.Message
+            $finished = [DateTimeOffset]::UtcNow.ToString('o')
+
+            if ([string]::IsNullOrWhiteSpace($jobId)) {
+                $jobId = 'rejected-' + [Guid]::NewGuid().ToString('N')
+            }
+
+            if ([string]::IsNullOrWhiteSpace($requestSha)) {
+                $requestSha = 'unavailable'
+            }
+
+            $record = New-TerminalRecord `
+                'rejected' $jobId $requestSha $incomingFile.Name `
+                $started $finished $null $null $errorText
+
+            $safeResultName = "$jobId.result.json"
+            $resultPath = Join-Path $dirs['results'] $safeResultName
+            if (Test-Path -LiteralPath $resultPath) {
+                $resultPath = Join-Path $dirs['results'] (
+                    "$jobId.rejected.$([Guid]::NewGuid().ToString('N')).result.json"
+                )
+            }
+            Write-Utf8NoBom $resultPath ($record | ConvertTo-Json -Depth 50)
+
+            if ($processingPath -and (Test-Path -LiteralPath $processingPath)) {
+                $rejectPath = Join-Path $dirs['rejected'] (
+                    "$jobId.$([Guid]::NewGuid().ToString('N')).request.json"
+                )
+                Move-Item -LiteralPath $processingPath -Destination $rejectPath
+            } elseif (Test-Path -LiteralPath $incomingFile.FullName) {
+                $rejectPath = Join-Path $dirs['rejected'] (
+                    "$jobId.$([Guid]::NewGuid().ToString('N')).request.json"
+                )
+                Move-Item -LiteralPath $incomingFile.FullName -Destination $rejectPath
+            }
+
+            $runnerLog = Join-Path $logDir 'runner-errors.log'
+            Add-Content -LiteralPath $runnerLog -Encoding UTF8 -Value (
+                "$finished`t$jobId`t$errorText"
+            )
+
+            Write-Warning "rejected`t$jobId`t$errorText"
+        }
+    }
+}
+finally {
+    if ($hasMutex) {
+        [void]$mutex.ReleaseMutex()
+    }
+    $mutex.Dispose()
+}
+)) {
+                    $jobId = $candidateJobId
+                }
+            }
+
             [void](Assert-Job $job $config)
             $jobId = [string]$job.job_id
 
