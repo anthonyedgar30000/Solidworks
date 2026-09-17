@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "transport_version": "1.0.0",
+  "rclone_exe": "rclone.exe",
+  "rclone_remote": "gdrive",
+  "drive_incoming_folder_id": "REPLACE_WITH_LOCAL_SECRET",
+  "drive_results_folder_id": "REPLACE_WITH_LOCAL_SECRET",
+  "local_queue_root": "C:\\ChatGPT\\Solidworks\\agent-registry\\remote-queue",
+  "max_job_bytes": 65536,
+  "allowed_commands": [
+    "sw.status",
+    "sw.query_components",
+    "sw.closest_distance_pair"
+  ],
+  "delete_remote_request_after_verified_result": true
+}

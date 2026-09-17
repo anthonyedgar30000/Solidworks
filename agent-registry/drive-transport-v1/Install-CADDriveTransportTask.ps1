@@ -1,8 +1,8 @@
 [CmdletBinding()]
 param(
-    [string]$TaskName = 'CADGrounded Remote Queue ReadOnly',
-    [string]$RunnerPath = (Join-Path $PSScriptRoot 'Invoke-CADRemoteQueue.ps1'),
-    [string]$ConfigPath = (Join-Path $PSScriptRoot 'queue-config.json'),
+    [string]$TaskName = 'CADGrounded Drive Transport ReadOnly',
+    [string]$TransportPath = (Join-Path $PSScriptRoot 'Invoke-CADDriveTransport.ps1'),
+    [string]$ConfigPath = (Join-Path $PSScriptRoot 'transport-config.json'),
     [int]$EveryMinutes = 1
 )
 
@@ -12,20 +12,18 @@ $ErrorActionPreference = 'Stop'
 if ($EveryMinutes -lt 1) {
     throw 'EveryMinutes must be at least 1.'
 }
-
-if (-not (Test-Path -LiteralPath $RunnerPath -PathType Leaf)) {
-    throw "Runner not found: $RunnerPath"
+if (-not (Test-Path -LiteralPath $TransportPath -PathType Leaf)) {
+    throw "Transport script not found: $TransportPath"
 }
 if (-not (Test-Path -LiteralPath $ConfigPath -PathType Leaf)) {
-    throw "Config not found: $ConfigPath"
+    throw "Transport config not found: $ConfigPath"
 }
 
-$RunnerPath = (Resolve-Path -LiteralPath $RunnerPath).Path
+$TransportPath = (Resolve-Path -LiteralPath $TransportPath).Path
 $ConfigPath = (Resolve-Path -LiteralPath $ConfigPath).Path
 
 $psExe = "$env:SystemRoot\System32\WindowsPowerShell\v1.0\powershell.exe"
-$args = "-NoProfile -NonInteractive -ExecutionPolicy Bypass -File `"$RunnerPath`" -ConfigPath `"$ConfigPath`""
-
+$args = "-NoProfile -NonInteractive -ExecutionPolicy Bypass -File `"$TransportPath`" -ConfigPath `"$ConfigPath`""
 $action = New-ScheduledTaskAction -Execute $psExe -Argument $args
 $trigger = New-ScheduledTaskTrigger `
     -Once `
@@ -38,9 +36,8 @@ $settings = New-ScheduledTaskSettingsSet `
     -StartWhenAvailable `
     -ExecutionTimeLimit (New-TimeSpan -Minutes 5)
 
-# SOLIDWORKS is an interactive desktop COM application. The queue task must run
-# as the same logged-on user so the native worker can attach to the live
-# SOLIDWORKS instance in that user's session.
+# Run under the same interactive Windows identity that owns the rclone OAuth
+# profile and the local CADGrounded queue tree.
 $userId = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name
 $principal = New-ScheduledTaskPrincipal `
     -UserId $userId `
@@ -53,11 +50,11 @@ Register-ScheduledTask `
     -Trigger $trigger `
     -Settings $settings `
     -Principal $principal `
-    -Description 'CADGrounded read-only JSON queue runner. Same interactive user; no generic code execution; no CAD write commands.' `
+    -Description 'CADGrounded Google Drive JSON transport only. No SOLIDWORKS API or CAD write authority.' `
     -Force | Out-Null
 
 Write-Output "Installed task: $TaskName"
 Write-Output "User: $userId"
-Write-Output "Runner: $RunnerPath"
+Write-Output "Transport: $TransportPath"
 Write-Output "Config: $ConfigPath"
 Write-Output "Interval: $EveryMinutes minute(s)"
