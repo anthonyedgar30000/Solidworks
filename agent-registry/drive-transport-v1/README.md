@@ -1,16 +1,16 @@
 # CADGrounded Drive Transport v1
 
-This package fills the missing transport hop between the Google Drive queue folders and the canonical local CADGrounded queue.
+This package fills the missing transport hop between Google Drive and the canonical local CADGrounded queue.
 
 It is deliberately **not** a CAD controller. It cannot call SOLIDWORKS, execute arbitrary downloaded code, move components, insert parts, create mates, save documents, or make mechanical-acceptance decisions.
 
 ## Authority boundary
 
 - SOLIDWORKS remains live geometry authority.
-- `Invoke-CADRemoteQueue.ps1` remains the local request-validation/execution authority.
+- `Invoke-CADRemoteQueue.ps1` remains local request-validation/execution authority.
 - GitHub remains version/history authority.
 - Google Drive remains transport only.
-- This transport agent only copies validated JSON request/result artifacts.
+- These transport agents only move validated JSON request/result artifacts.
 
 Canonical local queue root:
 
@@ -18,18 +18,50 @@ Canonical local queue root:
 C:\ChatGPT\Solidworks\agent-registry\remote-queue
 ```
 
-## Dependency
+## Preferred deployment: existing Drive Desktop mirror
 
-The transport uses an existing authenticated `rclone` Google Drive remote. This keeps Google OAuth credentials out of the repository and out of the transport script.
+Runtime history shows the workstation already has a mirror task that copies:
 
-Create a local `transport-config.json` from `transport-config.example.json` and set:
+```text
+C:\ChatGPT\Solidworks
+    -> C:\ChatGPT\GoogleDriveMirror\Solidworks
+```
 
-- `rclone_exe`
-- `rclone_remote`
-- `drive_incoming_folder_id`
-- `drive_results_folder_id`
+and Google Drive exposes that mirrored tree under the computer backup as:
 
-Do **not** commit the populated local config. The real Drive folder IDs remain deployment state, not public source.
+```text
+My Laptop / Solidworks / ...
+```
+
+The previous mirror job was local-to-mirror only. That was the missing inbound queue hop: a job could arrive through Google Drive into the mirrored tree without any mechanism copying it into the canonical live queue.
+
+Use `Invoke-CADDriveMirrorTransport.ps1` to bridge only the queue artifacts between:
+
+```text
+C:\ChatGPT\GoogleDriveMirror\Solidworks\agent-registry\remote-queue
+```
+
+and:
+
+```text
+C:\ChatGPT\Solidworks\agent-registry\remote-queue
+```
+
+Copy `mirror-transport-config.example.json` to the local-only `mirror-transport-config.json`, verify the two roots, then run:
+
+```powershell
+.\Invoke-CADDriveMirrorTransport.ps1 -DryRun
+.\Invoke-CADDriveMirrorTransport.ps1
+.\Install-CADDriveMirrorTransportTask.ps1
+```
+
+The task runs under the same logged-on interactive Windows identity as Drive Desktop and the local queue.
+
+## Optional fallback: direct rclone transport
+
+`Invoke-CADDriveTransport.ps1` remains available for deployments that intentionally use a separately authenticated `rclone` Google Drive remote instead of the existing Drive Desktop mirror. It is not required for the current workstation architecture when the Drive Desktop mirror is healthy.
+
+For that fallback, copy `transport-config.example.json` to `transport-config.json` and configure `rclone_exe`, `rclone_remote`, and the Drive folder IDs locally. Do not commit the populated local config.
 
 ## Safety semantics
 
@@ -42,49 +74,30 @@ Incoming requests are accepted only when all of the following are true:
 - file size is below the configured cap;
 - no local incoming/processing/terminal/result artifact already exists for the same job.
 
-The transport downloads to a staging file, validates it, then performs an atomic local rename into `remote-queue\incoming`.
+The preferred mirror transport first copies the mirrored request into staging under the canonical local queue, validates it, then atomically renames it into local `incoming`.
 
-Terminal results are uploaded only when:
+Terminal results are exported only when:
 
-- the local file name is exactly `<job_id>.result.json`;
+- local file name is exactly `<job_id>.result.json`;
 - `runner_write_authority` is exactly `NONE`;
-- `state` is `completed`, `failed`, or `rejected`;
-- `request_file_name`, when present, is a safe basename.
+- `state` is `completed`, `failed`, or `rejected`.
 
-A Drive request is deleted only **after** the matching terminal result has been uploaded and verified in the Drive results folder. Therefore disappearance from Drive `incoming` without a result remains a transport failure, never success.
+For the mirror transport, the result copy is SHA-256 verified before the corresponding mirrored request can be retired. For the rclone fallback, the uploaded Drive result is re-read by name before request retirement.
 
-## Installation
-
-1. Configure an authenticated rclone Google Drive remote under the same Windows user that will run the task.
-2. Copy `transport-config.example.json` to `transport-config.json` and fill the local-only values.
-3. Run a dry pass:
-
-```powershell
-.\Invoke-CADDriveTransport.ps1 -ConfigPath .\transport-config.json -DryRun
-```
-
-4. Run a live transport pass:
-
-```powershell
-.\Invoke-CADDriveTransport.ps1 -ConfigPath .\transport-config.json
-```
-
-5. Install the one-minute task:
-
-```powershell
-.\Install-CADDriveTransportTask.ps1 -ConfigPath .\transport-config.json
-```
+A Drive/mirror request is retired only **after** a matching terminal result has been copied and verified. Therefore disappearance from Drive `incoming` without a result is never runner success.
 
 ## Acceptance test
 
-The transport is not accepted until a fresh post-deployment `sw.status` request travels:
+The transport is not operationally accepted until a fresh post-deployment `sw.status` request travels:
 
 ```text
 Drive incoming
-  -> local remote-queue\incoming
+  -> Drive Desktop mirrored incoming
+  -> canonical local remote-queue\incoming
   -> local read-only queue runner
   -> native SOLIDWORKS worker
-  -> local remote-queue\results
+  -> canonical local remote-queue\results
+  -> Drive Desktop mirrored results
   -> Drive results
 ```
 
