@@ -1,31 +1,45 @@
-# CADGrounded native C# SOLIDWORKS worker v0.1
+# CADGrounded native C# SOLIDWORKS worker v0.3
 
-Purpose: move the SOLIDWORKS COM/API boundary out of PowerShell.
+Purpose: keep the SOLIDWORKS COM/API boundary inside a narrow native C# process with a hard read-only command allowlist.
 
-This stage is intentionally read-only. It does NOT contain registry polling yet.
-Instead it exposes a stable JSON command surface that the current registry worker
-can call as a thin transport shim while registry polling is migrated separately.
+There is no generic code-execution command and no CAD write command.
 
 ## Hard allowlist
 
 - `sw.status`
 - `sw.query_components`
 - `sw.closest_distance_pair`
+- `sw.classify_contact_pair` (native-only unless separately authorized by a transport policy)
+- `sw.query_mates`
 
-Everything else is rejected. There is no generic code-execution command and no CAD write command.
+`sw.query_mates` is an observation primitive. It requires one exact `Component2.Name2` and traverses the active assembly's mate group without selecting, editing, rebuilding, suppressing, moving, or mating any component. It reports mate definitions that reference the exact component, their mate entities, API type/alignment values, active-configuration suppression observation, entity parameters, and distance/angle variation values when SOLIDWORKS exposes them.
 
-## Why `sw.closest_distance_pair` exists
+A mate definition is evidence of a SOLIDWORKS constraint, not proof of spring stiffness, preload, force, contact pressure, or operating sequence.
 
-The earlier combined interference command failed inside SOLIDWORKS with
-`RPC_E_SERVERFAULT (0x80010105)`. This command isolates only:
+## `sw.closest_distance_pair`
+
+This command isolates:
 
 `IModelDoc2.ClosestDistance(Object, Object, ref Object, ref Object)`
 
-It deliberately does not call the assembly interference detector.
+It deliberately does not call the assembly interference detector. Distance alone is not treated as proof of physical interference. A zero metric distance can represent contact or overlap.
 
-Distance alone is not treated as proof of physical interference. A zero metric
-distance can represent contact or overlap, so the response states that an
-independent topology/interference observation is still required.
+## `sw.classify_contact_pair`
+
+This worker command uses `IModelDoc2.ClosestDistance` and, only for near-zero pairs, Boolean intersection on transformed temporary body copies. It does not mutate the assembly model. Remote exposure is a separate policy decision.
+
+## `sw.query_mates`
+
+CLI example:
+
+    bin\Release\net8.0-windows\win-x64\CadGrounded.SolidWorksWorker.exe mates ^
+      --component "FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25-2"
+
+JSON example:
+
+    {"command_id":"sw.query_mates","payload":{"component_name_exact":"FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25-2"}}
+
+The query fails closed unless the exact component name resolves uniquely in the active assembly.
 
 ## Build
 
@@ -37,43 +51,13 @@ Requires a .NET 8 SDK and the installed SOLIDWORKS interop DLLs at:
 
     C:\Program Files\SOLIDWORKS Corp\SOLIDWORKS
 
-## Test
+## Verification before transport exposure
 
-Keep the intended SOLIDWORKS v21 assembly open and active, then:
+1. Build successfully on the SOLIDWORKS Windows host.
+2. Run `version` and verify worker version `0.3.0`.
+3. Run `status` and verify `write_authority: NONE` and the exact active document.
+4. Run `mates --component <exact Name2>` against a known component.
+5. Verify the assembly dirty/save state and component transforms are unchanged.
+6. Only then expose `sw.query_mates` through a separately reviewed Remote Queue validator/schema/allowlist.
 
-    smoke-v21.cmd
-
-Or manually:
-
-    bin\Release\net8.0-windows\win-x64\CadGrounded.SolidWorksWorker.exe status
-
-    bin\Release\net8.0-windows\win-x64\CadGrounded.SolidWorksWorker.exe closest-distance ^
-      --a "6130460_03_AR60_NATIVE_PORTABLE_V18-2" ^
-      --b "BENCH_BOTTLE_D48_H180-3"
-
-## JSON transport
-
-One request:
-
-    echo {"command_id":"sw.status","payload":{}} | CadGrounded.SolidWorksWorker.exe execute-json
-
-Persistent line-delimited JSON:
-
-    CadGrounded.SolidWorksWorker.exe serve-stdio
-
-Example request:
-
-    {"command_id":"sw.closest_distance_pair","payload":{"a_name_exact":"6130460_03_AR60_NATIVE_PORTABLE_V18-2","b_name_exact":"BENCH_BOTTLE_D48_H180-3"}}
-
-## Cut-over plan
-
-1. Verify `status` attaches to the same v21 assembly as the existing worker.
-2. Verify `closest-distance` on AR60 ↔ Bottle 3.
-3. Change the existing registry worker into a thin registry/stdio shim.
-4. Port registry heartbeat/claim/complete HTTP code to C# only after the exact
-   current registry contract is read from the repository.
-5. Retire CAD COM logic from PowerShell.
-
-Do not infer that this source has compiled successfully on a SOLIDWORKS machine
-until `build.cmd` succeeds there. This bundle was generated outside Windows and
-does not contain SOLIDWORKS proprietary assemblies.
+Do not infer that repository source has compiled successfully on a SOLIDWORKS machine until `build.cmd` succeeds there. Repository review is not runtime verification.
