@@ -305,7 +305,7 @@ if (-not (Test-Path -LiteralPath $ConfigPath -PathType Leaf)) {
 
 $config = Get-Content -LiteralPath $ConfigPath -Raw | ConvertFrom-Json
 if ([int]$config.schema_version -ne 1) {
-    throw "Unsupported config schema_version '$($config.schema_version)."
+    throw "Unsupported config schema_version '$($config.schema_version)'."
 }
 
 $queueRoot = [string]$config.queue_root
