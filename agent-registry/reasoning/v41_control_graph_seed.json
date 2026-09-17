@@ -1,0 +1,280 @@
+{
+  "project": {
+    "id": "IXOR_V41_CONTROL_SEED",
+    "name": "IXOR v41 indexed wrap-cycle control-state seed graph",
+    "acceptance_obligation": "V41_CONTROL_ACCEPTANCE"
+  },
+  "nodes": [
+    {
+      "id": "IXOR_TIMER_CONTROLS_AVAILABLE",
+      "kind": "fact",
+      "description": "CAB IXOR+ documentation exposes start-delay and stop-delay controls.",
+      "value": true,
+      "state": "KNOWN",
+      "authority": "OEM_MANUAL",
+      "criticality": 2
+    },
+    {
+      "id": "IXOR_EXTERNAL_START_INTERFACE_AVAILABLE",
+      "kind": "fact",
+      "description": "CAB IXOR+ documentation exposes START and external start-sensor / PLC control examples.",
+      "value": true,
+      "state": "KNOWN",
+      "authority": "OEM_MANUAL",
+      "criticality": 3
+    },
+    {
+      "id": "CAB_FORKED_LIGHT_BARRIER_ASSET_AVAILABLE",
+      "kind": "fact",
+      "description": "CAB forked light-barrier CAD asset exists in the project source set; availability does not prove installation in v41.",
+      "value": true,
+      "state": "KNOWN",
+      "authority": "OEM_CAD_SOURCE_SET",
+      "criticality": 2
+    },
+    {
+      "id": "CAB_ROTARY_ENCODER_ASSET_AVAILABLE",
+      "kind": "fact",
+      "description": "CAB rotary-encoder CAD asset exists in the project source set; availability does not prove installation or measured authority in v41.",
+      "value": true,
+      "state": "KNOWN",
+      "authority": "OEM_CAD_SOURCE_SET",
+      "criticality": 2
+    },
+    {
+      "id": "PRODUCT_APPROACH_OBSERVED",
+      "kind": "fact",
+      "description": "An approaching bottle is observed as the product instance requesting the next labeling cycle.",
+      "value": null,
+      "state": "NULL",
+      "authority": null,
+      "expected_authority": ["SENSOR_INPUT", "PLC_INPUT_VALIDATION"],
+      "criticality": 5,
+      "resolution_cost": 1
+    },
+    {
+      "id": "APPLICATION_STATION_PRODUCT_IDENTITY",
+      "kind": "fact",
+      "description": "The exact v41 bottle instance intended to occupy the application station is identified.",
+      "value": null,
+      "state": "NULL",
+      "authority": null,
+      "expected_authority": ["SOLIDWORKS_LIVE_STATE", "DETERMINISTIC_DERIVATION"],
+      "criticality": 5,
+      "resolution_cost": 1
+    },
+    {
+      "id": "INDEX_STOP_CONTACT_GEOMETRY",
+      "kind": "fact",
+      "description": "Index-stop geometry establishes the intended product position without unacceptable interference.",
+      "value": null,
+      "state": "NULL",
+      "authority": null,
+      "expected_authority": ["SOLIDWORKS_MEASUREMENT", "DETERMINISTIC_DERIVATION"],
+      "criticality": 5,
+      "resolution_cost": 2
+    },
+    {
+      "id": "PRODUCT_INDEXED",
+      "kind": "derived_claim",
+      "description": "Exactly one intended bottle is established at the application station for the active cycle.",
+      "value": null,
+      "state": "NULL",
+      "authority": null,
+      "expected_authority": ["SENSOR_INPUT", "DETERMINISTIC_DERIVATION"],
+      "criticality": 5,
+      "resolution_cost": 2
+    },
+    {
+      "id": "LABEL_READY",
+      "kind": "fact",
+      "description": "Usable label media is ready at the application boundary for the active product.",
+      "value": null,
+      "state": "NULL",
+      "authority": null,
+      "expected_authority": ["IXOR_SENSOR_SIGNAL", "CAB_LABEL_SENSOR"],
+      "criticality": 5,
+      "resolution_cost": 1
+    },
+    {
+      "id": "WRAP_SUPPORT_CONTACT_GEOMETRY",
+      "kind": "fact",
+      "description": "Driven wrap belt and support rollers constrain the intended bottle with mechanically plausible contact geometry.",
+      "value": null,
+      "state": "NULL",
+      "authority": null,
+      "expected_authority": ["SOLIDWORKS_MEASUREMENT", "DETERMINISTIC_DERIVATION"],
+      "criticality": 5,
+      "resolution_cost": 2
+    },
+    {
+      "id": "LABEL_LEAD_RELATION",
+      "kind": "fact",
+      "description": "Presented label lead is correctly related to the intended bottle/contact envelope.",
+      "value": null,
+      "state": "NULL",
+      "authority": null,
+      "expected_authority": ["SOLIDWORKS_MEASUREMENT", "DETERMINISTIC_DERIVATION"],
+      "criticality": 5,
+      "resolution_cost": 2
+    },
+    {
+      "id": "APPLICATION_CONTACT_READY",
+      "kind": "derived_claim",
+      "description": "The active product, presented label, and wrap mechanism are in an authorized application condition.",
+      "value": null,
+      "state": "NULL",
+      "authority": null,
+      "expected_authority": ["DETERMINISTIC_DERIVATION", "SENSOR_INPUT"],
+      "criticality": 5,
+      "resolution_cost": 2
+    },
+    {
+      "id": "WRAP_MOTION_COMMANDABLE",
+      "kind": "invariant",
+      "description": "Wrap drive may only be commanded when the active product is indexed, label-ready, and application-contact-ready.",
+      "value": true,
+      "state": "ASSERTED",
+      "authority": "PROJECT_INVARIANT",
+      "criticality": 5
+    },
+    {
+      "id": "WRAP_MOTION_OBSERVED",
+      "kind": "fact",
+      "description": "Mechanically meaningful wrap motion is observed rather than inferred solely from a successful drive command.",
+      "value": null,
+      "state": "NULL",
+      "authority": null,
+      "expected_authority": ["ENCODER_SIGNAL", "SENSOR_INPUT", "VALIDATED_TIMED_DERIVATION"],
+      "criticality": 5,
+      "resolution_cost": 2
+    },
+    {
+      "id": "WRAP_COMPLETE",
+      "kind": "derived_claim",
+      "description": "Required wrap motion for the active product is complete.",
+      "value": null,
+      "state": "NULL",
+      "authority": null,
+      "expected_authority": ["ENCODER_DERIVATION", "DETERMINISTIC_DERIVATION", "VALIDATED_TIMED_DERIVATION"],
+      "criticality": 5,
+      "resolution_cost": 2
+    },
+    {
+      "id": "WRAP_COMPLETION_DETECTABLE",
+      "kind": "invariant",
+      "description": "The system must have a bounded, explicit authority for deciding wrap completion.",
+      "value": true,
+      "state": "ASSERTED",
+      "authority": "PROJECT_INVARIANT",
+      "criticality": 5
+    },
+    {
+      "id": "INDEX_STOP_RETRACTED",
+      "kind": "fact",
+      "description": "The active index stop has retracted sufficiently to permit product release.",
+      "value": null,
+      "state": "NULL",
+      "authority": null,
+      "expected_authority": ["SENSOR_INPUT", "DETERMINISTIC_DERIVATION", "VALIDATED_TIMED_DERIVATION"],
+      "criticality": 4,
+      "resolution_cost": 1
+    },
+    {
+      "id": "RELEASE_PATH_CLEARANCE",
+      "kind": "fact",
+      "description": "The labeled product can leave the station without unacceptable collision with head, support, stop, or adjacent product geometry.",
+      "value": null,
+      "state": "NULL",
+      "authority": null,
+      "expected_authority": ["SOLIDWORKS_MEASUREMENT", "DETERMINISTIC_DERIVATION"],
+      "criticality": 5,
+      "resolution_cost": 2
+    },
+    {
+      "id": "APPLICATION_STATION_CLEAR",
+      "kind": "fact",
+      "description": "The previous product has cleared the controlled application envelope.",
+      "value": null,
+      "state": "NULL",
+      "authority": null,
+      "expected_authority": ["SENSOR_INPUT", "DETERMINISTIC_DERIVATION"],
+      "criticality": 5,
+      "resolution_cost": 1
+    },
+    {
+      "id": "NEXT_PRODUCT_ADMISSIBLE",
+      "kind": "derived_claim",
+      "description": "A new product may be admitted without double-feed or interference with the previous cycle.",
+      "value": null,
+      "state": "NULL",
+      "authority": null,
+      "expected_authority": ["DETERMINISTIC_DERIVATION"],
+      "criticality": 5,
+      "resolution_cost": 1
+    },
+    {
+      "id": "FAULT_STATE_DIAGNOSABLE",
+      "kind": "invariant",
+      "description": "A critical expected state that fails to arrive within its watchdog window must be represented as an explicit diagnosable hold/fault rather than silently continuing the timer chain.",
+      "value": true,
+      "state": "ASSERTED",
+      "authority": "PROJECT_INVARIANT",
+      "criticality": 5
+    },
+    {
+      "id": "NO_DOUBLE_FEED",
+      "kind": "invariant",
+      "description": "The control sequence must not admit a second product while the active application station remains occupied.",
+      "value": true,
+      "state": "ASSERTED",
+      "authority": "PROJECT_INVARIANT",
+      "criticality": 5
+    },
+    {
+      "id": "VALID_INDEXED_CYCLE",
+      "kind": "obligation",
+      "description": "The indexed labeling sequence has explicit state authority for product arrival, indexing, application, wrap completion, release, and station clear.",
+      "value": true,
+      "state": "ASSERTED",
+      "authority": "PROJECT_ACCEPTANCE_RULE",
+      "criticality": 5
+    },
+    {
+      "id": "V41_CONTROL_ACCEPTANCE",
+      "kind": "obligation",
+      "description": "The v41 control concept is acceptable as an evidence-bound indexed wrap-cycle candidate rather than only a geometric visualization.",
+      "value": true,
+      "state": "ASSERTED",
+      "authority": "PROJECT_ACCEPTANCE_RULE",
+      "criticality": 5,
+      "acceptance_gate": true
+    }
+  ],
+  "relations": [
+    {"from": "PRODUCT_INDEXED", "to": "PRODUCT_APPROACH_OBSERVED", "type": "depends_on", "strength": 1.0},
+    {"from": "PRODUCT_INDEXED", "to": "APPLICATION_STATION_PRODUCT_IDENTITY", "type": "depends_on", "strength": 1.0},
+    {"from": "PRODUCT_INDEXED", "to": "INDEX_STOP_CONTACT_GEOMETRY", "type": "depends_on", "strength": 1.0},
+    {"from": "APPLICATION_CONTACT_READY", "to": "PRODUCT_INDEXED", "type": "depends_on", "strength": 1.0},
+    {"from": "APPLICATION_CONTACT_READY", "to": "LABEL_READY", "type": "depends_on", "strength": 1.0},
+    {"from": "APPLICATION_CONTACT_READY", "to": "WRAP_SUPPORT_CONTACT_GEOMETRY", "type": "depends_on", "strength": 1.0},
+    {"from": "APPLICATION_CONTACT_READY", "to": "LABEL_LEAD_RELATION", "type": "depends_on", "strength": 1.0},
+    {"from": "WRAP_MOTION_COMMANDABLE", "to": "APPLICATION_CONTACT_READY", "type": "depends_on", "strength": 1.0},
+    {"from": "WRAP_COMPLETE", "to": "WRAP_MOTION_COMMANDABLE", "type": "depends_on", "strength": 1.0},
+    {"from": "WRAP_COMPLETE", "to": "WRAP_MOTION_OBSERVED", "type": "depends_on", "strength": 1.0},
+    {"from": "WRAP_COMPLETION_DETECTABLE", "to": "WRAP_MOTION_OBSERVED", "type": "depends_on", "strength": 1.0},
+    {"from": "APPLICATION_STATION_CLEAR", "to": "INDEX_STOP_RETRACTED", "type": "depends_on", "strength": 0.8},
+    {"from": "APPLICATION_STATION_CLEAR", "to": "RELEASE_PATH_CLEARANCE", "type": "depends_on", "strength": 1.0},
+    {"from": "NEXT_PRODUCT_ADMISSIBLE", "to": "APPLICATION_STATION_CLEAR", "type": "depends_on", "strength": 1.0},
+    {"from": "NEXT_PRODUCT_ADMISSIBLE", "to": "NO_DOUBLE_FEED", "type": "constrained_by", "strength": 1.0},
+    {"from": "VALID_INDEXED_CYCLE", "to": "PRODUCT_INDEXED", "type": "depends_on", "strength": 1.0},
+    {"from": "VALID_INDEXED_CYCLE", "to": "LABEL_READY", "type": "depends_on", "strength": 1.0},
+    {"from": "VALID_INDEXED_CYCLE", "to": "APPLICATION_CONTACT_READY", "type": "depends_on", "strength": 1.0},
+    {"from": "VALID_INDEXED_CYCLE", "to": "WRAP_COMPLETE", "type": "depends_on", "strength": 1.0},
+    {"from": "VALID_INDEXED_CYCLE", "to": "APPLICATION_STATION_CLEAR", "type": "depends_on", "strength": 1.0},
+    {"from": "VALID_INDEXED_CYCLE", "to": "NEXT_PRODUCT_ADMISSIBLE", "type": "depends_on", "strength": 1.0},
+    {"from": "V41_CONTROL_ACCEPTANCE", "to": "VALID_INDEXED_CYCLE", "type": "depends_on", "strength": 1.0},
+    {"from": "V41_CONTROL_ACCEPTANCE", "to": "WRAP_COMPLETION_DETECTABLE", "type": "depends_on", "strength": 1.0},
+    {"from": "V41_CONTROL_ACCEPTANCE", "to": "FAULT_STATE_DIAGNOSABLE", "type": "depends_on", "strength": 1.0}
+  ]
+}
