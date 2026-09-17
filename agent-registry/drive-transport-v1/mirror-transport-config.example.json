@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "transport_version": "1.0.0",
-  "mirror_queue_root": "REPLACE_WITH_LOCAL_MY_DRIVE_CADGROUNDEDREMOTEQUEUE_PATH",
+  "mirror_queue_root": "C:\\<REPLACE_WITH_LOCAL_MY_DRIVE_CADGROUNDEDREMOTEQUEUE_PATH>",
   "local_queue_root": "C:\\ChatGPT\\Solidworks\\agent-registry\\remote-queue",
   "max_job_bytes": 65536,
   "allowed_commands": [
