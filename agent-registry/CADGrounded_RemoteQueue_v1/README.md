@@ -45,15 +45,15 @@ Recommended flow:
 
 Google Drive is transport only. SOLIDWORKS remains live geometry authority.
 
-## Suggested local install directory
+## Canonical local paths
 
-Extract this package to:
+Install/deploy the runner under:
 
     C:\ChatGPT\Solidworks\agent-registry\remote-queue-runner-v1
 
-The default queue itself is:
+The canonical queue root is:
 
-    C:\ChatGPT\Solidworks\remote-queue
+    C:\ChatGPT\Solidworks\agent-registry\remote-queue
 
 Created subdirectories:
 
@@ -65,22 +65,42 @@ Created subdirectories:
     results\
     logs\
 
-## Google Drive sync recommendation
+`queue-config.json`, the Google Apps Script `expectedQueueRoot`, and the Drive
+`REMOTE_QUEUE_BRIDGE_READY.json` marker must all report this exact queue root.
+Treat any other root as source/package drift and fail closed until reconciled.
 
-Sync **job JSON files only** from your Drive mirror into:
+## Google Drive transport contract
 
-    C:\ChatGPT\Solidworks\remote-queue\incoming
+Drive is not a queue executor and the PowerShell runner does not pull files from
+Drive. A separate, explicit transport/sync mechanism must copy **job JSON files
+only** from the Drive `incoming` folder into:
 
-Sync local results/logs back toward Drive if desired:
+    C:\ChatGPT\Solidworks\agent-registry\remote-queue\incoming
 
-    C:\ChatGPT\Solidworks\remote-queue\results
-    C:\ChatGPT\Solidworks\remote-queue\logs
+and copy terminal result artifacts from:
 
-Avoid bidirectional "delete propagation" on the queue if your existing sync
-script can be configured that way. The local runner moves consumed requests out
-of `incoming`, and remote deletion semantics should not resurrect old jobs.
+    C:\ChatGPT\Solidworks\agent-registry\remote-queue\results
 
-Do not sync executable files into `incoming`.
+back to the Drive `results` folder.
+
+Required transport semantics:
+
+- copy-before-delete: do not remove a Drive incoming job merely because it was
+  observed or copied locally;
+- delete/retire the Drive incoming job only after a matching terminal artifact
+  exists (`completed`, `failed`, or `rejected`) for the same `job_id`;
+- disappearance from Drive `incoming` without a matching terminal artifact is
+  **not** success and must be treated as transport loss / unresolved state;
+- never resurrect a consumed local request via bidirectional delete-sync;
+- never sync executable files into `incoming`;
+- preserve exact job file names and `job_id` values end to end.
+
+A transport path is not operational until a fresh post-deployment `sw.status`
+job completes end-to-end and the returned result is verified to contain:
+
+- `runner_write_authority: NONE`;
+- native worker / SOLIDWORKS API provenance;
+- the exact active document title and path.
 
 ## Install
 
