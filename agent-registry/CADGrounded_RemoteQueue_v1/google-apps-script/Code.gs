@@ -4,7 +4,7 @@ const CADGROUNDED = Object.freeze({
   statusBucketMinutes: 10,
   jobTtlMinutes: 20,
   maxFreshStatusMinutes: 20,
-  expectedQueueRoot: 'C:\\ChatGPT\\Solidworks\\remote-queue',
+  expectedQueueRoot: 'C:\\ChatGPT\\Solidworks\\agent-registry\\remote-queue',
   source: 'google_apps_script_readonly_scheduler_v1',
   propIncomingFolderId: 'CAD_QUEUE_INCOMING_FOLDER_ID',
   propResultsFolderId: 'CAD_QUEUE_RESULTS_FOLDER_ID',
