@@ -2,7 +2,6 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Net.Http.Json;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using SolidWorks.Interop.sldworks;
@@ -17,23 +16,6 @@ internal static class Program
         WriteIndented = true,
         PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
     };
-
-    private static readonly string[] AllowedBuckets =
-    [
-        "PRODUCT_FLOW",
-        "PRODUCT_RESTRAINT",
-        "LABEL_PATH",
-        "PEEL_EDGE",
-        "APPLICATION_CONTACT",
-        "DRIVE_SURFACE",
-        "ROTATION_MECHANISM",
-        "CONVEYOR_CLEARANCE",
-        "SUPPORT_STRUCTURE",
-        "ADJUSTABILITY",
-        "INTERFERENCE",
-        "SAFETY_GUARDING",
-        "UNKNOWN_NEEDS_REVIEW"
-    ];
 
     [STAThread]
     private static async Task<int> Main(string[] args)
@@ -139,7 +121,7 @@ Commands:
   models [--ollama <url>]
 
 Environment:
-  CADGROUNDED_OLLAMA_URL          default http://127.0.0.1:11434
+  CADGROUNDED_OLLAMA_URL           default http://127.0.0.1:11434
   CADGROUNDED_OLLAMA_VISION_MODEL optional explicit vision model
 
 Authority boundary:
@@ -264,10 +246,12 @@ internal static class VisualSweep
         Directory.CreateDirectory(bucketsDir);
 
         foreach (var bucket in ProgramBuckets.All)
-            File.WriteAllText(Path.Combine(bucketsDir, bucket + ".json"), JsonSerializer.Serialize(new BucketFile(bucket, []), ProgramBuckets.JsonOptions));
+            File.WriteAllText(
+                Path.Combine(bucketsDir, bucket + ".json"),
+                JsonSerializer.Serialize(new BucketFile(bucket, []), ProgramBuckets.JsonOptions));
 
-        var originalOrientation = ((IMathTransform)view.Orientation3).ArrayData.Cast<double>().ToArray();
-        var originalTranslation = ((IMathVector)view.Translation3).ArrayData.Cast<double>().ToArray();
+        var originalOrientation = ToDoubleArray(((IMathTransform)view.Orientation3).ArrayData);
+        var originalTranslation = ToDoubleArray(((IMathVector)view.Translation3).ArrayData);
         var originalScale = view.Scale2;
         var captures = new List<CaptureRecord>();
         var captureErrors = new List<string>();
@@ -298,7 +282,7 @@ internal static class VisualSweep
                 else
                 {
                     ConvertBmpToPng(bmpPath, pngPath);
-                    var orientation = ((IMathTransform)view.Orientation3).ArrayData.Cast<double>().ToArray();
+                    var orientation = ToDoubleArray(((IMathTransform)view.Orientation3).ArrayData);
                     captures.Add(new CaptureRecord(
                         Path.GetRelativePath(runDir, pngPath).Replace('\\', '/'),
                         azimuth,
@@ -348,8 +332,8 @@ internal static class VisualSweep
 
     private static void ConvertBmpToPng(string bmpPath, string pngPath)
     {
-        using var image = Image.FromFile(bmpPath);
-        image.Save(pngPath, ImageFormat.Png);
+        using (var image = Image.FromFile(bmpPath))
+            image.Save(pngPath, ImageFormat.Png);
         File.Delete(bmpPath);
     }
 
@@ -365,14 +349,15 @@ internal static class VisualSweep
                     continue;
 
                 double[]? transform = null;
-                try { transform = c.Transform2?.ArrayData.Cast<double>().ToArray(); } catch { }
+                try
+                {
+                    if (c.Transform2 is IMathTransform t)
+                        transform = ToDoubleArray(t.ArrayData);
+                }
+                catch { }
 
                 double[]? box = null;
-                try { box = (c.GetBox() as object[])?.Select(Convert.ToDouble).ToArray(); } catch { }
-                if (box is null)
-                {
-                    try { box = (c.GetBox() as double[])?.ToArray(); } catch { }
-                }
+                try { box = ToDoubleArray(c.GetBox()); } catch { }
 
                 rows.Add(new
                 {
@@ -395,6 +380,22 @@ internal static class VisualSweep
                 document_title = doc.GetTitle(),
                 components = rows
             }, ProgramBuckets.JsonOptions));
+    }
+
+    private static double[] ToDoubleArray(object? raw)
+    {
+        if (raw is null)
+            return [];
+        if (raw is double[] doubles)
+            return doubles.ToArray();
+        if (raw is Array array)
+        {
+            var result = new double[array.Length];
+            for (var i = 0; i < array.Length; i++)
+                result[i] = Convert.ToDouble(array.GetValue(i), System.Globalization.CultureInfo.InvariantCulture);
+            return result;
+        }
+        throw new InvalidCastException($"Expected COM array, got {raw.GetType().FullName}.");
     }
 
     private static bool? SafeBool(Func<bool> action)
@@ -431,7 +432,8 @@ Return only data matching the supplied JSON schema.
         using var client = new OllamaClient(options.OllamaUrl);
         var model = options.Model ?? await client.FindVisionModelAsync();
         if (string.IsNullOrWhiteSpace(model))
-            throw new NoVisionModelException("No installed Ollama model advertises the 'vision' capability. Install or select a vision-capable model, then rerun analyze; the capture set is already preserved.");
+            throw new NoVisionModelException(
+                "No installed Ollama model advertises the 'vision' capability. Install or select a vision-capable model, then rerun analyze; the capture set is already preserved.");
 
         var analysisDir = Path.Combine(runDirectory, "analysis");
         Directory.CreateDirectory(analysisDir);
@@ -455,7 +457,10 @@ Return only data matching the supplied JSON schema.
 
     private static void Bucketize(string runDirectory, IReadOnlyList<ViewAnalysis> analyses)
     {
-        var bucketMap = ProgramBuckets.All.ToDictionary(x => x, _ => new List<BucketItem>(), StringComparer.Ordinal);
+        var bucketMap = ProgramBuckets.All.ToDictionary(
+            x => x,
+            _ => new List<BucketItem>(),
+            StringComparer.Ordinal);
 
         foreach (var view in analyses)
         {
@@ -496,7 +501,11 @@ internal sealed class OllamaClient : IDisposable
 
     public OllamaClient(string baseUrl)
     {
-        _http = new HttpClient { BaseAddress = new Uri(baseUrl.TrimEnd('/') + "/"), Timeout = TimeSpan.FromMinutes(5) };
+        _http = new HttpClient
+        {
+            BaseAddress = new Uri(baseUrl.TrimEnd('/') + "/"),
+            Timeout = TimeSpan.FromMinutes(5)
+        };
     }
 
     public async Task<object> GetModelsWithCapabilitiesAsync()
@@ -525,7 +534,9 @@ internal sealed class OllamaClient : IDisposable
     {
         var bytes = await File.ReadAllBytesAsync(imagePath);
         var base64 = Convert.ToBase64String(bytes);
-        var schema = JsonNode.Parse(AnalysisSchema)!;
+        var schema = JsonNode.Parse(AnalysisSchema)
+            ?? throw new InvalidOperationException("Could not build analysis JSON schema.");
+
         var payload = new JsonObject
         {
             ["model"] = model,
@@ -551,6 +562,7 @@ internal sealed class OllamaClient : IDisposable
         using var outer = JsonDocument.Parse(body);
         var content = outer.RootElement.GetProperty("message").GetProperty("content").GetString()
             ?? throw new InvalidOperationException("Ollama response did not contain message.content.");
+
         return JsonSerializer.Deserialize<ViewAnalysis>(content, ProgramBuckets.JsonOptions)
             ?? throw new InvalidOperationException("Ollama returned an empty analysis object.");
     }
@@ -576,10 +588,16 @@ internal sealed class OllamaClient : IDisposable
         using var response = await _http.PostAsJsonAsync("api/show", new { model });
         if (!response.IsSuccessStatusCode)
             return [];
+
         using var doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
         if (!doc.RootElement.TryGetProperty("capabilities", out var caps) || caps.ValueKind != JsonValueKind.Array)
             return [];
-        return caps.EnumerateArray().Select(x => x.GetString()).Where(x => x is not null).Cast<string>().ToArray();
+
+        return caps.EnumerateArray()
+            .Select(x => x.GetString())
+            .Where(x => x is not null)
+            .Cast<string>()
+            .ToArray();
     }
 
     public void Dispose() => _http.Dispose();
@@ -615,22 +633,40 @@ internal static class ManifestStore
     public static string PathFor(string runDirectory) => Path.Combine(runDirectory, "manifest.json");
 
     public static SweepManifest Read(string runDirectory) =>
-        JsonSerializer.Deserialize<SweepManifest>(File.ReadAllText(PathFor(runDirectory)), ProgramBuckets.JsonOptions)
+        JsonSerializer.Deserialize<SweepManifest>(
+            File.ReadAllText(PathFor(runDirectory)),
+            ProgramBuckets.JsonOptions)
         ?? throw new InvalidOperationException("Could not parse visual-sweep manifest.");
 
     public static void Write(string runDirectory, SweepManifest manifest) =>
-        File.WriteAllText(PathFor(runDirectory), JsonSerializer.Serialize(manifest, ProgramBuckets.JsonOptions));
+        File.WriteAllText(
+            PathFor(runDirectory),
+            JsonSerializer.Serialize(manifest, ProgramBuckets.JsonOptions));
 
     public static void MarkAnalyzed(string runDirectory, string model, int count)
     {
         var m = Read(runDirectory);
-        Write(runDirectory, m with { Analysis = new AnalysisState("ANALYZED", m.Analysis.OllamaUrl, model, $"{count} view(s) analyzed") });
+        Write(runDirectory, m with
+        {
+            Analysis = new AnalysisState(
+                "ANALYZED",
+                m.Analysis.OllamaUrl,
+                model,
+                $"{count} view(s) analyzed")
+        });
     }
 
     public static void MarkAnalysisBlocked(string runDirectory, string reason)
     {
         var m = Read(runDirectory);
-        Write(runDirectory, m with { Analysis = new AnalysisState("BLOCKED_NO_VISION_MODEL", m.Analysis.OllamaUrl, null, reason) });
+        Write(runDirectory, m with
+        {
+            Analysis = new AnalysisState(
+                "BLOCKED_NO_VISION_MODEL",
+                m.Analysis.OllamaUrl,
+                null,
+                reason)
+        });
     }
 }
 
@@ -672,11 +708,22 @@ internal static class ComRot
 
 internal sealed class NoVisionModelException(string message) : Exception(message);
 
-internal sealed record CaptureResult(string RunDirectory, int CaptureCount, IReadOnlyList<string> CaptureErrors, bool ViewRestored);
-internal sealed record AnalysisResult(string RunDirectory, string Model, int ViewCount, string State);
+internal sealed record CaptureResult(
+    string RunDirectory,
+    int CaptureCount,
+    IReadOnlyList<string> CaptureErrors,
+    bool ViewRestored);
+
+internal sealed record AnalysisResult(
+    string RunDirectory,
+    string Model,
+    int ViewCount,
+    string State);
+
 internal sealed record SweepSettings(int Views, int Width, int Height);
 internal sealed record AnalysisState(string State, string OllamaUrl, string? Model, string? Note);
 internal sealed record CaptureRecord(string File, double AzimuthDeg, double ElevationDeg, double[] Orientation16);
+
 internal sealed record SweepManifest(
     string Schema,
     string RunId,
@@ -713,4 +760,5 @@ internal sealed record BucketItem(
     double Confidence,
     IReadOnlyList<string> Objects,
     string? VerificationRequest);
+
 internal sealed record BucketFile(string Bucket, IReadOnlyList<BucketItem> Items);
