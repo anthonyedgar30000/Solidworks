@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "runner_version": "1.0.0",
-  "queue_root": "C:\\ChatGPT\\Solidworks\\remote-queue",
+  "queue_root": "C:\\ChatGPT\\Solidworks\\agent-registry\\remote-queue",
   "worker_exe": "C:\\ChatGPT\\Solidworks\\agent-registry\\workers\\CadGrounded.SolidWorksWorker\\bin\\Release\\net8.0-windows\\win-x64\\CadGrounded.SolidWorksWorker.exe",
   "poll_lock_name": "CADGroundedRemoteQueueReadOnlyV1",
   "max_job_bytes": 65536,
