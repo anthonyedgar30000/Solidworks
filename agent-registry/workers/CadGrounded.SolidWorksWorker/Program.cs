@@ -9,7 +9,7 @@ namespace CadGrounded.SolidWorksWorker;
 
 internal static class Program
 {
-    private const string Version = "0.2.0";
+    private const string Version = "0.3.0";
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         WriteIndented = true,
@@ -32,6 +32,7 @@ internal static class Program
                 "status" => RunCli("sw.status", JsonDocument.Parse("{}").RootElement),
                 "components" => RunComponentsCli(args.Skip(1).ToArray()),
                 "closest-distance" => RunClosestDistanceCli(args.Skip(1).ToArray()),
+                "mates" => RunMatesCli(args.Skip(1).ToArray()),
                 "execute-json" => RunExecuteJson(),
                 "serve-stdio" => RunServeStdio(),
                 "version" or "--version" or "-v" => PrintVersion(),
@@ -105,6 +106,33 @@ internal static class Program
         }));
 
         return RunCli("sw.closest_distance_pair", doc.RootElement);
+    }
+
+    private static int RunMatesCli(string[] args)
+    {
+        string? componentName = null;
+
+        for (var i = 0; i < args.Length; i++)
+        {
+            switch (args[i])
+            {
+                case "--component":
+                    componentName = RequireNext(args, ref i, "--component");
+                    break;
+                default:
+                    return Fail($"Unknown mates option: {args[i]}", 2);
+            }
+        }
+
+        if (string.IsNullOrWhiteSpace(componentName))
+            return Fail("mates requires --component <exact Name2>.", 2);
+
+        using var doc = JsonDocument.Parse(JsonSerializer.Serialize(new
+        {
+            component_name_exact = componentName
+        }));
+
+        return RunCli("sw.query_mates", doc.RootElement);
     }
 
     private static string RequireNext(string[] args, ref int i, string option)
@@ -181,12 +209,13 @@ internal static class Program
     private static void PrintUsage()
     {
         Console.WriteLine("""
-CadGrounded.SolidWorksWorker v0.1.0
+CadGrounded.SolidWorksWorker v0.3.0
 
 READ-ONLY COMMANDS
   status
   components [--all]
   closest-distance --a <exact Name2> --b <exact Name2>
+  mates --component <exact Name2>
   execute-json
   serve-stdio
   version
@@ -209,7 +238,8 @@ internal static class Dispatcher
         "sw.status",
         "sw.query_components",
         "sw.closest_distance_pair",
-        "sw.classify_contact_pair"
+        "sw.classify_contact_pair",
+        "sw.query_mates"
     };
 
     public static Envelope Execute(string commandId, JsonElement payload)
@@ -243,6 +273,8 @@ internal static class Dispatcher
                 "sw.classify_contact_pair" => session.ClassifyContactPair(
                     JsonHelpers.GetRequiredString(payload, "a_name_exact"),
                     JsonHelpers.GetRequiredString(payload, "b_name_exact")),
+                "sw.query_mates" => session.QueryMates(
+                    JsonHelpers.GetRequiredString(payload, "component_name_exact")),
                 _ => throw new InvalidOperationException("Unreachable command dispatch.")
             };
 
@@ -313,7 +345,7 @@ internal sealed class SolidWorksSession : IDisposable
     {
         return new
         {
-            worker_version = "0.1.0",
+            worker_version = VersionString,
             cad_path = "native C# -> SOLIDWORKS interop (NO MCP)",
             write_authority = "NONE",
             solidworks_revision = Safe(() => _app.RevisionNumber()),
@@ -326,6 +358,8 @@ internal sealed class SolidWorksSession : IDisposable
             }
         };
     }
+
+    private const string VersionString = "0.3.0";
 
     public object QueryComponents(bool topLevelOnly)
     {
@@ -489,6 +523,164 @@ internal sealed class SolidWorksSession : IDisposable
             components = rows
         };
     }
+
+    public object QueryMates(string componentNameExact)
+    {
+        var assembly = RequireAssembly();
+        var components = GetComponents(assembly, topLevelOnly: false);
+        var matches = components
+            .Where(c => string.Equals(c.Name2, componentNameExact, StringComparison.Ordinal))
+            .ToArray();
+
+        if (matches.Length != 1)
+        {
+            throw new CadGroundedException(
+                "component_match_not_unique",
+                $"Exact component matching must be unique. matches={matches.Length}, component='{componentNameExact}'.");
+        }
+
+        var target = matches[0];
+        var rows = new List<object>();
+        var traversalErrors = new List<string>();
+
+        IFeature? feature = _doc.FirstFeature();
+        IFeature? mateGroup = null;
+        while (feature is not null)
+        {
+            if (string.Equals(feature.GetTypeName2(), "MateGroup", StringComparison.Ordinal))
+            {
+                mateGroup = feature;
+                break;
+            }
+            feature = feature.GetNextFeature() as IFeature;
+        }
+
+        if (mateGroup is null)
+        {
+            return new
+            {
+                document = new { title = _doc.GetTitle(), path = _doc.GetPathName() },
+                component = ComponentIdentity(target, target.GetSuppression2()),
+                mate_count = 0,
+                mates = Array.Empty<object>(),
+                traversal_errors = traversalErrors.ToArray(),
+                api = "IFeature MateGroup traversal -> IFeature.GetSpecificFeature2 -> IMate2",
+                model_mutation = false,
+                write_authority = "NONE",
+                evidence = "verified_from_solidworks_api"
+            };
+        }
+
+        var mateFeature = mateGroup.GetFirstSubFeature() as IFeature;
+        while (mateFeature is not null)
+        {
+            try
+            {
+                var specific = mateFeature.GetSpecificFeature2();
+                if (specific is IMate2 mate)
+                {
+                    var entityCount = mate.GetMateEntityCount();
+                    var entities = new List<object>();
+                    var involvesTarget = false;
+
+                    for (var i = 0; i < entityCount; i++)
+                    {
+                        IMateEntity2? entity = null;
+                        var fieldErrors = new List<string>();
+                        try
+                        {
+                            entity = mate.MateEntity(i) as IMateEntity2;
+                        }
+                        catch (Exception ex)
+                        {
+                            fieldErrors.Add("MateEntity: " + ex.Message);
+                        }
+
+                        string? referenceName = null;
+                        string? referencePath = null;
+                        int? referenceType = null;
+                        double[]? entityParams = null;
+
+                        if (entity is not null)
+                        {
+                            try
+                            {
+                                var referenceComponent = entity.ReferenceComponent as IComponent2;
+                                referenceName = referenceComponent?.Name2;
+                                referencePath = referenceComponent?.GetPathName();
+                                if (string.Equals(referenceName, componentNameExact, StringComparison.Ordinal))
+                                    involvesTarget = true;
+                            }
+                            catch (Exception ex)
+                            {
+                                fieldErrors.Add("ReferenceComponent: " + ex.Message);
+                            }
+
+                            try { referenceType = entity.ReferenceType2; }
+                            catch (Exception ex) { fieldErrors.Add("ReferenceType2: " + ex.Message); }
+
+                            try { entityParams = ToDoubleArray(entity.EntityParams); }
+                            catch (Exception ex) { fieldErrors.Add("EntityParams: " + ex.Message); }
+                        }
+
+                        entities.Add(new
+                        {
+                            index = i,
+                            reference_component_name2 = referenceName,
+                            reference_component_path = referencePath,
+                            reference_type = referenceType,
+                            entity_params = entityParams,
+                            field_errors = fieldErrors.ToArray()
+                        });
+                    }
+
+                    if (involvesTarget)
+                    {
+                        var mateType = SafeInt(() => mate.Type);
+                        var alignment = SafeInt(() => mate.Alignment);
+                        var minimumVariation = SafeDouble(() => mate.MinimumVariation);
+                        var maximumVariation = SafeDouble(() => mate.MaximumVariation);
+
+                        rows.Add(new
+                        {
+                            feature_name = mateFeature.Name,
+                            feature_type = mateFeature.GetTypeName2(),
+                            suppressed = SafeBool(() => mateFeature.IsSuppressed2((int)SwConst.swInConfigurationOpts_e.swThisConfiguration, null)),
+                            mate_type = mateType,
+                            mate_type_name = mateType.HasValue ? MateTypeName(mateType.Value) : null,
+                            alignment = alignment,
+                            alignment_name = alignment.HasValue ? MateAlignmentName(alignment.Value) : null,
+                            mate_entity_count = entityCount,
+                            entities = entities.ToArray(),
+                            minimum_variation = minimumVariation,
+                            maximum_variation = maximumVariation
+                        });
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                traversalErrors.Add($"{mateFeature.Name}: {ex.Message}");
+            }
+
+            mateFeature = mateFeature.GetNextSubFeature() as IFeature;
+        }
+
+        return new
+        {
+            document = new { title = _doc.GetTitle(), path = _doc.GetPathName() },
+            component = ComponentIdentity(target, target.GetSuppression2()),
+            mate_count = rows.Count,
+            mates = rows.ToArray(),
+            traversal_errors = traversalErrors.ToArray(),
+            interpretation_note = "Mate definitions constrain geometry but do not by themselves prove spring stiffness, preload, force, or operating sequence.",
+            api = "IFeature MateGroup traversal -> IFeature.GetSpecificFeature2 -> IMate2 / IMateEntity2",
+            model_mutation = false,
+            write_authority = "NONE",
+            evidence = "verified_from_solidworks_api"
+        };
+    }
+
     public object ClosestDistancePair(string aExact, string bExact)
     {
         var assembly = RequireAssembly();
@@ -538,8 +730,6 @@ internal sealed class SolidWorksSession : IDisposable
         double distanceM;
         try
         {
-            // This is deliberately the ONLY geometry call in this command.
-            // The assembly interference detector is not invoked here.
             distanceM = _doc.ClosestDistance(a, b, out pointA, out pointB);
         }
         catch (COMException ex)
@@ -654,8 +844,8 @@ internal sealed class SolidWorksSession : IDisposable
                 $"IModelDoc2.ClosestDistance returned {distanceM} for '{a.Name2}' and '{b.Name2}'.");
         }
 
-        const double contactToleranceM = 0.000001;       // 0.001 mm
-        const double volumeToleranceM3 = 0.000000000001; // 0.001 mm^3
+        const double contactToleranceM = 0.000001;
+        const double volumeToleranceM3 = 0.000000000001;
 
         var booleanExecuted = distanceM <= contactToleranceM;
         var booleanErrorCodes = new List<int>();
@@ -697,7 +887,7 @@ internal sealed class SolidWorksSession : IDisposable
                         var mass = ToDoubleArray(resultBody.GetMassProperties(1.0));
                         if (mass is null || mass.Length <= 3) continue;
                         var volume = mass[3];
-                         if (volume > volumeToleranceM3) { intersectionBodyCount++; intersectionVolumeM3 += volume; }
+                        if (volume > volumeToleranceM3) { intersectionBodyCount++; intersectionVolumeM3 += volume; }
                     }
                 }
             }
@@ -729,6 +919,7 @@ internal sealed class SolidWorksSession : IDisposable
         }
         throw new CadGroundedException("unexpected_body_array", $"IComponent2.GetBodies3 returned unsupported type '{raw.GetType().FullName}'.");
     }
+
     private static object ComponentIdentity(IComponent2 c, int state) => new
     {
         name2 = c.Name2,
@@ -822,6 +1013,32 @@ internal sealed class SolidWorksSession : IDisposable
         catch { return null; }
     }
 
+    private static int? SafeInt(Func<int> getter)
+    {
+        try { return getter(); }
+        catch { return null; }
+    }
+
+    private static double? SafeDouble(Func<double> getter)
+    {
+        try { return getter(); }
+        catch { return null; }
+    }
+
+    private static string MateTypeName(int value)
+    {
+        return Enum.IsDefined(typeof(SwConst.swMateType_e), value)
+            ? ((SwConst.swMateType_e)value).ToString()
+            : $"unknown:{value}";
+    }
+
+    private static string MateAlignmentName(int value)
+    {
+        return Enum.IsDefined(typeof(SwConst.swMateAlign_e), value)
+            ? ((SwConst.swMateAlign_e)value).ToString()
+            : $"unknown:{value}";
+    }
+
     private static string DocumentTypeName(int value)
     {
         return value switch
@@ -835,10 +1052,8 @@ internal sealed class SolidWorksSession : IDisposable
 
     public void Dispose()
     {
-        // This process does not own SOLIDWORKS. Do not force-release its shared app/doc RCWs.
     }
 }
-
 
 internal static class ComRot
 {
@@ -863,6 +1078,7 @@ internal static class ComRot
         return GetActiveObject(ref clsid, IntPtr.Zero);
     }
 }
+
 internal static class JsonHelpers
 {
     public static string GetRequiredString(JsonElement payload, string name)
@@ -964,7 +1180,3 @@ internal sealed class CadGroundedException : Exception
         Code = code;
     }
 }
-
-
-
-
