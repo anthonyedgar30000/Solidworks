@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "job_id": "v42-distance-belt-bottle2-20260917t1540z",
+  "command_id": "sw.closest_distance_pair",
+  "write_authority": "NONE",
+  "created_utc": "2026-09-17T15:40:00Z",
+  "expires_utc": "2026-09-17T16:20:00Z",
+  "source": "cadgrounded_v42_readonly_preflight",
+  "preconditions": {
+    "document_title_exact": "IXOR_Benchmark_v42_ROLLER_GUIDE_HARDSTOP_FIT_CHECK_PORTABLE",
+    "document_path_exact": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v42_ROLLER_GUIDE_HARDSTOP_FIT_CHECK_PORTABLE.SLDASM"
+  },
+  "payload": {
+    "a_name_exact": "FITCHECK_DRIVEN_WRAP_BELT_5x160x93_V25-1",
+    "b_name_exact": "BENCH_BOTTLE_D48_H180-2"
+  }
+}

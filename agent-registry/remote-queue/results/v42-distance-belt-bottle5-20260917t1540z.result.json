@@ -1,0 +1,77 @@
+{
+    "schema_version":  1,
+    "runner_version":  "1.0.0",
+    "state":  "completed",
+    "job_id":  "v42-distance-belt-bottle5-20260917t1540z",
+    "request_sha256":  "70ccd32d524cce3b71f2ee41646c14c589152de19a71530da2f61cbe3d5e4df1",
+    "request_file_name":  "v42-distance-belt-bottle5-20260917t1540z.job.json",
+    "started_utc":  "2026-09-17T16:02:44.4217810+00:00",
+    "finished_utc":  "2026-09-17T16:02:46.1655754+00:00",
+    "status_observation":  {
+                               "ok":  true,
+                               "command_id":  "sw.status",
+                               "source_classification":  "verified_from_solidworks_api",
+                               "data":  {
+                                            "worker_version":  "0.1.0",
+                                            "cad_path":  "native C# -\u003e SOLIDWORKS interop (NO MCP)",
+                                            "write_authority":  "NONE",
+                                            "solidworks_revision":  "34.3.2",
+                                            "solidworks_process_id":  12576,
+                                            "document":  {
+                                                             "title":  "IXOR_Benchmark_v42_ROLLER_GUIDE_HARDSTOP_FIT_CHECK_PORTABLE",
+                                                             "path":  "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v42_ROLLER_GUIDE_HARDSTOP_FIT_CHECK_PORTABLE.SLDASM",
+                                                             "type":  "assembly"
+                                                         }
+                                        }
+                           },
+    "worker_response":  {
+                            "ok":  true,
+                            "command_id":  "sw.closest_distance_pair",
+                            "source_classification":  "verified_from_solidworks_api",
+                            "data":  {
+                                         "document":  {
+                                                          "title":  "IXOR_Benchmark_v42_ROLLER_GUIDE_HARDSTOP_FIT_CHECK_PORTABLE",
+                                                          "path":  "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v42_ROLLER_GUIDE_HARDSTOP_FIT_CHECK_PORTABLE.SLDASM"
+                                                      },
+                                         "component_a":  {
+                                                             "name2":  "FITCHECK_DRIVEN_WRAP_BELT_5x160x93_V25-1",
+                                                             "path":  "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\FITCHECK_DRIVEN_WRAP_BELT_5x160x93_V25.SLDPRT",
+                                                             "suppression_state":  2
+                                                         },
+                                         "component_b":  {
+                                                             "name2":  "BENCH_BOTTLE_D48_H180-5",
+                                                             "path":  "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\BENCH_BOTTLE_D48_H180.SLDPRT",
+                                                             "suppression_state":  2
+                                                         },
+                                         "minimum_distance_m":  0.0045817942180646914,
+                                         "minimum_distance_mm":  4.581794218064691,
+                                         "closest_point_a_m":  [
+                                                                   -0.12942061528267113,
+                                                                   -0.05900000000000001,
+                                                                   1.0415
+                                                               ],
+                                         "closest_point_b_m":  [
+                                                                   -0.1333207285287624,
+                                                                   -0.05659543040767076,
+                                                                   1.0415
+                                                               ],
+                                         "closest_point_a_mm":  [
+                                                                    -129.42061528267112,
+                                                                    -59.000000000000014,
+                                                                    1041.5
+                                                                ],
+                                         "closest_point_b_mm":  [
+                                                                    -133.3207285287624,
+                                                                    -56.59543040767076,
+                                                                    1041.5
+                                                                ],
+                                         "metric_relation":  "positive_clearance",
+                                         "interpretation_note":  "Metric distance alone does not distinguish exact contact from physical interference. No interference API was called.",
+                                         "api":  "IModelDoc2.ClosestDistance",
+                                         "evidence":  "verified_from_solidworks_api",
+                                         "write_authority":  "NONE"
+                                     }
+                        },
+    "error":  "",
+    "runner_write_authority":  "NONE"
+}

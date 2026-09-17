@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "job_id": "gdrive-components-20260917T1700Z",
+  "command_id": "sw.query_components",
+  "write_authority": "NONE",
+  "created_utc": "2026-09-17T17:06:38.669Z",
+  "expires_utc": "2026-09-17T17:26:38.669Z",
+  "source": "google_apps_script_readonly_scheduler_v1",
+  "preconditions": {
+    "document_title_exact": "IXOR_Benchmark_v42_ROLLER_GUIDE_HARDSTOP_FIT_CHECK_PORTABLE",
+    "document_path_exact": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v42_ROLLER_GUIDE_HARDSTOP_FIT_CHECK_PORTABLE.SLDASM"
+  },
+  "payload": {
+    "top_level_only": false
+  }
+}
