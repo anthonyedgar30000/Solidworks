@@ -38,15 +38,26 @@ $settings = New-ScheduledTaskSettingsSet `
     -StartWhenAvailable `
     -ExecutionTimeLimit (New-TimeSpan -Minutes 5)
 
+# SOLIDWORKS is an interactive desktop COM application. The queue task must run
+# as the same logged-on user so the native worker can attach to the live
+# SOLIDWORKS instance in that user's session.
+$userId = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name
+$principal = New-ScheduledTaskPrincipal `
+    -UserId $userId `
+    -LogonType Interactive `
+    -RunLevel Limited
+
 Register-ScheduledTask `
     -TaskName $TaskName `
     -Action $action `
     -Trigger $trigger `
     -Settings $settings `
-    -Description 'CADGrounded read-only JSON queue runner. No generic code execution; no CAD write commands.' `
+    -Principal $principal `
+    -Description 'CADGrounded read-only JSON queue runner. Same interactive user; no generic code execution; no CAD write commands.' `
     -Force | Out-Null
 
 Write-Output "Installed task: $TaskName"
+Write-Output "User: $userId"
 Write-Output "Runner: $RunnerPath"
 Write-Output "Config: $ConfigPath"
 Write-Output "Interval: $EveryMinutes minute(s)"
