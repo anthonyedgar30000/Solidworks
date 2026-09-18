@@ -1,0 +1,339 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cadgrounded.local/schemas/evidence-record.v1.schema.json",
+  "title": "CADGrounded EvidenceRecord supertype v1",
+  "description": "Candidate normalized evidence contract. evidence_type is the subtype discriminator; state remains orthogonal.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "record_type",
+    "evidence_id",
+    "evidence_type",
+    "evidence_state",
+    "source_authority",
+    "source_classification",
+    "subject",
+    "provenance",
+    "dependencies",
+    "mechanical_acceptance_granted",
+    "payload"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "record_type": {
+      "const": "evidence"
+    },
+    "evidence_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,191}$"
+    },
+    "evidence_type": {
+      "enum": [
+        "solidworks_observation",
+        "oem_evidence",
+        "deterministic_calculation",
+        "human_observation",
+        "ai_visualization_record"
+      ]
+    },
+    "evidence_state": {
+      "enum": [
+        "VERIFIED",
+        "MEASURED_CALCULATED",
+        "INFERRED",
+        "HYPOTHETICAL",
+        "UNRESOLVED",
+        "AI_GENERATED"
+      ]
+    },
+    "source_authority": {
+      "enum": [
+        "OEM_CAD",
+        "OEM_DOCUMENTATION",
+        "OEM_PHOTOGRAPH",
+        "SOLIDWORKS_LIVE_STATE",
+        "DETERMINISTIC_CALCULATION",
+        "TRUSTED_THIRD_PARTY_CAD",
+        "GENERAL_REFERENCE",
+        "HUMAN_OBSERVATION",
+        "GENERATIVE_AI"
+      ]
+    },
+    "source_classification": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "subject": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "subject_type",
+        "identity_exact"
+      ],
+      "properties": {
+        "subject_type": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "identity_exact": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2048
+        },
+        "document_title_exact": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512
+        },
+        "document_path_exact": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2048
+        }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "recorded_at",
+        "source_ref"
+      ],
+      "properties": {
+        "recorded_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "source_ref": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "tool_path": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512
+        },
+        "job_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 192
+        }
+      }
+    },
+    "dependencies": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 192
+      }
+    },
+    "geometry_state": {
+      "enum": [
+        "SOURCE_GEOMETRY",
+        "FIT_CHECK",
+        "CANDIDATE_OPERATING",
+        "MECHANICALLY_ACCEPTED",
+        "NOT_APPLICABLE"
+      ]
+    },
+    "ambiguity_bucket": {
+      "enum": [
+        "IDENTITY_AMBIGUOUS",
+        "GEOMETRY_UNRESOLVED",
+        "KINEMATIC_STATE_UNRESOLVED",
+        "MEASUREMENT_REQUIRED",
+        "CAD_READ_REQUIRED",
+        "OEM_SOURCE_REQUIRED",
+        "SOURCE_CONFLICT",
+        "MULTIPLE_PLAUSIBLE_HYPOTHESES",
+        "INSUFFICIENT_EVIDENCE",
+        "STALE_STATE",
+        "POLICY_BLOCKED",
+        "MECHANICAL_ACCEPTANCE_BLOCKED"
+      ]
+    },
+    "mechanical_acceptance_granted": {
+      "const": false
+    },
+    "payload": {
+      "type": "object"
+    }
+  },
+  "oneOf": [
+    {
+      "title": "SolidWorksObservation",
+      "properties": {
+        "evidence_type": {
+          "const": "solidworks_observation"
+        },
+        "evidence_state": {
+          "const": "VERIFIED"
+        },
+        "source_authority": {
+          "const": "SOLIDWORKS_LIVE_STATE"
+        },
+        "source_classification": {
+          "const": "verified_from_solidworks_api"
+        },
+        "payload": {
+          "type": "object",
+          "additionalProperties": true,
+          "required": [
+            "observation_kind",
+            "document"
+          ],
+          "properties": {
+            "observation_kind": {
+              "type": "string",
+              "minLength": 1
+            },
+            "document": {
+              "type": "object",
+              "required": [
+                "title",
+                "path"
+              ],
+              "properties": {
+                "title": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "path": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "title": "OEMEvidence",
+      "properties": {
+        "evidence_type": {
+          "const": "oem_evidence"
+        },
+        "evidence_state": {
+          "const": "VERIFIED"
+        },
+        "source_authority": {
+          "enum": [
+            "OEM_CAD",
+            "OEM_DOCUMENTATION",
+            "OEM_PHOTOGRAPH"
+          ]
+        },
+        "payload": {
+          "type": "object",
+          "additionalProperties": true,
+          "required": [
+            "artifact_identity"
+          ],
+          "properties": {
+            "artifact_identity": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      }
+    },
+    {
+      "title": "DeterministicCalculation",
+      "properties": {
+        "evidence_type": {
+          "const": "deterministic_calculation"
+        },
+        "evidence_state": {
+          "const": "MEASURED_CALCULATED"
+        },
+        "source_authority": {
+          "const": "DETERMINISTIC_CALCULATION"
+        },
+        "payload": {
+          "type": "object",
+          "additionalProperties": true,
+          "required": [
+            "method",
+            "inputs",
+            "result"
+          ],
+          "properties": {
+            "method": {
+              "type": "string",
+              "minLength": 1
+            },
+            "inputs": {
+              "type": "array"
+            },
+            "result": {}
+          }
+        }
+      }
+    },
+    {
+      "title": "HumanObservation",
+      "properties": {
+        "evidence_type": {
+          "const": "human_observation"
+        },
+        "source_authority": {
+          "const": "HUMAN_OBSERVATION"
+        },
+        "evidence_state": {
+          "enum": [
+            "VERIFIED",
+            "INFERRED",
+            "UNRESOLVED"
+          ]
+        },
+        "payload": {
+          "type": "object"
+        }
+      }
+    },
+    {
+      "title": "AIVisualizationRecord",
+      "properties": {
+        "evidence_type": {
+          "const": "ai_visualization_record"
+        },
+        "evidence_state": {
+          "const": "AI_GENERATED"
+        },
+        "source_authority": {
+          "const": "GENERATIVE_AI"
+        },
+        "source_classification": {
+          "const": "ai_generated"
+        },
+        "payload": {
+          "type": "object",
+          "additionalProperties": true,
+          "required": [
+            "generation_ref"
+          ],
+          "properties": {
+            "generation_ref": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      }
+    }
+  ]
+}
