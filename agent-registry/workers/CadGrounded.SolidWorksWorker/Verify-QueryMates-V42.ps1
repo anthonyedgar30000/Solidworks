@@ -27,17 +27,28 @@ function Invoke-WorkerJson {
 
     $text = (& $WorkerExe @Arguments | Out-String).Trim()
     $exitCode = $LASTEXITCODE
-    if ($exitCode -ne 0) {
-        throw "Worker command failed. ExitCode=$exitCode Arguments=$($Arguments -join ' ')"
-    }
+
     if ([string]::IsNullOrWhiteSpace($text)) {
-        throw "Worker command returned no JSON. Arguments=$($Arguments -join ' ')"
+        throw "Worker command returned no JSON. ExitCode=$exitCode Arguments=$($Arguments -join ' ')"
     }
 
-    $envelope = $text | ConvertFrom-Json
-    if (-not [bool]$envelope.ok) {
-        throw "Worker returned ok=false. Command=$($envelope.command_id) Error=$($envelope.error.message)"
+    try {
+        $envelope = $text | ConvertFrom-Json
+    } catch {
+        throw "Worker output was not valid JSON. ExitCode=$exitCode Arguments=$($Arguments -join ' ') Raw=$text"
     }
+
+    if (-not [bool]$envelope.ok) {
+        $errorType = [string]$envelope.error.type
+        $errorMessage = [string]$envelope.error.message
+        $errorHResult = [string]$envelope.error.hresult
+        throw "Worker returned ok=false. ExitCode=$exitCode Command=$($envelope.command_id) ErrorType=$errorType HResult=$errorHResult Error=$errorMessage"
+    }
+
+    if ($exitCode -ne 0) {
+        throw "Worker returned ok=true with nonzero exit code. ExitCode=$exitCode Arguments=$($Arguments -join ' ')"
+    }
+
     return $envelope
 }
 
@@ -65,6 +76,20 @@ function Assert-ExpectedStatus {
     }
 }
 
+function Get-OptionalPropertyValue {
+    param(
+        [Parameter(Mandatory=$true)]$Object,
+        [Parameter(Mandatory=$true)][string]$Name
+    )
+
+    $property = $Object.PSObject.Properties[$Name]
+    if ($null -eq $property) {
+        return $null
+    }
+
+    return $property.Value
+}
+
 function Get-TargetState {
     param([Parameter(Mandatory=$true)]$ComponentsEnvelope)
 
@@ -79,10 +104,10 @@ function Get-TargetState {
             name2 = [string]$c.name2
             path = [string]$c.path
             suppression_state = $c.suppression_state
-            fixed_component = $c.fixed_component
-            parent_name = $c.parent_name
-            rotation9 = @($c.rotation9)
-            translation_mm = @($c.translation_mm)
+            fixed_component = Get-OptionalPropertyValue $c 'fixed_component'
+            parent_name = Get-OptionalPropertyValue $c 'parent_name'
+            rotation9 = Get-OptionalPropertyValue $c 'rotation9'
+            translation_mm = Get-OptionalPropertyValue $c 'translation_mm'
             transform_source = [string]$c.transform_source
         }
     }
@@ -95,11 +120,25 @@ function Get-FileEvidence {
     if (-not (Test-Path -LiteralPath $Path -PathType Leaf)) {
         throw "Expected assembly file not found: $Path"
     }
+
     $item = Get-Item -LiteralPath $Path
+    $sha256 = $null
+    $sha256Status = 'available'
+    $sha256Error = $null
+
+    try {
+        $sha256 = (Get-FileHash -LiteralPath $Path -Algorithm SHA256 -ErrorAction Stop).Hash.ToLowerInvariant()
+    } catch {
+        $sha256Status = 'unavailable_while_open'
+        $sha256Error = $_.Exception.Message
+    }
+
     return [ordered]@{
         length = $item.Length
         last_write_time_utc = $item.LastWriteTimeUtc.ToString('o')
-        sha256 = (Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash.ToLowerInvariant()
+        sha256 = $sha256
+        sha256_status = $sha256Status
+        sha256_error = $sha256Error
     }
 }
 
@@ -156,16 +195,27 @@ $statusAfter = Invoke-WorkerJson -Arguments @('status')
 Assert-ExpectedStatus $statusAfter
 $fileAfter = Get-FileEvidence -Path $ExpectedDocumentPath
 
+$processIdBefore = [string]$statusBefore.data.solidworks_process_id
+$processIdAfter = [string]$statusAfter.data.solidworks_process_id
+if ($processIdBefore -cne $processIdAfter) {
+    throw "SOLIDWORKS process identity changed during verification. Before='$processIdBefore' After='$processIdAfter'."
+}
+
 $beforeJson = $targetStateBefore | ConvertTo-Json -Depth 20 -Compress
 $afterJson = $targetStateAfter | ConvertTo-Json -Depth 20 -Compress
 if ($beforeJson -cne $afterJson) {
     throw 'Target component transform/state evidence changed during read-only mate queries.'
 }
 
-if ($fileBefore.sha256 -cne $fileAfter.sha256 -or
-    $fileBefore.length -ne $fileAfter.length -or
+if ($fileBefore.length -ne $fileAfter.length -or
     $fileBefore.last_write_time_utc -cne $fileAfter.last_write_time_utc) {
-    throw 'Assembly file evidence changed during read-only mate queries.'
+    throw 'Assembly file metadata changed during read-only mate queries.'
+}
+
+if ($null -ne $fileBefore.sha256 -and
+    $null -ne $fileAfter.sha256 -and
+    $fileBefore.sha256 -cne $fileAfter.sha256) {
+    throw 'Assembly file SHA-256 changed during read-only mate queries.'
 }
 
 $verification = [ordered]@{
@@ -184,7 +234,7 @@ $verification = [ordered]@{
     target_state_before = $targetStateBefore
     target_state_after = $targetStateAfter
     mate_results = $mateResults
-    limitation = 'PASS proves no observed target transform/state or assembly-file change during these queries. It does not prove mechanical acceptance, spring preload, contact force, or operating sequence.'
+    limitation = 'PASS proves the same SOLIDWORKS process remained bound and no observed target transform/state or assembly-file length/write-time change occurred. SHA-256 is compared when the open file is readable; SOLIDWORKS may lock the file and make hashing unavailable. PASS does not prove absence of every possible in-memory mutation, mechanical acceptance, spring preload, contact force, or operating sequence.'
 }
 
 $verificationPath = Join-Path $OutputRoot 'verification-summary.json'
