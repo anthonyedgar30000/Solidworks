@@ -106,11 +106,25 @@ function Get-FileEvidence {
     if (-not (Test-Path -LiteralPath $Path -PathType Leaf)) {
         throw "Expected assembly file not found: $Path"
     }
+
     $item = Get-Item -LiteralPath $Path
+    $sha256 = $null
+    $sha256Status = 'available'
+    $sha256Error = $null
+
+    try {
+        $sha256 = (Get-FileHash -LiteralPath $Path -Algorithm SHA256 -ErrorAction Stop).Hash.ToLowerInvariant()
+    } catch {
+        $sha256Status = 'unavailable_while_open'
+        $sha256Error = $_.Exception.Message
+    }
+
     return [ordered]@{
         length = $item.Length
         last_write_time_utc = $item.LastWriteTimeUtc.ToString('o')
-        sha256 = (Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash.ToLowerInvariant()
+        sha256 = $sha256
+        sha256_status = $sha256Status
+        sha256_error = $sha256Error
     }
 }
 
@@ -167,16 +181,27 @@ $statusAfter = Invoke-WorkerJson -Arguments @('status')
 Assert-ExpectedStatus $statusAfter
 $fileAfter = Get-FileEvidence -Path $ExpectedDocumentPath
 
+$processIdBefore = [string]$statusBefore.data.solidworks_process_id
+$processIdAfter = [string]$statusAfter.data.solidworks_process_id
+if ($processIdBefore -cne $processIdAfter) {
+    throw "SOLIDWORKS process identity changed during verification. Before='$processIdBefore' After='$processIdAfter'."
+}
+
 $beforeJson = $targetStateBefore | ConvertTo-Json -Depth 20 -Compress
 $afterJson = $targetStateAfter | ConvertTo-Json -Depth 20 -Compress
 if ($beforeJson -cne $afterJson) {
     throw 'Target component transform/state evidence changed during read-only mate queries.'
 }
 
-if ($fileBefore.sha256 -cne $fileAfter.sha256 -or
-    $fileBefore.length -ne $fileAfter.length -or
+if ($fileBefore.length -ne $fileAfter.length -or
     $fileBefore.last_write_time_utc -cne $fileAfter.last_write_time_utc) {
-    throw 'Assembly file evidence changed during read-only mate queries.'
+    throw 'Assembly file metadata changed during read-only mate queries.'
+}
+
+if ($null -ne $fileBefore.sha256 -and
+    $null -ne $fileAfter.sha256 -and
+    $fileBefore.sha256 -cne $fileAfter.sha256) {
+    throw 'Assembly file SHA-256 changed during read-only mate queries.'
 }
 
 $verification = [ordered]@{
@@ -195,7 +220,7 @@ $verification = [ordered]@{
     target_state_before = $targetStateBefore
     target_state_after = $targetStateAfter
     mate_results = $mateResults
-    limitation = 'PASS proves no observed target transform/state or assembly-file change during these queries. It does not prove mechanical acceptance, spring preload, contact force, or operating sequence.'
+    limitation = 'PASS proves the same SOLIDWORKS process remained bound and no observed target transform/state or assembly-file length/write-time change occurred. SHA-256 is compared when the open file is readable; SOLIDWORKS may lock the file and make hashing unavailable. PASS does not prove absence of every possible in-memory mutation, mechanical acceptance, spring preload, contact force, or operating sequence.'
 }
 
 $verificationPath = Join-Path $OutputRoot 'verification-summary.json'
