@@ -30,6 +30,15 @@ The important idea is that **a NULL is not treated as an empty hole**. The graph
 - `test_identity_bindings.py` — exact identity binding regression tests.
 - `test_geometry_projection.py` — deterministic AABB projection regression tests.
 - `test_graph_projection.py` — live-evidence runtime graph regression tests.
+- `test_domain_model_contract.py` — static regression tests for the CADRequest/EvidenceRecord subtype partitions and authority boundaries.
+
+## Domain Model v1
+
+The candidate domain contract is documented in `../docs/CADGROUNDED_DOMAIN_MODEL_V1.md` with schemas in `../schemas/cad-read-request.v1.schema.json` and `../schemas/evidence-record.v1.schema.json`.
+
+The model separates object type/subtype from epistemic and lifecycle state. `command_id` partitions read-only CAD request subtypes; `evidence_type` partitions evidence subtypes. States such as `UNRESOLVED`, `FIT_CHECK`, and ambiguity buckets remain attributes rather than becoming new object types.
+
+These files are candidate contracts only. They do not change the deployed remote-queue runner or grant additional CAD authority.
 
 ## Run
 
