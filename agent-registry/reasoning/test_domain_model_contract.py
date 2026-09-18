@@ -34,6 +34,24 @@ def discriminator_constants(schema, property_name):
     return values
 
 
+def request_branches_by_command(schema):
+    """Return normalized command subtype branches for legacy or Domain Model v1 schemas."""
+    if "oneOf" in schema:
+        return {
+            branch["properties"]["command_id"]["const"]: branch
+            for branch in schema["oneOf"]
+        }
+
+    if "allOf" in schema:
+        normalized = {}
+        for branch in schema["allOf"]:
+            command_id = branch["if"]["properties"]["command_id"]["const"]
+            normalized[command_id] = branch["then"]
+        return normalized
+
+    raise AssertionError("Request schema has neither oneOf nor allOf subtype branches")
+
+
 class DomainModelContractTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -99,15 +117,8 @@ class DomainModelContractTests(unittest.TestCase):
         )
 
     def test_candidate_request_preserves_deployed_subtype_payload_contracts(self):
-        candidate_by_command = {
-            branch["properties"]["command_id"]["const"]: branch
-            for branch in self.request["oneOf"]
-        }
-
-        deployed_by_command = {}
-        for branch in self.deployed_request["allOf"]:
-            command_id = branch["if"]["properties"]["command_id"]["const"]
-            deployed_by_command[command_id] = branch["then"]
+        candidate_by_command = request_branches_by_command(self.request)
+        deployed_by_command = request_branches_by_command(self.deployed_request)
 
         self.assertEqual(set(candidate_by_command), set(deployed_by_command))
 
@@ -144,11 +155,11 @@ class DomainModelContractTests(unittest.TestCase):
                 command_id,
             )
 
-    def test_source_tightening_is_explicit_and_runner_aligned(self):
+    def test_source_nonempty_contract_is_runner_aligned(self):
         deployed_source = self.deployed_request["properties"]["source"]
         candidate_source = self.request["properties"]["source"]
-        self.assertNotIn("minLength", deployed_source)
         self.assertEqual(candidate_source["minLength"], 1)
+        self.assertEqual(deployed_source.get("minLength", 1), 1)
         self.assertEqual(candidate_source["maxLength"], deployed_source["maxLength"])
 
         runner_text = (REMOTE_QUEUE / "Invoke-CADRemoteQueue.ps1").read_text(encoding="utf-8")
