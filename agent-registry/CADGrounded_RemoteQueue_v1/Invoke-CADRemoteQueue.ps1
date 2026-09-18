@@ -26,7 +26,7 @@ function Get-PropertyNames {
 function Assert-AllowedProperties {
     param(
         [Parameter(Mandatory=$true)]$Object,
-        [Parameter(Mandatory=$true)][string[]]$Allowed,
+        [Parameter(Mandatory=$true)][AllowEmptyCollection()][string[]]$Allowed,
         [Parameter(Mandatory=$true)][string]$Context
     )
     foreach ($name in (Get-PropertyNames $Object)) {
@@ -175,14 +175,6 @@ function Assert-Job {
             }
             if (-not (Test-ExactString $b 1024)) {
                 throw 'payload.b_name_exact is invalid.'
-            }
-        }
-
-        'sw.query_mates' {
-            Assert-AllowedProperties $payload @('component_name_exact') 'payload'
-            $componentName = Require-Property $payload 'component_name_exact' 'payload'
-            if (-not (Test-ExactString $componentName 1024)) {
-                throw 'payload.component_name_exact is invalid.'
             }
         }
 
@@ -383,11 +375,13 @@ try {
             $jobId = [string]$job.job_id
 
             $terminalCollision = @(
-                (Join-Path $dirs['results'] "$jobId.result.json"),
-                (Join-Path $dirs['completed'] "$jobId.request.json"),
-                (Join-Path $dirs['failed'] "$jobId.request.json"),
-                (Join-Path $dirs['rejected'] "$jobId.request.json")
-            ) | Where-Object { Test-Path -LiteralPath $_ }
+                @(
+                    (Join-Path $dirs['results'] "$jobId.result.json"),
+                    (Join-Path $dirs['completed'] "$jobId.request.json"),
+                    (Join-Path $dirs['failed'] "$jobId.request.json"),
+                    (Join-Path $dirs['rejected'] "$jobId.request.json")
+                ) | Where-Object { Test-Path -LiteralPath $_ }
+            )
 
             if ($terminalCollision.Count -gt 0) {
                 throw "Replay/duplicate rejected: job_id '$jobId' already has terminal state."

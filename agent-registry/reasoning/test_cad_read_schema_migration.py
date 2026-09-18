@@ -13,6 +13,7 @@ No SOLIDWORKS access is required.
 from __future__ import annotations
 
 import hashlib
+import json
 from pathlib import Path
 import unittest
 
@@ -82,6 +83,55 @@ class CADReadSchemaMigrationTests(unittest.TestCase):
             manifest[name],
             sha256_canonical_text(RUNNER_DIR / name),
         )
+
+
+    def test_remote_queue_command_sets_match_canonical_contract(self):
+        canonical = json.loads(CANONICAL_SCHEMA.read_text(encoding="utf-8"))
+        canonical_commands = set(
+            canonical["properties"]["command_id"]["enum"]
+        )
+
+        required_doc_commands = set()
+        for branch in canonical["oneOf"]:
+            command_id = branch["properties"]["command_id"]["const"]
+            if "preconditions" in branch.get("required", []):
+                required_doc_commands.add(command_id)
+
+        for directory in (RUNNER_DIR, PACKAGE_DIR):
+            config = json.loads(
+                (directory / "queue-config.json").read_text(encoding="utf-8")
+            )
+            self.assertEqual(
+                set(config["allowed_commands"]),
+                canonical_commands,
+                directory.name,
+            )
+            self.assertEqual(
+                set(config["require_document_precondition_for"]),
+                required_doc_commands,
+                directory.name,
+            )
+
+    def test_portable_validator_matches_deployed_runner_policy(self):
+        self.assertEqual(
+            canonical_lf_bytes(PACKAGE_DIR / "Invoke-CADRemoteQueue.ps1"),
+            canonical_lf_bytes(RUNNER_DIR / "Invoke-CADRemoteQueue.ps1"),
+        )
+
+    def test_portable_manifest_pins_policy_files(self):
+        manifest = parse_manifest(PACKAGE_DIR / "SHA256SUMS.txt")
+        for name in (
+            "Invoke-CADRemoteQueue.ps1",
+            "README.md",
+            "cad-job.schema.json",
+            "queue-config.json",
+        ):
+            self.assertIn(name, manifest)
+            self.assertEqual(
+                manifest[name],
+                sha256_canonical_text(PACKAGE_DIR / name),
+                name,
+            )
 
     def test_phase2_does_not_make_runner_schema_driven(self):
         runner_text = (RUNNER_DIR / "Invoke-CADRemoteQueue.ps1").read_text(
