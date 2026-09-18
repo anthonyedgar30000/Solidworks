@@ -541,7 +541,7 @@ internal sealed class SolidWorksSession : IDisposable
         var rows = new List<object>();
         var traversalErrors = new List<string>();
 
-        IFeature? feature = _doc.FirstFeature();
+        IFeature? feature = _doc.FirstFeature() as IFeature;
         IFeature? mateGroup = null;
         while (feature is not null)
         {
