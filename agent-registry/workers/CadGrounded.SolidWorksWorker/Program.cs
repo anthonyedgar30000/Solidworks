@@ -208,8 +208,8 @@ internal static class Program
 
     private static void PrintUsage()
     {
-        Console.WriteLine($"""
-CadGrounded.SolidWorksWorker v{{Version}}
+        Console.WriteLine(
+            "CadGrounded.SolidWorksWorker v" + Version + """
 
 READ-ONLY COMMANDS
   status
