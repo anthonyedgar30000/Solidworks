@@ -1,0 +1,14 @@
+{
+    "schema_version":  1,
+    "runner_version":  "1.0.0",
+    "state":  "rejected",
+    "job_id":  "gdrive-status-20260917T2100Z",
+    "request_sha256":  "6504c3a9cd5c1137905f265317d72a2471302ae61c9abd609d33e408ba4d543b",
+    "request_file_name":  "gdrive-status-20260917T2100Z.job.json",
+    "started_utc":  "2026-09-17T21:09:57.6356028+00:00",
+    "finished_utc":  "2026-09-17T21:09:58.0937982+00:00",
+    "status_observation":  null,
+    "worker_response":  null,
+    "error":  "SOLIDWORKS status observation failed.",
+    "runner_write_authority":  "NONE"
+}

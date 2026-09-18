@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "job_id": "gdrive-status-20260917T2110Z",
+  "command_id": "sw.status",
+  "write_authority": "NONE",
+  "created_utc": "2026-09-17T21:11:37.872Z",
+  "expires_utc": "2026-09-17T21:31:37.872Z",
+  "source": "google_apps_script_readonly_scheduler_v1",
+  "payload": {}
+}

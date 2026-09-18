@@ -1,0 +1,14 @@
+{
+    "schema_version":  1,
+    "runner_version":  "1.0.0",
+    "state":  "rejected",
+    "job_id":  "rejected-31f3d56592534b98b432ca8c7dad50b7",
+    "request_sha256":  "9f2fe811c5ab46628d3b5c47fccdc11fb1b5f8140a6aeea394270bc4d36e397f",
+    "request_file_name":  "gdrive-status-20260917T2000Z.job.json",
+    "started_utc":  "2026-09-17T21:25:38.1217900+00:00",
+    "finished_utc":  "2026-09-17T21:25:38.1705565+00:00",
+    "status_observation":  null,
+    "worker_response":  null,
+    "error":  "Job expired at 2026-09-17T20:21:43.1130000+00:00.",
+    "runner_write_authority":  "NONE"
+}
