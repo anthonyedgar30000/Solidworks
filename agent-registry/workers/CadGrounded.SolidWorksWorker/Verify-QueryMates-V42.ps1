@@ -76,6 +76,20 @@ function Assert-ExpectedStatus {
     }
 }
 
+function Get-OptionalPropertyValue {
+    param(
+        [Parameter(Mandatory=$true)]$Object,
+        [Parameter(Mandatory=$true)][string]$Name
+    )
+
+    $property = $Object.PSObject.Properties[$Name]
+    if ($null -eq $property) {
+        return $null
+    }
+
+    return $property.Value
+}
+
 function Get-TargetState {
     param([Parameter(Mandatory=$true)]$ComponentsEnvelope)
 
@@ -90,10 +104,10 @@ function Get-TargetState {
             name2 = [string]$c.name2
             path = [string]$c.path
             suppression_state = $c.suppression_state
-            fixed_component = $c.fixed_component
-            parent_name = $c.parent_name
-            rotation9 = @($c.rotation9)
-            translation_mm = @($c.translation_mm)
+            fixed_component = Get-OptionalPropertyValue $c 'fixed_component'
+            parent_name = Get-OptionalPropertyValue $c 'parent_name'
+            rotation9 = Get-OptionalPropertyValue $c 'rotation9'
+            translation_mm = Get-OptionalPropertyValue $c 'translation_mm'
             transform_source = [string]$c.transform_source
         }
     }
