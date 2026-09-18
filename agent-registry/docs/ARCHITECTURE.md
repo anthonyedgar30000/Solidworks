@@ -21,6 +21,12 @@ SOLIDWORKS
 
 Google Drive is a project mirror and document backup surface. It is not used for locks, leases, job claiming, document revisions, or other transactional state.
 
+## Domain contracts
+
+`CADGROUNDED_DOMAIN_MODEL_V1.md` formalizes the registry's typed boundary using `CADRequest` and `EvidenceRecord` supertypes. Request and evidence subtypes are selected by explicit discriminator attributes, while epistemic state, geometry lifecycle state, and ambiguity remain orthogonal state attributes.
+
+The v1 domain model is a candidate contract and does not itself expand runtime or CAD authority.
+
 ## Write transaction
 
 A state-changing operation is accepted only when all of the following hold:
