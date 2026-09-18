@@ -27,17 +27,28 @@ function Invoke-WorkerJson {
 
     $text = (& $WorkerExe @Arguments | Out-String).Trim()
     $exitCode = $LASTEXITCODE
-    if ($exitCode -ne 0) {
-        throw "Worker command failed. ExitCode=$exitCode Arguments=$($Arguments -join ' ')"
-    }
+
     if ([string]::IsNullOrWhiteSpace($text)) {
-        throw "Worker command returned no JSON. Arguments=$($Arguments -join ' ')"
+        throw "Worker command returned no JSON. ExitCode=$exitCode Arguments=$($Arguments -join ' ')"
     }
 
-    $envelope = $text | ConvertFrom-Json
-    if (-not [bool]$envelope.ok) {
-        throw "Worker returned ok=false. Command=$($envelope.command_id) Error=$($envelope.error.message)"
+    try {
+        $envelope = $text | ConvertFrom-Json
+    } catch {
+        throw "Worker output was not valid JSON. ExitCode=$exitCode Arguments=$($Arguments -join ' ') Raw=$text"
     }
+
+    if (-not [bool]$envelope.ok) {
+        $errorType = [string]$envelope.error.type
+        $errorMessage = [string]$envelope.error.message
+        $errorHResult = [string]$envelope.error.hresult
+        throw "Worker returned ok=false. ExitCode=$exitCode Command=$($envelope.command_id) ErrorType=$errorType HResult=$errorHResult Error=$errorMessage"
+    }
+
+    if ($exitCode -ne 0) {
+        throw "Worker returned ok=true with nonzero exit code. ExitCode=$exitCode Arguments=$($Arguments -join ' ')"
+    }
+
     return $envelope
 }
 
