@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.ComTypes;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SolidWorks.Interop.sldworks;
@@ -310,35 +311,67 @@ internal sealed class SolidWorksSession : IDisposable
 
     public static SolidWorksSession Attach()
     {
-        object raw;
-        try
-        {
-            raw = ComRot.GetActiveObject("SldWorks.Application");
-        }
-        catch (COMException ex)
+        var apps = ComRot.GetRunningSolidWorksApplications();
+        if (apps.Count == 0)
         {
             throw new CadGroundedException(
                 "solidworks_not_running",
-                "Could not obtain a running SOLIDWORKS automation object.",
-                ex);
+                "No running SOLIDWORKS automation objects were found in the Windows Running Object Table.");
         }
 
-        if (raw is not SldWorks app)
+        var activeCandidates = new List<(SldWorks App, IModelDoc2 Doc, int ProcessId)>();
+        var candidateNotes = new List<string>();
+
+        foreach (var app in apps)
         {
-            throw new CadGroundedException(
-                "solidworks_type_mismatch",
-                $"Running object could not be cast to SldWorks; actual type={raw.GetType().FullName}.");
+            int processId;
+            try
+            {
+                processId = app.GetProcessID();
+            }
+            catch (Exception ex)
+            {
+                candidateNotes.Add($"pid=unknown GetProcessID failed: {ex.Message}");
+                continue;
+            }
+
+            try
+            {
+                if (app.ActiveDoc is IModelDoc2 doc)
+                {
+                    activeCandidates.Add((app, doc, processId));
+                    candidateNotes.Add(
+                        $"pid={processId} active='{doc.GetTitle()}' path='{doc.GetPathName()}'");
+                }
+                else
+                {
+                    candidateNotes.Add($"pid={processId} active=<none>");
+                }
+            }
+            catch (Exception ex)
+            {
+                candidateNotes.Add($"pid={processId} ActiveDoc failed: {ex.Message}");
+            }
         }
 
-        var active = app.ActiveDoc;
-        if (active is not IModelDoc2 doc)
+        if (activeCandidates.Count == 0)
         {
             throw new CadGroundedException(
                 "no_active_document",
-                "SOLIDWORKS automation object has no active IModelDoc2.");
+                "Running SOLIDWORKS sessions were found, but none exposed an active IModelDoc2. " +
+                "Candidates: " + string.Join(" | ", candidateNotes));
         }
 
-        return new SolidWorksSession(app, doc);
+        if (activeCandidates.Count > 1)
+        {
+            throw new CadGroundedException(
+                "solidworks_instance_ambiguous",
+                "Multiple SOLIDWORKS sessions expose active documents; refusing to guess which live CAD state is authoritative. " +
+                "Candidates: " + string.Join(" | ", candidateNotes));
+        }
+
+        var selected = activeCandidates[0];
+        return new SolidWorksSession(selected.App, selected.Doc);
     }
 
     public object Status()
@@ -1077,25 +1110,51 @@ internal sealed class SolidWorksSession : IDisposable
 
 internal static class ComRot
 {
-    [DllImport("ole32.dll", CharSet = CharSet.Unicode)]
-    private static extern int CLSIDFromProgID(
-        string lpszProgID,
-        out Guid lpclsid);
+    [DllImport("ole32.dll")]
+    private static extern int GetRunningObjectTable(
+        int reserved,
+        out IRunningObjectTable runningObjectTable);
 
-    [DllImport("oleaut32.dll", PreserveSig = false)]
-    [return: MarshalAs(UnmanagedType.Interface)]
-    private static extern object GetActiveObject(
-        ref Guid rclsid,
-        IntPtr pvReserved);
-
-    public static object GetActiveObject(string progId)
+    public static IReadOnlyList<SldWorks> GetRunningSolidWorksApplications()
     {
-        var hr = CLSIDFromProgID(progId, out var clsid);
-
+        var hr = GetRunningObjectTable(0, out var rot);
         if (hr != 0)
             Marshal.ThrowExceptionForHR(hr);
 
-        return GetActiveObject(ref clsid, IntPtr.Zero);
+        rot.EnumRunning(out var enumerator);
+
+        var byProcessId = new Dictionary<int, SldWorks>();
+        var monikers = new IMoniker[1];
+
+        while (enumerator.Next(1, monikers, IntPtr.Zero) == 0)
+        {
+            try
+            {
+                rot.GetObject(monikers[0], out var raw);
+                if (raw is not SldWorks app)
+                    continue;
+
+                int processId;
+                try
+                {
+                    processId = app.GetProcessID();
+                }
+                catch
+                {
+                    continue;
+                }
+
+                if (!byProcessId.ContainsKey(processId))
+                    byProcessId.Add(processId, app);
+            }
+            catch
+            {
+                // Non-SOLIDWORKS ROT entries and transient COM entries are ignored.
+                // Identity is established later from SOLIDWORKS GetProcessID/ActiveDoc.
+            }
+        }
+
+        return byProcessId.Values.ToArray();
     }
 }
 
