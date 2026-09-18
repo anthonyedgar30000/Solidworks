@@ -24,7 +24,8 @@
       "enum": [
         "sw.status",
         "sw.query_components",
-        "sw.closest_distance_pair"
+        "sw.closest_distance_pair",
+        "sw.query_mates"
       ]
     },
     "write_authority": {
@@ -135,6 +136,41 @@
               "type": "string",
               "minLength": 1,
               "maxLength": 1024
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "command_id": {
+            "const": "sw.query_mates"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "preconditions"
+        ],
+        "properties": {
+          "preconditions": {
+            "required": [
+              "document_title_exact"
+            ]
+          },
+          "payload": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "component_name_exact"
+            ],
+            "properties": {
+              "component_name_exact": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 1024
+              }
             }
           }
         }

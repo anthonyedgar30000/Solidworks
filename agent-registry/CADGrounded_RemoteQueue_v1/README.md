@@ -11,11 +11,16 @@ queue never executes downloaded `.ps1`, `.bat`, `.cmd`, or `.exe` files.
 - `sw.status`
 - `sw.query_components`
 - `sw.closest_distance_pair`
+- `sw.query_mates`
 
-These are the commands currently implemented by the native C# worker. v1 does
-not expose the experimental PowerShell B-rep/topology probes. Port those into
-the native worker as separately reviewed read-only commands before adding them
-to this queue.
+`sw.query_mates` requires one exact `Component2.Name2` and an exact active-document
+precondition. It is an observation command only: no selection, mate edits,
+component transforms, rebuilds, suppression changes, or saves are permitted.
+Mate definitions are evidence of SOLIDWORKS constraints, not proof of spring
+stiffness, preload, force, contact pressure, or operating sequence.
+
+The native worker may contain additional read-only commands that are not remotely
+exposed. Native capability does not imply Remote Queue authorization.
 
 ## Trust boundary
 
@@ -153,6 +158,10 @@ The runner rejects a job when:
 `sw.closest_distance_pair` still has its original epistemic limitation:
 zero distance means zero metric separation; it does not independently prove
 contact versus physical overlap.
+
+`sw.query_mates` has its own epistemic limitation: a mate tells us what SOLIDWORKS
+constrains. It does not independently establish forces, compliance, or the intended
+machine sequence.
 
 ## Adding future geometry/topology reads
 

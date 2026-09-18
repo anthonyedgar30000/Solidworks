@@ -178,6 +178,14 @@ function Assert-Job {
             }
         }
 
+        'sw.query_mates' {
+            Assert-AllowedProperties $payload @('component_name_exact') 'payload'
+            $componentName = Require-Property $payload 'component_name_exact' 'payload'
+            if (-not (Test-ExactString $componentName 1024)) {
+                throw 'payload.component_name_exact is invalid.'
+            }
+        }
+
         default {
             throw "No local validator exists for '$commandId'."
         }

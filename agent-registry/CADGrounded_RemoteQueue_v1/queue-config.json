@@ -9,10 +9,12 @@
   "allowed_commands": [
     "sw.status",
     "sw.query_components",
-    "sw.closest_distance_pair"
+    "sw.closest_distance_pair",
+    "sw.query_mates"
   ],
   "require_document_precondition_for": [
     "sw.query_components",
-    "sw.closest_distance_pair"
+    "sw.closest_distance_pair",
+    "sw.query_mates"
   ]
 }
