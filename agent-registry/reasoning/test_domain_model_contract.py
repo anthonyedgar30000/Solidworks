@@ -16,6 +16,7 @@ from pathlib import Path
 
 AGENT_REGISTRY = Path(__file__).resolve().parents[1]
 SCHEMAS = AGENT_REGISTRY / "schemas"
+REMOTE_QUEUE = AGENT_REGISTRY / "remote-queue-runner-v1"
 
 
 def load_schema(name: str):
@@ -38,6 +39,9 @@ class DomainModelContractTests(unittest.TestCase):
     def setUpClass(cls):
         cls.request = load_schema("cad-read-request.v1.schema.json")
         cls.evidence = load_schema("evidence-record.v1.schema.json")
+        cls.deployed_request = json.loads(
+            (REMOTE_QUEUE / "cad-job.schema.json").read_text(encoding="utf-8")
+        )
 
     def test_request_partition_is_exact_and_disjoint(self):
         values = discriminator_constants(self.request, "command_id")
@@ -74,6 +78,130 @@ class DomainModelContractTests(unittest.TestCase):
             branch["properties"]["payload"]["required"],
             ["a_name_exact", "b_name_exact"],
         )
+
+
+    def test_candidate_request_preserves_deployed_top_level_contract(self):
+        deployed = self.deployed_request
+        candidate = self.request
+        self.assertEqual(set(candidate["required"]), set(deployed["required"]))
+        self.assertEqual(set(candidate["properties"]), set(deployed["properties"]))
+        self.assertEqual(
+            set(candidate["properties"]["command_id"]["enum"]),
+            set(deployed["properties"]["command_id"]["enum"]),
+        )
+        self.assertEqual(
+            candidate["properties"]["write_authority"]["const"],
+            deployed["properties"]["write_authority"]["const"],
+        )
+        self.assertEqual(
+            set(candidate["properties"]["preconditions"]["properties"]),
+            set(deployed["properties"]["preconditions"]["properties"]),
+        )
+
+    def test_candidate_request_preserves_deployed_subtype_payload_contracts(self):
+        candidate_by_command = {
+            branch["properties"]["command_id"]["const"]: branch
+            for branch in self.request["oneOf"]
+        }
+
+        deployed_by_command = {}
+        for branch in self.deployed_request["allOf"]:
+            command_id = branch["if"]["properties"]["command_id"]["const"]
+            deployed_by_command[command_id] = branch["then"]
+
+        self.assertEqual(set(candidate_by_command), set(deployed_by_command))
+
+        for command_id in candidate_by_command:
+            candidate_payload = candidate_by_command[command_id]["properties"]["payload"]
+            deployed_payload = deployed_by_command[command_id]["properties"]["payload"]
+
+            self.assertEqual(
+                set(candidate_payload.get("required", [])),
+                set(deployed_payload.get("required", [])),
+                command_id,
+            )
+            self.assertEqual(
+                set(candidate_payload.get("properties", {})),
+                set(deployed_payload.get("properties", {})),
+                command_id,
+            )
+            self.assertEqual(
+                candidate_payload.get("additionalProperties"),
+                deployed_payload.get("additionalProperties"),
+                command_id,
+            )
+            self.assertEqual(
+                candidate_payload.get("maxProperties"),
+                deployed_payload.get("maxProperties"),
+                command_id,
+            )
+
+            candidate_pre = candidate_by_command[command_id]["properties"].get("preconditions", {})
+            deployed_pre = deployed_by_command[command_id]["properties"].get("preconditions", {})
+            self.assertEqual(
+                set(candidate_pre.get("required", [])),
+                set(deployed_pre.get("required", [])),
+                command_id,
+            )
+
+    def test_source_tightening_is_explicit_and_runner_aligned(self):
+        deployed_source = self.deployed_request["properties"]["source"]
+        candidate_source = self.request["properties"]["source"]
+        self.assertNotIn("minLength", deployed_source)
+        self.assertEqual(candidate_source["minLength"], 1)
+        self.assertEqual(candidate_source["maxLength"], deployed_source["maxLength"])
+
+        runner_text = (REMOTE_QUEUE / "Invoke-CADRemoteQueue.ps1").read_text(encoding="utf-8")
+        self.assertIn(
+            "source must be a non-empty string up to 128 characters.",
+            runner_text,
+        )
+
+    def test_existing_remote_queue_examples_fit_candidate_subtypes(self):
+        examples = {
+            "status.job.json": "sw.status",
+            "components-v21.job.json": "sw.query_components",
+            "closest-distance-v21.job.json": "sw.closest_distance_pair",
+        }
+        branches = {
+            branch["properties"]["command_id"]["const"]: branch
+            for branch in self.request["oneOf"]
+        }
+
+        for filename, command_id in examples.items():
+            job = json.loads((REMOTE_QUEUE / "examples" / filename).read_text(encoding="utf-8"))
+            self.assertEqual(job["command_id"], command_id, filename)
+            self.assertEqual(job["write_authority"], "NONE", filename)
+
+            branch = branches[command_id]
+            payload_schema = branch["properties"]["payload"]
+            self.assertEqual(
+                set(payload_schema.get("required", [])) - set(job["payload"]),
+                set(),
+                filename,
+            )
+            if payload_schema.get("additionalProperties") is False:
+                self.assertEqual(
+                    set(job["payload"]) - set(payload_schema.get("properties", {})),
+                    set(),
+                    filename,
+                )
+
+            required_preconditions = set(
+                branch["properties"].get("preconditions", {}).get("required", [])
+            )
+            if required_preconditions:
+                self.assertIn("preconditions", job, filename)
+                self.assertEqual(
+                    required_preconditions - set(job["preconditions"]),
+                    set(),
+                    filename,
+                )
+
+            if "source" in job:
+                self.assertIsInstance(job["source"], str, filename)
+                self.assertTrue(job["source"], filename)
+
 
     def test_evidence_partition_is_disjoint(self):
         values = discriminator_constants(self.evidence, "evidence_type")
