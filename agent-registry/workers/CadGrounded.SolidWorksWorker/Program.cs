@@ -735,11 +735,11 @@ internal sealed class SolidWorksSession : IDisposable
                 traversalError),
             result_scope = "EXACT_CONNECTOR_NAMES_PLUS_CONNECT_REF_MANAGER",
             interpretation_note =
-                "This diagnostic compares IModelDoc2.FeatureByName with the existing recursive " +
+                "This diagnostic compares IAssemblyDoc.FeatureByName with the existing recursive " +
                 "feature traversal. It does not establish Published Asset geometry, connector-to-coordinate-system " +
                 "coincidence, snap/mate behavior, contact, clearance, motion, force, or mechanical acceptance.",
             api =
-                "IModelDoc2.FeatureByName -> IFeature.GetTypeName2; " +
+                "IAssemblyDoc.FeatureByName -> IFeature.GetTypeName2; " +
                 "IModelDoc2.FirstFeature/GetNextFeature + IFeature.GetFirstSubFeature/GetNextSubFeature " +
                 "-> IFeature.Name/GetTypeName2 with parent name and tree depth",
             model_mutation = false,
@@ -894,7 +894,10 @@ internal sealed class SolidWorksSession : IDisposable
     {
         try
         {
-            var feature = _doc.FeatureByName(exactName) as IFeature;
+            // The direct named-feature getter is assembly-specific; retain the
+            // typed, read-only interop path rather than using late binding.
+            var assembly = RequireAssembly();
+            var feature = assembly.FeatureByName(exactName) as IFeature;
             if (feature is null)
             {
                 return new DirectConnectorLookup(

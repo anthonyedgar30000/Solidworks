@@ -64,7 +64,7 @@ class NativeInterfaceContractProbeTests(unittest.TestCase):
 
         for expected in (
             '"sw.diagnose_interface_connectors"',
-            "_doc.FeatureByName(exactName)",
+            "assembly.FeatureByName(exactName)",
             '"ConnectRefMgr"',
             "parent_feature_name",
             "tree_depth",

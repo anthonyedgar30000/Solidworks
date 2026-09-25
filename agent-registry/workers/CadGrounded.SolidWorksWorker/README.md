@@ -28,7 +28,7 @@ capability does not imply Remote Queue authorization.
 
 `sw.diagnose_interface_connectors` is a bounded diagnostic for a failed
 Published Reference discovery. For exact requested connector names, it compares
-`IModelDoc2.FeatureByName` with the existing recursive feature traversal and
+`IAssemblyDoc.FeatureByName` with the existing recursive feature traversal and
 records any observed `ConnectRefMgr` / connector rows with name, type, parent,
 and tree depth. It does not substitute direct lookup into
 `sw.query_interface_contract`; a direct-only result is a path-defect candidate

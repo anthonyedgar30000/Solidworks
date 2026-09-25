@@ -23,7 +23,7 @@ The command uses a bounded `IFeature` traversal and `IFeature.GetDefinition() ->
 
 When exact Published Reference discovery fails, the separate local-only
 `sw.diagnose_interface_connectors` command compares
-`IModelDoc2.FeatureByName("Connector1"/"Connector2")` with that recursive
+`IAssemblyDoc.FeatureByName("Connector1"/"Connector2")` with that recursive
 traversal. It records direct name/type results and any traversal observation of
 `ConnectRefMgr`, `Connector1`, or `Connector2`, including parent/tree depth. A
 direct exact `MagneticConnectRef` with no traversal match is reported as

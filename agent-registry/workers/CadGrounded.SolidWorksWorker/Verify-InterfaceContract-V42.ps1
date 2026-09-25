@@ -202,7 +202,7 @@ $connectorDiagnosticSummary = [ordered]@{
     mechanical_acceptance_granted = $false
     evidence_contract = [ordered]@{
         establishes = @(
-            'direct IModelDoc2.FeatureByName observation for exact requested connector names',
+            'direct IAssemblyDoc.FeatureByName observation for exact requested connector names',
             'recursive feature-traversal observation for ConnectRefMgr and exact requested connector names',
             'pre/post document, complete component-state, and assembly-file comparison for the diagnostic'
         )
