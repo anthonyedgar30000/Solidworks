@@ -23,6 +23,49 @@ CREATE TABLE IF NOT EXISTS entities (
     UNIQUE(world_id, canonical_name)
 );
 
+-- The ontology is intentionally separate from live CAD instances.  A type is
+-- never marked uncertain; uncertainty belongs to a state-scoped claim.
+CREATE TABLE IF NOT EXISTS entity_types (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL UNIQUE,
+    description TEXT NOT NULL DEFAULT '',
+    metadata_json TEXT NOT NULL DEFAULT '{}'
+);
+
+CREATE TABLE IF NOT EXISTS relationship_types (
+    id TEXT PRIMARY KEY,
+    predicate TEXT NOT NULL UNIQUE,
+    subject_type_id TEXT REFERENCES entity_types(id),
+    object_type_id TEXT REFERENCES entity_types(id),
+    description TEXT NOT NULL DEFAULT '',
+    metadata_json TEXT NOT NULL DEFAULT '{}'
+);
+
+CREATE TABLE IF NOT EXISTS glossary_terms (
+    id TEXT PRIMARY KEY,
+    entity_type_id TEXT REFERENCES entity_types(id),
+    canonical_term TEXT NOT NULL,
+    alias TEXT,
+    definition TEXT NOT NULL,
+    provenance TEXT,
+    metadata_json TEXT NOT NULL DEFAULT '{}',
+    UNIQUE(entity_type_id, canonical_term, alias)
+);
+
+CREATE TABLE IF NOT EXISTS identity_bindings (
+    id TEXT PRIMARY KEY,
+    world_id TEXT NOT NULL REFERENCES worlds(id),
+    entity_id TEXT NOT NULL REFERENCES entities(id),
+    component_name2 TEXT NOT NULL,
+    source_path TEXT,
+    evidence_class TEXT NOT NULL DEFAULT 'unknown',
+    evidence_rank INTEGER NOT NULL DEFAULT 0 CHECK(evidence_rank BETWEEN 0 AND 4),
+    source_observation_id TEXT REFERENCES observations(id),
+    recorded_at TEXT NOT NULL,
+    metadata_json TEXT NOT NULL DEFAULT '{}',
+    UNIQUE(world_id, entity_id, component_name2)
+);
+
 CREATE TABLE IF NOT EXISTS intervals (
     id TEXT PRIMARY KEY,
     world_id TEXT NOT NULL REFERENCES worlds(id),
@@ -31,6 +74,30 @@ CREATE TABLE IF NOT EXISTS intervals (
     end_value TEXT,
     units TEXT,
     metadata_json TEXT NOT NULL DEFAULT '{}'
+);
+
+CREATE TABLE IF NOT EXISTS operating_states (
+    id TEXT PRIMARY KEY,
+    world_id TEXT NOT NULL REFERENCES worlds(id),
+    name TEXT NOT NULL,
+    ordinal INTEGER,
+    description TEXT NOT NULL DEFAULT '',
+    metadata_json TEXT NOT NULL DEFAULT '{}',
+    UNIQUE(world_id, name)
+);
+
+-- Expected state relationships are specifications, not observations.  The
+-- observed assertion remains independently evidence-bound.
+CREATE TABLE IF NOT EXISTS state_relationship_expectations (
+    id TEXT PRIMARY KEY,
+    world_id TEXT NOT NULL REFERENCES worlds(id),
+    operating_state_id TEXT NOT NULL REFERENCES operating_states(id),
+    subject_entity_id TEXT NOT NULL REFERENCES entities(id),
+    predicate TEXT NOT NULL,
+    object_entity_id TEXT NOT NULL REFERENCES entities(id),
+    expectation TEXT NOT NULL CHECK(expectation IN ('required','forbidden','permitted')),
+    metadata_json TEXT NOT NULL DEFAULT '{}',
+    UNIQUE(operating_state_id, subject_entity_id, predicate, object_entity_id)
 );
 
 CREATE TABLE IF NOT EXISTS observations (
@@ -104,6 +171,64 @@ CREATE TABLE IF NOT EXISTS constraints (
     expression_json TEXT NOT NULL,
     active INTEGER NOT NULL DEFAULT 1 CHECK(active IN (0,1)),
     created_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS invariants (
+    id TEXT PRIMARY KEY,
+    world_id TEXT NOT NULL REFERENCES worlds(id),
+    name TEXT NOT NULL,
+    expression_json TEXT NOT NULL,
+    active INTEGER NOT NULL DEFAULT 1 CHECK(active IN (0,1)),
+    created_at TEXT NOT NULL,
+    metadata_json TEXT NOT NULL DEFAULT '{}'
+);
+
+CREATE TABLE IF NOT EXISTS invariant_evaluations (
+    id TEXT PRIMARY KEY,
+    invariant_id TEXT NOT NULL REFERENCES invariants(id),
+    operating_state_id TEXT REFERENCES operating_states(id),
+    result TEXT NOT NULL CHECK(result IN ('satisfied','violated','unresolved','not_applicable')),
+    source_observation_id TEXT REFERENCES observations(id),
+    recorded_at TEXT NOT NULL,
+    detail_json TEXT NOT NULL DEFAULT '{}'
+);
+
+-- A snapshot is immutable evidence of one live SOLIDWORKS state.  It is not a
+-- mechanical verdict and may only be recorded by a read-only observer.
+CREATE TABLE IF NOT EXISTS inspection_runs (
+    id TEXT PRIMARY KEY,
+    world_id TEXT NOT NULL REFERENCES worlds(id),
+    captured_at TEXT NOT NULL,
+    source_classification TEXT NOT NULL,
+    write_authority TEXT NOT NULL CHECK(write_authority = 'NONE'),
+    document_title TEXT NOT NULL,
+    document_path TEXT,
+    active_configuration TEXT,
+    state_fingerprint TEXT NOT NULL,
+    input_sha256 TEXT NOT NULL,
+    metadata_json TEXT NOT NULL DEFAULT '{}',
+    UNIQUE(world_id, state_fingerprint)
+);
+
+CREATE TABLE IF NOT EXISTS inspection_components (
+    run_id TEXT NOT NULL REFERENCES inspection_runs(id),
+    component_name2 TEXT NOT NULL,
+    component_path TEXT,
+    parent_name TEXT,
+    fixed_component INTEGER,
+    suppression_state TEXT,
+    component_json TEXT NOT NULL,
+    PRIMARY KEY(run_id, component_name2)
+);
+
+CREATE TABLE IF NOT EXISTS claim_dependencies (
+    id TEXT PRIMARY KEY,
+    world_id TEXT NOT NULL REFERENCES worlds(id),
+    claim_key TEXT NOT NULL,
+    component_name2 TEXT NOT NULL,
+    dependency_role TEXT NOT NULL,
+    metadata_json TEXT NOT NULL DEFAULT '{}',
+    UNIQUE(world_id, claim_key, component_name2, dependency_role)
 );
 
 CREATE TABLE IF NOT EXISTS derivations (
