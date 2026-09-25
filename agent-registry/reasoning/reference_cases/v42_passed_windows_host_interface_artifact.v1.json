@@ -1,0 +1,12 @@
+{
+  "artifact_ref": "PR#20:Verify-InterfaceContract-V42.ps1:verification-summary.json",
+  "recorded_at": "2026-09-25T22:10:54Z",
+  "result": "PASS",
+  "write_authority": "NONE",
+  "model_mutation": false,
+  "remote_queue_authorized": false,
+  "expected_document": {"title": "IXOR_Benchmark_v42_ASSET_INTERFACE_TEST_PORTABLE", "path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v42_ASSET_INTERFACE_TEST_PORTABLE.SLDASM"},
+  "document_state_before": {"active_configuration": "Default"},
+  "document_state_after": {"active_configuration": "Default"},
+  "interface_observation": {"published_reference_manager": {"feature_type": "ConnectRefMgr"}, "published_reference_features": [{"connector_name": "Connector2", "feature_type": "MagneticConnectRef", "parent_feature_name": "Published References", "parent_feature_type": "ConnectRefMgr"}, {"connector_name": "Connector1", "feature_type": "MagneticConnectRef", "parent_feature_name": "Published References", "parent_feature_type": "ConnectRefMgr"}], "coordinate_systems": [{"feature_name": "PRODUCT_ENTRY_CS", "feature_type": "CoordSys"}, {"feature_name": "PRODUCT_EXIT_CS", "feature_type": "CoordSys"}]}
+}
