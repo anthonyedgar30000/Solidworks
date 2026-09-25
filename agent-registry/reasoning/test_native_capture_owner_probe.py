@@ -17,6 +17,8 @@ REGISTRY = Path(__file__).resolve().parents[1]
 WORKER = REGISTRY / "workers" / "CadGrounded.SolidWorksWorker"
 PROGRAM = WORKER / "Program.cs"
 VERIFY_SCRIPT = WORKER / "Verify-QueryMates-V42.ps1"
+FILE_EVIDENCE = WORKER / "FileEvidence.ps1"
+FILE_EVIDENCE_TEST = WORKER / "Test-FileEvidence.ps1"
 QUEUE_CONFIGS = (
     REGISTRY / "CADGrounded_RemoteQueue_v1" / "queue-config.json",
     REGISTRY / "remote-queue-runner-v1" / "queue-config.json",
@@ -51,6 +53,22 @@ class NativeCaptureOwnerProbeContractTests(unittest.TestCase):
             'write_authority = "NONE"',
         ):
             self.assertIn(expected, program)
+
+    def test_shared_file_evidence_is_local_read_only_and_regression_tested(self):
+        verifier = VERIFY_SCRIPT.read_text(encoding="utf-8")
+        evidence = FILE_EVIDENCE.read_text(encoding="utf-8")
+        regression = FILE_EVIDENCE_TEST.read_text(encoding="utf-8")
+
+        self.assertIn(". (Join-Path $WorkerRoot 'FileEvidence.ps1')", verifier)
+        self.assertNotIn("Get-FileHash", verifier)
+        self.assertIn("[System.IO.FileAccess]::Read", evidence)
+        self.assertIn("[System.IO.FileShare]::ReadWrite", evidence)
+        self.assertNotIn("[System.IO.FileAccess]::Write", evidence)
+        self.assertIn("file observation rejected", evidence)
+        self.assertIn("Assembly file changed while SHA-256 was being computed", evidence)
+        self.assertIn("Start-Job", regression)
+        self.assertIn("-ShareName 'ReadWrite'", regression)
+        self.assertIn("-ShareName 'None'", regression)
 
     def test_verification_script_checks_before_after_state_and_declares_limitations(self):
         script = VERIFY_SCRIPT.read_text(encoding="utf-8")

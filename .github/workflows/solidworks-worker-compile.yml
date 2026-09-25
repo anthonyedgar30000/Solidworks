@@ -34,3 +34,6 @@ jobs:
           dotnet build CadGrounded.SolidWorksWorker.csproj
           --configuration Release
           --property:UseNuGetSolidWorksInterop=true
+      - name: Test shared read file evidence
+        working-directory: agent-registry/workers/CadGrounded.SolidWorksWorker
+        run: .\Test-FileEvidence.ps1

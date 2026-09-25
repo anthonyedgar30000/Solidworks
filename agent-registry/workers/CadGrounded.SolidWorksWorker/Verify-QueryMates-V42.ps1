@@ -10,6 +10,7 @@ $ErrorActionPreference = 'Stop'
 
 $ExpectedWorkerVersion = '0.3.1'
 $WorkerRoot = $PSScriptRoot
+. (Join-Path $WorkerRoot 'FileEvidence.ps1')
 $WorkerExe = Join-Path $WorkerRoot 'bin\Release\net8.0-windows\win-x64\CadGrounded.SolidWorksWorker.exe'
 $OutputRoot = Join-Path $WorkerRoot 'verification-output\query-mates-v42'
 
@@ -102,20 +103,6 @@ function Get-TargetState {
         }
     }
     return $state
-}
-
-function Get-FileEvidence {
-    param([Parameter(Mandatory=$true)][string]$Path)
-
-    if (-not (Test-Path -LiteralPath $Path -PathType Leaf)) {
-        throw "Expected assembly file not found: $Path"
-    }
-    $item = Get-Item -LiteralPath $Path
-    return [ordered]@{
-        length = $item.Length
-        last_write_time_utc = $item.LastWriteTimeUtc.ToString('o')
-        sha256 = (Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash.ToLowerInvariant()
-    }
 }
 
 function Get-CaptureOwnerBindingCoverage {
