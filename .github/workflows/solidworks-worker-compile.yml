@@ -4,12 +4,20 @@ on:
   pull_request:
     paths:
       - "agent-registry/workers/CadGrounded.SolidWorksWorker/**"
+      - "agent-registry/reasoning/cad_interface_*.py"
+      - "agent-registry/reasoning/test_cad_interface_*.py"
+      - "agent-registry/reasoning/reference_cases/v42_*interface*.json"
+      - "agent-registry/schemas/cad-interface-*.json"
       - ".github/workflows/solidworks-worker-compile.yml"
   push:
     branches:
       - main
     paths:
       - "agent-registry/workers/CadGrounded.SolidWorksWorker/**"
+      - "agent-registry/reasoning/cad_interface_*.py"
+      - "agent-registry/reasoning/test_cad_interface_*.py"
+      - "agent-registry/reasoning/reference_cases/v42_*interface*.json"
+      - "agent-registry/schemas/cad-interface-*.json"
       - ".github/workflows/solidworks-worker-compile.yml"
   workflow_dispatch:
 
@@ -28,6 +36,9 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: "8.0.x"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
       - name: Compile net8.0-windows worker
         working-directory: agent-registry/workers/CadGrounded.SolidWorksWorker
         run: >-
@@ -40,3 +51,31 @@ jobs:
       - name: Test component state evidence normalization
         working-directory: agent-registry/workers/CadGrounded.SolidWorksWorker
         run: .\Test-ComponentStateEvidence.ps1
+      - name: Test interface contract evidence normalization
+        working-directory: agent-registry/workers/CadGrounded.SolidWorksWorker
+        run: .\Test-InterfaceContractEvidence.ps1
+      - name: Test interface connector diagnostic normalization
+        working-directory: agent-registry/workers/CadGrounded.SolidWorksWorker
+        run: .\Test-InterfaceConnectorDiagnosticEvidence.ps1
+      - name: Test FeatureManager tree diagnostic normalization
+        working-directory: agent-registry/workers/CadGrounded.SolidWorksWorker
+        run: .\Test-FeatureManagerTreeDiagnosticEvidence.ps1
+      - name: Test BOM-free JSON evidence artifacts
+        working-directory: agent-registry/workers/CadGrounded.SolidWorksWorker
+        run: .\Test-JsonFileEvidence.ps1
+  interface-reasoning:
+    name: Interface contract reasoning regressions
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Test deterministic interface verification and consumption
+        working-directory: agent-registry/reasoning
+        run: >-
+          python -m unittest -v
+          test_cad_interface_contract.py
+          test_cad_interface_live_verifier.py
+          test_cad_interface_consumption.py
+          test_native_interface_contract_probe.py

@@ -1,0 +1,260 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cadgrounded.local/schemas/cad-interface-live-observation.v1.schema.json",
+  "title": "CADGrounded read-only CAD interface live observation v1",
+  "description": "Successful local-only sw.query_interface_contract observation. It proves bounded coordinate-system and Published References FeatureManager-tree identity observation only and explicitly cannot prove connector-to-coordinate-system geometric coincidence.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "ok",
+    "command_id",
+    "source_classification",
+    "data"
+  ],
+  "properties": {
+    "ok": {
+      "const": true
+    },
+    "command_id": {
+      "const": "sw.query_interface_contract"
+    },
+    "source_classification": {
+      "const": "verified_from_solidworks_api"
+    },
+    "data": {
+      "$ref": "#/$defs/data"
+    }
+  },
+  "$defs": {
+    "nonEmptyString": {
+      "type": "string",
+      "minLength": 1
+    },
+    "vec3": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {
+        "type": "number"
+      }
+    },
+    "transform16": {
+      "type": "array",
+      "minItems": 16,
+      "maxItems": 16,
+      "items": {
+        "type": "number"
+      }
+    },
+    "document": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "title",
+        "path",
+        "type",
+        "active_configuration",
+        "save_flag"
+      ],
+      "properties": {
+        "title": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "path": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "type": {
+          "const": "assembly"
+        },
+        "active_configuration": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "save_flag": {
+          "type": "integer"
+        }
+      }
+    },
+    "coordinateSystem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "feature_name",
+        "feature_type",
+        "transform16",
+        "origin_mm",
+        "transform_source"
+      ],
+      "properties": {
+        "feature_name": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "feature_type": {
+          "const": "CoordSys"
+        },
+        "transform16": {
+          "$ref": "#/$defs/transform16"
+        },
+        "origin_mm": {
+          "$ref": "#/$defs/vec3"
+        },
+        "transform_source": {
+          "$ref": "#/$defs/nonEmptyString"
+        }
+      }
+    },
+    "publishedReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "connector_name",
+        "feature_type",
+        "tree_path",
+        "parent_tree_text",
+        "parent_feature_name",
+        "parent_feature_type"
+      ],
+      "properties": {
+        "connector_name": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "feature_type": {
+          "const": "MagneticConnectRef"
+        },
+        "tree_path": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "parent_tree_text": {
+          "const": "Published References"
+        },
+        "parent_feature_name": {
+          "const": "Published References"
+        },
+        "parent_feature_type": {
+          "const": "ConnectRefMgr"
+        }
+      }
+    },
+    "publishedReferenceManager": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "displayed_tree_text",
+        "feature_name",
+        "feature_type",
+        "tree_path"
+      ],
+      "properties": {
+        "displayed_tree_text": {
+          "const": "Published References"
+        },
+        "feature_name": {
+          "const": "Published References"
+        },
+        "feature_type": {
+          "const": "ConnectRefMgr"
+        },
+        "tree_path": {
+          "$ref": "#/$defs/nonEmptyString"
+        }
+      }
+    },
+    "request": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "coordinate_system_feature_names",
+        "published_reference_connector_names"
+      ],
+      "properties": {
+        "coordinate_system_feature_names": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/nonEmptyString"
+          }
+        },
+        "published_reference_connector_names": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/nonEmptyString"
+          }
+        }
+      }
+    },
+    "data": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "document",
+        "request",
+        "coordinate_systems",
+        "published_reference_features",
+        "published_reference_manager",
+        "result_scope",
+        "published_reference_manager_binding_state",
+        "published_reference_manager_binding_note",
+        "geometry_binding_state",
+        "interpretation_note",
+        "api",
+        "model_mutation",
+        "write_authority",
+        "evidence"
+      ],
+      "properties": {
+        "document": {
+          "$ref": "#/$defs/document"
+        },
+        "request": {
+          "$ref": "#/$defs/request"
+        },
+        "coordinate_systems": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/coordinateSystem"
+          }
+        },
+        "published_reference_features": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/publishedReference"
+          }
+        },
+        "published_reference_manager": {
+          "$ref": "#/$defs/publishedReferenceManager"
+        },
+        "result_scope": {
+          "const": "EXACT_NAMED_FEATURES_ONLY"
+        },
+        "published_reference_manager_binding_state": {
+          "const": "VERIFIED_FEATURE_MANAGER_TREE_BRANCH"
+        },
+        "published_reference_manager_binding_note": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "geometry_binding_state": {
+          "const": "UNRESOLVED"
+        },
+        "interpretation_note": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "api": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "model_mutation": {
+          "const": false
+        },
+        "write_authority": {
+          "const": "NONE"
+        },
+        "evidence": {
+          "const": "verified_from_solidworks_api"
+        }
+      }
+    }
+  }
+}

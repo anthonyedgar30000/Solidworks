@@ -8,7 +8,7 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
-$ExpectedWorkerVersion = '0.3.1'
+$ExpectedWorkerVersion = '0.4.2'
 $WorkerRoot = $PSScriptRoot
 . (Join-Path $WorkerRoot 'FileEvidence.ps1')
 . (Join-Path $WorkerRoot 'ComponentStateEvidence.ps1')
