@@ -9,9 +9,11 @@
     <AssemblyName>CadGrounded.SolidWorksWorker</AssemblyName>
     <RootNamespace>CadGrounded.SolidWorksWorker</RootNamespace>
     <SolidWorksDir Condition="'$(SolidWorksDir)' == ''">C:\Program Files\SOLIDWORKS Corp\SOLIDWORKS</SolidWorksDir>
+    <UseNuGetSolidWorksInterop Condition="'$(UseNuGetSolidWorksInterop)' == ''">false</UseNuGetSolidWorksInterop>
+    <SolidWorksInteropPackageVersion Condition="'$(SolidWorksInteropPackageVersion)' == ''">32.1.0</SolidWorksInteropPackageVersion>
   </PropertyGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition="'$(UseNuGetSolidWorksInterop)' != 'true'">
     <Reference Include="SolidWorks.Interop.sldworks">
       <HintPath>$(SolidWorksDir)\SolidWorks.Interop.sldworks.dll</HintPath>
       <Private>true</Private>
@@ -23,5 +25,9 @@
       <EmbedInteropTypes>false</EmbedInteropTypes>
     </Reference>
   </ItemGroup>
-</Project>
 
+  <ItemGroup Condition="'$(UseNuGetSolidWorksInterop)' == 'true'">
+    <PackageReference Include="SolidWorks.Interop.sldworks" Version="$(SolidWorksInteropPackageVersion)" />
+    <PackageReference Include="SolidWorks.Interop.swconst" Version="$(SolidWorksInteropPackageVersion)" />
+  </ItemGroup>
+</Project>

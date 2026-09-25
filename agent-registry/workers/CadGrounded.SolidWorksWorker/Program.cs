@@ -208,8 +208,8 @@ internal static class Program
 
     private static void PrintUsage()
     {
-        Console.WriteLine($"""
-CadGrounded.SolidWorksWorker v{Version}
+        Console.WriteLine($$"""
+CadGrounded.SolidWorksWorker v{{Version}}
 
 READ-ONLY COMMANDS
   status
@@ -221,7 +221,7 @@ READ-ONLY COMMANDS
   version
 
 execute-json request:
-  {{"command_id":"sw.status","payload":{{}}}}
+  {"command_id":"sw.status","payload":{}}
 
 serve-stdio:
   One compact JSON request per line; one compact JSON response per line.
