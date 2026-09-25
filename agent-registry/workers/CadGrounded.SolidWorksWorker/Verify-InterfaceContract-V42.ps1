@@ -12,7 +12,7 @@ $ErrorActionPreference = 'Stop'
 # This verifier is local-only. It does not create an asset, insert a component,
 # move/transform a component, create a mate, save, rebuild, or communicate with
 # the Remote Queue. It fails closed on any observation or no-mutation mismatch.
-$ExpectedWorkerVersion = '0.4.1'
+$ExpectedWorkerVersion = '0.4.2'
 $WorkerRoot = $PSScriptRoot
 . (Join-Path $WorkerRoot 'FileEvidence.ps1')
 . (Join-Path $WorkerRoot 'ComponentStateEvidence.ps1')

@@ -63,6 +63,43 @@ function Assert-InterfaceContractObservation {
     if ([string](Get-RequiredInterfaceObservationPropertyValue -Object $data -Name 'evidence' -Context $dataContext) -cne 'verified_from_solidworks_api') {
         throw 'Interface observation data.evidence must be verified_from_solidworks_api.'
     }
+    if ([string](Get-RequiredInterfaceObservationPropertyValue -Object $data -Name 'published_reference_manager_binding_state' -Context $dataContext) -cne 'VERIFIED_FEATURE_MANAGER_TREE_BRANCH') {
+        throw 'Published Reference manager binding must be VERIFIED_FEATURE_MANAGER_TREE_BRANCH.'
+    }
+    $publishedReferenceManagerBindingNote = [string](Get-RequiredInterfaceObservationPropertyValue -Object $data -Name 'published_reference_manager_binding_note' -Context $dataContext)
+    if ([string]::IsNullOrWhiteSpace($publishedReferenceManagerBindingNote)) {
+        throw 'Published Reference manager binding note must be non-empty.'
+    }
+    if ([string](Get-RequiredInterfaceObservationPropertyValue -Object $data -Name 'geometry_binding_state' -Context $dataContext) -cne 'UNRESOLVED') {
+        throw 'Published Asset connector geometry binding must remain UNRESOLVED.'
+    }
+    $interpretationNote = [string](Get-RequiredInterfaceObservationPropertyValue -Object $data -Name 'interpretation_note' -Context $dataContext)
+    if ([string]::IsNullOrWhiteSpace($interpretationNote)) {
+        throw 'Interface interpretation note must be non-empty.'
+    }
+    $apiProvenance = [string](Get-RequiredInterfaceObservationPropertyValue -Object $data -Name 'api' -Context $dataContext)
+    if ($apiProvenance -notlike '*IFeature.GetDefinition() -> ICoordinateSystemFeatureData -> Transform -> IMathTransform.ArrayData*') {
+        throw 'Interface observation API provenance must retain the CoordSys GetDefinition getter chain.'
+    }
+    if ($apiProvenance -notlike '*IModelDoc2.FeatureManager -> IFeatureManager.GetFeatureTreeRootItem2(swFeatMgrPaneBottom)*') {
+        throw 'Interface observation API provenance must retain the bounded FeatureManager-tree getter chain.'
+    }
+
+    $publishedReferenceManager = Get-RequiredInterfaceObservationPropertyValue -Object $data -Name 'published_reference_manager' -Context $dataContext
+    $publishedReferenceManagerContext = 'Published References manager tree observation'
+    if ([string](Get-RequiredInterfaceObservationPropertyValue -Object $publishedReferenceManager -Name 'displayed_tree_text' -Context $publishedReferenceManagerContext) -cne 'Published References') {
+        throw 'Published References manager displayed tree text must exactly equal Published References.'
+    }
+    if ([string](Get-RequiredInterfaceObservationPropertyValue -Object $publishedReferenceManager -Name 'feature_name' -Context $publishedReferenceManagerContext) -cne 'Published References') {
+        throw 'Published References manager IFeature.Name must exactly equal Published References.'
+    }
+    if ([string](Get-RequiredInterfaceObservationPropertyValue -Object $publishedReferenceManager -Name 'feature_type' -Context $publishedReferenceManagerContext) -cne 'ConnectRefMgr') {
+        throw 'Published References manager IFeature.GetTypeName2() must exactly equal ConnectRefMgr.'
+    }
+    $publishedReferenceManagerTreePath = [string](Get-RequiredInterfaceObservationPropertyValue -Object $publishedReferenceManager -Name 'tree_path' -Context $publishedReferenceManagerContext)
+    if ([string]::IsNullOrWhiteSpace($publishedReferenceManagerTreePath)) {
+        throw 'Published References manager tree_path must be non-empty.'
+    }
 
     $document = Get-RequiredInterfaceObservationPropertyValue -Object $data -Name 'document' -Context $dataContext
     $documentContext = 'interface contract document'
@@ -121,7 +158,26 @@ function Assert-InterfaceContractObservation {
         if ([string](Get-RequiredInterfaceObservationPropertyValue -Object $row -Name 'feature_type' -Context "Published Reference connector '$name'") -cne 'MagneticConnectRef') {
             throw "Published Reference connector '$name' did not report feature_type MagneticConnectRef."
         }
-        $connectorSummary[$name] = [ordered]@{ feature_type = 'MagneticConnectRef' }
+        $treePath = [string](Get-RequiredInterfaceObservationPropertyValue -Object $row -Name 'tree_path' -Context "Published Reference connector '$name'")
+        if ([string]::IsNullOrWhiteSpace($treePath)) {
+            throw "Published Reference connector '$name' tree_path must be non-empty."
+        }
+        if ([string](Get-RequiredInterfaceObservationPropertyValue -Object $row -Name 'parent_tree_text' -Context "Published Reference connector '$name'") -cne 'Published References') {
+            throw "Published Reference connector '$name' must be under displayed tree parent Published References."
+        }
+        if ([string](Get-RequiredInterfaceObservationPropertyValue -Object $row -Name 'parent_feature_name' -Context "Published Reference connector '$name'") -cne 'Published References') {
+            throw "Published Reference connector '$name' parent IFeature.Name must be Published References."
+        }
+        if ([string](Get-RequiredInterfaceObservationPropertyValue -Object $row -Name 'parent_feature_type' -Context "Published Reference connector '$name'") -cne 'ConnectRefMgr') {
+            throw "Published Reference connector '$name' parent IFeature.GetTypeName2() must be ConnectRefMgr."
+        }
+        $connectorSummary[$name] = [ordered]@{
+            feature_type = 'MagneticConnectRef'
+            tree_path = $treePath
+            parent_tree_text = 'Published References'
+            parent_feature_name = 'Published References'
+            parent_feature_type = 'ConnectRefMgr'
+        }
     }
 
     return [ordered]@{
@@ -133,6 +189,12 @@ function Assert-InterfaceContractObservation {
             save_flag = Get-RequiredInterfaceObservationPropertyValue -Object $document -Name 'save_flag' -Context $documentContext
         }
         coordinate_systems = $coordinateSummary
+        published_reference_manager = [ordered]@{
+            displayed_tree_text = 'Published References'
+            feature_name = 'Published References'
+            feature_type = 'ConnectRefMgr'
+            tree_path = $publishedReferenceManagerTreePath
+        }
         published_reference_features = $connectorSummary
     }
 }

@@ -21,7 +21,7 @@ simulation.
 
 ## Required observation contract: `V42_CAPTURE_OWNER_BINDING_V1`
 
-The Windows/SOLIDWORKS host must run the rebuilt v0.4.1 worker through:
+The Windows/SOLIDWORKS host must run the rebuilt v0.4.2 worker through:
 
 ```powershell
 .\Verify-QueryMates-V42.ps1

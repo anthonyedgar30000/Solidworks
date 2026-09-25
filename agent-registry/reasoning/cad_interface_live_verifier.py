@@ -7,9 +7,10 @@ driver: it does not attach to SOLIDWORKS, mutate a document, rebaseline a
 contract, or grant mechanical acceptance.
 
 In particular, the bounded native observation implemented for v1 can identify
-named ``MagneticConnectRef`` features and named ``CoordSys`` transforms.  It
-does *not* establish geometric coincidence between a Published Asset connector
-and a coordinate system.  That claim stays UNRESOLVED here.
+named ``MagneticConnectRef`` features under the exact FeatureManager
+``Published References`` / ``ConnectRefMgr`` branch and named ``CoordSys``
+transforms.  It does *not* establish geometric coincidence between a Published
+Asset connector and a coordinate system.  That claim stays UNRESOLVED here.
 """
 
 from __future__ import annotations
@@ -29,6 +30,19 @@ class CADInterfaceLiveVerificationError(ValueError):
 
 EXPECTED_COMMAND_ID = "sw.query_interface_contract"
 EXPECTED_SOURCE_CLASSIFICATION = "verified_from_solidworks_api"
+EXPECTED_PUBLISHED_REFERENCE_MANAGER_BINDING_STATE = (
+    "VERIFIED_FEATURE_MANAGER_TREE_BRANCH"
+)
+EXPECTED_PUBLISHED_REFERENCE_MANAGER_TEXT = "Published References"
+EXPECTED_PUBLISHED_REFERENCE_MANAGER_TYPE = "ConnectRefMgr"
+EXPECTED_COORDSYS_API_PROVENANCE = (
+    "IFeature.GetDefinition() -> ICoordinateSystemFeatureData -> Transform -> "
+    "IMathTransform.ArrayData"
+)
+EXPECTED_FEATURE_MANAGER_API_PROVENANCE = (
+    "IModelDoc2.FeatureManager -> "
+    "IFeatureManager.GetFeatureTreeRootItem2(swFeatMgrPaneBottom)"
+)
 LIVE_STATE_VERIFIED = "VERIFIED_CURRENT"
 LIVE_STATE_STALE = "STALE_STATE"
 LIVE_STATE_DRIFT = "DRIFT_DETECTED"
@@ -144,6 +158,131 @@ def _expected_interfaces(contract: Mapping[str, Any]) -> tuple[dict[str, Mapping
             "frame": interface["api_frame"],
         }
     return published, frames
+
+
+def _validate_published_reference_manager_binding(
+    data: Mapping[str, Any],
+    authority_issues: list[dict[str, str]],
+    drift_issues: list[dict[str, str]],
+    observation_issues: list[dict[str, str]],
+) -> bool:
+    """Validate the bounded FeatureManager branch required for connector identity.
+
+    This is intentionally only an identity/parentage check.  The tree branch
+    does not expose or prove connector point/direction geometry.
+    """
+
+    if (
+        data.get("published_reference_manager_binding_state")
+        != EXPECTED_PUBLISHED_REFERENCE_MANAGER_BINDING_STATE
+    ):
+        authority_issues.append(
+            _issue(
+                "PUBLISHED_REFERENCE_MANAGER_BINDING_REJECTED",
+                "Native observation did not verify the required bounded "
+                "FeatureManager Published References branch.",
+                path="data.published_reference_manager_binding_state",
+            )
+        )
+        return False
+
+    try:
+        manager = _object(
+            data.get("published_reference_manager"),
+            "observation.data.published_reference_manager",
+        )
+        displayed_text = _string(
+            manager.get("displayed_tree_text"),
+            "observation.data.published_reference_manager.displayed_tree_text",
+        )
+        feature_name = _string(
+            manager.get("feature_name"),
+            "observation.data.published_reference_manager.feature_name",
+        )
+        feature_type = _string(
+            manager.get("feature_type"),
+            "observation.data.published_reference_manager.feature_type",
+        )
+        _string(
+            manager.get("tree_path"),
+            "observation.data.published_reference_manager.tree_path",
+        )
+    except CADInterfaceLiveVerificationError as error:
+        observation_issues.append(
+            _issue(
+                "MALFORMED_OBSERVATION",
+                str(error),
+                path="data.published_reference_manager",
+            )
+        )
+        return False
+
+    matches = (
+        displayed_text == EXPECTED_PUBLISHED_REFERENCE_MANAGER_TEXT
+        and feature_name == EXPECTED_PUBLISHED_REFERENCE_MANAGER_TEXT
+        and feature_type == EXPECTED_PUBLISHED_REFERENCE_MANAGER_TYPE
+    )
+    if not matches:
+        drift_issues.append(
+            _issue(
+                "PUBLISHED_REFERENCE_MANAGER_BRANCH_DRIFT",
+                "Expected exact FeatureManager manager branch "
+                "displayed/name='Published References' and type='ConnectRefMgr'.",
+                path="data.published_reference_manager",
+            )
+        )
+        return False
+    return True
+
+
+def _validate_published_reference_parent_branch(
+    row: Mapping[str, Any],
+    connector_name: str,
+    drift_issues: list[dict[str, str]],
+    observation_issues: list[dict[str, str]],
+) -> bool:
+    try:
+        _string(
+            row.get("tree_path"),
+            f"data.published_reference_features[{connector_name}].tree_path",
+        )
+        parent_tree_text = _string(
+            row.get("parent_tree_text"),
+            f"data.published_reference_features[{connector_name}].parent_tree_text",
+        )
+        parent_feature_name = _string(
+            row.get("parent_feature_name"),
+            f"data.published_reference_features[{connector_name}].parent_feature_name",
+        )
+        parent_feature_type = _string(
+            row.get("parent_feature_type"),
+            f"data.published_reference_features[{connector_name}].parent_feature_type",
+        )
+    except CADInterfaceLiveVerificationError as error:
+        observation_issues.append(
+            _issue(
+                "MALFORMED_OBSERVATION",
+                str(error),
+                path=f"data.published_reference_features[{connector_name}]",
+            )
+        )
+        return False
+
+    if (
+        parent_tree_text != EXPECTED_PUBLISHED_REFERENCE_MANAGER_TEXT
+        or parent_feature_name != EXPECTED_PUBLISHED_REFERENCE_MANAGER_TEXT
+        or parent_feature_type != EXPECTED_PUBLISHED_REFERENCE_MANAGER_TYPE
+    ):
+        drift_issues.append(
+            _issue(
+                "PUBLISHED_REFERENCE_PARENT_BRANCH_DRIFT",
+                f"Connector '{connector_name}' must be a direct child of exact "
+                "Published References / ConnectRefMgr FeatureManager branch.",
+                path=f"data.published_reference_features[{connector_name}]",
+            )
+        )
+        return False
+    return True
 
 
 def _state_for_issues(
@@ -322,6 +461,46 @@ def verify_live_interface_contract(
                 path="data.evidence",
             )
         )
+    if data.get("geometry_binding_state") != "UNRESOLVED":
+        authority_issues.append(
+            _issue(
+                "GEOMETRY_SCOPE_REJECTED",
+                "Native query must retain Published Asset connector geometry binding as UNRESOLVED.",
+                path="data.geometry_binding_state",
+            )
+        )
+
+    try:
+        _string(
+            data.get("published_reference_manager_binding_note"),
+            "observation.data.published_reference_manager_binding_note",
+        )
+        _string(
+            data.get("interpretation_note"),
+            "observation.data.interpretation_note",
+        )
+        api_provenance = _string(data.get("api"), "observation.data.api")
+    except CADInterfaceLiveVerificationError as error:
+        observation_issues.append(
+            _issue("MALFORMED_OBSERVATION", str(error), path="data")
+        )
+    else:
+        if EXPECTED_COORDSYS_API_PROVENANCE not in api_provenance:
+            authority_issues.append(
+                _issue(
+                    "COORDSYS_PROVENANCE_REJECTED",
+                    "Native observation must retain the bounded CoordSys GetDefinition getter chain.",
+                    path="data.api",
+                )
+            )
+        if EXPECTED_FEATURE_MANAGER_API_PROVENANCE not in api_provenance:
+            authority_issues.append(
+                _issue(
+                    "PUBLISHED_REFERENCE_PROVENANCE_REJECTED",
+                    "Native observation must retain the bounded FeatureManager-tree getter chain.",
+                    path="data.api",
+                )
+            )
 
     try:
         observed_document = _object(data.get("document"), "observation.data.document")
@@ -365,6 +544,12 @@ def verify_live_interface_contract(
         observed_document = None
 
     expected_connectors, expected_frames = _expected_interfaces(contract)
+    manager_binding_verified = _validate_published_reference_manager_binding(
+        data,
+        authority_issues,
+        drift_issues,
+        observation_issues,
+    )
     observed_connectors = _index_observed_rows(
         data.get("published_reference_features"),
         "connector_name",
@@ -422,6 +607,17 @@ def verify_live_interface_contract(
                     path=f"data.published_reference_features[{connector_name}].feature_type",
                 )
             )
+            connector_verified_by_interface[interface_id] = False
+            continue
+        if not manager_binding_verified:
+            connector_verified_by_interface[interface_id] = False
+            continue
+        if not _validate_published_reference_parent_branch(
+            row,
+            connector_name,
+            drift_issues,
+            observation_issues,
+        ):
             connector_verified_by_interface[interface_id] = False
             continue
         connector_verified_by_interface[interface_id] = True

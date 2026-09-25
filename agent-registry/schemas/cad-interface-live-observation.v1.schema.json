@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://cadgrounded.local/schemas/cad-interface-live-observation.v1.schema.json",
   "title": "CADGrounded read-only CAD interface live observation v1",
-  "description": "Successful local-only sw.query_interface_contract observation. It proves bounded feature/frame observation only and explicitly cannot prove connector-to-coordinate-system geometric coincidence.",
+  "description": "Successful local-only sw.query_interface_contract observation. It proves bounded coordinate-system and Published References FeatureManager-tree identity observation only and explicitly cannot prove connector-to-coordinate-system geometric coincidence.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -107,7 +107,11 @@
       "additionalProperties": false,
       "required": [
         "connector_name",
-        "feature_type"
+        "feature_type",
+        "tree_path",
+        "parent_tree_text",
+        "parent_feature_name",
+        "parent_feature_type"
       ],
       "properties": {
         "connector_name": {
@@ -115,6 +119,42 @@
         },
         "feature_type": {
           "const": "MagneticConnectRef"
+        },
+        "tree_path": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "parent_tree_text": {
+          "const": "Published References"
+        },
+        "parent_feature_name": {
+          "const": "Published References"
+        },
+        "parent_feature_type": {
+          "const": "ConnectRefMgr"
+        }
+      }
+    },
+    "publishedReferenceManager": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "displayed_tree_text",
+        "feature_name",
+        "feature_type",
+        "tree_path"
+      ],
+      "properties": {
+        "displayed_tree_text": {
+          "const": "Published References"
+        },
+        "feature_name": {
+          "const": "Published References"
+        },
+        "feature_type": {
+          "const": "ConnectRefMgr"
+        },
+        "tree_path": {
+          "$ref": "#/$defs/nonEmptyString"
         }
       }
     },
@@ -152,6 +192,7 @@
         "request",
         "coordinate_systems",
         "published_reference_features",
+        "published_reference_manager",
         "result_scope",
         "published_reference_manager_binding_state",
         "published_reference_manager_binding_note",
@@ -183,11 +224,14 @@
             "$ref": "#/$defs/publishedReference"
           }
         },
+        "published_reference_manager": {
+          "$ref": "#/$defs/publishedReferenceManager"
+        },
         "result_scope": {
           "const": "EXACT_NAMED_FEATURES_ONLY"
         },
         "published_reference_manager_binding_state": {
-          "const": "UNRESOLVED"
+          "const": "VERIFIED_FEATURE_MANAGER_TREE_BRANCH"
         },
         "published_reference_manager_binding_note": {
           "$ref": "#/$defs/nonEmptyString"

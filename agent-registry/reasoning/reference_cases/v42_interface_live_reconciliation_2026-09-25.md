@@ -46,9 +46,34 @@ evidence has its own authority and creates an unresolved
 either API-negative result into verified connector geometry, and it does not
 authorize a contract rebaseline or a CAD change.
 
-The smallest next test is the separate local-only
-`sw.diagnose_feature_manager_tree` read: traverse the visible FeatureManager
-tree, retain only the exact tree texts `Published References`, `Ground Plane`,
-`Connector1`, and `Connector2`, and record their `ITreeControlItem` metadata.
-The unchanged exact `sw.query_interface_contract` reader remains fail-closed
-until an authoritative read path is separately established and reviewed.
+At PR #20 head `17d6c6a61b7af4fa596ee2b865117406e9fe0cb7`, the subsequent
+local-only `sw.diagnose_feature_manager_tree` observation established the
+missing representation binding:
+
+- exactly one `Published References` node at tree path `0.8`, with a non-null
+  COM object resolving to `IFeature`, `Name="Published References"`, and
+  `GetTypeName2()="ConnectRefMgr"`;
+- exactly one `Ground Plane` node at `0.8.0`, resolving to an `IFeature` of
+  type `MagneticConnectRef`;
+- exactly one `Connector1` node at `0.8.1`, resolving to `IFeature`,
+  `Name="Connector1"`, type `MagneticConnectRef`; and
+- exactly one `Connector2` node at `0.8.2`, resolving to `IFeature`,
+  `Name="Connector2"`, type `MagneticConnectRef`.
+
+The diagnostic state was `ALL_REQUESTED_TREE_TEXTS_OBSERVED` with
+`model_mutation=false`, `write_authority=NONE`, and
+`remote_queue_authorized=false`. This resolves the **API observation-surface /
+representation mismatch** for connector identity and parentage: the Asset
+Publisher objects are exposed under the visible FeatureManager-tree surface,
+not by `IAssemblyDoc.FeatureByName` or ordinary model-feature traversal. The
+earlier negatives remain preserved evidence about those two distinct API
+surfaces; they do not become a CAD-state failure.
+
+The bounded `sw.query_interface_contract` reader is therefore updated to use
+the reviewed FeatureManager-tree branch for Published Reference identity/type
+and direct parentage while retaining the already verified `CoordSys`
+`GetDefinition()` transform path. A fresh run of that updated query and its
+pre/post no-mutation verifier is still required before any interface state can
+be `VERIFIED_CURRENT`. Connector point/direction geometry and Published Asset
+↔ coordinate-system geometric coincidence remain `UNRESOLVED`; no mechanical
+acceptance follows.

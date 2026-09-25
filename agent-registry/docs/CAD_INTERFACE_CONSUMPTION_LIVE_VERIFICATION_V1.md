@@ -17,9 +17,9 @@ The source contract remains `reasoning/reference_cases/v42_product_flow.cad-inte
 
 The local worker command is `sw.query_interface_contract`.
 
-Its request requires exact coordinate-system feature names and exact connector feature names. It returns only exact matching `CoordSys` transform records and `MagneticConnectRef` name/type records. A missing, duplicate, wrong-type, or unreadable target fails closed. The command is in the C# worker's local read-only allowlist only; it is not a `CADRequest`, is not in either Remote Queue allowlist/schema, and has `write_authority: NONE`.
+Its request requires exact coordinate-system feature names and exact connector feature names. It returns only exact matching `CoordSys` transform records plus `MagneticConnectRef` identity/type records bound to their exact FeatureManager parent branch. A missing, duplicate, null-object, non-`IFeature`, wrong-name, wrong-type, or wrong-parent target fails closed. The command is in the C# worker's local read-only allowlist only; it is not a `CADRequest`, is not in either Remote Queue allowlist/schema, and has `write_authority: NONE`.
 
-The command uses a bounded `IFeature` traversal and `IFeature.GetDefinition() -> ICoordinateSystemFeatureData -> Transform -> IMathTransform.ArrayData` getter chain for `CoordSys` features. It does not call a generic execute-code interface.
+The command uses a bounded ordinary `IFeature` traversal and `IFeature.GetDefinition() -> ICoordinateSystemFeatureData -> Transform -> IMathTransform.ArrayData` getter chain for `CoordSys` features. For Published References, it uses `IModelDoc2.FeatureManager -> IFeatureManager.GetFeatureTreeRootItem2(swFeatMgrPaneBottom) -> ITreeControlItem.Text/GetFirstChild/GetNext/Object -> IFeature.Name/GetTypeName2`, requires exactly one `Published References` / `ConnectRefMgr` node, and requires every requested connector as an exact direct child of that branch. It does not call a generic execute-code interface.
 
 When exact Published Reference discovery fails, the separate local-only
 `sw.diagnose_interface_connectors` command compares
@@ -40,9 +40,11 @@ local-only `sw.diagnose_feature_manager_tree` diagnostic then traverses
 `Published References`, `Ground Plane`, `Connector1`, and `Connector2`. For
 each observed node it records displayed text, depth/path, `ObjectType`, whether
 `ITreeControlItem.Object` is null, its runtime .NET/COM classification, and
-`IFeature` name/type only when that object resolves to `IFeature`. This is a
-representation probe only: it preserves the direct and ordinary feature-path
-negatives and cannot silently change the exact Published Reference reader.
+`IFeature` name/type only when that object resolves to `IFeature`. The reviewed
+contract reader now consumes this same bounded path for exact Published
+References parentage/identity. It preserves the direct and ordinary
+feature-path negatives as diagnostic evidence; they are not a live-CAD absence
+claim.
 
 ## Live verifier outcome states
 
@@ -56,7 +58,7 @@ negatives and cannot silently change the exact Published Reference reader.
 | `AUTHORITY_REJECTED` | Source classification, command scope, write/mutation declaration, or observation scope is invalid. | Reject the observation. |
 | `OBSERVATION_REJECTED` | Required observation fields are absent or internally inconsistent. | Reject the observation. |
 
-The Windows host script `Verify-InterfaceContract-V42.ps1` adds a no-mutation gate: exact active document/configuration/save flag, stable shared-read assembly-file evidence, and complete component state are compared before and after the connector diagnostic, FeatureManager-tree diagnostic, and local interface query. `sw.diagnose_interface_connectors.raw.json`, `connector-diagnostic-summary.json`, `sw.diagnose_feature_manager_tree.raw.json`, and `feature-manager-tree-diagnostic-summary.json` are written before the unchanged exact interface query runs, so they remain available if that query fails closed. A successful script result is an evidence artifact for review, not an automatic `EvidenceRecord` admission or mechanical acceptance.
+The Windows host script `Verify-InterfaceContract-V42.ps1` adds a no-mutation gate: exact active document/configuration/save flag, stable shared-read assembly-file evidence, and complete component state are compared before and after the connector diagnostic, FeatureManager-tree diagnostic, and local interface query. `sw.diagnose_interface_connectors.raw.json`, `connector-diagnostic-summary.json`, `sw.diagnose_feature_manager_tree.raw.json`, and `feature-manager-tree-diagnostic-summary.json` are written before the bounded exact interface query runs, so they remain available if that query fails closed. A successful script result is an evidence artifact for review, not an automatic `EvidenceRecord` admission or mechanical acceptance.
 
 ## Authority and unresolved geometry
 
@@ -95,7 +97,7 @@ Frame alignment does not establish connector coincidence, snap/mate behavior, co
 
 - `test_cad_interface_live_verifier.py` covers stale evidence, document/type/transform drift, source/mutation rejection, required-field failure, bounded result scope, and the preserved geometry-coincidence boundary.
 - `test_cad_interface_consumption.py` proves transform composition and inverse algebra, the v42 declared transform, and non-authorization after a fresh frame check.
-- `Test-InterfaceContractEvidence.ps1` exercises strict PowerShell normalization of a local worker envelope.
+- `Test-InterfaceContractEvidence.ps1` exercises strict PowerShell normalization of a local worker envelope, including exact `Published References` / `ConnectRefMgr` parent-branch rejection.
 - `Test-InterfaceConnectorDiagnosticEvidence.ps1` exercises strict direct-lookup/traversal diagnostic normalization without promoting connector evidence.
 - `Test-FeatureManagerTreeDiagnosticEvidence.ps1` exercises strict visible-tree text/object normalization, including null `ITreeControlItem.Object` and bounded exact-text rejection.
 - GitHub Actions compiles the Windows worker and runs the PowerShell normalization tests, plus deterministic Python tests.

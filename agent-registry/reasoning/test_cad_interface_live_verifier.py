@@ -50,11 +50,24 @@ def current_observation(contract):
                     for interface in contract["interfaces"]
                 ],
             },
-            "published_reference_manager_binding_state": "UNRESOLVED",
-            "published_reference_manager_binding_note": "Bounded feature record only.",
+            "published_reference_manager_binding_state": "VERIFIED_FEATURE_MANAGER_TREE_BRANCH",
+            "published_reference_manager_binding_note": (
+                "Exact Published References / ConnectRefMgr FeatureManager branch only."
+            ),
+            "published_reference_manager": {
+                "displayed_tree_text": "Published References",
+                "feature_name": "Published References",
+                "feature_type": "ConnectRefMgr",
+                "tree_path": "0.8",
+            },
             "geometry_binding_state": "UNRESOLVED",
             "interpretation_note": "Interface alignment observation only.",
-            "api": "IFeature traversal -> IMathTransform.ArrayData",
+            "api": (
+                "IFeature.GetDefinition() -> ICoordinateSystemFeatureData -> Transform -> "
+                "IMathTransform.ArrayData; IModelDoc2.FeatureManager -> "
+                "IFeatureManager.GetFeatureTreeRootItem2(swFeatMgrPaneBottom) -> "
+                "ITreeControlItem.Text/GetFirstChild/GetNext/Object -> IFeature.Name/GetTypeName2"
+            ),
             "document": {
                 "title": contract["document"]["title_exact"],
                 "path": contract["document"]["path_exact"],
@@ -66,6 +79,14 @@ def current_observation(contract):
                 {
                     "connector_name": interface["native_published_reference"]["connector_name"],
                     "feature_type": interface["native_published_reference"]["feature_type"],
+                    "tree_path": (
+                        "0.8.2"
+                        if interface["native_published_reference"]["connector_name"] == "Connector2"
+                        else "0.8.1"
+                    ),
+                    "parent_tree_text": "Published References",
+                    "parent_feature_name": "Published References",
+                    "parent_feature_type": "ConnectRefMgr",
                 }
                 for interface in contract["interfaces"]
             ],
@@ -115,6 +136,16 @@ class CADInterfaceLiveVerifierTests(unittest.TestCase):
         self.assertIs(data["model_mutation"]["const"], False)
         self.assertEqual(data["write_authority"]["const"], "NONE")
         self.assertEqual(data["geometry_binding_state"]["const"], "UNRESOLVED")
+        self.assertEqual(
+            data["published_reference_manager_binding_state"]["const"],
+            "VERIFIED_FEATURE_MANAGER_TREE_BRANCH",
+        )
+        self.assertEqual(
+            schema["$defs"]["publishedReferenceManager"]["properties"]["feature_type"][
+                "const"
+            ],
+            "ConnectRefMgr",
+        )
 
     def test_native_interface_query_is_not_promoted_to_either_remote_queue(self):
         for queue_config in REMOTE_QUEUE_CONFIGS:
@@ -180,6 +211,32 @@ class CADInterfaceLiveVerifierTests(unittest.TestCase):
         self.assertEqual(report["live_verification_state"], LIVE_STATE_DRIFT)
         self.assertIn(
             "PUBLISHED_REFERENCE_TYPE_DRIFT",
+            {issue["code"] for issue in report["drift_issues"]},
+        )
+
+    def test_connector_outside_exact_published_references_branch_fails(self):
+        case = copy.deepcopy(self.observation)
+        case["data"]["published_reference_features"][0][
+            "parent_feature_type"
+        ] = "OtherFeature"
+
+        report = verify_live_interface_contract(self.contract, case)
+
+        self.assertEqual(report["live_verification_state"], LIVE_STATE_DRIFT)
+        self.assertIn(
+            "PUBLISHED_REFERENCE_PARENT_BRANCH_DRIFT",
+            {issue["code"] for issue in report["drift_issues"]},
+        )
+
+    def test_published_references_manager_type_drift_fails(self):
+        case = copy.deepcopy(self.observation)
+        case["data"]["published_reference_manager"]["feature_type"] = "OtherFeature"
+
+        report = verify_live_interface_contract(self.contract, case)
+
+        self.assertEqual(report["live_verification_state"], LIVE_STATE_DRIFT)
+        self.assertIn(
+            "PUBLISHED_REFERENCE_MANAGER_BRANCH_DRIFT",
             {issue["code"] for issue in report["drift_issues"]},
         )
 

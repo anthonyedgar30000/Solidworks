@@ -2,8 +2,9 @@
 """Static regression boundaries for the local native interface-contract probe.
 
 These source-level checks do not substitute for a SOLIDWORKS host observation.
-They ensure that the bounded CoordSys read path remains explicit and separate
-from the generic mate-specific-feature path before native-host verification.
+They ensure that the bounded CoordSys and Published References FeatureManager
+read paths remain explicit and separate from generic feature surfaces before
+native-host verification.
 """
 
 import unittest
@@ -90,15 +91,43 @@ class NativeInterfaceContractProbeTests(unittest.TestCase):
                 "sw.diagnose_interface_connectors", contents, msg=str(queue_config)
             )
 
-    def test_existing_interface_reader_stays_exact_and_traversal_bound(self):
+    def test_interface_reader_uses_exact_feature_manager_published_references_branch(self):
+        query_start = self.program.index("public object QueryInterfaceContract")
+        query_end = self.program.index("public object DiagnoseInterfaceConnectors", query_start)
+        query = self.program[query_start:query_end]
+
         self.assertIn("var features = EnumerateFeatures().ToArray();", self.program)
         self.assertIn(
-            'RequireExactFeature(features, name, "MagneticConnectRef", "Published Reference connector")',
-            self.program,
+            'RequireExactFeature(features, name, "CoordSys", "coordinate system")',
+            query,
+        )
+        self.assertIn(
+            "ReadPublishedReferenceBindingFromFeatureManagerTree(",
+            query,
         )
         self.assertNotIn(
-            "ReadPublishedReferenceFeatureFromDirectLookup",
-            self.program,
+            'RequireExactFeature(features, name, "MagneticConnectRef", "Published Reference connector")',
+            query,
+        )
+        self.assertNotIn("FeatureByName", query)
+        for expected in (
+            '"Published References"',
+            '"ConnectRefMgr"',
+            '"MagneticConnectRef"',
+            "GetFeatureTreeRootItem2",
+            "GetFirstChild",
+            "GetNext",
+            "parent_tree_path",
+            "published_reference_connector_tree_match_not_unique",
+            "feature_manager_tree_object_unavailable",
+            "feature_manager_tree_feature_name_mismatch",
+            "feature_manager_tree_feature_type_mismatch",
+            "VERIFIED_FEATURE_MANAGER_TREE_BRANCH",
+        ):
+            self.assertIn(expected, self.program)
+        self.assertIn(
+            "published_reference_manager = publishedReferenceBinding.published_reference_manager",
+            query,
         )
 
     def test_feature_manager_tree_diagnostic_is_bounded_and_separate(self):

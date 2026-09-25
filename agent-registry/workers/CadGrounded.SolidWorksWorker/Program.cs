@@ -9,7 +9,7 @@ namespace CadGrounded.SolidWorksWorker;
 
 internal static class Program
 {
-    internal const string Version = "0.4.1";
+    internal const string Version = "0.4.2";
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         WriteIndented = true,
@@ -672,9 +672,10 @@ internal sealed class SolidWorksSession : IDisposable
         string[] publishedReferenceConnectorNames)
     {
         // This is intentionally a local, bounded getter-only surface. It reads
-        // only exact feature records named in the request and the transform of
-        // exact CoordSys records. It never selects, edits, rebuilds, saves, or
-        // creates an Asset Publisher connection.
+        // exact CoordSys records and the exact named connector nodes beneath
+        // the visible Published References / ConnectRefMgr tree branch. It
+        // never selects, edits, rebuilds, saves, or creates an Asset Publisher
+        // connection.
         RequireAssembly();
 
         var features = EnumerateFeatures().ToArray();
@@ -682,10 +683,9 @@ internal sealed class SolidWorksSession : IDisposable
             .Select(name => ReadCoordinateSystemFeature(
                 RequireExactFeature(features, name, "CoordSys", "coordinate system")))
             .ToArray();
-        var publishedReferences = publishedReferenceConnectorNames
-            .Select(name => ReadPublishedReferenceFeature(
-                RequireExactFeature(features, name, "MagneticConnectRef", "Published Reference connector")))
-            .ToArray();
+        var publishedReferenceBinding =
+            ReadPublishedReferenceBindingFromFeatureManagerTree(
+                publishedReferenceConnectorNames);
 
         return new
         {
@@ -696,13 +696,14 @@ internal sealed class SolidWorksSession : IDisposable
                 published_reference_connector_names = publishedReferenceConnectorNames
             },
             coordinate_systems = coordinateSystems,
-            published_reference_features = publishedReferences,
+            published_reference_features = publishedReferenceBinding.published_reference_features,
+            published_reference_manager = publishedReferenceBinding.published_reference_manager,
             result_scope = "EXACT_NAMED_FEATURES_ONLY",
-            published_reference_manager_binding_state = "UNRESOLVED",
+            published_reference_manager_binding_state = "VERIFIED_FEATURE_MANAGER_TREE_BRANCH",
             published_reference_manager_binding_note =
-                "The bounded IFeature query verifies exact connector feature name/type only. " +
-                "Published References manager grouping and connector-to-coordinate-system geometry " +
-                "are not inferred from this observation.",
+                "The bounded FeatureManager-tree query verified the exact Published References / " +
+                "ConnectRefMgr branch and exact direct-child MagneticConnectRef identities. " +
+                "Connector-to-coordinate-system geometry is not inferred from this observation.",
             geometry_binding_state = "UNRESOLVED",
             interpretation_note =
                 "Matching named coordinate-system frames is an interface alignment observation only. " +
@@ -711,7 +712,9 @@ internal sealed class SolidWorksSession : IDisposable
             api =
                 "IModelDoc2.FirstFeature/GetNextFeature + IFeature.GetFirstSubFeature/GetNextSubFeature " +
                 "-> IFeature.GetDefinition() -> ICoordinateSystemFeatureData -> Transform -> " +
-                "IMathTransform.ArrayData",
+                "IMathTransform.ArrayData; IModelDoc2.FeatureManager -> " +
+                "IFeatureManager.GetFeatureTreeRootItem2(swFeatMgrPaneBottom) -> " +
+                "ITreeControlItem.Text/GetFirstChild/GetNext/Object -> IFeature.Name/GetTypeName2",
             model_mutation = false,
             write_authority = "NONE",
             evidence = "verified_from_solidworks_api"
@@ -862,6 +865,218 @@ internal sealed class SolidWorksSession : IDisposable
         }
 
         return root;
+    }
+
+    private FeatureManagerPublishedReferenceBinding
+        ReadPublishedReferenceBindingFromFeatureManagerTree(string[] connectorNames)
+    {
+        if (connectorNames.Distinct(StringComparer.Ordinal).Count() != connectorNames.Length)
+        {
+            throw new CadGroundedException(
+                "published_reference_connector_request_not_unique",
+                "Published Reference connector names must be exact and unique in one bounded request.");
+        }
+
+        var root = RequireFeatureManagerTreeRoot();
+        var nodes = EnumerateFeatureManagerTreeNodes(root).ToArray();
+        var managerMatches = nodes
+            .Where(node => string.Equals(
+                node.displayed_tree_text,
+                "Published References",
+                StringComparison.Ordinal))
+            .ToArray();
+
+        if (managerMatches.Length != 1)
+        {
+            throw new CadGroundedException(
+                "published_reference_manager_tree_match_not_unique",
+                "Exact Published References manager tree matching must be unique. " +
+                $"matches={managerMatches.Length}, displayed_text='Published References'.");
+        }
+
+        var managerNode = managerMatches[0];
+        var managerFeature = RequireFeatureManagerTreeFeature(
+            managerNode,
+            expectedDisplayedText: "Published References",
+            expectedFeatureName: "Published References",
+            expectedFeatureType: "ConnectRefMgr",
+            featureKind: "Published References manager");
+        var managerObservation = new PublishedReferenceManagerObservation(
+            displayed_tree_text: managerNode.displayed_tree_text,
+            feature_name: managerFeature.Name,
+            feature_type: managerFeature.GetTypeName2(),
+            tree_path: managerNode.tree_path);
+
+        var connectorObservations = connectorNames
+            .Select(name => ReadPublishedReferenceConnectorFromFeatureManagerTree(
+                nodes,
+                managerNode,
+                managerObservation,
+                name))
+            .ToArray();
+
+        return new FeatureManagerPublishedReferenceBinding(
+            published_reference_manager: managerObservation,
+            published_reference_features: connectorObservations);
+    }
+
+    private static PublishedReferenceFeatureObservation
+        ReadPublishedReferenceConnectorFromFeatureManagerTree(
+            IEnumerable<FeatureManagerTreeNode> nodes,
+            FeatureManagerTreeNode managerNode,
+            PublishedReferenceManagerObservation managerObservation,
+            string connectorName)
+    {
+        var connectorMatches = nodes
+            .Where(node => string.Equals(
+                node.parent_tree_path,
+                managerNode.tree_path,
+                StringComparison.Ordinal))
+            .Where(node => string.Equals(
+                node.displayed_tree_text,
+                connectorName,
+                StringComparison.Ordinal))
+            .ToArray();
+
+        if (connectorMatches.Length != 1)
+        {
+            throw new CadGroundedException(
+                "published_reference_connector_tree_match_not_unique",
+                "Exact Published Reference connector tree matching must be unique under the " +
+                "exact Published References / ConnectRefMgr branch. " +
+                $"matches={connectorMatches.Length}, connector='{connectorName}', " +
+                $"parent_tree_path='{managerNode.tree_path}'.");
+        }
+
+        var connectorNode = connectorMatches[0];
+        var connectorFeature = RequireFeatureManagerTreeFeature(
+            connectorNode,
+            expectedDisplayedText: connectorName,
+            expectedFeatureName: connectorName,
+            expectedFeatureType: "MagneticConnectRef",
+            featureKind: "Published Reference connector");
+
+        return new PublishedReferenceFeatureObservation(
+            connector_name: connectorFeature.Name,
+            feature_type: connectorFeature.GetTypeName2(),
+            tree_path: connectorNode.tree_path,
+            parent_tree_text: managerObservation.displayed_tree_text,
+            parent_feature_name: managerObservation.feature_name,
+            parent_feature_type: managerObservation.feature_type);
+    }
+
+    private static IFeature RequireFeatureManagerTreeFeature(
+        FeatureManagerTreeNode node,
+        string expectedDisplayedText,
+        string expectedFeatureName,
+        string expectedFeatureType,
+        string featureKind)
+    {
+        if (!string.Equals(
+                node.displayed_tree_text,
+                expectedDisplayedText,
+                StringComparison.Ordinal))
+        {
+            throw new CadGroundedException(
+                "feature_manager_tree_displayed_text_mismatch",
+                $"{featureKind} tree text must exactly equal '{expectedDisplayedText}'. " +
+                $"Observed='{node.displayed_tree_text}'.");
+        }
+
+        var itemObject = node.item.Object;
+        if (itemObject is null)
+        {
+            throw new CadGroundedException(
+                "feature_manager_tree_object_unavailable",
+                $"{featureKind} tree item '{expectedDisplayedText}' has no associated object.");
+        }
+
+        if (itemObject is not IFeature feature)
+        {
+            throw new CadGroundedException(
+                "feature_manager_tree_object_type_mismatch",
+                $"{featureKind} tree item '{expectedDisplayedText}' did not resolve to IFeature. " +
+                $"RuntimeType='{itemObject.GetType().FullName}'.");
+        }
+
+        if (!string.Equals(feature.Name, expectedFeatureName, StringComparison.Ordinal))
+        {
+            throw new CadGroundedException(
+                "feature_manager_tree_feature_name_mismatch",
+                $"{featureKind} IFeature.Name must exactly equal '{expectedFeatureName}'. " +
+                $"Observed='{feature.Name}'.");
+        }
+
+        var featureType = feature.GetTypeName2();
+        if (!string.Equals(featureType, expectedFeatureType, StringComparison.Ordinal))
+        {
+            throw new CadGroundedException(
+                "feature_manager_tree_feature_type_mismatch",
+                $"{featureKind} IFeature.GetTypeName2() must exactly equal " +
+                $"'{expectedFeatureType}'. Observed='{featureType}'.");
+        }
+
+        return feature;
+    }
+
+    private static IEnumerable<FeatureManagerTreeNode> EnumerateFeatureManagerTreeNodes(
+        ITreeControlItem root)
+    {
+        var seen = new HashSet<ITreeControlItem>();
+        foreach (var node in EnumerateFeatureManagerTreeNodesBranch(
+                     root,
+                     treeDepth: 0,
+                     treePath: "0",
+                     parentDisplayedTreeText: null,
+                     parentTreePath: null,
+                     seen))
+        {
+            yield return node;
+        }
+    }
+
+    private static IEnumerable<FeatureManagerTreeNode> EnumerateFeatureManagerTreeNodesBranch(
+        ITreeControlItem item,
+        int treeDepth,
+        string treePath,
+        string? parentDisplayedTreeText,
+        string? parentTreePath,
+        HashSet<ITreeControlItem> seen)
+    {
+        if (!seen.Add(item))
+        {
+            throw new CadGroundedException(
+                "feature_manager_tree_cycle_detected",
+                "FeatureManager tree traversal encountered the same ITreeControlItem more than once.");
+        }
+
+        var displayedText = item.Text ?? string.Empty;
+        yield return new FeatureManagerTreeNode(
+            item: item,
+            displayed_tree_text: displayedText,
+            tree_depth: treeDepth,
+            tree_path: treePath,
+            parent_displayed_tree_text: parentDisplayedTreeText,
+            parent_tree_path: parentTreePath);
+
+        var child = item.GetFirstChild() as ITreeControlItem;
+        var childIndex = 0;
+        while (child is not null)
+        {
+            foreach (var nested in EnumerateFeatureManagerTreeNodesBranch(
+                         child,
+                         treeDepth + 1,
+                         $"{treePath}.{childIndex}",
+                         displayedText,
+                         treePath,
+                         seen))
+            {
+                yield return nested;
+            }
+
+            child = child.GetNext() as ITreeControlItem;
+            childIndex++;
+        }
     }
 
     private static IEnumerable<FeatureManagerTreeObservation> EnumerateFeatureManagerTreeObservations(
@@ -1220,15 +1435,6 @@ internal sealed class SolidWorksSession : IDisposable
         if (classifications.All(value => value == "LIVE_STATE_SOURCE_CONFLICT"))
             return "LIVE_STATE_SOURCE_CONFLICT";
         return "CONNECTOR_OBSERVATION_CONFLICT";
-    }
-
-    private static object ReadPublishedReferenceFeature(IFeature feature)
-    {
-        return new
-        {
-            connector_name = feature.Name,
-            feature_type = feature.GetTypeName2()
-        };
     }
 
     private static object ReadCoordinateSystemFeature(IFeature feature)
@@ -1940,6 +2146,32 @@ internal sealed class SolidWorksSession : IDisposable
         string requested_displayed_tree_text,
         int exact_match_count,
         string classification);
+
+    private sealed record FeatureManagerTreeNode(
+        ITreeControlItem item,
+        string displayed_tree_text,
+        int tree_depth,
+        string tree_path,
+        string? parent_displayed_tree_text,
+        string? parent_tree_path);
+
+    private sealed record PublishedReferenceManagerObservation(
+        string displayed_tree_text,
+        string feature_name,
+        string feature_type,
+        string tree_path);
+
+    private sealed record PublishedReferenceFeatureObservation(
+        string connector_name,
+        string feature_type,
+        string tree_path,
+        string parent_tree_text,
+        string parent_feature_name,
+        string parent_feature_type);
+
+    private sealed record FeatureManagerPublishedReferenceBinding(
+        PublishedReferenceManagerObservation published_reference_manager,
+        PublishedReferenceFeatureObservation[] published_reference_features);
 }
 
 internal static class ComRot
