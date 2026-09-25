@@ -11,6 +11,7 @@ $ErrorActionPreference = 'Stop'
 $ExpectedWorkerVersion = '0.3.1'
 $WorkerRoot = $PSScriptRoot
 . (Join-Path $WorkerRoot 'FileEvidence.ps1')
+. (Join-Path $WorkerRoot 'ComponentStateEvidence.ps1')
 $WorkerExe = Join-Path $WorkerRoot 'bin\Release\net8.0-windows\win-x64\CadGrounded.SolidWorksWorker.exe'
 $OutputRoot = Join-Path $WorkerRoot 'verification-output\query-mates-v42'
 
@@ -81,30 +82,6 @@ function Get-DocumentState {
     }
 }
 
-function Get-TargetState {
-    param([Parameter(Mandatory=$true)]$ComponentsEnvelope)
-
-    $state = [ordered]@{}
-    foreach ($name in $TargetComponents) {
-        $matches = @($ComponentsEnvelope.data.components | Where-Object { [string]$_.name2 -ceq $name })
-        if ($matches.Count -ne 1) {
-            throw "Exact Component2.Name2 must resolve uniquely. name='$name' matches=$($matches.Count)."
-        }
-        $c = $matches[0]
-        $state[$name] = [ordered]@{
-            name2 = [string]$c.name2
-            path = [string]$c.path
-            suppression_state = $c.suppression_state
-            fixed_component = $c.fixed_component
-            parent_name = $c.parent_name
-            rotation9 = @($c.rotation9)
-            translation_mm = @($c.translation_mm)
-            transform_source = [string]$c.transform_source
-        }
-    }
-    return $state
-}
-
 function Get-CaptureOwnerBindingCoverage {
     param([Parameter(Mandatory=$true)]$MateResults)
 
@@ -163,7 +140,7 @@ $documentStateBefore = Get-DocumentState -StatusEnvelope $statusBefore
 
 $fileBefore = Get-FileEvidence -Path $ExpectedDocumentPath
 $componentsBefore = Invoke-WorkerJson -Arguments @('components','--all')
-$targetStateBefore = Get-TargetState -ComponentsEnvelope $componentsBefore
+$targetStateBefore = Get-TargetState -ComponentsEnvelope $componentsBefore -TargetComponents $TargetComponents
 
 $mateResults = [ordered]@{}
 foreach ($name in $TargetComponents) {
@@ -193,7 +170,7 @@ foreach ($name in $TargetComponents) {
 }
 
 $componentsAfter = Invoke-WorkerJson -Arguments @('components','--all')
-$targetStateAfter = Get-TargetState -ComponentsEnvelope $componentsAfter
+$targetStateAfter = Get-TargetState -ComponentsEnvelope $componentsAfter -TargetComponents $TargetComponents
 $statusAfter = Invoke-WorkerJson -Arguments @('status')
 Assert-ExpectedStatus $statusAfter
 $documentStateAfter = Get-DocumentState -StatusEnvelope $statusAfter

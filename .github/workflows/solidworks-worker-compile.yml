@@ -37,3 +37,6 @@ jobs:
       - name: Test shared read file evidence
         working-directory: agent-registry/workers/CadGrounded.SolidWorksWorker
         run: .\Test-FileEvidence.ps1
+      - name: Test component state evidence normalization
+        working-directory: agent-registry/workers/CadGrounded.SolidWorksWorker
+        run: .\Test-ComponentStateEvidence.ps1
