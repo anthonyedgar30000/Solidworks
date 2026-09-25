@@ -77,3 +77,12 @@ pre/post no-mutation verifier is still required before any interface state can
 be `VERIFIED_CURRENT`. Connector point/direction geometry and Published Asset
 ↔ coordinate-system geometric coincidence remain `UNRESOLVED`; no mechanical
 acceptance follows.
+
+At PR #20 head `04a1788dcd1a4f2a0759e82da1f5da633c8fea62`, the Windows host
+advanced through the native interface query and strict PowerShell interface
+normalization. It then failed at the deterministic Python verifier input
+boundary because Windows PowerShell 5.1 emitted a UTF-8 BOM in the raw JSON
+artifact through `Set-Content -Encoding UTF8`; Python deliberately reads this
+evidence with strict `utf-8`. This is an artifact-producer failure, not a CAD,
+connector, coordinate-system, or no-mutation finding. The resulting interface
+state remains not-current until the verifier is rerun with BOM-free evidence.

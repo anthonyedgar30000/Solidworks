@@ -15,6 +15,9 @@ REGISTRY = Path(__file__).resolve().parents[1]
 WORKER = REGISTRY / "workers" / "CadGrounded.SolidWorksWorker"
 PROGRAM = WORKER / "Program.cs"
 VERIFY_SCRIPT = WORKER / "Verify-InterfaceContract-V42.ps1"
+JSON_FILE_EVIDENCE = WORKER / "JsonFileEvidence.ps1"
+JSON_FILE_EVIDENCE_TEST = WORKER / "Test-JsonFileEvidence.ps1"
+WORKFLOW = REGISTRY.parent / ".github" / "workflows" / "solidworks-worker-compile.yml"
 DIAGNOSTIC_EVIDENCE = WORKER / "InterfaceConnectorDiagnosticEvidence.ps1"
 DIAGNOSTIC_EVIDENCE_TEST = WORKER / "Test-InterfaceConnectorDiagnosticEvidence.ps1"
 TREE_DIAGNOSTIC_EVIDENCE = WORKER / "FeatureManagerTreeDiagnosticEvidence.ps1"
@@ -169,6 +172,35 @@ class NativeInterfaceContractProbeTests(unittest.TestCase):
             self.assertNotIn(
                 "sw.diagnose_feature_manager_tree", contents, msg=str(queue_config)
             )
+
+    def test_machine_json_artifacts_use_explicit_utf8_without_bom(self):
+        writer = JSON_FILE_EVIDENCE.read_text(encoding="utf-8")
+        regression = JSON_FILE_EVIDENCE_TEST.read_text(encoding="utf-8")
+        verifier = VERIFY_SCRIPT.read_text(encoding="utf-8")
+        workflow = WORKFLOW.read_text(encoding="utf-8")
+
+        self.assertIn("function Write-JsonFileUtf8NoBom", writer)
+        self.assertIn("[System.Text.UTF8Encoding]::new($false)", writer)
+        self.assertIn("[System.IO.File]::WriteAllText", writer)
+        self.assertIn("ConvertTo-Json -Depth $Depth", writer)
+        self.assertIn("JsonFileEvidence.ps1", verifier)
+        self.assertNotIn("Set-Content -LiteralPath", verifier)
+        self.assertEqual(verifier.count("Write-JsonFileUtf8NoBom -Value"), 6)
+
+        for expected in (
+            "ReadAllBytes",
+            "EF BB BF",
+            "UTF8Encoding]::new($false, $true)",
+            "cad_interface_live_verifier.py",
+            "--out $reportPath --summary",
+            "VERIFIED_CURRENT",
+            "geometry_binding_state -cne 'UNRESOLVED'",
+            "mechanical_acceptance_granted -ne $false",
+        ):
+            self.assertIn(expected, regression)
+
+        self.assertIn("Test BOM-free JSON evidence artifacts", workflow)
+        self.assertIn(".\\Test-JsonFileEvidence.ps1", workflow)
 
 
 if __name__ == "__main__":

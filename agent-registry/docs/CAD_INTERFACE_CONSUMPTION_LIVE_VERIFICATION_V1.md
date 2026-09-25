@@ -60,6 +60,14 @@ claim.
 
 The Windows host script `Verify-InterfaceContract-V42.ps1` adds a no-mutation gate: exact active document/configuration/save flag, stable shared-read assembly-file evidence, and complete component state are compared before and after the connector diagnostic, FeatureManager-tree diagnostic, and local interface query. `sw.diagnose_interface_connectors.raw.json`, `connector-diagnostic-summary.json`, `sw.diagnose_feature_manager_tree.raw.json`, and `feature-manager-tree-diagnostic-summary.json` are written before the bounded exact interface query runs, so they remain available if that query fails closed. A successful script result is an evidence artifact for review, not an automatic `EvidenceRecord` admission or mechanical acceptance.
 
+Machine-readable JSON artifacts are produced with an explicit `.NET`
+`UTF8Encoding($false)` writer rather than PowerShell's version-dependent
+`Set-Content -Encoding UTF8`. In particular, the raw
+`sw.query_interface_contract` observation begins with `{`, not UTF-8 BOM bytes,
+so the deterministic Python verifier continues to read it with strict
+`utf-8`. This changes artifact encoding only; it neither changes a CAD
+observation nor weakens drift, authority, or no-mutation checks.
+
 ## Authority and unresolved geometry
 
 - SOLIDWORKS remains the authority for a fresh assembly, named feature identity, and coordinate-system transform state.

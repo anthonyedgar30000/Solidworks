@@ -3,15 +3,18 @@
 
 import copy
 import json
+import tempfile
 import unittest
 from pathlib import Path
 
 from cad_interface_live_verifier import (
+    CADInterfaceLiveVerificationError,
     LIVE_STATE_AUTHORITY_REJECTED,
     LIVE_STATE_DRIFT,
     LIVE_STATE_OBSERVATION_REJECTED,
     LIVE_STATE_STALE,
     LIVE_STATE_VERIFIED,
+    _load_json,
     stale_live_verification,
     verify_live_interface_contract,
 )
@@ -146,6 +149,16 @@ class CADInterfaceLiveVerifierTests(unittest.TestCase):
             ],
             "ConnectRefMgr",
         )
+
+    def test_utf8_bom_is_rejected_not_silently_normalized_by_the_python_reader(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "observation.json"
+            path.write_bytes(b"\xef\xbb\xbf{}")
+
+            with self.assertRaisesRegex(
+                CADInterfaceLiveVerificationError, "Unexpected UTF-8 BOM"
+            ):
+                _load_json(path)
 
     def test_native_interface_query_is_not_promoted_to_either_remote_queue(self):
         for queue_config in REMOTE_QUEUE_CONFIGS:

@@ -16,6 +16,7 @@ $ExpectedWorkerVersion = '0.4.2'
 $WorkerRoot = $PSScriptRoot
 . (Join-Path $WorkerRoot 'FileEvidence.ps1')
 . (Join-Path $WorkerRoot 'ComponentStateEvidence.ps1')
+. (Join-Path $WorkerRoot 'JsonFileEvidence.ps1')
 . (Join-Path $WorkerRoot 'InterfaceContractEvidence.ps1')
 . (Join-Path $WorkerRoot 'InterfaceConnectorDiagnosticEvidence.ps1')
 . (Join-Path $WorkerRoot 'FeatureManagerTreeDiagnosticEvidence.ps1')
@@ -156,7 +157,7 @@ foreach ($name in $Connectors) {
 }
 $connectorDiagnosticResult = Invoke-WorkerJson -Arguments $connectorDiagnosticArguments
 $connectorDiagnosticRawPath = Join-Path $OutputRoot 'sw.diagnose_interface_connectors.raw.json'
-$connectorDiagnosticResult | ConvertTo-Json -Depth 60 | Set-Content -LiteralPath $connectorDiagnosticRawPath -Encoding UTF8
+Write-JsonFileUtf8NoBom -Value $connectorDiagnosticResult -LiteralPath $connectorDiagnosticRawPath -Depth 60
 $connectorDiagnosticState = Assert-InterfaceConnectorDiagnosticObservation `
     -Envelope $connectorDiagnosticResult `
     -ExpectedConnectors $Connectors
@@ -217,7 +218,7 @@ $connectorDiagnosticSummary = [ordered]@{
     }
 }
 $connectorDiagnosticSummaryPath = Join-Path $OutputRoot 'connector-diagnostic-summary.json'
-$connectorDiagnosticSummary | ConvertTo-Json -Depth 80 | Set-Content -LiteralPath $connectorDiagnosticSummaryPath -Encoding UTF8
+Write-JsonFileUtf8NoBom -Value $connectorDiagnosticSummary -LiteralPath $connectorDiagnosticSummaryPath -Depth 80
 
 $featureManagerTreeDiagnosticArguments = @('feature-manager-tree-diagnostic')
 foreach ($text in $FeatureManagerTreeTexts) {
@@ -225,7 +226,7 @@ foreach ($text in $FeatureManagerTreeTexts) {
 }
 $featureManagerTreeDiagnosticResult = Invoke-WorkerJson -Arguments $featureManagerTreeDiagnosticArguments
 $featureManagerTreeDiagnosticRawPath = Join-Path $OutputRoot 'sw.diagnose_feature_manager_tree.raw.json'
-$featureManagerTreeDiagnosticResult | ConvertTo-Json -Depth 60 | Set-Content -LiteralPath $featureManagerTreeDiagnosticRawPath -Encoding UTF8
+Write-JsonFileUtf8NoBom -Value $featureManagerTreeDiagnosticResult -LiteralPath $featureManagerTreeDiagnosticRawPath -Depth 60
 $featureManagerTreeDiagnosticState = Assert-FeatureManagerTreeDiagnosticObservation `
     -Envelope $featureManagerTreeDiagnosticResult `
     -ExpectedTreeTexts $FeatureManagerTreeTexts
@@ -288,7 +289,7 @@ $featureManagerTreeDiagnosticSummary = [ordered]@{
     }
 }
 $featureManagerTreeDiagnosticSummaryPath = Join-Path $OutputRoot 'feature-manager-tree-diagnostic-summary.json'
-$featureManagerTreeDiagnosticSummary | ConvertTo-Json -Depth 80 | Set-Content -LiteralPath $featureManagerTreeDiagnosticSummaryPath -Encoding UTF8
+Write-JsonFileUtf8NoBom -Value $featureManagerTreeDiagnosticSummary -LiteralPath $featureManagerTreeDiagnosticSummaryPath -Depth 80
 
 $interfaceArguments = @('interface-contract')
 foreach ($name in $CoordinateSystems) {
@@ -304,7 +305,7 @@ $interfaceState = Assert-InterfaceContractObservation `
     -ExpectedConnectors $Connectors
 
 $rawObservationPath = Join-Path $OutputRoot 'sw.query_interface_contract.raw.json'
-$interfaceResult | ConvertTo-Json -Depth 60 | Set-Content -LiteralPath $rawObservationPath -Encoding UTF8
+Write-JsonFileUtf8NoBom -Value $interfaceResult -LiteralPath $rawObservationPath -Depth 60
 $liveVerificationPath = Join-Path $OutputRoot 'live-verification.json'
 & $PythonExe $LiveVerifierPath $ContractPath $rawObservationPath --out $liveVerificationPath --summary
 if ($LASTEXITCODE -ne 0) {
@@ -382,7 +383,7 @@ $verification = [ordered]@{
 }
 
 $verificationPath = Join-Path $OutputRoot 'verification-summary.json'
-$verification | ConvertTo-Json -Depth 80 | Set-Content -LiteralPath $verificationPath -Encoding UTF8
+Write-JsonFileUtf8NoBom -Value $verification -LiteralPath $verificationPath -Depth 80
 
 Write-Host 'PASS: sw.query_interface_contract v42 verification'
 Write-Host "Evidence: $verificationPath"

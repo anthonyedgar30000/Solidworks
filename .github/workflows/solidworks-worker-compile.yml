@@ -36,6 +36,9 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: "8.0.x"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
       - name: Compile net8.0-windows worker
         working-directory: agent-registry/workers/CadGrounded.SolidWorksWorker
         run: >-
@@ -57,6 +60,9 @@ jobs:
       - name: Test FeatureManager tree diagnostic normalization
         working-directory: agent-registry/workers/CadGrounded.SolidWorksWorker
         run: .\Test-FeatureManagerTreeDiagnosticEvidence.ps1
+      - name: Test BOM-free JSON evidence artifacts
+        working-directory: agent-registry/workers/CadGrounded.SolidWorksWorker
+        run: .\Test-JsonFileEvidence.ps1
   interface-reasoning:
     name: Interface contract reasoning regressions
     runs-on: ubuntu-latest

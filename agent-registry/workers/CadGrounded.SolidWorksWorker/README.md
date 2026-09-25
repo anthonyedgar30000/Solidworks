@@ -99,6 +99,12 @@ exact interface query. Both diagnostics write their raw/summary artifacts even
 if the query subsequently fails closed. A pass verifies only the declared
 feature/frame baseline at that fresh checkpoint.
 
+All JSON evidence artifacts from this verifier are written through an explicit
+.NET UTF-8-without-BOM writer. This avoids Windows PowerShell 5.1's BOM-emitting
+`Set-Content -Encoding UTF8` behavior for the raw observation consumed by the
+strict Python drift/authority verifier. The writer affects only evidence files;
+it has no SOLIDWORKS or Remote Queue authority.
+
 ## `sw.diagnose_interface_connectors`
 
 CLI example:
