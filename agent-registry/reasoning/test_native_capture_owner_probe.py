@@ -19,6 +19,8 @@ PROGRAM = WORKER / "Program.cs"
 VERIFY_SCRIPT = WORKER / "Verify-QueryMates-V42.ps1"
 FILE_EVIDENCE = WORKER / "FileEvidence.ps1"
 FILE_EVIDENCE_TEST = WORKER / "Test-FileEvidence.ps1"
+COMPONENT_STATE_EVIDENCE = WORKER / "ComponentStateEvidence.ps1"
+COMPONENT_STATE_EVIDENCE_TEST = WORKER / "Test-ComponentStateEvidence.ps1"
 QUEUE_CONFIGS = (
     REGISTRY / "CADGrounded_RemoteQueue_v1" / "queue-config.json",
     REGISTRY / "remote-queue-runner-v1" / "queue-config.json",
@@ -69,6 +71,26 @@ class NativeCaptureOwnerProbeContractTests(unittest.TestCase):
         self.assertIn("Start-Job", regression)
         self.assertIn("-ShareName 'ReadWrite'", regression)
         self.assertIn("-ShareName 'None'", regression)
+
+    def test_component_state_tolerates_only_omitted_top_level_parent_name(self):
+        verifier = VERIFY_SCRIPT.read_text(encoding="utf-8")
+        state_evidence = COMPONENT_STATE_EVIDENCE.read_text(encoding="utf-8")
+        regression = COMPONENT_STATE_EVIDENCE_TEST.read_text(encoding="utf-8")
+
+        self.assertIn(
+            ". (Join-Path $WorkerRoot 'ComponentStateEvidence.ps1')",
+            verifier,
+        )
+        self.assertNotIn("parent_name = $c.parent_name", verifier)
+        self.assertIn("Get-OptionalObservationPropertyValue", state_evidence)
+        self.assertIn("Get-RequiredObservationPropertyValue", state_evidence)
+        self.assertIn("is_top_level", state_evidence)
+        self.assertIn("is_top_level=true", state_evidence)
+        self.assertIn("is_top_level=false", state_evidence)
+        self.assertIn("TOP_LEVEL_CAPTURE_PART-1", regression)
+        self.assertIn("NESTED_CAPTURE_PART-1", regression)
+        self.assertIn('"parent_name": "CAPTURE_CARRIER-1"', regression)
+        self.assertIn("Missing required component-state field was not rejected", regression)
 
     def test_verification_script_checks_before_after_state_and_declares_limitations(self):
         script = VERIFY_SCRIPT.read_text(encoding="utf-8")

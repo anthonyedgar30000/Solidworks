@@ -11,11 +11,22 @@ The only current live authority used here was a read-only SOLIDWORKS status and
 full component inventory. No SOLIDWORKS transform, mate, feature, suppression,
 save, rebuild, insertion, or geometry change was requested or performed.
 
+The latest reported native-host verifier run progressed through the Windows
+worker build, fresh `sw.status`, stable shared read-only assembly-file
+observation, and fresh `components --all`. It then failed closed in
+`Get-TargetState` before its first `sw.query_mates` call because a top-level
+component's nullable `parent_name` was omitted by the worker serializer. The
+failure report does not itself preserve a new component payload for admission,
+so it is execution-progress evidence only. It creates no mate or
+capture-owner evidence, does not complete the verifier's post-query
+no-mutation comparison, and leaves `CAPTURE_KINEMATIC_OWNER` **UNRESOLVED**.
+
 ## Fresh authority reconciliation
 
 | Source | Fresh fact | Scope and limit |
 | --- | --- | --- |
-| GitHub `main` | Merge commit `fb93b243fc1a93e6e9fc759e12327cb2c30f8480` contains the current v42 functional-temporal capture-owner investigation. | Source, policy, test, and history authority; not live geometry authority. |
+| GitHub `main` | Merge commit `dcf18770eaa733672fc4cbdc2174dfb1f01caee1` contains the shared read-only assembly-file observation fix from PR #17. | Source, policy, test, and history authority; not live geometry authority. |
+| Native SOLIDWORKS host verifier | After PR #17, native build, fresh `sw.status`, shared file observation, and `components --all` completed. `Get-TargetState` then failed closed on an omitted top-level `parent_name`, before the mate loop. | Establishes only that those read-only stages executed. No `sw.query_mates` result, capture-owner binding, or complete pre/post no-mutation verifier result exists. |
 | SOLIDWORKS | At `2026-09-25T02:52:41.712318+00:00`, active assembly was exactly `IXOR_Benchmark_v42_ROLLER_GUIDE_HARDSTOP_FIT_CHECK_PORTABLE` at `C:\ChatGPT\Solidworks\IXOR\CAB_IXOR_6130800\IXOR_Benchmark_v42_ROLLER_GUIDE_HARDSTOP_FIT_CHECK_PORTABLE.SLDASM`. | Live document/state identity only. |
 | SOLIDWORKS | At `2026-09-25T02:58:42.924369+00:00`, read-only `sw.query_components` job `5bbec906-9bd2-4910-baf3-4da8644e405d` returned 55 nested components. | A point inventory; it does not establish physical DOF, capture, contact, preload, or reaction path. |
 | SOLIDWORKS | Current-session read-only status plus full inventory again identified the same v42 assembly and 55 components, including the exact belt and both rollers as floating, unsuppressed parts. | Fresh point evidence only; `fixed:false` is not a physical-motion or capture-owner claim. |
