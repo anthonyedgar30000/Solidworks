@@ -622,7 +622,7 @@ internal sealed class SolidWorksSession : IDisposable
                 "contact, collision clearance, motion, force, or mechanical acceptance.",
             api =
                 "IModelDoc2.FirstFeature/GetNextFeature + IFeature.GetFirstSubFeature/GetNextSubFeature " +
-                "-> IFeature.GetSpecificFeature2 -> ICoordinateSystemFeatureData.Transform -> " +
+                "-> IFeature.GetDefinition() -> ICoordinateSystemFeatureData -> Transform -> " +
                 "IMathTransform.ArrayData",
             model_mutation = false,
             write_authority = "NONE",
@@ -724,20 +724,27 @@ internal sealed class SolidWorksSession : IDisposable
         double[] transform16;
         try
         {
-            var specific = feature.GetSpecificFeature2();
-            if (specific is null)
+            var definition = feature.GetDefinition();
+            if (definition is not ICoordinateSystemFeatureData coordinateSystemData)
             {
                 throw new CadGroundedException(
                     "coordinate_system_definition_unavailable",
-                    $"Coordinate system feature '{feature.Name}' has no specific feature data.");
+                    $"Coordinate system feature '{feature.Name}' does not expose " +
+                    "ICoordinateSystemFeatureData through IFeature.GetDefinition().");
             }
 
-            // The interop package exposes the coordinate-system definition as a
-            // COM feature-data object. Dynamic dispatch here avoids falling back
-            // to a broad automation surface while retaining the exact getter
-            // chain required by the native API.
-            dynamic coordinateSystemData = specific;
-            dynamic mathTransform = coordinateSystemData.Transform;
+            // CoordSys transforms are obtained from the feature definition, not
+            // the generic specific-feature accessor. This remains an exact,
+            // getter-only interop chain with no broad automation fallback.
+            var mathTransform = coordinateSystemData.Transform;
+            if (mathTransform is null)
+            {
+                throw new CadGroundedException(
+                    "coordinate_system_transform_unavailable",
+                    $"Coordinate system feature '{feature.Name}' returned no Transform from " +
+                    "ICoordinateSystemFeatureData.");
+            }
+
             object rawArrayData = mathTransform.ArrayData;
             transform16 = ToDoubleArray(rawArrayData) ?? Array.Empty<double>();
         }
@@ -772,7 +779,7 @@ internal sealed class SolidWorksSession : IDisposable
                 transform16[11] * 1000.0
             },
             transform_source =
-                "ICoordinateSystemFeatureData.Transform -> IMathTransform.ArrayData"
+                "IFeature.GetDefinition() -> ICoordinateSystemFeatureData -> Transform -> IMathTransform.ArrayData"
         };
     }
 

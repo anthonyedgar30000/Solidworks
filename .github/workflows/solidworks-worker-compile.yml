@@ -66,3 +66,4 @@ jobs:
           test_cad_interface_contract.py
           test_cad_interface_live_verifier.py
           test_cad_interface_consumption.py
+          test_native_interface_contract_probe.py

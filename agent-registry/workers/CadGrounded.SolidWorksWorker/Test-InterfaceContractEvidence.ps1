@@ -6,6 +6,8 @@ $ErrorActionPreference = 'Stop'
 
 . (Join-Path $PSScriptRoot 'InterfaceContractEvidence.ps1')
 
+$ExpectedCoordinateSystemTransformSource = 'IFeature.GetDefinition() -> ICoordinateSystemFeatureData -> Transform -> IMathTransform.ArrayData'
+
 function ConvertFrom-InterfaceObservationJson {
     param([Parameter(Mandatory=$true)][string]$Json)
 
@@ -35,14 +37,14 @@ $valid = ConvertFrom-InterfaceObservationJson -Json @'
         "feature_type": "CoordSys",
         "transform16": [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0],
         "origin_mm": [0, 0, 0],
-        "transform_source": "ICoordinateSystemFeatureData.Transform -> IMathTransform.ArrayData"
+        "transform_source": "IFeature.GetDefinition() -> ICoordinateSystemFeatureData -> Transform -> IMathTransform.ArrayData"
       },
       {
         "feature_name": "PRODUCT_EXIT_CS",
         "feature_type": "CoordSys",
         "transform16": [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0, 1, 0, 0, 0],
         "origin_mm": [0, 900, 0],
-        "transform_source": "ICoordinateSystemFeatureData.Transform -> IMathTransform.ArrayData"
+        "transform_source": "IFeature.GetDefinition() -> ICoordinateSystemFeatureData -> Transform -> IMathTransform.ArrayData"
       }
     ],
     "published_reference_features": [
@@ -66,6 +68,9 @@ $normalized = Assert-InterfaceContractObservation `
 
 if ([string]$normalized.coordinate_systems['PRODUCT_EXIT_CS'].feature_type -cne 'CoordSys') {
     throw 'Expected coordinate-system normalization result was not returned.'
+}
+if ([string]$normalized.coordinate_systems['PRODUCT_ENTRY_CS'].transform_source -cne $ExpectedCoordinateSystemTransformSource) {
+    throw 'Coordinate-system transform provenance did not preserve the required IFeature.GetDefinition() getter chain.'
 }
 if ([string]$normalized.published_reference_features['Connector1'].feature_type -cne 'MagneticConnectRef') {
     throw 'Expected connector normalization result was not returned.'
@@ -93,7 +98,7 @@ $missingTransform = ConvertFrom-InterfaceObservationJson -Json @'
         "feature_name": "PRODUCT_ENTRY_CS",
         "feature_type": "CoordSys",
         "origin_mm": [0, 0, 0],
-        "transform_source": "ICoordinateSystemFeatureData.Transform -> IMathTransform.ArrayData"
+        "transform_source": "IFeature.GetDefinition() -> ICoordinateSystemFeatureData -> Transform -> IMathTransform.ArrayData"
       }
     ],
     "published_reference_features": [

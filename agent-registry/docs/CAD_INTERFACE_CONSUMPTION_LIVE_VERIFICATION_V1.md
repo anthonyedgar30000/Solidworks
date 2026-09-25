@@ -19,7 +19,7 @@ The local worker command is `sw.query_interface_contract`.
 
 Its request requires exact coordinate-system feature names and exact connector feature names. It returns only exact matching `CoordSys` transform records and `MagneticConnectRef` name/type records. A missing, duplicate, wrong-type, or unreadable target fails closed. The command is in the C# worker's local read-only allowlist only; it is not a `CADRequest`, is not in either Remote Queue allowlist/schema, and has `write_authority: NONE`.
 
-The command uses a bounded `IFeature` traversal and `ICoordinateSystemFeatureData.Transform -> IMathTransform.ArrayData` getter chain. It does not call a generic execute-code interface.
+The command uses a bounded `IFeature` traversal and `IFeature.GetDefinition() -> ICoordinateSystemFeatureData -> Transform -> IMathTransform.ArrayData` getter chain for `CoordSys` features. It does not call a generic execute-code interface.
 
 ## Live verifier outcome states
 

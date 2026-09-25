@@ -75,7 +75,7 @@ def current_observation(contract):
                     "feature_type": interface["api_frame"]["feature_type"],
                     "transform16": interface["api_frame"]["transform16"],
                     "origin_mm": interface["api_frame"]["origin_mm"],
-                    "transform_source": "ICoordinateSystemFeatureData.Transform -> IMathTransform.ArrayData",
+                    "transform_source": "IFeature.GetDefinition() -> ICoordinateSystemFeatureData -> Transform -> IMathTransform.ArrayData",
                 }
                 for interface in contract["interfaces"]
             ],
