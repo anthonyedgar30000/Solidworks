@@ -27,6 +27,22 @@ Google Drive is a project mirror and document backup surface. It is not used for
 
 The v1 domain model is a candidate contract and does not itself expand runtime or CAD authority.
 
+## Functional and temporal reasoning boundary
+
+`functional-temporal-architecture.v1.schema.json` adds a candidate
+reasoning-only layer for decomposing a machine goal into subsystems, local
+obligations, interface contracts, events, persistent states/modes, transition
+guards, duration constraints, and interval/reachable-motion invariants. Its
+deterministic evaluator can project a dependency fragment into the epistemic
+graph and rank declared read-only investigations.
+
+It cannot modify SOLIDWORKS, invoke a queue worker, expand the CADRequest
+allowlist, change EvidenceRecord states, or grant mechanical acceptance. A
+subsystem's `LOCAL_VERIFIED` result is specifically not a whole-machine
+acceptance result. Point evidence is not silently reused as proof of a
+throughout-state or reachable-motion requirement, and stale evidence remains
+explicitly `STALE_STATE` for current-decision purposes.
+
 ## Write transaction
 
 A state-changing operation is accepted only when all of the following hold:

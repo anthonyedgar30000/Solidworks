@@ -82,6 +82,7 @@ Common attributes:
 - `provenance`
 - `dependencies`
 - optional `geometry_state`
+- optional `temporal_scope`
 - optional `ambiguity_bucket`
 - `mechanical_acceptance_granted`
 - `payload`
@@ -106,6 +107,11 @@ Initial subtypes:
 - AI-generated records are explicitly AI-generated and cannot become engineering evidence by state promotion;
 - dependencies point to the evidence used to support a derived record;
 - unresolved information remains unresolved until authoritative evidence or accepted deterministic derivation exists.
+- a `temporal_scope` makes the evidence coverage explicit: `POINT_ONLY`,
+  `THROUGHOUT_SCOPE`, or `REACHABLE_STATE_SET`, plus `CURRENT`, `STALE`, or
+  `UNKNOWN` validity. A point observation is valid evidence of that point; it
+  is not silently promoted into proof that a contact, restraint, or clearance
+  condition persists through an operating interval.
 
 The candidate schema is `agent-registry/schemas/evidence-record.v1.schema.json`.
 
@@ -161,7 +167,63 @@ CADRequest
 
 Dependency edges preserve why a downstream finding exists. If an upstream observation becomes stale or is superseded, dependent findings can be invalidated or reopened deterministically.
 
-## 5. Authority boundary
+## 5. Functional decomposition + temporal operating-state architecture
+
+`functional-temporal-architecture.v1.schema.json` and
+`reasoning/functional_temporal.py` add a generic candidate model that sits
+beside the existing graph rather than replacing it.
+
+It decomposes a machine goal into:
+
+- bounded **subsystems** with local obligations;
+- explicit cross-subsystem **interface contracts**;
+- **events** and persistent **states/modes**;
+- transition **guards** and duration/watchdog constraints;
+- interval **invariants** and Allen temporal relations; and
+- hypothesis-linked, deterministic **next tests**.
+
+This keeps “a subsystem passes locally” distinct from “the machine is
+mechanically accepted.” The model always emits
+`mechanical_acceptance_granted: false`; its graph fragment intentionally does
+not attach itself to a project acceptance obligation. A separately governed
+whole-machine gate must decide whether geometry, motion, force/reaction paths,
+interfaces, product flow, safety, and acceptance evidence are sufficient.
+
+### Temporal coverage rule
+
+Each obligation/invariant names a scope (`state_ids` and/or `transition_ids`)
+and its required coverage:
+
+| Requirement type | Required evidence coverage |
+|---|---|
+| Snapshot fact | `POINT_ONLY` |
+| Contact/restraint that must persist during a state | `THROUGHOUT_SCOPE` |
+| Clearance/interference claim over possible mechanism motion | `REACHABLE_STATE_SET` |
+
+The deterministic evaluator rejects a point snapshot as proof of either
+interval-wide contact/restraint or reachable-state clearance. If the record is
+not freshly bound to the relevant live state, the requirement remains
+`UNRESOLVED` with `STALE_STATE`; it is not treated as false and it is not
+treated as accepted.
+
+### CADRequest, EvidenceRecord, and hypotheses
+
+A declared next test may carry a `CADRequest` only when it matches the current
+read-only v1 command partition and has `write_authority: NONE`. The model does
+not invent a new CAD command for temporal reasoning.
+
+Evidence references remain `EvidenceRecord` references. The evaluator checks
+their authority, epistemic state, freshness, and temporal coverage without
+changing any of those fields. Hypotheses preserve prior
+(`COMMON`/`UNCOMMON`/`RARE`), evidence state, and investigation frontier
+state; tests may discriminate among them but do not promote them into facts.
+
+The first reference case is v42 `CAPTURE_AND_ROTATION`. It records the current
+fit-check evidence while preserving capture kinematic ownership, preload,
+reaction-force path, interval restraint/contact, and reachable motion
+clearance as unresolved. It does not alter live CAD geometry.
+
+## 6. Authority boundary
 
 This model does not change the authority hierarchy.
 
@@ -175,7 +237,7 @@ This model does not change the authority hierarchy.
 
 API success is not mechanical acceptance.
 
-## 6. Migration plan
+## 7. Migration plan
 
 ### Phase 1 — this branch
 
@@ -198,6 +260,14 @@ API success is not mechanical acceptance.
 - preserve backward-compatible transaction envelopes during migration;
 - connect evidence dependencies to the epistemic graph.
 
+### Phase 4 — separate reviewed change
+
+- admit functional-temporal architecture documents through a reviewed
+  registry path;
+- bind their EvidenceRecord references to a current CAD world/revision;
+- use the resulting graph fragment for read-only next-test planning;
+- keep whole-machine acceptance outside the evaluator.
+
 ## Acceptance criteria for Domain Model v1
 
 The model is useful only if it makes invalid states harder to represent:
@@ -210,3 +280,8 @@ The model is useful only if it makes invalid states harder to represent:
 - evidence cannot directly grant mechanical acceptance;
 - UNKNOWN/UNRESOLVED is preserved;
 - exact identities and provenance remain mandatory where authority depends on them.
+- a point observation cannot masquerade as interval-wide or reachable-motion
+  proof;
+- a stale evidence record reopens the dependent claim instead of silently
+  authorizing it;
+- a local subsystem result cannot create whole-machine mechanical acceptance.

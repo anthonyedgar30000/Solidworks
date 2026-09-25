@@ -25,12 +25,15 @@ The important idea is that **a NULL is not treated as an empty hole**. The graph
 - `identity_bindings.py` — validates those exact bindings against admitted live SOLIDWORKS evidence.
 - `geometry_projection.py` — calculates conservative AABB relations from admitted exact-identity evidence.
 - `graph_projection.py` — creates a fresh runtime epistemic graph from admitted/calculated live evidence without copying toy geometry values.
+- `functional_temporal.py` — validates and evaluates generic functional decomposition, interface contracts, temporal states/events/invariants, and deterministic next-test ranking without commanding CAD.
+- `reference_cases/v42_capture_and_rotation.functional-temporal.v1.json` — v42 fit-check reference case; it preserves capture kinematics, interval restraint/contact, and reachable-motion clearance as unresolved.
 - `test_reasoner.py` — reasoner regression tests.
 - `test_evidence_ingest.py` — evidence-boundary regression tests.
 - `test_identity_bindings.py` — exact identity binding regression tests.
 - `test_geometry_projection.py` — deterministic AABB projection regression tests.
 - `test_graph_projection.py` — live-evidence runtime graph regression tests.
 - `test_domain_model_contract.py` — static regression tests for the CADRequest/EvidenceRecord subtype partitions and authority boundaries.
+- `test_functional_temporal.py` — functional/temporal architecture regression tests, including stale interval evidence and no-acceptance boundaries.
 
 ## Domain Model v1
 
@@ -39,6 +42,29 @@ The candidate domain contract is documented in `../docs/CADGROUNDED_DOMAIN_MODEL
 The model separates object type/subtype from epistemic and lifecycle state. `command_id` partitions read-only CAD request subtypes; `evidence_type` partitions evidence subtypes. States such as `UNRESOLVED`, `FIT_CHECK`, and ambiguity buckets remain attributes rather than becoming new object types.
 
 These files are candidate contracts only. They do not change the deployed remote-queue runner or grant additional CAD authority.
+
+## Functional decomposition + temporal operating states
+
+`../schemas/functional-temporal-architecture.v1.schema.json` defines a
+candidate generic model for splitting a machine goal into bounded subsystems,
+local obligations, and cross-subsystem interface contracts. It separately
+models events, persistent states/modes, transition guards, duration
+constraints, Allen relations, and invariants that must survive an interval or
+reachable state set.
+
+Run the v42 reference case from this directory:
+
+```powershell
+python .\functional_temporal.py `
+  .\reference_cases\v42_capture_and_rotation.functional-temporal.v1.json `
+  --summary
+```
+
+The output is an evidence/planning report. It cannot grant mechanical
+acceptance, create a CAD write, or promote `UNRESOLVED` evidence. In
+particular, a `POINT_ONLY` SOLIDWORKS observation or distance calculation is
+not accepted as proof that bottle restraint/contact persists throughout
+`CAPTURE_AND_ROTATION`, nor that clearance holds across reachable motion.
 
 ## Run
 

@@ -1,0 +1,1185 @@
+{
+  "schema_version": 1,
+  "architecture_id": "IXOR_V42_CAPTURE_AND_ROTATION_REFERENCE",
+  "machine_goal": {
+    "id": "BOTTLE_LABELING_OPERATING_COHERENCE",
+    "description": "Establish a mechanically coherent bottle-labeling operating sequence without treating fit-check geometry or a static CAD pose as mechanical acceptance.",
+    "geometry_state": "FIT_CHECK",
+    "mechanical_acceptance_granted": false
+  },
+  "subsystems": [
+    {
+      "id": "PRODUCT_TRANSPORT_AND_INDEXING",
+      "parent_id": null,
+      "goal": "Deliver one bottle to the controlled application position and prevent double-feed during the active cycle.",
+      "local_obligation_ids": [
+        "PRODUCT_POSITION_STABLE",
+        "INDEX_HARDSTOP_SEQUENCE"
+      ],
+      "provided_interface_ids": [
+        "TRANSPORT_TO_CAPTURE"
+      ],
+      "consumed_interface_ids": [
+        "RELEASE_TO_TRANSPORT"
+      ]
+    },
+    {
+      "id": "CAPTURE_AND_ROTATION",
+      "parent_id": null,
+      "goal": "Establish and maintain controlled bottle restraint and a justified rotation/reaction-force path while label wrap is active.",
+      "local_obligation_ids": [
+        "CAPTURE_KINEMATIC_OWNER",
+        "BOTTLE_RESTRAINT_THROUGHOUT_CAPTURE",
+        "WRAP_CONTACT_THROUGHOUT_CAPTURE",
+        "CAPTURE_REACTION_FORCE_PATH",
+        "REACHABLE_MOTION_CLEARANCE"
+      ],
+      "provided_interface_ids": [
+        "CAPTURE_TO_LABEL",
+        "CAPTURE_TO_RELEASE"
+      ],
+      "consumed_interface_ids": [
+        "TRANSPORT_TO_CAPTURE",
+        "LABEL_TO_CAPTURE"
+      ]
+    },
+    {
+      "id": "LABEL_PRESENTATION_AND_TRANSFER",
+      "parent_id": null,
+      "goal": "Present label media at the correct time and maintain a mechanically meaningful label-transfer relationship during wrap.",
+      "local_obligation_ids": [
+        "LABEL_PRESENTATION_DURING_WRAP"
+      ],
+      "provided_interface_ids": [
+        "LABEL_TO_CAPTURE"
+      ],
+      "consumed_interface_ids": [
+        "CAPTURE_TO_LABEL"
+      ]
+    },
+    {
+      "id": "RELEASE_AND_NEIGHBOR_CLEARANCE",
+      "parent_id": null,
+      "goal": "Release the completed bottle and preserve clearance from the head, guides, stops, and neighboring products across reachable release motion.",
+      "local_obligation_ids": [
+        "RELEASE_PATH_CLEAR_ACROSS_REACHABLE_STATES"
+      ],
+      "provided_interface_ids": [
+        "RELEASE_TO_TRANSPORT"
+      ],
+      "consumed_interface_ids": [
+        "CAPTURE_TO_RELEASE"
+      ]
+    },
+    {
+      "id": "MACHINE_SUPPORT_AND_MOUNTING",
+      "parent_id": null,
+      "goal": "Provide supported, restrained mounting and a reaction-force path for the labeling and capture assemblies.",
+      "local_obligation_ids": [
+        "MOUNTING_SUPPORT_INTEGRITY"
+      ],
+      "provided_interface_ids": [],
+      "consumed_interface_ids": []
+    }
+  ],
+  "obligations": [
+    {
+      "id": "PRODUCT_POSITION_STABLE",
+      "owner_subsystem_id": "PRODUCT_TRANSPORT_AND_INDEXING",
+      "description": "Exactly one intended bottle is positioned at the application station before capture is authorized.",
+      "verification_state": "UNRESOLVED",
+      "ambiguity_bucket": "MEASUREMENT_REQUIRED",
+      "criticality": 5,
+      "resolution_cost": 1,
+      "expected_authority": [
+        "SOLIDWORKS_LIVE_STATE",
+        "DETERMINISTIC_CALCULATION"
+      ],
+      "evidence_refs": [
+        "E_V42_COMPONENT_SNAPSHOT_20260925"
+      ],
+      "depends_on_requirement_ids": [],
+      "scope": {
+        "state_ids": [
+          "INDEXED"
+        ],
+        "transition_ids": [],
+        "required_coverage": "POINT_ONLY"
+      }
+    },
+    {
+      "id": "INDEX_HARDSTOP_SEQUENCE",
+      "owner_subsystem_id": "PRODUCT_TRANSPORT_AND_INDEXING",
+      "description": "Index-stop behavior establishes product position and then releases without requiring a second product to enter the occupied station.",
+      "verification_state": "UNRESOLVED",
+      "ambiguity_bucket": "KINEMATIC_STATE_UNRESOLVED",
+      "criticality": 5,
+      "resolution_cost": 2,
+      "expected_authority": [
+        "SOLIDWORKS_LIVE_STATE",
+        "DETERMINISTIC_CALCULATION"
+      ],
+      "evidence_refs": [
+        "E_V42_COMPONENT_SNAPSHOT_20260925"
+      ],
+      "depends_on_requirement_ids": [
+        "PRODUCT_POSITION_STABLE"
+      ],
+      "scope": {
+        "state_ids": [
+          "INDEXED",
+          "RELEASE"
+        ],
+        "transition_ids": [
+          "ENTRY_TO_INDEXED",
+          "CAPTURE_TO_RELEASE"
+        ],
+        "required_coverage": "REACHABLE_STATE_SET"
+      }
+    },
+    {
+      "id": "CAPTURE_KINEMATIC_OWNER",
+      "owner_subsystem_id": "CAPTURE_AND_ROTATION",
+      "description": "The physical subassembly that closes, guides, limits, actuates, or preloads bottle capture is identified from authoritative evidence.",
+      "verification_state": "UNRESOLVED",
+      "ambiguity_bucket": "KINEMATIC_STATE_UNRESOLVED",
+      "criticality": 5,
+      "resolution_cost": 1,
+      "expected_authority": [
+        "OEM_CAD",
+        "OEM_DOCUMENTATION",
+        "SOLIDWORKS_LIVE_STATE"
+      ],
+      "evidence_refs": [
+        "E_V42_COMPONENT_SNAPSHOT_20260925"
+      ],
+      "depends_on_requirement_ids": [],
+      "scope": {
+        "state_ids": [
+          "CAPTURE_AND_ROTATION"
+        ],
+        "transition_ids": [
+          "INDEXED_TO_CAPTURE"
+        ],
+        "required_coverage": "REACHABLE_STATE_SET"
+      }
+    },
+    {
+      "id": "BOTTLE_RESTRAINT_THROUGHOUT_CAPTURE",
+      "owner_subsystem_id": "CAPTURE_AND_ROTATION",
+      "description": "Bottle restraint remains valid throughout capture and rotation rather than only at one fit-check pose.",
+      "verification_state": "UNRESOLVED",
+      "ambiguity_bucket": "KINEMATIC_STATE_UNRESOLVED",
+      "criticality": 5,
+      "resolution_cost": 2,
+      "expected_authority": [
+        "OEM_CAD",
+        "SOLIDWORKS_LIVE_STATE",
+        "DETERMINISTIC_CALCULATION"
+      ],
+      "evidence_refs": [
+        "E_V42_COMPONENT_SNAPSHOT_20260925",
+        "E_V42_CAPTURE_DISTANCE_20260918"
+      ],
+      "depends_on_requirement_ids": [
+        "CAPTURE_KINEMATIC_OWNER"
+      ],
+      "scope": {
+        "state_ids": [
+          "CAPTURE_AND_ROTATION"
+        ],
+        "transition_ids": [
+          "INDEXED_TO_CAPTURE",
+          "CAPTURE_TO_RELEASE"
+        ],
+        "required_coverage": "THROUGHOUT_SCOPE"
+      }
+    },
+    {
+      "id": "WRAP_CONTACT_THROUGHOUT_CAPTURE",
+      "owner_subsystem_id": "CAPTURE_AND_ROTATION",
+      "description": "Required contact/tangency between the bottle and the justified wrap mechanism remains valid for the required wrap interval.",
+      "verification_state": "UNRESOLVED",
+      "ambiguity_bucket": "KINEMATIC_STATE_UNRESOLVED",
+      "criticality": 5,
+      "resolution_cost": 2,
+      "expected_authority": [
+        "SOLIDWORKS_LIVE_STATE",
+        "DETERMINISTIC_CALCULATION"
+      ],
+      "evidence_refs": [
+        "E_V42_CAPTURE_DISTANCE_20260918"
+      ],
+      "depends_on_requirement_ids": [
+        "CAPTURE_KINEMATIC_OWNER"
+      ],
+      "scope": {
+        "state_ids": [
+          "CAPTURE_AND_ROTATION",
+          "WRAP_ACTIVE"
+        ],
+        "transition_ids": [],
+        "required_coverage": "THROUGHOUT_SCOPE"
+      }
+    },
+    {
+      "id": "CAPTURE_REACTION_FORCE_PATH",
+      "owner_subsystem_id": "CAPTURE_AND_ROTATION",
+      "description": "A supported reaction-force and restraint path exists for wrap drive, support rollers, bottle contact, and mounting structure.",
+      "verification_state": "UNRESOLVED",
+      "ambiguity_bucket": "KINEMATIC_STATE_UNRESOLVED",
+      "criticality": 5,
+      "resolution_cost": 2,
+      "expected_authority": [
+        "OEM_CAD",
+        "OEM_DOCUMENTATION",
+        "DETERMINISTIC_CALCULATION"
+      ],
+      "evidence_refs": [
+        "E_V42_COMPONENT_SNAPSHOT_20260925"
+      ],
+      "depends_on_requirement_ids": [
+        "CAPTURE_KINEMATIC_OWNER",
+        "MOUNTING_SUPPORT_INTEGRITY"
+      ],
+      "scope": {
+        "state_ids": [
+          "CAPTURE_AND_ROTATION",
+          "WRAP_ACTIVE"
+        ],
+        "transition_ids": [],
+        "required_coverage": "THROUGHOUT_SCOPE"
+      }
+    },
+    {
+      "id": "REACHABLE_MOTION_CLEARANCE",
+      "owner_subsystem_id": "CAPTURE_AND_ROTATION",
+      "description": "Capture and release movement are free of unacceptable whole-body interference across the mechanically reachable motion set, not merely at the recorded CAD pose.",
+      "verification_state": "UNRESOLVED",
+      "ambiguity_bucket": "KINEMATIC_STATE_UNRESOLVED",
+      "criticality": 5,
+      "resolution_cost": 3,
+      "expected_authority": [
+        "OEM_CAD",
+        "SOLIDWORKS_LIVE_STATE",
+        "DETERMINISTIC_CALCULATION"
+      ],
+      "evidence_refs": [
+        "E_V42_COMPONENT_SNAPSHOT_20260925"
+      ],
+      "depends_on_requirement_ids": [
+        "CAPTURE_KINEMATIC_OWNER"
+      ],
+      "scope": {
+        "state_ids": [
+          "CAPTURE_AND_ROTATION",
+          "RELEASE"
+        ],
+        "transition_ids": [
+          "INDEXED_TO_CAPTURE",
+          "CAPTURE_TO_RELEASE"
+        ],
+        "required_coverage": "REACHABLE_STATE_SET"
+      }
+    },
+    {
+      "id": "LABEL_PRESENTATION_DURING_WRAP",
+      "owner_subsystem_id": "LABEL_PRESENTATION_AND_TRANSFER",
+      "description": "The label lead and peel/presentation relation remain valid while the bottle is captured and wrap motion is active.",
+      "verification_state": "UNRESOLVED",
+      "ambiguity_bucket": "GEOMETRY_UNRESOLVED",
+      "criticality": 5,
+      "resolution_cost": 2,
+      "expected_authority": [
+        "OEM_CAD",
+        "SOLIDWORKS_LIVE_STATE",
+        "DETERMINISTIC_CALCULATION"
+      ],
+      "evidence_refs": [
+        "E_V42_COMPONENT_SNAPSHOT_20260925"
+      ],
+      "depends_on_requirement_ids": [
+        "WRAP_CONTACT_THROUGHOUT_CAPTURE"
+      ],
+      "scope": {
+        "state_ids": [
+          "WRAP_ACTIVE"
+        ],
+        "transition_ids": [],
+        "required_coverage": "THROUGHOUT_SCOPE"
+      }
+    },
+    {
+      "id": "RELEASE_PATH_CLEAR_ACROSS_REACHABLE_STATES",
+      "owner_subsystem_id": "RELEASE_AND_NEIGHBOR_CLEARANCE",
+      "description": "The completed bottle can leave without unacceptable collision with labeler, support geometry, index stops, or neighboring products across release motion.",
+      "verification_state": "UNRESOLVED",
+      "ambiguity_bucket": "KINEMATIC_STATE_UNRESOLVED",
+      "criticality": 5,
+      "resolution_cost": 3,
+      "expected_authority": [
+        "SOLIDWORKS_LIVE_STATE",
+        "DETERMINISTIC_CALCULATION"
+      ],
+      "evidence_refs": [
+        "E_V42_COMPONENT_SNAPSHOT_20260925"
+      ],
+      "depends_on_requirement_ids": [
+        "REACHABLE_MOTION_CLEARANCE",
+        "INDEX_HARDSTOP_SEQUENCE"
+      ],
+      "scope": {
+        "state_ids": [
+          "RELEASE",
+          "EXIT_CLEAR"
+        ],
+        "transition_ids": [
+          "CAPTURE_TO_RELEASE",
+          "RELEASE_TO_EXIT_CLEAR"
+        ],
+        "required_coverage": "REACHABLE_STATE_SET"
+      }
+    },
+    {
+      "id": "MOUNTING_SUPPORT_INTEGRITY",
+      "owner_subsystem_id": "MACHINE_SUPPORT_AND_MOUNTING",
+      "description": "Mounting, support, and restraint geometry are sufficient for the relevant operating loads and reaction path.",
+      "verification_state": "UNRESOLVED",
+      "ambiguity_bucket": "MECHANICAL_ACCEPTANCE_BLOCKED",
+      "criticality": 5,
+      "resolution_cost": 3,
+      "expected_authority": [
+        "OEM_CAD",
+        "OEM_DOCUMENTATION",
+        "DETERMINISTIC_CALCULATION"
+      ],
+      "evidence_refs": [
+        "E_V42_COMPONENT_SNAPSHOT_20260925"
+      ],
+      "depends_on_requirement_ids": [],
+      "scope": {
+        "state_ids": [
+          "CAPTURE_AND_ROTATION",
+          "WRAP_ACTIVE",
+          "RELEASE"
+        ],
+        "transition_ids": [],
+        "required_coverage": "THROUGHOUT_SCOPE"
+      }
+    }
+  ],
+  "interfaces": [
+    {
+      "id": "TRANSPORT_TO_CAPTURE",
+      "provider_subsystem_id": "PRODUCT_TRANSPORT_AND_INDEXING",
+      "consumer_subsystem_id": "CAPTURE_AND_ROTATION",
+      "contract_type": "MATERIAL_POSITION_AND_CYCLE_OWNERSHIP",
+      "description": "Transport provides one indexed bottle in the required application envelope before capture closure is requested.",
+      "required_requirement_ids": [
+        "PRODUCT_POSITION_STABLE",
+        "INDEX_HARDSTOP_SEQUENCE"
+      ],
+      "ambiguity_bucket": "KINEMATIC_STATE_UNRESOLVED",
+      "scope": {
+        "state_ids": [
+          "INDEXED"
+        ],
+        "transition_ids": [
+          "INDEXED_TO_CAPTURE"
+        ],
+        "required_coverage": "THROUGHOUT_SCOPE"
+      }
+    },
+    {
+      "id": "CAPTURE_TO_LABEL",
+      "provider_subsystem_id": "CAPTURE_AND_ROTATION",
+      "consumer_subsystem_id": "LABEL_PRESENTATION_AND_TRANSFER",
+      "contract_type": "MECHANICAL_RESTRAINT_AND_WRAP_CONTACT",
+      "description": "Capture provides controlled bottle restraint and wrap contact for label transfer during the defined interval.",
+      "required_requirement_ids": [
+        "BOTTLE_RESTRAINT_THROUGHOUT_CAPTURE",
+        "WRAP_CONTACT_THROUGHOUT_CAPTURE",
+        "CAPTURE_REACTION_FORCE_PATH"
+      ],
+      "ambiguity_bucket": "KINEMATIC_STATE_UNRESOLVED",
+      "scope": {
+        "state_ids": [
+          "CAPTURE_AND_ROTATION",
+          "WRAP_ACTIVE"
+        ],
+        "transition_ids": [],
+        "required_coverage": "THROUGHOUT_SCOPE"
+      }
+    },
+    {
+      "id": "LABEL_TO_CAPTURE",
+      "provider_subsystem_id": "LABEL_PRESENTATION_AND_TRANSFER",
+      "consumer_subsystem_id": "CAPTURE_AND_ROTATION",
+      "contract_type": "LABEL_MEDIA_PRESENTATION",
+      "description": "Label presentation provides an appropriately positioned label lead during the active wrap interval.",
+      "required_requirement_ids": [
+        "LABEL_PRESENTATION_DURING_WRAP"
+      ],
+      "ambiguity_bucket": "GEOMETRY_UNRESOLVED",
+      "scope": {
+        "state_ids": [
+          "WRAP_ACTIVE"
+        ],
+        "transition_ids": [],
+        "required_coverage": "THROUGHOUT_SCOPE"
+      }
+    },
+    {
+      "id": "CAPTURE_TO_RELEASE",
+      "provider_subsystem_id": "CAPTURE_AND_ROTATION",
+      "consumer_subsystem_id": "RELEASE_AND_NEIGHBOR_CLEARANCE",
+      "contract_type": "RELEASE_AUTHORIZATION_AND_CLEARANCE_ENVELOPE",
+      "description": "Capture may release only after the wrap interval completes and reachable motion clearance is established.",
+      "required_requirement_ids": [
+        "REACHABLE_MOTION_CLEARANCE",
+        "BOTTLE_RESTRAINT_THROUGHOUT_CAPTURE"
+      ],
+      "ambiguity_bucket": "KINEMATIC_STATE_UNRESOLVED",
+      "scope": {
+        "state_ids": [
+          "CAPTURE_AND_ROTATION",
+          "RELEASE"
+        ],
+        "transition_ids": [
+          "CAPTURE_TO_RELEASE"
+        ],
+        "required_coverage": "REACHABLE_STATE_SET"
+      }
+    },
+    {
+      "id": "RELEASE_TO_TRANSPORT",
+      "provider_subsystem_id": "RELEASE_AND_NEIGHBOR_CLEARANCE",
+      "consumer_subsystem_id": "PRODUCT_TRANSPORT_AND_INDEXING",
+      "contract_type": "STATION_CLEAR_AND_NEXT_PRODUCT_ADMISSION",
+      "description": "Release provides a clear station before a new bottle is admitted to the controlled cycle.",
+      "required_requirement_ids": [
+        "RELEASE_PATH_CLEAR_ACROSS_REACHABLE_STATES"
+      ],
+      "ambiguity_bucket": "KINEMATIC_STATE_UNRESOLVED",
+      "scope": {
+        "state_ids": [
+          "EXIT_CLEAR"
+        ],
+        "transition_ids": [
+          "RELEASE_TO_EXIT_CLEAR"
+        ],
+        "required_coverage": "THROUGHOUT_SCOPE"
+      }
+    }
+  ],
+  "events": [
+    {
+      "id": "BOTTLE_INDEXED_EVENT",
+      "event_type": "OBSERVED_EVENT",
+      "owner_subsystem_id": "PRODUCT_TRANSPORT_AND_INDEXING",
+      "description": "The intended bottle is established at the indexed application position.",
+      "event_state": "UNRESOLVED",
+      "evidence_refs": [
+        "E_V42_COMPONENT_SNAPSHOT_20260925"
+      ]
+    },
+    {
+      "id": "CAPTURE_ESTABLISHED_EVENT",
+      "event_type": "PHYSICAL_EVENT",
+      "owner_subsystem_id": "CAPTURE_AND_ROTATION",
+      "description": "The justified capture mechanism has established required bottle restraint and contact.",
+      "event_state": "UNRESOLVED",
+      "evidence_refs": []
+    },
+    {
+      "id": "LABEL_PRESENTED_EVENT",
+      "event_type": "OBSERVED_EVENT",
+      "owner_subsystem_id": "LABEL_PRESENTATION_AND_TRANSFER",
+      "description": "Usable label media is present at the required presentation boundary.",
+      "event_state": "UNRESOLVED",
+      "evidence_refs": []
+    },
+    {
+      "id": "WRAP_BEGIN_EVENT",
+      "event_type": "COMMAND_EVENT",
+      "owner_subsystem_id": "CAPTURE_AND_ROTATION",
+      "description": "The wrap drive is commanded only after capture and label-presentation guards are valid.",
+      "event_state": "UNRESOLVED",
+      "evidence_refs": []
+    },
+    {
+      "id": "WRAP_COMPLETE_EVENT",
+      "event_type": "OBSERVED_EVENT",
+      "owner_subsystem_id": "CAPTURE_AND_ROTATION",
+      "description": "Required wrap motion is complete under an explicit measured or validated authority.",
+      "event_state": "UNRESOLVED",
+      "evidence_refs": []
+    },
+    {
+      "id": "RELEASE_COMMAND_EVENT",
+      "event_type": "COMMAND_EVENT",
+      "owner_subsystem_id": "RELEASE_AND_NEIGHBOR_CLEARANCE",
+      "description": "The controlled product release is commanded after completion and clearance guards are valid.",
+      "event_state": "UNRESOLVED",
+      "evidence_refs": []
+    },
+    {
+      "id": "STATION_CLEAR_EVENT",
+      "event_type": "OBSERVED_EVENT",
+      "owner_subsystem_id": "RELEASE_AND_NEIGHBOR_CLEARANCE",
+      "description": "The prior bottle has cleared the controlled application envelope.",
+      "event_state": "UNRESOLVED",
+      "evidence_refs": []
+    }
+  ],
+  "states": [
+    {
+      "id": "ENTRY",
+      "state_type": "PERSISTENT_STATE",
+      "owner_subsystem_id": "PRODUCT_TRANSPORT_AND_INDEXING",
+      "description": "A bottle approaches the controlled application cycle."
+    },
+    {
+      "id": "INDEXED",
+      "state_type": "PERSISTENT_STATE",
+      "owner_subsystem_id": "PRODUCT_TRANSPORT_AND_INDEXING",
+      "description": "One identified bottle occupies the intended indexed position."
+    },
+    {
+      "id": "CAPTURE_AND_ROTATION",
+      "state_type": "PERSISTENT_STATE",
+      "owner_subsystem_id": "CAPTURE_AND_ROTATION",
+      "description": "The bottle is under the capture/rotation subsystem's required restraint and motion relationship."
+    },
+    {
+      "id": "WRAP_ACTIVE",
+      "state_type": "MODE",
+      "owner_subsystem_id": "CAPTURE_AND_ROTATION",
+      "description": "The wrap mechanism is active within CAPTURE_AND_ROTATION."
+    },
+    {
+      "id": "RELEASE",
+      "state_type": "PERSISTENT_STATE",
+      "owner_subsystem_id": "RELEASE_AND_NEIGHBOR_CLEARANCE",
+      "description": "The completed bottle is permitted to leave the controlled station."
+    },
+    {
+      "id": "EXIT_CLEAR",
+      "state_type": "PERSISTENT_STATE",
+      "owner_subsystem_id": "RELEASE_AND_NEIGHBOR_CLEARANCE",
+      "description": "The controlled station is clear and a new product may be considered for entry."
+    },
+    {
+      "id": "HOLD_FAULT",
+      "state_type": "MODE",
+      "owner_subsystem_id": "CAPTURE_AND_ROTATION",
+      "description": "A required transition failed to arrive within its bounded watchdog or an evidence contradiction requires a hold."
+    }
+  ],
+  "transition_guards": [
+    {
+      "id": "GUARD_ONE_BOTTLE_INDEXED",
+      "owner_subsystem_id": "PRODUCT_TRANSPORT_AND_INDEXING",
+      "description": "Product position and index-stop behavior establish one active bottle before capture closure.",
+      "verification_state": "UNRESOLVED",
+      "ambiguity_bucket": "MEASUREMENT_REQUIRED",
+      "criticality": 5,
+      "resolution_cost": 1,
+      "expected_authority": [
+        "SOLIDWORKS_LIVE_STATE",
+        "DETERMINISTIC_CALCULATION"
+      ],
+      "evidence_refs": [
+        "E_V42_COMPONENT_SNAPSHOT_20260925"
+      ],
+      "depends_on_requirement_ids": [
+        "PRODUCT_POSITION_STABLE",
+        "INDEX_HARDSTOP_SEQUENCE"
+      ],
+      "scope": {
+        "state_ids": [
+          "INDEXED"
+        ],
+        "transition_ids": [
+          "INDEXED_TO_CAPTURE"
+        ],
+        "required_coverage": "THROUGHOUT_SCOPE"
+      }
+    },
+    {
+      "id": "GUARD_CAPTURE_KINEMATICS",
+      "owner_subsystem_id": "CAPTURE_AND_ROTATION",
+      "description": "Capture closure/actuation, restraint, reaction force path, and reachable clearance are established before wrap can begin.",
+      "verification_state": "UNRESOLVED",
+      "ambiguity_bucket": "KINEMATIC_STATE_UNRESOLVED",
+      "criticality": 5,
+      "resolution_cost": 2,
+      "expected_authority": [
+        "OEM_CAD",
+        "OEM_DOCUMENTATION",
+        "SOLIDWORKS_LIVE_STATE",
+        "DETERMINISTIC_CALCULATION"
+      ],
+      "evidence_refs": [
+        "E_V42_COMPONENT_SNAPSHOT_20260925"
+      ],
+      "depends_on_requirement_ids": [
+        "CAPTURE_KINEMATIC_OWNER",
+        "BOTTLE_RESTRAINT_THROUGHOUT_CAPTURE",
+        "WRAP_CONTACT_THROUGHOUT_CAPTURE",
+        "CAPTURE_REACTION_FORCE_PATH",
+        "REACHABLE_MOTION_CLEARANCE"
+      ],
+      "scope": {
+        "state_ids": [
+          "CAPTURE_AND_ROTATION"
+        ],
+        "transition_ids": [
+          "INDEXED_TO_CAPTURE"
+        ],
+        "required_coverage": "THROUGHOUT_SCOPE"
+      }
+    },
+    {
+      "id": "GUARD_LABEL_READY",
+      "owner_subsystem_id": "LABEL_PRESENTATION_AND_TRANSFER",
+      "description": "A valid label presentation relationship exists before wrap motion is authorized.",
+      "verification_state": "UNRESOLVED",
+      "ambiguity_bucket": "GEOMETRY_UNRESOLVED",
+      "criticality": 5,
+      "resolution_cost": 2,
+      "expected_authority": [
+        "OEM_CAD",
+        "SOLIDWORKS_LIVE_STATE",
+        "DETERMINISTIC_CALCULATION"
+      ],
+      "evidence_refs": [
+        "E_V42_COMPONENT_SNAPSHOT_20260925"
+      ],
+      "depends_on_requirement_ids": [
+        "LABEL_PRESENTATION_DURING_WRAP"
+      ],
+      "scope": {
+        "state_ids": [
+          "WRAP_ACTIVE"
+        ],
+        "transition_ids": [
+          "INDEXED_TO_CAPTURE"
+        ],
+        "required_coverage": "THROUGHOUT_SCOPE"
+      }
+    },
+    {
+      "id": "GUARD_WRAP_COMPLETION",
+      "owner_subsystem_id": "CAPTURE_AND_ROTATION",
+      "description": "Wrap completion has a bounded measured or validated authority before release is commanded.",
+      "verification_state": "UNRESOLVED",
+      "ambiguity_bucket": "MEASUREMENT_REQUIRED",
+      "criticality": 5,
+      "resolution_cost": 2,
+      "expected_authority": [
+        "DETERMINISTIC_CALCULATION",
+        "OEM_DOCUMENTATION"
+      ],
+      "evidence_refs": [],
+      "depends_on_requirement_ids": [
+        "WRAP_CONTACT_THROUGHOUT_CAPTURE"
+      ],
+      "scope": {
+        "state_ids": [
+          "WRAP_ACTIVE"
+        ],
+        "transition_ids": [
+          "CAPTURE_TO_RELEASE"
+        ],
+        "required_coverage": "THROUGHOUT_SCOPE"
+      }
+    },
+    {
+      "id": "GUARD_RELEASE_PATH",
+      "owner_subsystem_id": "RELEASE_AND_NEIGHBOR_CLEARANCE",
+      "description": "Reachable release and neighbor clearance are established before the next product is admitted.",
+      "verification_state": "UNRESOLVED",
+      "ambiguity_bucket": "KINEMATIC_STATE_UNRESOLVED",
+      "criticality": 5,
+      "resolution_cost": 2,
+      "expected_authority": [
+        "SOLIDWORKS_LIVE_STATE",
+        "DETERMINISTIC_CALCULATION"
+      ],
+      "evidence_refs": [
+        "E_V42_COMPONENT_SNAPSHOT_20260925"
+      ],
+      "depends_on_requirement_ids": [
+        "RELEASE_PATH_CLEAR_ACROSS_REACHABLE_STATES"
+      ],
+      "scope": {
+        "state_ids": [
+          "RELEASE",
+          "EXIT_CLEAR"
+        ],
+        "transition_ids": [
+          "RELEASE_TO_EXIT_CLEAR"
+        ],
+        "required_coverage": "REACHABLE_STATE_SET"
+      }
+    }
+  ],
+  "transitions": [
+    {
+      "id": "ENTRY_TO_INDEXED",
+      "from_state_id": "ENTRY",
+      "to_state_id": "INDEXED",
+      "trigger_event_id": "BOTTLE_INDEXED_EVENT",
+      "guard_ids": [
+        "GUARD_ONE_BOTTLE_INDEXED"
+      ],
+      "required_interface_ids": [
+        "TRANSPORT_TO_CAPTURE"
+      ]
+    },
+    {
+      "id": "INDEXED_TO_CAPTURE",
+      "from_state_id": "INDEXED",
+      "to_state_id": "CAPTURE_AND_ROTATION",
+      "trigger_event_id": "CAPTURE_ESTABLISHED_EVENT",
+      "guard_ids": [
+        "GUARD_ONE_BOTTLE_INDEXED",
+        "GUARD_CAPTURE_KINEMATICS",
+        "GUARD_LABEL_READY"
+      ],
+      "required_interface_ids": [
+        "TRANSPORT_TO_CAPTURE",
+        "CAPTURE_TO_LABEL",
+        "LABEL_TO_CAPTURE"
+      ]
+    },
+    {
+      "id": "CAPTURE_TO_RELEASE",
+      "from_state_id": "CAPTURE_AND_ROTATION",
+      "to_state_id": "RELEASE",
+      "trigger_event_id": "RELEASE_COMMAND_EVENT",
+      "guard_ids": [
+        "GUARD_WRAP_COMPLETION",
+        "GUARD_RELEASE_PATH"
+      ],
+      "required_interface_ids": [
+        "CAPTURE_TO_RELEASE"
+      ]
+    },
+    {
+      "id": "RELEASE_TO_EXIT_CLEAR",
+      "from_state_id": "RELEASE",
+      "to_state_id": "EXIT_CLEAR",
+      "trigger_event_id": "STATION_CLEAR_EVENT",
+      "guard_ids": [
+        "GUARD_RELEASE_PATH"
+      ],
+      "required_interface_ids": [
+        "RELEASE_TO_TRANSPORT"
+      ]
+    }
+  ],
+  "invariants": [
+    {
+      "id": "INV_BOTTLE_RESTRAINT_REMAINS_VALID",
+      "owner_subsystem_id": "CAPTURE_AND_ROTATION",
+      "description": "Bottle restraint remains valid throughout CAPTURE_AND_ROTATION, including the active wrap mode.",
+      "verification_state": "UNRESOLVED",
+      "ambiguity_bucket": "KINEMATIC_STATE_UNRESOLVED",
+      "criticality": 5,
+      "resolution_cost": 2,
+      "expected_authority": [
+        "OEM_CAD",
+        "SOLIDWORKS_LIVE_STATE",
+        "DETERMINISTIC_CALCULATION"
+      ],
+      "evidence_refs": [
+        "E_V42_COMPONENT_SNAPSHOT_20260925",
+        "E_V42_CAPTURE_DISTANCE_20260918"
+      ],
+      "depends_on_requirement_ids": [
+        "BOTTLE_RESTRAINT_THROUGHOUT_CAPTURE"
+      ],
+      "scope": {
+        "state_ids": [
+          "CAPTURE_AND_ROTATION",
+          "WRAP_ACTIVE"
+        ],
+        "transition_ids": [],
+        "required_coverage": "THROUGHOUT_SCOPE"
+      }
+    },
+    {
+      "id": "INV_CONTACT_REMAINS_VALID_DURING_WRAP",
+      "owner_subsystem_id": "CAPTURE_AND_ROTATION",
+      "description": "Required mechanical contact remains valid during the WRAP_ACTIVE interval rather than being inferred from a static clearance measurement.",
+      "verification_state": "UNRESOLVED",
+      "ambiguity_bucket": "KINEMATIC_STATE_UNRESOLVED",
+      "criticality": 5,
+      "resolution_cost": 2,
+      "expected_authority": [
+        "SOLIDWORKS_LIVE_STATE",
+        "DETERMINISTIC_CALCULATION"
+      ],
+      "evidence_refs": [
+        "E_V42_CAPTURE_DISTANCE_20260918"
+      ],
+      "depends_on_requirement_ids": [
+        "WRAP_CONTACT_THROUGHOUT_CAPTURE"
+      ],
+      "scope": {
+        "state_ids": [
+          "WRAP_ACTIVE"
+        ],
+        "transition_ids": [],
+        "required_coverage": "THROUGHOUT_SCOPE"
+      }
+    },
+    {
+      "id": "INV_CLEARANCE_APPLIES_TO_REACHABLE_MOTION",
+      "owner_subsystem_id": "CAPTURE_AND_ROTATION",
+      "description": "Clearance and interference acceptance applies across mechanically reachable capture and release states, not only the current v42 pose.",
+      "verification_state": "UNRESOLVED",
+      "ambiguity_bucket": "KINEMATIC_STATE_UNRESOLVED",
+      "criticality": 5,
+      "resolution_cost": 3,
+      "expected_authority": [
+        "OEM_CAD",
+        "SOLIDWORKS_LIVE_STATE",
+        "DETERMINISTIC_CALCULATION"
+      ],
+      "evidence_refs": [
+        "E_V42_COMPONENT_SNAPSHOT_20260925"
+      ],
+      "depends_on_requirement_ids": [
+        "REACHABLE_MOTION_CLEARANCE",
+        "RELEASE_PATH_CLEAR_ACROSS_REACHABLE_STATES"
+      ],
+      "scope": {
+        "state_ids": [
+          "CAPTURE_AND_ROTATION",
+          "RELEASE"
+        ],
+        "transition_ids": [
+          "INDEXED_TO_CAPTURE",
+          "CAPTURE_TO_RELEASE"
+        ],
+        "required_coverage": "REACHABLE_STATE_SET"
+      }
+    },
+    {
+      "id": "INV_NO_DOUBLE_FEED_DURING_CAPTURE",
+      "owner_subsystem_id": "PRODUCT_TRANSPORT_AND_INDEXING",
+      "description": "A second product is not admitted while CAPTURE_AND_ROTATION remains occupied.",
+      "verification_state": "UNRESOLVED",
+      "ambiguity_bucket": "KINEMATIC_STATE_UNRESOLVED",
+      "criticality": 5,
+      "resolution_cost": 2,
+      "expected_authority": [
+        "DETERMINISTIC_CALCULATION",
+        "SOLIDWORKS_LIVE_STATE"
+      ],
+      "evidence_refs": [
+        "E_V42_COMPONENT_SNAPSHOT_20260925"
+      ],
+      "depends_on_requirement_ids": [
+        "INDEX_HARDSTOP_SEQUENCE",
+        "BOTTLE_RESTRAINT_THROUGHOUT_CAPTURE"
+      ],
+      "scope": {
+        "state_ids": [
+          "CAPTURE_AND_ROTATION"
+        ],
+        "transition_ids": [],
+        "required_coverage": "THROUGHOUT_SCOPE"
+      }
+    }
+  ],
+  "duration_constraints": [
+    {
+      "id": "CAPTURE_ESTABLISHMENT_WATCHDOG",
+      "transition_id": "INDEXED_TO_CAPTURE",
+      "minimum_duration": 0,
+      "maximum_duration": 10,
+      "units": "s",
+      "constraint_type": "WATCHDOG"
+    },
+    {
+      "id": "WRAP_ACTIVE_COMPLETION_WINDOW",
+      "transition_id": "CAPTURE_TO_RELEASE",
+      "minimum_duration": 0,
+      "maximum_duration": 30,
+      "units": "s",
+      "constraint_type": "COMPLETION_WINDOW"
+    },
+    {
+      "id": "RELEASE_CLEAR_WATCHDOG",
+      "transition_id": "RELEASE_TO_EXIT_CLEAR",
+      "minimum_duration": 0,
+      "maximum_duration": 10,
+      "units": "s",
+      "constraint_type": "WATCHDOG"
+    }
+  ],
+  "temporal_relations": [
+    {
+      "from_kind": "state",
+      "from_id": "ENTRY",
+      "relation": "BEFORE",
+      "to_kind": "state",
+      "to_id": "INDEXED"
+    },
+    {
+      "from_kind": "state",
+      "from_id": "INDEXED",
+      "relation": "MEETS",
+      "to_kind": "state",
+      "to_id": "CAPTURE_AND_ROTATION"
+    },
+    {
+      "from_kind": "state",
+      "from_id": "CAPTURE_AND_ROTATION",
+      "relation": "CONTAINS",
+      "to_kind": "state",
+      "to_id": "WRAP_ACTIVE"
+    },
+    {
+      "from_kind": "state",
+      "from_id": "WRAP_ACTIVE",
+      "relation": "BEFORE",
+      "to_kind": "state",
+      "to_id": "RELEASE"
+    },
+    {
+      "from_kind": "state",
+      "from_id": "RELEASE",
+      "relation": "MEETS",
+      "to_kind": "state",
+      "to_id": "EXIT_CLEAR"
+    },
+    {
+      "from_kind": "event",
+      "from_id": "CAPTURE_ESTABLISHED_EVENT",
+      "relation": "BEFORE",
+      "to_kind": "event",
+      "to_id": "WRAP_BEGIN_EVENT"
+    },
+    {
+      "from_kind": "event",
+      "from_id": "WRAP_COMPLETE_EVENT",
+      "relation": "BEFORE",
+      "to_kind": "event",
+      "to_id": "RELEASE_COMMAND_EVENT"
+    }
+  ],
+  "hypotheses": [
+    {
+      "id": "H_CAPTURE_CLOSURE_OWNER",
+      "description": "A physical carrier, slide, pivot, actuator, or preload assembly owns bottle-capture closure but is not yet bound into the current v42 evidence model.",
+      "prior": "COMMON",
+      "evidence_state": "UNRESOLVED",
+      "investigation_state": "ELIGIBLE",
+      "related_requirement_ids": [
+        "CAPTURE_KINEMATIC_OWNER",
+        "BOTTLE_RESTRAINT_THROUGHOUT_CAPTURE",
+        "REACHABLE_MOTION_CLEARANCE"
+      ]
+    },
+    {
+      "id": "H_CAPTURE_COMPLIANCE_OR_PRELOAD",
+      "description": "Capture contact depends on a compliant or preloaded element whose evidence and usable range have not been established.",
+      "prior": "COMMON",
+      "evidence_state": "UNRESOLVED",
+      "investigation_state": "ELIGIBLE",
+      "related_requirement_ids": [
+        "BOTTLE_RESTRAINT_THROUGHOUT_CAPTURE",
+        "WRAP_CONTACT_THROUGHOUT_CAPTURE",
+        "CAPTURE_REACTION_FORCE_PATH"
+      ]
+    },
+    {
+      "id": "H_STATIC_FIT_IS_SUFFICIENT_FOR_CAPTURE",
+      "description": "A static v42 fit-check pose alone establishes operational capture and rotation.",
+      "prior": "COMMON",
+      "evidence_state": "DISPROVEN",
+      "investigation_state": "EXHAUSTED",
+      "related_requirement_ids": [
+        "BOTTLE_RESTRAINT_THROUGHOUT_CAPTURE",
+        "WRAP_CONTACT_THROUGHOUT_CAPTURE"
+      ]
+    },
+    {
+      "id": "H_UNBOUND_NESTED_OR_EXTERNAL_CAPTURE_MECHANISM",
+      "description": "A required capture mechanism exists in a nested configuration, feature, or external assembly boundary not represented by current top-level inventory.",
+      "prior": "UNCOMMON",
+      "evidence_state": "UNRESOLVED",
+      "investigation_state": "ELIGIBLE",
+      "related_requirement_ids": [
+        "CAPTURE_KINEMATIC_OWNER",
+        "CAPTURE_REACTION_FORCE_PATH"
+      ]
+    }
+  ],
+  "evidence_catalog": [
+    {
+      "schema_version": 1,
+      "record_type": "evidence",
+      "evidence_id": "E_V42_COMPONENT_SNAPSHOT_20260925",
+      "evidence_type": "solidworks_observation",
+      "evidence_state": "VERIFIED",
+      "source_authority": "SOLIDWORKS_LIVE_STATE",
+      "source_classification": "verified_from_solidworks_api",
+      "subject": {
+        "subject_type": "assembly",
+        "identity_exact": "IXOR_Benchmark_v42_ROLLER_GUIDE_HARDSTOP_FIT_CHECK_PORTABLE",
+        "document_title_exact": "IXOR_Benchmark_v42_ROLLER_GUIDE_HARDSTOP_FIT_CHECK_PORTABLE",
+        "document_path_exact": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v42_ROLLER_GUIDE_HARDSTOP_FIT_CHECK_PORTABLE.SLDASM"
+      },
+      "provenance": {
+        "recorded_at": "2026-09-25T02:04:47.678755+00:00",
+        "source_ref": "CADGrounded SOLIDWORKS read-only sw.status plus top-level sw.query_components",
+        "tool_path": "CADGrounded SOLIDWORKS bridge 0.3.0"
+      },
+      "dependencies": [],
+      "geometry_state": "FIT_CHECK",
+      "mechanical_acceptance_granted": false,
+      "temporal_scope": {
+        "coverage": "POINT_ONLY",
+        "validity_state": "CURRENT",
+        "state_ids": [],
+        "transition_ids": []
+      },
+      "payload": {
+        "observation_kind": "top_level_component_inventory",
+        "document": {
+          "title": "IXOR_Benchmark_v42_ROLLER_GUIDE_HARDSTOP_FIT_CHECK_PORTABLE",
+          "path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v42_ROLLER_GUIDE_HARDSTOP_FIT_CHECK_PORTABLE.SLDASM"
+        },
+        "known_present_components": [
+          "BENCH_BOTTLE_D48_H180-2",
+          "FITCHECK_DRIVEN_WRAP_BELT_5x160x93_V25-1",
+          "FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25-1",
+          "FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25-2",
+          "FITCHECK_INDEX_STOP_FINGER_54p25x6x20_V37-1",
+          "FITCHECK_INDEX_STOP_FINGER_54p25x6x20_V37-2",
+          "6130648_01_Carriage_Schlitten_AL_NATIVE_PORTABLE_V22-1"
+        ]
+      }
+    },
+    {
+      "schema_version": 1,
+      "record_type": "evidence",
+      "evidence_id": "E_V42_CAPTURE_DISTANCE_20260918",
+      "evidence_type": "deterministic_calculation",
+      "evidence_state": "MEASURED_CALCULATED",
+      "source_authority": "DETERMINISTIC_CALCULATION",
+      "source_classification": "exact_closest_distance_from_prior_v42_evidence",
+      "subject": {
+        "subject_type": "component_pair",
+        "identity_exact": "BENCH_BOTTLE_D48_H180-2 <> FITCHECK_DRIVEN_WRAP_BELT_5x160x93_V25-1"
+      },
+      "provenance": {
+        "recorded_at": "2026-09-18T05:52:35.359000+00:00",
+        "source_ref": "Google Drive V42_CAPTURE_STATION_EVIDENCE_2026-09-18.md"
+      },
+      "dependencies": [
+        "E_V42_COMPONENT_SNAPSHOT_20260925"
+      ],
+      "geometry_state": "FIT_CHECK",
+      "ambiguity_bucket": "STALE_STATE",
+      "mechanical_acceptance_granted": false,
+      "temporal_scope": {
+        "coverage": "POINT_ONLY",
+        "validity_state": "STALE",
+        "state_ids": [],
+        "transition_ids": []
+      },
+      "payload": {
+        "method": "exact_closest_distance_pair",
+        "inputs": [
+          "BENCH_BOTTLE_D48_H180-2",
+          "FITCHECK_DRIVEN_WRAP_BELT_5x160x93_V25-1",
+          "FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25-2"
+        ],
+        "result": {
+          "bottle_to_belt_mm": 0.329384717,
+          "bottle_to_support_roller_2_mm": 0.321626347
+        },
+        "engineering_limit": "Historic point distances do not establish contact, capture kinematics, restraint, preload, or interval-wide clearance."
+      }
+    }
+  ],
+  "next_tests": [
+    {
+      "id": "TEST_CAPTURE_KINEMATIC_OWNER",
+      "question": "Which exact physical subassembly owns capture closure, guidance, limits, actuation, and preload for the belt/roller station?",
+      "resolves_requirement_ids": [
+        "CAPTURE_KINEMATIC_OWNER"
+      ],
+      "hypothesis_ids": [
+        "H_CAPTURE_CLOSURE_OWNER",
+        "H_CAPTURE_COMPLIANCE_OR_PRELOAD",
+        "H_UNBOUND_NESTED_OR_EXTERNAL_CAPTURE_MECHANISM"
+      ],
+      "discrimination_power": 0.98,
+      "evidence_confidence": 0.9,
+      "unresolved_relevance": 1,
+      "cost": 1
+    },
+    {
+      "id": "TEST_CAPTURE_RESTRAINT_AND_CONTACT_INTERVAL",
+      "question": "After the capture owner is bound, what evidence proves bottle restraint and required contact throughout capture and WRAP_ACTIVE rather than at one static pose?",
+      "resolves_requirement_ids": [
+        "BOTTLE_RESTRAINT_THROUGHOUT_CAPTURE",
+        "WRAP_CONTACT_THROUGHOUT_CAPTURE",
+        "INV_BOTTLE_RESTRAINT_REMAINS_VALID",
+        "INV_CONTACT_REMAINS_VALID_DURING_WRAP"
+      ],
+      "hypothesis_ids": [
+        "H_CAPTURE_COMPLIANCE_OR_PRELOAD"
+      ],
+      "discrimination_power": 0.95,
+      "evidence_confidence": 0.85,
+      "unresolved_relevance": 1,
+      "cost": 2
+    },
+    {
+      "id": "TEST_REACHABLE_CAPTURE_AND_RELEASE_ENVELOPE",
+      "question": "What bounded reachable motion envelope must be checked for capture and release, and which exact whole-body clearance/interference tests cover it?",
+      "resolves_requirement_ids": [
+        "REACHABLE_MOTION_CLEARANCE",
+        "RELEASE_PATH_CLEAR_ACROSS_REACHABLE_STATES",
+        "INV_CLEARANCE_APPLIES_TO_REACHABLE_MOTION"
+      ],
+      "hypothesis_ids": [
+        "H_CAPTURE_CLOSURE_OWNER"
+      ],
+      "discrimination_power": 0.92,
+      "evidence_confidence": 0.8,
+      "unresolved_relevance": 1,
+      "cost": 3
+    },
+    {
+      "id": "TEST_FRESH_V42_COMPONENT_BINDING",
+      "question": "Obtain a fresh exact v42 component binding before interpreting any new geometry-dependent evidence; this read does not itself prove capture or clearance.",
+      "resolves_requirement_ids": [
+        "PRODUCT_POSITION_STABLE"
+      ],
+      "hypothesis_ids": [],
+      "discrimination_power": 0.4,
+      "evidence_confidence": 1,
+      "unresolved_relevance": 0.5,
+      "cost": 1,
+      "cad_request": {
+        "schema_version": 1,
+        "job_id": "v42-functional-temporal-component-binding",
+        "command_id": "sw.query_components",
+        "write_authority": "NONE",
+        "payload": {
+          "top_level_only": true
+        }
+      }
+    }
+  ]
+}
