@@ -25,8 +25,10 @@ The important idea is that **a NULL is not treated as an empty hole**. The graph
 - `identity_bindings.py` — validates those exact bindings against admitted live SOLIDWORKS evidence.
 - `geometry_projection.py` — calculates conservative AABB relations from admitted exact-identity evidence.
 - `graph_projection.py` — creates a fresh runtime epistemic graph from admitted/calculated live evidence without copying toy geometry values.
-- `functional_temporal.py` — validates and evaluates generic functional decomposition, interface contracts, temporal states/events/invariants, and deterministic next-test ranking without commanding CAD.\n- `cad_interface_contract.py` — validates API-readable CAD interface frames and deterministically derives interface-to-interface displacement without commanding CAD.
-- `reference_cases/v42_capture_and_rotation.functional-temporal.v1.json` — v42 fit-check reference case; it preserves capture-owner binding, interval restraint/contact, and reachable-motion clearance as unresolved while recording the fresh 2026-09-25 full inventory.\n- `reference_cases/v42_product_flow.cad-interface-contract.v1.json` — v42 candidate product-flow interface contract pairing Published Asset connector identities with API-readable entry/exit coordinate-system frames while leaving connector/frame geometric coincidence unresolved.
+- `functional_temporal.py` — validates and evaluates generic functional decomposition, interface contracts, temporal states/events/invariants, and deterministic next-test ranking without commanding CAD.
+- `cad_interface_contract.py` — validates API-readable CAD interface frames and deterministically derives interface-to-interface displacement without commanding CAD.
+- `reference_cases/v42_capture_and_rotation.functional-temporal.v1.json` — v42 fit-check reference case; it preserves capture-owner binding, interval restraint/contact, and reachable-motion clearance as unresolved while recording the fresh 2026-09-25 full inventory.
+- `reference_cases/v42_product_flow.cad-interface-contract.v1.json` — v42 candidate product-flow interface contract pairing Published Asset connector identities with API-readable entry/exit coordinate-system frames while leaving connector/frame geometric coincidence unresolved.
 - `reference_cases/v42_capture_owner_investigation_2026-09-25.md` — evidence-bound v42 capture-owner investigation note, including stale-state limits and the exact next read-only boundary.
 - `../docs/V42_CAPTURE_OWNER_BINDING_EVIDENCE_CONTRACT.md` — local-only v42 `sw.query_mates` candidate contract. It defines the exact parentage/constraint evidence required, pre/post no-mutation comparison, and the facts the probe cannot establish.
 - `test_reasoner.py` — reasoner regression tests.
@@ -35,7 +37,8 @@ The important idea is that **a NULL is not treated as an empty hole**. The graph
 - `test_geometry_projection.py` — deterministic AABB projection regression tests.
 - `test_graph_projection.py` — live-evidence runtime graph regression tests.
 - `test_domain_model_contract.py` — static regression tests for the CADRequest/EvidenceRecord subtype partitions and authority boundaries.
-- `test_functional_temporal.py` — functional/temporal architecture regression tests, including stale interval evidence and no-acceptance boundaries.\n- `test_cad_interface_contract.py` — CAD-interface regression tests, including the 900 mm +X entry-to-exit product-flow derivation and the connector/frame evidence boundary.
+- `test_functional_temporal.py` — functional/temporal architecture regression tests, including stale interval evidence and no-acceptance boundaries.
+- `test_cad_interface_contract.py` — CAD-interface regression tests, including the 900 mm +X entry-to-exit product-flow derivation and the connector/frame evidence boundary.
 
 ## Domain Model v1
 
