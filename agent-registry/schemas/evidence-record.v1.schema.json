@@ -148,6 +148,51 @@
         "NOT_APPLICABLE"
       ]
     },
+    "temporal_scope": {
+      "description": "Optional explicit scope of the claim. A point observation does not prove an interval invariant or a reachable-motion claim.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "coverage",
+        "validity_state",
+        "state_ids",
+        "transition_ids"
+      ],
+      "properties": {
+        "coverage": {
+          "enum": [
+            "POINT_ONLY",
+            "THROUGHOUT_SCOPE",
+            "REACHABLE_STATE_SET"
+          ]
+        },
+        "validity_state": {
+          "enum": [
+            "CURRENT",
+            "STALE",
+            "UNKNOWN"
+          ]
+        },
+        "state_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 192
+          }
+        },
+        "transition_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 192
+          }
+        }
+      }
+    },
     "ambiguity_bucket": {
       "enum": [
         "IDENTITY_AMBIGUOUS",

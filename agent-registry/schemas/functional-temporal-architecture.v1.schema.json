@@ -1,0 +1,747 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cadgrounded.local/schemas/functional-temporal-architecture.v1.schema.json",
+  "title": "CADGrounded functional decomposition and temporal operating-state architecture v1",
+  "description": "Candidate non-runtime reasoning contract. Cross-reference, authority, freshness, and interval-coverage rules are enforced by reasoning/functional_temporal.py.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "architecture_id",
+    "machine_goal",
+    "subsystems",
+    "obligations",
+    "interfaces",
+    "events",
+    "states",
+    "transition_guards",
+    "transitions",
+    "invariants",
+    "duration_constraints",
+    "temporal_relations",
+    "hypotheses",
+    "evidence_catalog",
+    "next_tests"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "architecture_id": {
+      "$ref": "#/$defs/id"
+    },
+    "machine_goal": {
+      "$ref": "#/$defs/machineGoal"
+    },
+    "subsystems": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/subsystem"
+      }
+    },
+    "obligations": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/requirement"
+      }
+    },
+    "interfaces": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/interface"
+      }
+    },
+    "events": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/event"
+      }
+    },
+    "states": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/state"
+      }
+    },
+    "transition_guards": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/requirement"
+      }
+    },
+    "transitions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/transition"
+      }
+    },
+    "invariants": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/requirement"
+      }
+    },
+    "duration_constraints": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/durationConstraint"
+      }
+    },
+    "temporal_relations": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/temporalRelation"
+      }
+    },
+    "hypotheses": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/hypothesis"
+      }
+    },
+    "evidence_catalog": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/evidenceRecord"
+      }
+    },
+    "next_tests": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/nextTest"
+      }
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 192,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,191}$"
+    },
+    "idList": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/id"
+      }
+    },
+    "machineGoal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "description",
+        "mechanical_acceptance_granted"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        },
+        "geometry_state": {
+          "enum": [
+            "SOURCE_GEOMETRY",
+            "FIT_CHECK",
+            "CANDIDATE_OPERATING",
+            "MECHANICALLY_ACCEPTED",
+            "NOT_APPLICABLE"
+          ]
+        },
+        "mechanical_acceptance_granted": {
+          "const": false
+        }
+      }
+    },
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "state_ids",
+        "transition_ids",
+        "required_coverage"
+      ],
+      "properties": {
+        "state_ids": {
+          "$ref": "#/$defs/idList"
+        },
+        "transition_ids": {
+          "$ref": "#/$defs/idList"
+        },
+        "required_coverage": {
+          "enum": [
+            "POINT_ONLY",
+            "THROUGHOUT_SCOPE",
+            "REACHABLE_STATE_SET"
+          ]
+        }
+      }
+    },
+    "subsystem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "parent_id",
+        "goal",
+        "local_obligation_ids",
+        "provided_interface_ids",
+        "consumed_interface_ids"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "parent_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "goal": {
+          "type": "string",
+          "minLength": 1
+        },
+        "local_obligation_ids": {
+          "$ref": "#/$defs/idList"
+        },
+        "provided_interface_ids": {
+          "$ref": "#/$defs/idList"
+        },
+        "consumed_interface_ids": {
+          "$ref": "#/$defs/idList"
+        }
+      }
+    },
+    "requirement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "owner_subsystem_id",
+        "description",
+        "verification_state",
+        "ambiguity_bucket",
+        "criticality",
+        "resolution_cost",
+        "expected_authority",
+        "evidence_refs",
+        "depends_on_requirement_ids",
+        "scope"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "owner_subsystem_id": {
+          "$ref": "#/$defs/id"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        },
+        "verification_state": {
+          "enum": [
+            "VERIFIED",
+            "UNRESOLVED",
+            "VIOLATED"
+          ]
+        },
+        "ambiguity_bucket": {
+          "enum": [
+            "IDENTITY_AMBIGUOUS",
+            "GEOMETRY_UNRESOLVED",
+            "KINEMATIC_STATE_UNRESOLVED",
+            "MEASUREMENT_REQUIRED",
+            "CAD_READ_REQUIRED",
+            "OEM_SOURCE_REQUIRED",
+            "SOURCE_CONFLICT",
+            "MULTIPLE_PLAUSIBLE_HYPOTHESES",
+            "INSUFFICIENT_EVIDENCE",
+            "STALE_STATE",
+            "POLICY_BLOCKED",
+            "MECHANICAL_ACCEPTANCE_BLOCKED"
+          ]
+        },
+        "criticality": {
+          "type": "number",
+          "minimum": 0
+        },
+        "resolution_cost": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "expected_authority": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "evidence_refs": {
+          "$ref": "#/$defs/idList"
+        },
+        "depends_on_requirement_ids": {
+          "$ref": "#/$defs/idList"
+        },
+        "scope": {
+          "$ref": "#/$defs/scope"
+        }
+      }
+    },
+    "interface": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "provider_subsystem_id",
+        "consumer_subsystem_id",
+        "contract_type",
+        "description",
+        "required_requirement_ids",
+        "ambiguity_bucket",
+        "scope"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "provider_subsystem_id": {
+          "$ref": "#/$defs/id"
+        },
+        "consumer_subsystem_id": {
+          "$ref": "#/$defs/id"
+        },
+        "contract_type": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        },
+        "required_requirement_ids": {
+          "$ref": "#/$defs/idList"
+        },
+        "ambiguity_bucket": {
+          "$ref": "#/$defs/requirement/properties/ambiguity_bucket"
+        },
+        "scope": {
+          "$ref": "#/$defs/scope"
+        }
+      }
+    },
+    "event": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "event_type",
+        "owner_subsystem_id",
+        "description",
+        "event_state",
+        "evidence_refs"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "event_type": {
+          "enum": [
+            "OBSERVED_EVENT",
+            "COMMAND_EVENT",
+            "PHYSICAL_EVENT",
+            "FAULT_EVENT"
+          ]
+        },
+        "owner_subsystem_id": {
+          "$ref": "#/$defs/id"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        },
+        "event_state": {
+          "enum": [
+            "VERIFIED",
+            "UNRESOLVED",
+            "VIOLATED"
+          ]
+        },
+        "evidence_refs": {
+          "$ref": "#/$defs/idList"
+        }
+      }
+    },
+    "state": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "state_type",
+        "owner_subsystem_id",
+        "description"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "state_type": {
+          "enum": [
+            "PERSISTENT_STATE",
+            "MODE"
+          ]
+        },
+        "owner_subsystem_id": {
+          "$ref": "#/$defs/id"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "transition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "from_state_id",
+        "to_state_id",
+        "trigger_event_id",
+        "guard_ids",
+        "required_interface_ids"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "from_state_id": {
+          "$ref": "#/$defs/id"
+        },
+        "to_state_id": {
+          "$ref": "#/$defs/id"
+        },
+        "trigger_event_id": {
+          "$ref": "#/$defs/id"
+        },
+        "guard_ids": {
+          "$ref": "#/$defs/idList"
+        },
+        "required_interface_ids": {
+          "$ref": "#/$defs/idList"
+        }
+      }
+    },
+    "durationConstraint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "transition_id",
+        "minimum_duration",
+        "maximum_duration",
+        "units",
+        "constraint_type"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "transition_id": {
+          "$ref": "#/$defs/id"
+        },
+        "minimum_duration": {
+          "type": "number",
+          "minimum": 0
+        },
+        "maximum_duration": {
+          "type": "number",
+          "minimum": 0
+        },
+        "units": {
+          "type": "string",
+          "minLength": 1
+        },
+        "constraint_type": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "temporalRelation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "from_kind",
+        "from_id",
+        "relation",
+        "to_kind",
+        "to_id"
+      ],
+      "properties": {
+        "from_kind": {
+          "enum": [
+            "state",
+            "event",
+            "transition",
+            "obligation",
+            "guard",
+            "invariant",
+            "interface"
+          ]
+        },
+        "from_id": {
+          "$ref": "#/$defs/id"
+        },
+        "relation": {
+          "enum": [
+            "BEFORE",
+            "MEETS",
+            "OVERLAPS",
+            "FINISHED_BY",
+            "CONTAINS",
+            "STARTS",
+            "EQUALS",
+            "STARTED_BY",
+            "DURING",
+            "FINISHES",
+            "OVERLAPPED_BY",
+            "MET_BY",
+            "AFTER"
+          ]
+        },
+        "to_kind": {
+          "$ref": "#/$defs/temporalRelation/properties/from_kind"
+        },
+        "to_id": {
+          "$ref": "#/$defs/id"
+        }
+      }
+    },
+    "hypothesis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "description",
+        "prior",
+        "evidence_state",
+        "investigation_state",
+        "related_requirement_ids"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        },
+        "prior": {
+          "enum": [
+            "COMMON",
+            "UNCOMMON",
+            "RARE"
+          ]
+        },
+        "evidence_state": {
+          "enum": [
+            "UNTESTED",
+            "SUPPORTED",
+            "WEAKENED",
+            "DISPROVEN",
+            "UNRESOLVED"
+          ]
+        },
+        "investigation_state": {
+          "enum": [
+            "DORMANT",
+            "ELIGIBLE",
+            "ACTIVE",
+            "EXHAUSTED"
+          ]
+        },
+        "related_requirement_ids": {
+          "$ref": "#/$defs/idList"
+        }
+      }
+    },
+    "evidenceRecord": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "schema_version",
+        "record_type",
+        "evidence_id",
+        "evidence_type",
+        "evidence_state",
+        "source_authority",
+        "mechanical_acceptance_granted",
+        "temporal_scope"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": 1
+        },
+        "record_type": {
+          "const": "evidence"
+        },
+        "evidence_id": {
+          "$ref": "#/$defs/id"
+        },
+        "evidence_type": {
+          "enum": [
+            "solidworks_observation",
+            "oem_evidence",
+            "deterministic_calculation",
+            "human_observation",
+            "ai_visualization_record"
+          ]
+        },
+        "evidence_state": {
+          "enum": [
+            "VERIFIED",
+            "MEASURED_CALCULATED",
+            "INFERRED",
+            "HYPOTHETICAL",
+            "UNRESOLVED",
+            "AI_GENERATED"
+          ]
+        },
+        "source_authority": {
+          "type": "string",
+          "minLength": 1
+        },
+        "mechanical_acceptance_granted": {
+          "const": false
+        },
+        "temporal_scope": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "coverage",
+            "validity_state",
+            "state_ids",
+            "transition_ids"
+          ],
+          "properties": {
+            "coverage": {
+              "enum": [
+                "POINT_ONLY",
+                "THROUGHOUT_SCOPE",
+                "REACHABLE_STATE_SET"
+              ]
+            },
+            "validity_state": {
+              "enum": [
+                "CURRENT",
+                "STALE",
+                "UNKNOWN"
+              ]
+            },
+            "state_ids": {
+              "$ref": "#/$defs/idList"
+            },
+            "transition_ids": {
+              "$ref": "#/$defs/idList"
+            }
+          }
+        }
+      }
+    },
+    "readOnlyCadRequest": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "schema_version",
+        "job_id",
+        "command_id",
+        "write_authority",
+        "payload"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": 1
+        },
+        "job_id": {
+          "$ref": "#/$defs/id"
+        },
+        "command_id": {
+          "enum": [
+            "sw.status",
+            "sw.query_components",
+            "sw.closest_distance_pair"
+          ]
+        },
+        "write_authority": {
+          "const": "NONE"
+        },
+        "payload": {
+          "type": "object"
+        }
+      }
+    },
+    "nextTest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "question",
+        "resolves_requirement_ids",
+        "hypothesis_ids",
+        "discrimination_power",
+        "evidence_confidence",
+        "unresolved_relevance",
+        "cost"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "question": {
+          "type": "string",
+          "minLength": 1
+        },
+        "resolves_requirement_ids": {
+          "$ref": "#/$defs/idList"
+        },
+        "hypothesis_ids": {
+          "$ref": "#/$defs/idList"
+        },
+        "discrimination_power": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "evidence_confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "unresolved_relevance": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "cost": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "cad_request": {
+          "$ref": "#/$defs/readOnlyCadRequest"
+        }
+      }
+    }
+  }
+}
