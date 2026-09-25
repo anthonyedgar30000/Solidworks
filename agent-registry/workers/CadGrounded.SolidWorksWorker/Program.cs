@@ -221,7 +221,7 @@ READ-ONLY COMMANDS
   version
 
 execute-json request:
-  {"command_id":"sw.status","payload":{}}
+  {"command_id":"sw.status","payload":{} }
 
 serve-stdio:
   One compact JSON request per line; one compact JSON response per line.
