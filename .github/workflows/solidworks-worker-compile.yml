@@ -1,0 +1,36 @@
+name: CADGrounded worker compile
+
+on:
+  pull_request:
+    paths:
+      - "agent-registry/workers/CadGrounded.SolidWorksWorker/**"
+      - ".github/workflows/solidworks-worker-compile.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "agent-registry/workers/CadGrounded.SolidWorksWorker/**"
+      - ".github/workflows/solidworks-worker-compile.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Windows worker source build
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+      - name: Compile net8.0-windows worker
+        working-directory: agent-registry/workers/CadGrounded.SolidWorksWorker
+        run: >-
+          dotnet build CadGrounded.SolidWorksWorker.csproj
+          --configuration Release
+          --property:UseNuGetSolidWorksInterop=true

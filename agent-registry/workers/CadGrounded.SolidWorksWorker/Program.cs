@@ -208,8 +208,8 @@ internal static class Program
 
     private static void PrintUsage()
     {
-        Console.WriteLine($"""
-CadGrounded.SolidWorksWorker v{Version}
+        Console.WriteLine($$"""
+CadGrounded.SolidWorksWorker v{{Version}}
 
 READ-ONLY COMMANDS
   status
@@ -221,7 +221,7 @@ READ-ONLY COMMANDS
   version
 
 execute-json request:
-  {{"command_id":"sw.status","payload":{{}}}}
+  {"command_id":"sw.status","payload":{} }
 
 serve-stdio:
   One compact JSON request per line; one compact JSON response per line.
@@ -543,7 +543,7 @@ internal sealed class SolidWorksSession : IDisposable
         var rows = new List<object>();
         var traversalErrors = new List<string>();
 
-        IFeature? feature = _doc.FirstFeature();
+        IFeature? feature = _doc.FirstFeature() as IFeature;
         IFeature? mateGroup = null;
         while (feature is not null)
         {

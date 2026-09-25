@@ -51,14 +51,21 @@ Requires a .NET 8 SDK and the installed SOLIDWORKS interop DLLs at:
 
     C:\Program Files\SOLIDWORKS Corp\SOLIDWORKS
 
+## CI compile gate
+
+GitHub Actions compiles this same `net8.0-windows` / `win-x64` project on a Windows runner with `UseNuGetSolidWorksInterop=true`. That property is CI-only: it supplies pinned interop metadata solely to compile the worker source and does not start, connect to, or modify SOLIDWORKS.
+
+A passing CI compile catches C# source and Windows-target build regressions before a worker change is considered verification-ready. It does **not** replace the required native-host `build.cmd` result, nor does it establish any live CAD fact or no-mutation result.
+
 ## Verification before transport exposure
 
-1. Build successfully on the SOLIDWORKS Windows host.
-2. Run `version` and verify worker version `0.3.1`.
-3. Run `status` and verify `write_authority: NONE` and the exact active document.
-4. Run `mates --component <exact Name2>` against a known component.
-5. For the v42 capture-owner investigation, run `Verify-QueryMates-V42.ps1` against the exact active v42 assembly. It compares document identity/configuration/save state, target component state/transforms, and assembly file evidence before and after the three target mate reads.
-6. Only then expose `sw.query_mates` through a separately reviewed Remote Queue validator/schema/allowlist.
+1. The GitHub Actions Windows compile gate must pass.
+2. Build successfully on the SOLIDWORKS Windows host with `build.cmd` (installed interop DLLs).
+3. Run `version` and verify worker version `0.3.1`.
+4. Run `status` and verify `write_authority: NONE` and the exact active document.
+5. Run `mates --component <exact Name2>` against a known component.
+6. For the v42 capture-owner investigation, run `Verify-QueryMates-V42.ps1` against the exact active v42 assembly. It compares document identity/configuration/save state, target component state/transforms, and assembly file evidence before and after the three target mate reads.
+7. Only then expose `sw.query_mates` through a separately reviewed Remote Queue validator/schema/allowlist.
 
 Do not infer that repository source has compiled successfully on a SOLIDWORKS machine until `build.cmd` succeeds there. Repository review is not runtime verification.
 
