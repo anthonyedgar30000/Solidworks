@@ -9,7 +9,7 @@ namespace CadGrounded.SolidWorksWorker;
 
 internal static class Program
 {
-    internal const string Version = "0.3.1";
+    internal const string Version = "0.4.0";
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         WriteIndented = true,
@@ -31,6 +31,7 @@ internal static class Program
             {
                 "status" => RunCli("sw.status", JsonDocument.Parse("{}").RootElement),
                 "components" => RunComponentsCli(args.Skip(1).ToArray()),
+                "interface-contract" => RunInterfaceContractCli(args.Skip(1).ToArray()),
                 "closest-distance" => RunClosestDistanceCli(args.Skip(1).ToArray()),
                 "mates" => RunMatesCli(args.Skip(1).ToArray()),
                 "execute-json" => RunExecuteJson(),
@@ -74,6 +75,43 @@ internal static class Program
         }));
 
         return RunCli("sw.query_components", doc.RootElement);
+    }
+
+    private static int RunInterfaceContractCli(string[] args)
+    {
+        var coordinateSystemNames = new List<string>();
+        var connectorNames = new List<string>();
+
+        for (var i = 0; i < args.Length; i++)
+        {
+            switch (args[i])
+            {
+                case "--coordinate-system":
+                    coordinateSystemNames.Add(RequireNext(args, ref i, "--coordinate-system"));
+                    break;
+                case "--connector":
+                    connectorNames.Add(RequireNext(args, ref i, "--connector"));
+                    break;
+                default:
+                    return Fail($"Unknown interface-contract option: {args[i]}", 2);
+            }
+        }
+
+        if (coordinateSystemNames.Count == 0 || connectorNames.Count == 0)
+        {
+            return Fail(
+                "interface-contract requires one or more --coordinate-system <exact feature name> " +
+                "and one or more --connector <exact feature name>.",
+                2);
+        }
+
+        using var doc = JsonDocument.Parse(JsonSerializer.Serialize(new
+        {
+            coordinate_system_feature_names = coordinateSystemNames,
+            published_reference_connector_names = connectorNames
+        }));
+
+        return RunCli("sw.query_interface_contract", doc.RootElement);
     }
 
     private static int RunClosestDistanceCli(string[] args)
@@ -214,6 +252,7 @@ CadGrounded.SolidWorksWorker v{{Version}}
 READ-ONLY COMMANDS
   status
   components [--all]
+  interface-contract --coordinate-system <exact feature name> [--coordinate-system <exact feature name> ...] --connector <exact feature name> [--connector <exact feature name> ...]
   closest-distance --a <exact Name2> --b <exact Name2>
   mates --component <exact Name2>
   execute-json
@@ -237,6 +276,7 @@ internal static class Dispatcher
     {
         "sw.status",
         "sw.query_components",
+        "sw.query_interface_contract",
         "sw.closest_distance_pair",
         "sw.classify_contact_pair",
         "sw.query_mates"
@@ -262,11 +302,26 @@ internal static class Dispatcher
         {
             using var session = SolidWorksSession.Attach();
 
+            if (commandId == "sw.query_interface_contract")
+            {
+                JsonHelpers.RequireOnlyProperties(
+                    payload,
+                    "coordinate_system_feature_names",
+                    "published_reference_connector_names");
+            }
+
             object data = commandId switch
             {
                 "sw.status" => session.Status(),
                 "sw.query_components" => session.QueryComponents(
                     JsonHelpers.GetOptionalBool(payload, "top_level_only", true)),
+                "sw.query_interface_contract" => session.QueryInterfaceContract(
+                    JsonHelpers.GetRequiredUniqueStringArray(
+                        payload,
+                        "coordinate_system_feature_names"),
+                    JsonHelpers.GetRequiredUniqueStringArray(
+                        payload,
+                        "published_reference_connector_names")),
                 "sw.closest_distance_pair" => session.ClosestDistancePair(
                     JsonHelpers.GetRequiredString(payload, "a_name_exact"),
                     JsonHelpers.GetRequiredString(payload, "b_name_exact")),
@@ -521,6 +576,203 @@ internal sealed class SolidWorksSession : IDisposable
             top_level_only = topLevelOnly,
             component_count = rows.Length,
             components = rows
+        };
+    }
+
+    public object QueryInterfaceContract(
+        string[] coordinateSystemFeatureNames,
+        string[] publishedReferenceConnectorNames)
+    {
+        // This is intentionally a local, bounded getter-only surface. It reads
+        // only exact feature records named in the request and the transform of
+        // exact CoordSys records. It never selects, edits, rebuilds, saves, or
+        // creates an Asset Publisher connection.
+        RequireAssembly();
+
+        var features = EnumerateFeatures().ToArray();
+        var coordinateSystems = coordinateSystemFeatureNames
+            .Select(name => ReadCoordinateSystemFeature(
+                RequireExactFeature(features, name, "CoordSys", "coordinate system")))
+            .ToArray();
+        var publishedReferences = publishedReferenceConnectorNames
+            .Select(name => ReadPublishedReferenceFeature(
+                RequireExactFeature(features, name, "MagneticConnectRef", "Published Reference connector")))
+            .ToArray();
+
+        return new
+        {
+            document = ReadDocumentState(),
+            request = new
+            {
+                coordinate_system_feature_names = coordinateSystemFeatureNames,
+                published_reference_connector_names = publishedReferenceConnectorNames
+            },
+            coordinate_systems = coordinateSystems,
+            published_reference_features = publishedReferences,
+            result_scope = "EXACT_NAMED_FEATURES_ONLY",
+            published_reference_manager_binding_state = "UNRESOLVED",
+            published_reference_manager_binding_note =
+                "The bounded IFeature query verifies exact connector feature name/type only. " +
+                "Published References manager grouping and connector-to-coordinate-system geometry " +
+                "are not inferred from this observation.",
+            geometry_binding_state = "UNRESOLVED",
+            interpretation_note =
+                "Matching named coordinate-system frames is an interface alignment observation only. " +
+                "It does not establish Published Asset geometric coincidence, snap/mate behavior, " +
+                "contact, collision clearance, motion, force, or mechanical acceptance.",
+            api =
+                "IModelDoc2.FirstFeature/GetNextFeature + IFeature.GetFirstSubFeature/GetNextSubFeature " +
+                "-> IFeature.GetSpecificFeature2 -> ICoordinateSystemFeatureData.Transform -> " +
+                "IMathTransform.ArrayData",
+            model_mutation = false,
+            write_authority = "NONE",
+            evidence = "verified_from_solidworks_api"
+        };
+    }
+
+    private object ReadDocumentState()
+    {
+        var configuration = _doc.ConfigurationManager.ActiveConfiguration;
+        if (configuration is null || string.IsNullOrWhiteSpace(configuration.Name))
+        {
+            throw new CadGroundedException(
+                "active_configuration_unavailable",
+                "The active configuration is required for the read-only no-mutation evidence contract.");
+        }
+
+        return new
+        {
+            title = _doc.GetTitle(),
+            path = _doc.GetPathName(),
+            type = DocumentTypeName(_doc.GetType()),
+            active_configuration = configuration.Name,
+            save_flag = _doc.GetSaveFlag()
+        };
+    }
+
+    private IEnumerable<IFeature> EnumerateFeatures()
+    {
+        var seen = new HashSet<IFeature>();
+        var topLevel = _doc.FirstFeature() as IFeature;
+
+        while (topLevel is not null)
+        {
+            foreach (var feature in EnumerateFeatureBranch(topLevel, seen))
+                yield return feature;
+            topLevel = topLevel.GetNextFeature() as IFeature;
+        }
+    }
+
+    private static IEnumerable<IFeature> EnumerateFeatureBranch(
+        IFeature feature,
+        HashSet<IFeature> seen)
+    {
+        if (!seen.Add(feature))
+            yield break;
+
+        yield return feature;
+
+        var subFeature = feature.GetFirstSubFeature() as IFeature;
+        while (subFeature is not null)
+        {
+            foreach (var nested in EnumerateFeatureBranch(subFeature, seen))
+                yield return nested;
+            subFeature = subFeature.GetNextSubFeature() as IFeature;
+        }
+    }
+
+    private static IFeature RequireExactFeature(
+        IEnumerable<IFeature> features,
+        string exactName,
+        string expectedType,
+        string featureKind)
+    {
+        var matches = features
+            .Where(feature => string.Equals(feature.Name, exactName, StringComparison.Ordinal))
+            .ToArray();
+
+        if (matches.Length != 1)
+        {
+            throw new CadGroundedException(
+                "feature_match_not_unique",
+                $"Exact {featureKind} feature matching must be unique. " +
+                $"matches={matches.Length}, feature='{exactName}'.");
+        }
+
+        var actualType = matches[0].GetTypeName2();
+        if (!string.Equals(actualType, expectedType, StringComparison.Ordinal))
+        {
+            throw new CadGroundedException(
+                "feature_type_mismatch",
+                $"Feature '{exactName}' must have type '{expectedType}', actual='{actualType}'.");
+        }
+
+        return matches[0];
+    }
+
+    private static object ReadPublishedReferenceFeature(IFeature feature)
+    {
+        return new
+        {
+            connector_name = feature.Name,
+            feature_type = feature.GetTypeName2()
+        };
+    }
+
+    private static object ReadCoordinateSystemFeature(IFeature feature)
+    {
+        double[] transform16;
+        try
+        {
+            var specific = feature.GetSpecificFeature2();
+            if (specific is null)
+            {
+                throw new CadGroundedException(
+                    "coordinate_system_definition_unavailable",
+                    $"Coordinate system feature '{feature.Name}' has no specific feature data.");
+            }
+
+            // The interop package exposes the coordinate-system definition as a
+            // COM feature-data object. Dynamic dispatch here avoids falling back
+            // to a broad automation surface while retaining the exact getter
+            // chain required by the native API.
+            dynamic coordinateSystemData = specific;
+            dynamic mathTransform = coordinateSystemData.Transform;
+            object rawArrayData = mathTransform.ArrayData;
+            transform16 = ToDoubleArray(rawArrayData) ?? Array.Empty<double>();
+        }
+        catch (CadGroundedException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            throw new CadGroundedException(
+                "coordinate_system_transform_unavailable",
+                $"Could not read IMathTransform.ArrayData for coordinate system '{feature.Name}'.",
+                ex);
+        }
+
+        if (transform16.Length != 16 || transform16.Any(value => !double.IsFinite(value)))
+        {
+            throw new CadGroundedException(
+                "coordinate_system_transform_invalid",
+                $"Coordinate system '{feature.Name}' must expose exactly 16 finite IMathTransform.ArrayData values.");
+        }
+
+        return new
+        {
+            feature_name = feature.Name,
+            feature_type = feature.GetTypeName2(),
+            transform16 = transform16,
+            origin_mm = new[]
+            {
+                transform16[9] * 1000.0,
+                transform16[10] * 1000.0,
+                transform16[11] * 1000.0
+            },
+            transform_source =
+                "ICoordinateSystemFeatureData.Transform -> IMathTransform.ArrayData"
         };
     }
 
@@ -1159,6 +1411,22 @@ internal static class ComRot
 
 internal static class JsonHelpers
 {
+    public static void RequireOnlyProperties(JsonElement payload, params string[] allowedNames)
+    {
+        if (payload.ValueKind != JsonValueKind.Object)
+            throw new ArgumentException("payload must be a JSON object.");
+
+        var allowed = new HashSet<string>(allowedNames, StringComparer.Ordinal);
+        foreach (var property in payload.EnumerateObject())
+        {
+            if (!allowed.Contains(property.Name))
+            {
+                throw new ArgumentException(
+                    $"payload contains unsupported property '{property.Name}'.");
+            }
+        }
+    }
+
     public static string GetRequiredString(JsonElement payload, string name)
     {
         if (payload.ValueKind != JsonValueKind.Object ||
@@ -1184,6 +1452,40 @@ internal static class JsonHelpers
             JsonValueKind.False => false,
             _ => throw new ArgumentException($"payload.{name} must be true or false.")
         };
+    }
+
+    public static string[] GetRequiredUniqueStringArray(JsonElement payload, string name)
+    {
+        if (payload.ValueKind != JsonValueKind.Object ||
+            !payload.TryGetProperty(name, out var value) ||
+            value.ValueKind != JsonValueKind.Array ||
+            value.GetArrayLength() == 0)
+        {
+            throw new ArgumentException(
+                $"payload.{name} is required and must be a non-empty array of unique non-empty strings.");
+        }
+
+        var result = new List<string>();
+        var seen = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var item in value.EnumerateArray())
+        {
+            if (item.ValueKind != JsonValueKind.String ||
+                string.IsNullOrWhiteSpace(item.GetString()))
+            {
+                throw new ArgumentException(
+                    $"payload.{name} must contain only non-empty strings.");
+            }
+
+            var text = item.GetString()!;
+            if (!seen.Add(text))
+            {
+                throw new ArgumentException(
+                    $"payload.{name} must not contain duplicate exact names. Duplicate='{text}'.");
+            }
+            result.Add(text);
+        }
+
+        return result.ToArray();
     }
 }
 

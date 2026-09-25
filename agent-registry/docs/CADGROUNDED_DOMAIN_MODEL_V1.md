@@ -284,6 +284,30 @@ The contract is a geometry/interface declaration only. It does not establish
 product restraint, collision-free motion, label-transfer correctness,
 mechanical suitability, or mechanical acceptance.
 
+### CAD interface consumption and live verification v1
+
+`CAD_INTERFACE_CONSUMPTION_LIVE_VERIFICATION_V1.md` adds a separate,
+read-only evidence-consumption boundary. A local native worker may observe
+exact named `CoordSys` frames and exact named `MagneticConnectRef` feature
+identities, but the resulting envelope is compared against the declared
+contract rather than used to rewrite it. Missing fresh evidence is
+`STALE_STATE`; an identity or transform mismatch is `DRIFT_DETECTED`; invalid
+source/mutation/scope declarations are rejected.
+
+The new native command is local-only and remains outside the Remote Queue
+schema and allowlist. Its use carries `write_authority: NONE` and
+`model_mutation: false`, followed by a host-side pre/post document, file, and
+component-state comparison. These checks provide bounded observation evidence,
+not a universal proof of API harmlessness.
+
+A deterministic complementary-asset transform can be proposed from accepted
+coordinate-system transforms, but the proposal is explicitly
+`cad_write_authorized: false` and `materialization_state: NOT_AUTHORIZED`.
+Published Asset ↔ coordinate-system geometric coincidence stays `UNRESOLVED`
+unless a separate authoritative geometry evidence path is introduced. Frame
+alignment does not establish snap/mate behavior, contact, clearance, motion,
+force, temporal operation, or mechanical acceptance.
+
 ## 6. Authority boundary
 
 This model does not change the authority hierarchy.

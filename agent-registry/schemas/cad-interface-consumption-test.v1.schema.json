@@ -1,0 +1,174 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cadgrounded.local/schemas/cad-interface-consumption-test.v1.schema.json",
+  "title": "CADGrounded disposable CAD interface consumption test v1",
+  "description": "A design-only complementary asset/interface calculation. This schema intentionally forbids CAD-write authorization and mechanical acceptance.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "test_id",
+    "purpose",
+    "source_contract_id",
+    "target_interface_id",
+    "cad_write_authorized",
+    "materialization_state",
+    "remote_queue_authorized",
+    "complementary_asset",
+    "expected_calculation",
+    "mechanical_acceptance_granted",
+    "does_not_establish"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "test_id": {
+      "$ref": "#/$defs/nonEmptyString"
+    },
+    "purpose": {
+      "$ref": "#/$defs/nonEmptyString"
+    },
+    "source_contract_id": {
+      "$ref": "#/$defs/nonEmptyString"
+    },
+    "target_interface_id": {
+      "$ref": "#/$defs/nonEmptyString"
+    },
+    "cad_write_authorized": {
+      "const": false
+    },
+    "materialization_state": {
+      "const": "NOT_AUTHORIZED"
+    },
+    "remote_queue_authorized": {
+      "const": false
+    },
+    "complementary_asset": {
+      "$ref": "#/$defs/complementaryAsset"
+    },
+    "expected_calculation": {
+      "$ref": "#/$defs/expectedCalculation"
+    },
+    "mechanical_acceptance_granted": {
+      "const": false
+    },
+    "does_not_establish": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/nonEmptyString"
+      }
+    }
+  },
+  "$defs": {
+    "nonEmptyString": {
+      "type": "string",
+      "minLength": 1
+    },
+    "transform16": {
+      "type": "array",
+      "minItems": 16,
+      "maxItems": 16,
+      "items": {
+        "type": "number"
+      }
+    },
+    "connectionFrame": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "feature_name",
+        "feature_type",
+        "asset_connection_to_asset_transform16"
+      ],
+      "properties": {
+        "feature_name": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "feature_type": {
+          "const": "CoordSys"
+        },
+        "asset_connection_to_asset_transform16": {
+          "$ref": "#/$defs/transform16"
+        }
+      }
+    },
+    "intendedConnector": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "feature_type",
+        "materialized",
+        "coordinate_system_geometric_coincidence_state"
+      ],
+      "properties": {
+        "name": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "feature_type": {
+          "const": "MagneticConnectRef"
+        },
+        "materialized": {
+          "const": false
+        },
+        "coordinate_system_geometric_coincidence_state": {
+          "const": "UNRESOLVED"
+        }
+      }
+    },
+    "complementaryAsset": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "asset_id",
+        "asset_lifecycle",
+        "connection_frame",
+        "intended_published_asset_connector"
+      ],
+      "properties": {
+        "asset_id": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "asset_lifecycle": {
+          "const": "DESIGN_ONLY_NOT_CREATED"
+        },
+        "connection_frame": {
+          "$ref": "#/$defs/connectionFrame"
+        },
+        "intended_published_asset_connector": {
+          "$ref": "#/$defs/intendedConnector"
+        }
+      }
+    },
+    "expectedCalculation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "authority",
+        "input_liveness_requirement",
+        "row_vector_formula",
+        "proposed_asset_to_world_transform16_from_declared_baseline",
+        "current_live_frame_state_without_native_probe"
+      ],
+      "properties": {
+        "authority": {
+          "const": "DETERMINISTIC_CALCULATION"
+        },
+        "input_liveness_requirement": {
+          "const": "FRESH_LIVE_CONTRACT_VERIFICATION_REQUIRED_BEFORE_MATERIALIZATION"
+        },
+        "row_vector_formula": {
+          "const": "T_asset_to_world = inverse(T_connection_to_asset) * T_target_interface_to_world"
+        },
+        "proposed_asset_to_world_transform16_from_declared_baseline": {
+          "$ref": "#/$defs/transform16"
+        },
+        "current_live_frame_state_without_native_probe": {
+          "const": "STALE_STATE"
+        }
+      }
+    }
+  }
+}

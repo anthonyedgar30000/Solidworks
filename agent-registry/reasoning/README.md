@@ -27,8 +27,12 @@ The important idea is that **a NULL is not treated as an empty hole**. The graph
 - `graph_projection.py` — creates a fresh runtime epistemic graph from admitted/calculated live evidence without copying toy geometry values.
 - `functional_temporal.py` — validates and evaluates generic functional decomposition, interface contracts, temporal states/events/invariants, and deterministic next-test ranking without commanding CAD.
 - `cad_interface_contract.py` — validates API-readable CAD interface frames and deterministically derives interface-to-interface displacement without commanding CAD.
+- `cad_interface_live_verifier.py` — compares one bounded local native interface observation to a declared contract, preserving `STALE_STATE`, drift, and authority-rejection outcomes rather than rebaselining.
+- `cad_interface_consumption.py` — calculates a non-materialized complementary-asset connection transform from accepted interface-frame inputs; it has no CAD-write capability.
 - `reference_cases/v42_capture_and_rotation.functional-temporal.v1.json` — v42 fit-check reference case; it preserves capture-owner binding, interval restraint/contact, and reachable-motion clearance as unresolved while recording the fresh 2026-09-25 full inventory.
 - `reference_cases/v42_product_flow.cad-interface-contract.v1.json` — v42 candidate product-flow interface contract pairing Published Asset connector identities with API-readable entry/exit coordinate-system frames while leaving connector/frame geometric coincidence unresolved.
+- `reference_cases/v42_disposable_complementary_asset_interface_test.v1.json` — v42 design-only complementary receiver frame test; it is not a CAD asset and carries `cad_write_authorized: false`.
+- `reference_cases/v42_interface_live_reconciliation_2026-09-25.md` — fresh bridge/document reconciliation preserving the coordinate-system and Published Asset geometry boundary as stale/unresolved until the local native verifier runs.
 - `reference_cases/v42_capture_owner_investigation_2026-09-25.md` — evidence-bound v42 capture-owner investigation note, including stale-state limits and the exact next read-only boundary.
 - `../docs/V42_CAPTURE_OWNER_BINDING_EVIDENCE_CONTRACT.md` — local-only v42 `sw.query_mates` candidate contract. It defines the exact parentage/constraint evidence required, pre/post no-mutation comparison, and the facts the probe cannot establish.
 - `test_reasoner.py` — reasoner regression tests.
@@ -39,6 +43,8 @@ The important idea is that **a NULL is not treated as an empty hole**. The graph
 - `test_domain_model_contract.py` — static regression tests for the CADRequest/EvidenceRecord subtype partitions and authority boundaries.
 - `test_functional_temporal.py` — functional/temporal architecture regression tests, including stale interval evidence and no-acceptance boundaries.
 - `test_cad_interface_contract.py` — CAD-interface regression tests, including the 900 mm +X entry-to-exit product-flow derivation and the connector/frame evidence boundary.
+- `test_cad_interface_live_verifier.py` — regression tests for fresh-observation authority, drift detection, stale-state preservation, and no implicit connector/frame geometry proof.
+- `test_cad_interface_consumption.py` — regression tests for row-vector connection-transform algebra and the non-materialization boundary.
 
 ## Domain Model v1
 
@@ -76,6 +82,24 @@ coincidence between each `MagneticConnectRef` and its paired coordinate
 system. That binding remains explicitly `UNRESOLVED` until authoritative
 geometry evidence is available. The contract cannot grant mechanical
 acceptance.
+
+### Interface consumption and live verification v1
+
+`../docs/CAD_INTERFACE_CONSUMPTION_LIVE_VERIFICATION_V1.md` documents the
+local-only `sw.query_interface_contract` evidence contract. The command returns
+only exact requested `CoordSys` and `MagneticConnectRef` feature records and is
+not in the Remote Queue. `cad_interface_live_verifier.py` compares that fresh
+envelope to the source contract. Missing evidence remains `STALE_STATE`; a
+changed document, name/type, or transform becomes `DRIFT_DETECTED`; invalid
+authority or mutation declarations are rejected. The verifier never updates
+the contract and never promotes Published Asset ↔ coordinate-system geometric
+coincidence beyond `UNRESOLVED`.
+
+The disposable complementary-asset test uses a local identity connection frame
+and calculates its proposed asset-to-world transform from `PRODUCT_EXIT_CS`.
+It is a design-only deterministic calculation, not a CAD insertion or a
+mechanical-acceptance claim. Before any future materialization it requires a
+fresh live frame verification and separate explicit CAD-write authorization.
 
 Run the focused regression tests from this directory:
 

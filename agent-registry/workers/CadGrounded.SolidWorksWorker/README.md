@@ -1,4 +1,4 @@
-# CADGrounded native C# SOLIDWORKS worker v0.3.1
+# CADGrounded native C# SOLIDWORKS worker v0.4.0
 
 Purpose: keep the SOLIDWORKS COM/API boundary inside a narrow native C# process with a hard read-only command allowlist.
 
@@ -8,9 +8,22 @@ There is no generic code-execution command and no CAD write command.
 
 - `sw.status`
 - `sw.query_components`
+- `sw.query_interface_contract` (local-only; not Remote Queue authorized)
 - `sw.closest_distance_pair`
 - `sw.classify_contact_pair` (native-only unless separately authorized by a transport policy)
 - `sw.query_mates`
+
+`sw.query_interface_contract` requires exact requested coordinate-system feature
+names and exact requested Published Reference connector feature names. It
+returns only those matching `CoordSys` transforms and `MagneticConnectRef`
+name/type records. It fails closed on a missing, duplicate, or wrong-type
+feature and reports `write_authority: NONE` and `model_mutation: false`.
+
+It intentionally does not infer Published References manager grouping,
+connector-to-coordinate-system geometric coincidence, Asset Publisher snap
+behavior, physical contact, collision clearance, motion, force, or mechanical
+acceptance. It remains local-only until a separate policy review; native
+capability does not imply Remote Queue authorization.
 
 `sw.query_mates` is an observation primitive. It requires one exact `Component2.Name2` and traverses the active assembly's mate group without selecting, editing, rebuilding, suppressing, moving, or mating any component. It reports the target's exact identity, component state, referenced configuration, parent chain, and active-assembly mate definitions that reference it, including mate entities, API type/alignment values, active-configuration suppression observation, entity parameters, and distance/angle variation values when SOLIDWORKS exposes them.
 
@@ -41,6 +54,25 @@ JSON example:
 
 The query fails closed unless the exact component name resolves uniquely in the active assembly.
 
+## `sw.query_interface_contract`
+
+CLI example:
+
+    bin\Release\net8.0-windows\win-x64\CadGrounded.SolidWorksWorker.exe interface-contract ^
+      --coordinate-system "PRODUCT_ENTRY_CS" ^
+      --coordinate-system "PRODUCT_EXIT_CS" ^
+      --connector "Connector2" ^
+      --connector "Connector1"
+
+JSON example:
+
+    {"command_id":"sw.query_interface_contract","payload":{"coordinate_system_feature_names":["PRODUCT_ENTRY_CS","PRODUCT_EXIT_CS"],"published_reference_connector_names":["Connector2","Connector1"]}}
+
+For the v42 reference assembly, use `Verify-InterfaceContract-V42.ps1`. It
+compares pre/post complete component state, document state, and stable shared
+file evidence, then runs the deterministic drift/authority verifier. A pass
+verifies only the declared feature/frame baseline at that fresh checkpoint.
+
 ## Build
 
 From this directory:
@@ -61,11 +93,12 @@ A passing CI compile catches C# source and Windows-target build regressions befo
 
 1. The GitHub Actions Windows compile gate must pass.
 2. Build successfully on the SOLIDWORKS Windows host with `build.cmd` (installed interop DLLs).
-3. Run `version` and verify worker version `0.3.1`.
+3. Run `version` and verify worker version `0.4.0`.
 4. Run `status` and verify `write_authority: NONE` and the exact active document.
 5. Run `mates --component <exact Name2>` against a known component.
 6. For the v42 capture-owner investigation, run `Verify-QueryMates-V42.ps1` against the exact active v42 assembly. It compares document identity/configuration/save state, target component state/transforms, and assembly file evidence before and after the three target mate reads.
-7. Only then expose `sw.query_mates` through a separately reviewed Remote Queue validator/schema/allowlist.
+7. For v42 interface consumption, run `Verify-InterfaceContract-V42.ps1` against `IXOR_Benchmark_v42_ASSET_INTERFACE_TEST_PORTABLE.SLDASM`. It does not materialize the complementary asset.
+8. Only then expose any native command through a separately reviewed Remote Queue validator/schema/allowlist.
 
 Do not infer that repository source has compiled successfully on a SOLIDWORKS machine until `build.cmd` succeeds there. Repository review is not runtime verification.
 

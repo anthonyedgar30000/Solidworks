@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "test_id": "V42.DISPOSABLE_PRODUCT_FLOW_RECEIVER_INTERFACE_TEST",
+  "purpose": "Non-materialized complementary asset design for deterministic CAD interface-consumption calculation.",
+  "source_contract_id": "V42_PRODUCT_FLOW_INTERFACE_CONTRACT",
+  "target_interface_id": "V42.PRODUCT_EXIT",
+  "cad_write_authorized": false,
+  "materialization_state": "NOT_AUTHORIZED",
+  "remote_queue_authorized": false,
+  "complementary_asset": {
+    "asset_id": "V42.DISPOSABLE_PRODUCT_FLOW_RECEIVER",
+    "asset_lifecycle": "DESIGN_ONLY_NOT_CREATED",
+    "connection_frame": {
+      "feature_name": "DISPOSABLE_RECEIVER_ENTRY_CS",
+      "feature_type": "CoordSys",
+      "asset_connection_to_asset_transform16": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "intended_published_asset_connector": {
+      "name": "DISPOSABLE_RECEIVER_CONNECTOR",
+      "feature_type": "MagneticConnectRef",
+      "materialized": false,
+      "coordinate_system_geometric_coincidence_state": "UNRESOLVED"
+    }
+  },
+  "expected_calculation": {
+    "authority": "DETERMINISTIC_CALCULATION",
+    "input_liveness_requirement": "FRESH_LIVE_CONTRACT_VERIFICATION_REQUIRED_BEFORE_MATERIALIZATION",
+    "row_vector_formula": "T_asset_to_world = inverse(T_connection_to_asset) * T_target_interface_to_world",
+    "proposed_asset_to_world_transform16_from_declared_baseline": [
+      6.123233995736766e-17,
+      -1.0,
+      0.0,
+      1.0,
+      6.123233995736766e-17,
+      0.0,
+      0.0,
+      0.0,
+      1.0,
+      -0.15374999999999994,
+      -0.674,
+      0.95,
+      1.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "current_live_frame_state_without_native_probe": "STALE_STATE"
+  },
+  "mechanical_acceptance_granted": false,
+  "does_not_establish": [
+    "Published Asset connector-to-coordinate-system geometric coincidence",
+    "native snap or mate behavior",
+    "physical contact or collision-free placement",
+    "product support, controlled motion, force, preload, or temporal operation",
+    "whole-machine mechanical acceptance"
+  ]
+}
