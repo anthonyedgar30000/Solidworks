@@ -1,4 +1,4 @@
-# CADGrounded native C# SOLIDWORKS worker v0.3
+# CADGrounded native C# SOLIDWORKS worker v0.3.1
 
 Purpose: keep the SOLIDWORKS COM/API boundary inside a narrow native C# process with a hard read-only command allowlist.
 
@@ -12,9 +12,9 @@ There is no generic code-execution command and no CAD write command.
 - `sw.classify_contact_pair` (native-only unless separately authorized by a transport policy)
 - `sw.query_mates`
 
-`sw.query_mates` is an observation primitive. It requires one exact `Component2.Name2` and traverses the active assembly's mate group without selecting, editing, rebuilding, suppressing, moving, or mating any component. It reports mate definitions that reference the exact component, their mate entities, API type/alignment values, active-configuration suppression observation, entity parameters, and distance/angle variation values when SOLIDWORKS exposes them.
+`sw.query_mates` is an observation primitive. It requires one exact `Component2.Name2` and traverses the active assembly's mate group without selecting, editing, rebuilding, suppressing, moving, or mating any component. It reports the target's exact identity, component state, referenced configuration, parent chain, and active-assembly mate definitions that reference it, including mate entities, API type/alignment values, active-configuration suppression observation, entity parameters, and distance/angle variation values when SOLIDWORKS exposes them.
 
-A mate definition is evidence of a SOLIDWORKS constraint, not proof of spring stiffness, preload, force, contact pressure, or operating sequence.
+A mate definition is evidence of a SOLIDWORKS constraint, not proof of spring stiffness, preload, force, contact pressure, physical closure ownership, or operating sequence. A component with no returned mate is likewise not proof that its physical mechanism is absent; it may be a feature, a nested/external boundary, or an unmodeled/undocumented relation.
 
 ## `sw.closest_distance_pair`
 
@@ -54,10 +54,14 @@ Requires a .NET 8 SDK and the installed SOLIDWORKS interop DLLs at:
 ## Verification before transport exposure
 
 1. Build successfully on the SOLIDWORKS Windows host.
-2. Run `version` and verify worker version `0.3.0`.
+2. Run `version` and verify worker version `0.3.1`.
 3. Run `status` and verify `write_authority: NONE` and the exact active document.
 4. Run `mates --component <exact Name2>` against a known component.
-5. Verify the assembly dirty/save state and component transforms are unchanged.
+5. For the v42 capture-owner investigation, run `Verify-QueryMates-V42.ps1` against the exact active v42 assembly. It compares document identity/configuration/save state, target component state/transforms, and assembly file evidence before and after the three target mate reads.
 6. Only then expose `sw.query_mates` through a separately reviewed Remote Queue validator/schema/allowlist.
 
 Do not infer that repository source has compiled successfully on a SOLIDWORKS machine until `build.cmd` succeeds there. Repository review is not runtime verification.
+
+The local v42 evidence contract and result-interpretation limits are in
+`../../docs/V42_CAPTURE_OWNER_BINDING_EVIDENCE_CONTRACT.md`. This worker change
+does not alter any Remote Queue file, allowlist, or authority.

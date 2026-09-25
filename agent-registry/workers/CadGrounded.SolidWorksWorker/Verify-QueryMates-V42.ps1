@@ -8,7 +8,7 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
-$ExpectedWorkerVersion = '0.3.0'
+$ExpectedWorkerVersion = '0.3.1'
 $WorkerRoot = $PSScriptRoot
 $WorkerExe = Join-Path $WorkerRoot 'bin\Release\net8.0-windows\win-x64\CadGrounded.SolidWorksWorker.exe'
 $OutputRoot = Join-Path $WorkerRoot 'verification-output\query-mates-v42'
@@ -16,10 +16,7 @@ $OutputRoot = Join-Path $WorkerRoot 'verification-output\query-mates-v42'
 $TargetComponents = @(
     'FITCHECK_DRIVEN_WRAP_BELT_5x160x93_V25-1',
     'FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25-1',
-    'FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25-2',
-    'FITCHECK_INDEX_STOP_FINGER_54p25x6x20_V37-1',
-    'FITCHECK_INDEX_STOP_FINGER_54p25x6x20_V37-2',
-    'BENCH_BOTTLE_D48_H180-2'
+    'FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25-2'
 )
 
 function Invoke-WorkerJson {
@@ -63,6 +60,24 @@ function Assert-ExpectedStatus {
     )) {
         throw "Active document path mismatch. Expected='$ExpectedDocumentPath' Actual='$($Envelope.data.document.path)'."
     }
+    if ($null -eq $Envelope.data.document.active_configuration) {
+        throw 'sw.status did not return the active configuration needed for the no-mutation comparison.'
+    }
+    if ($null -eq $Envelope.data.document.save_flag) {
+        throw 'sw.status did not return the document save flag needed for the no-mutation comparison.'
+    }
+}
+
+function Get-DocumentState {
+    param([Parameter(Mandatory=$true)]$StatusEnvelope)
+
+    return [ordered]@{
+        title = [string]$StatusEnvelope.data.document.title
+        path = [string]$StatusEnvelope.data.document.path
+        type = [string]$StatusEnvelope.data.document.type
+        active_configuration = [string]$StatusEnvelope.data.document.active_configuration
+        save_flag = $StatusEnvelope.data.document.save_flag
+    }
 }
 
 function Get-TargetState {
@@ -103,6 +118,40 @@ function Get-FileEvidence {
     }
 }
 
+function Get-CaptureOwnerBindingCoverage {
+    param([Parameter(Mandatory=$true)]$MateResults)
+
+    $coverage = [ordered]@{}
+    foreach ($name in $TargetComponents) {
+        $data = $MateResults[$name]
+        $mateRows = @($data.mates)
+        $otherComponents = @(
+            $mateRows |
+                ForEach-Object { @($_.entities) } |
+                ForEach-Object { $_ } |
+                Where-Object {
+                    -not [string]::IsNullOrWhiteSpace([string]$_.reference_component_name2) -and
+                    [string]$_.reference_component_name2 -cne $name
+                } |
+                Select-Object -ExpandProperty reference_component_name2 -Unique
+        )
+        $coverage[$name] = [ordered]@{
+            parent_chain = @($data.component.parent_chain)
+            parentage_errors = @($data.component.parentage_errors)
+            fixed_component = $data.component.fixed_component
+            referenced_configuration = $data.component.referenced_configuration
+            incident_mate_count = $mateRows.Count
+            incident_component_names = $otherComponents
+            mate_variation_values_observed = @(
+                $mateRows | Where-Object {
+                    $null -ne $_.minimum_variation -or $null -ne $_.maximum_variation
+                }
+            ).Count
+        }
+    }
+    return $coverage
+}
+
 if (-not $SkipBuild) {
     & (Join-Path $WorkerRoot 'build.cmd')
     if ($LASTEXITCODE -ne 0) {
@@ -123,6 +172,7 @@ if ($LASTEXITCODE -ne 0 -or $versionText -cne "CadGrounded.SolidWorksWorker $Exp
 
 $statusBefore = Invoke-WorkerJson -Arguments @('status')
 Assert-ExpectedStatus $statusBefore
+$documentStateBefore = Get-DocumentState -StatusEnvelope $statusBefore
 
 $fileBefore = Get-FileEvidence -Path $ExpectedDocumentPath
 $componentsBefore = Invoke-WorkerJson -Arguments @('components','--all')
@@ -144,6 +194,11 @@ foreach ($name in $TargetComponents) {
     if ([string]$result.data.component.name2 -cne $name) {
         throw "sw.query_mates returned wrong component. Expected='$name' Actual='$($result.data.component.name2)'."
     }
+    if ($null -eq $result.data.component.parent_chain -or
+        $null -eq $result.data.component.fixed_component -or
+        $null -eq $result.data.component.referenced_configuration) {
+        throw "sw.query_mates did not return the required parentage/component-state binding fields for '$name'."
+    }
 
     $mateResults[$name] = $result.data
     $safeName = $name -replace '[^A-Za-z0-9._-]', '_'
@@ -154,12 +209,19 @@ $componentsAfter = Invoke-WorkerJson -Arguments @('components','--all')
 $targetStateAfter = Get-TargetState -ComponentsEnvelope $componentsAfter
 $statusAfter = Invoke-WorkerJson -Arguments @('status')
 Assert-ExpectedStatus $statusAfter
+$documentStateAfter = Get-DocumentState -StatusEnvelope $statusAfter
 $fileAfter = Get-FileEvidence -Path $ExpectedDocumentPath
 
 $beforeJson = $targetStateBefore | ConvertTo-Json -Depth 20 -Compress
 $afterJson = $targetStateAfter | ConvertTo-Json -Depth 20 -Compress
 if ($beforeJson -cne $afterJson) {
     throw 'Target component transform/state evidence changed during read-only mate queries.'
+}
+
+$documentBeforeJson = $documentStateBefore | ConvertTo-Json -Depth 10 -Compress
+$documentAfterJson = $documentStateAfter | ConvertTo-Json -Depth 10 -Compress
+if ($documentBeforeJson -cne $documentAfterJson) {
+    throw 'Active document identity, configuration, or dirty/save state changed during read-only mate queries.'
 }
 
 if ($fileBefore.sha256 -cne $fileAfter.sha256 -or
@@ -179,12 +241,33 @@ $verification = [ordered]@{
     worker_version = $ExpectedWorkerVersion
     write_authority = 'NONE'
     target_components = $TargetComponents
+    remote_queue_authorized = $false
+    document_state_before = $documentStateBefore
+    document_state_after = $documentStateAfter
     file_before = $fileBefore
     file_after = $fileAfter
     target_state_before = $targetStateBefore
     target_state_after = $targetStateAfter
     mate_results = $mateResults
-    limitation = 'PASS proves no observed target transform/state or assembly-file change during these queries. It does not prove mechanical acceptance, spring preload, contact force, or operating sequence.'
+    capture_owner_binding_coverage = Get-CaptureOwnerBindingCoverage -MateResults $mateResults
+    evidence_contract = [ordered]@{
+        status = 'OBSERVATION_READY_ONLY'
+        local_native_command = 'sw.query_mates'
+        remote_queue_authorized = $false
+        establishes = @(
+            'exact target identity and parent chain',
+            'incident active-assembly mate identities/types/suppression observation',
+            'reported mate variation values when the API exposes them',
+            'pre/post document, target-state, and assembly-file comparison'
+        )
+        does_not_establish = @(
+            'physical closure owner',
+            'spring preload, force, stiffness, or contact pressure',
+            'operating motion, reachable envelope, or temporal sequence',
+            'mechanical acceptance'
+        )
+    }
+    limitation = 'PASS proves no observed active-document configuration/save-state, target transform/state, or assembly-file change during these queries. Mate and parentage data may narrow the capture-owner frontier but cannot by themselves prove physical closure, preload, contact force, operating motion, or mechanical acceptance.'
 }
 
 $verificationPath = Join-Path $OutputRoot 'verification-summary.json'

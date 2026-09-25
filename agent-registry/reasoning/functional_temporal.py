@@ -37,6 +37,15 @@ READ_ONLY_CAD_COMMANDS = {
     "sw.query_components",
     "sw.closest_distance_pair",
 }
+# A native-read candidate is deliberately not a CADRequest. CADRequest is the
+# deployed Remote Queue partition; a local capability cannot acquire queue
+# authority merely because it has a read-only implementation.
+NATIVE_READ_CANDIDATE_COMMANDS = {"sw.query_mates"}
+NATIVE_READ_EXECUTION_STATES = {
+    "CANDIDATE_UNVERIFIED",
+    "LOCAL_NO_MUTATION_VERIFIED",
+    "EXHAUSTED_INSUFFICIENT",
+}
 
 EVENT_TYPES = {
     "OBSERVED_EVENT",
@@ -259,6 +268,50 @@ def validate_read_only_cad_request(request: Mapping[str, Any]) -> None:
             )
         for field in required:
             _nonempty_string(payload.get(field), f"CADRequest.payload.{field}")
+
+
+def validate_native_read_candidate(candidate: Mapping[str, Any]) -> None:
+    """Validate a local-only native observation candidate.
+
+    This is intentionally separate from :func:`validate_read_only_cad_request`.
+    A candidate says what a separately reviewed Windows/SOLIDWORKS host may
+    test; it is neither a Remote Queue job nor a claim that the command is
+    remotely authorized or sufficient for a mechanical conclusion.
+    """
+
+    if candidate.get("schema_version") != 1:
+        raise FunctionalTemporalError("native_read_candidate.schema_version must equal 1")
+    command = candidate.get("command_id")
+    if command not in NATIVE_READ_CANDIDATE_COMMANDS:
+        raise FunctionalTemporalError(
+            "native_read_candidate.command_id is not an independently reviewed local candidate"
+        )
+    if candidate.get("write_authority") != "NONE":
+        raise FunctionalTemporalError("native_read_candidate.write_authority must remain NONE")
+    if candidate.get("remote_queue_authorized") is not False:
+        raise FunctionalTemporalError(
+            "native_read_candidate.remote_queue_authorized must remain false"
+        )
+    if candidate.get("requires_independent_no_mutation_verification") is not True:
+        raise FunctionalTemporalError(
+            "native_read_candidate requires independent no-mutation verification"
+        )
+    if candidate.get("execution_state") not in NATIVE_READ_EXECUTION_STATES:
+        raise FunctionalTemporalError("native_read_candidate.execution_state is not recognized")
+    _nonempty_string(
+        candidate.get("verification_contract_id"),
+        "native_read_candidate.verification_contract_id",
+    )
+    payload = _as_object(candidate.get("payload"), "native_read_candidate.payload")
+    if command == "sw.query_mates":
+        if set(payload) != {"component_name_exact"}:
+            raise FunctionalTemporalError(
+                "sw.query_mates candidate requires only payload.component_name_exact"
+            )
+        _nonempty_string(
+            payload.get("component_name_exact"),
+            "native_read_candidate.payload.component_name_exact",
+        )
 
 
 def _validate_parent_tree(subsystems: Mapping[str, Mapping[str, Any]]) -> None:
@@ -601,6 +654,17 @@ def validate_architecture(architecture: Mapping[str, Any]) -> Dict[str, Dict[str
         request = test.get("cad_request")
         if request is not None:
             validate_read_only_cad_request(_as_object(request, f"next_test {test_id}.cad_request"))
+        native_candidates = test.get("native_read_candidates")
+        if native_candidates is not None:
+            for position, candidate in enumerate(
+                _as_list(native_candidates, f"next_test {test_id}.native_read_candidates")
+            ):
+                validate_native_read_candidate(
+                    _as_object(
+                        candidate,
+                        f"next_test {test_id}.native_read_candidates[{position}]",
+                    )
+                )
 
     return {
         "subsystems": subsystems,
@@ -795,6 +859,7 @@ def rank_next_tests(
                 "cost": test["cost"],
                 "value": round(value, 6),
                 "cad_request": test.get("cad_request"),
+                "native_read_candidates": test.get("native_read_candidates"),
                 "does_not_promote_facts": True,
             }
         )

@@ -233,6 +233,16 @@ partition, the next test remains a planning-only candidate with no
 `cad_request`. The model must not invent a queue command or convert a broad
 native API capability into an authorized Remote Queue operation.
 
+For a separately reviewed local native observation, a next test may instead
+declare `native_read_candidates`. This is a distinct planning object, not a
+`CADRequest`: it must retain `write_authority: NONE`,
+`remote_queue_authorized: false`, and
+`requires_independent_no_mutation_verification: true`. The candidate has no
+evidence authority until a host-side pre/post verification produces a reviewable
+observation. The v42 `sw.query_mates` candidate follows this boundary; it
+cannot be placed in the Remote Queue allowlist merely because the native worker
+can compile or return JSON.
+
 The first reference case is v42 `CAPTURE_AND_ROTATION`. It records the current
 fit-check evidence while preserving capture kinematic ownership, preload,
 reaction-force path, interval restraint/contact, and reachable motion
