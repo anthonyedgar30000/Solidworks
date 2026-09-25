@@ -26,7 +26,8 @@ The important idea is that **a NULL is not treated as an empty hole**. The graph
 - `geometry_projection.py` — calculates conservative AABB relations from admitted exact-identity evidence.
 - `graph_projection.py` — creates a fresh runtime epistemic graph from admitted/calculated live evidence without copying toy geometry values.
 - `functional_temporal.py` — validates and evaluates generic functional decomposition, interface contracts, temporal states/events/invariants, and deterministic next-test ranking without commanding CAD.
-- `reference_cases/v42_capture_and_rotation.functional-temporal.v1.json` — v42 fit-check reference case; it preserves capture kinematics, interval restraint/contact, and reachable-motion clearance as unresolved.
+- `reference_cases/v42_capture_and_rotation.functional-temporal.v1.json` — v42 fit-check reference case; it preserves capture-owner binding, interval restraint/contact, and reachable-motion clearance as unresolved while recording the fresh 2026-09-25 full inventory.
+- `reference_cases/v42_capture_owner_investigation_2026-09-25.md` — evidence-bound v42 capture-owner investigation note, including stale-state limits and the exact next read-only boundary.
 - `test_reasoner.py` — reasoner regression tests.
 - `test_evidence_ingest.py` — evidence-boundary regression tests.
 - `test_identity_bindings.py` — exact identity binding regression tests.
@@ -50,7 +51,12 @@ candidate generic model for splitting a machine goal into bounded subsystems,
 local obligations, and cross-subsystem interface contracts. It separately
 models events, persistent states/modes, transition guards, duration
 constraints, Allen relations, and invariants that must survive an interval or
-reachable state set.
+reachable state set. States may carry an optional generic `operating_phase`
+classification so a reference case can explicitly distinguish free approach,
+capture beginning, captured, label transfer, wrap rotation, release, and free
+exit without renaming the state identities. Hypotheses additionally record
+affected states and the exact evidence required to resolve them; these fields
+define investigations and never promote a hypothesis to fact.
 
 Run the v42 reference case from this directory:
 
@@ -65,6 +71,16 @@ acceptance, create a CAD write, or promote `UNRESOLVED` evidence. In
 particular, a `POINT_ONLY` SOLIDWORKS observation or distance calculation is
 not accepted as proof that bottle restraint/contact persists throughout
 `CAPTURE_AND_ROTATION`, nor that clearance holds across reachable motion.
+The current v42 capture-owner test intentionally has no `cad_request`: parent,
+feature/mate, and DOF binding is not in the deployed Remote Queue read-only
+command partition.
+
+### Reference precedence
+
+For the bottle-labeler capture investigation, the v42 reference case and its
+fresh evidence records take precedence over the legacy v21 examples below.
+The v21 commands and role registry remain useful pipeline examples, but are
+not current live-state evidence for the v42 FITCHECK station.
 
 ## Run
 
@@ -121,7 +137,7 @@ The importer admits only a completed `sw.query_components` observation with no r
 
 A successful import grants **observation authority only**. It explicitly does not establish valid contact, clearance, mechanical suitability, operating sequence, or project acceptance.
 
-## Bind v21 semantic roles to exact live SOLIDWORKS identities
+## Bind legacy v21 semantic roles to exact live SOLIDWORKS identities
 
 After the evidence transaction exists, run:
 
@@ -135,7 +151,10 @@ python .\identity_bindings.py `
 
 The binding stage requires each configured `Component2.Name2` to match **exactly one** admitted component. Missing or duplicate exact identities are rejected. It copies observed transform/GetBox/provenance fields into the role record but still grants **no mechanical acceptance**.
 
-The current v21 role registry includes the exact live identities for the IXOR head, SP100, AR60 roller, AR carriage, GHF120, tie rod, two mounting rods, conveyor, and five deterministic bottles.
+The legacy v21 role registry includes the exact identities for the IXOR head,
+SP100, AR60 roller, AR carriage, GHF120, tie rod, two mounting rods, conveyor,
+and five deterministic bottles. It is not a current binding for the v42
+FITCHECK capture station.
 
 ## Project deterministic geometry facts
 
@@ -159,7 +178,7 @@ Its authority is intentionally bounded:
 
 The point is to replace toy geometry facts with reproducible calculations while preserving stronger mechanical claims as unresolved until a suitable deterministic SOLIDWORKS check exists.
 
-## Build the live v21 epistemic graph
+## Build the legacy v21 epistemic graph
 
 After `v21-geometry-projection.json` exists, build a fresh runtime graph:
 
@@ -178,7 +197,9 @@ python .\reasoner.py .\runtime\v21-live-graph.json
 
 The runtime graph does **not** copy the illustrative `BOTTLE_CENTERLINE`, `AR60_RADIUS`, or `AR60_MAX_TRAVEL = 70` values from the original PoC graph. Live observation-backed transforms/envelopes and deterministic AABB calculations become `KNOWN`; unverified travel, intended application-station geometry, contact, peel-edge relation, bottle restraint, product flow, and acceptance remain unresolved/exposed.
 
-With the current v21 fit-check evidence, the expected highest-value next investigation is `INTENDED_APPLICATION_STATION_TRANSFORM`, because establishing the intended station geometry exposes or constrains the largest downstream set of contact, clearance, peel-edge, restraint, product-flow, and acceptance obligations.
+Within the legacy v21 example, the expected highest-value next investigation is
+`INTENDED_APPLICATION_STATION_TRANSFORM`. It does not supersede the v42
+capture-owner investigation declared above.
 
 ## Expected project-health semantics
 
