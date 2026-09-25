@@ -28,6 +28,7 @@ The important idea is that **a NULL is not treated as an empty hole**. The graph
 - `functional_temporal.py` — validates and evaluates generic functional decomposition, interface contracts, temporal states/events/invariants, and deterministic next-test ranking without commanding CAD.
 - `reference_cases/v42_capture_and_rotation.functional-temporal.v1.json` — v42 fit-check reference case; it preserves capture-owner binding, interval restraint/contact, and reachable-motion clearance as unresolved while recording the fresh 2026-09-25 full inventory.
 - `reference_cases/v42_capture_owner_investigation_2026-09-25.md` — evidence-bound v42 capture-owner investigation note, including stale-state limits and the exact next read-only boundary.
+- `../docs/V42_CAPTURE_OWNER_BINDING_EVIDENCE_CONTRACT.md` — local-only v42 `sw.query_mates` candidate contract. It defines the exact parentage/constraint evidence required, pre/post no-mutation comparison, and the facts the probe cannot establish.
 - `test_reasoner.py` — reasoner regression tests.
 - `test_evidence_ingest.py` — evidence-boundary regression tests.
 - `test_identity_bindings.py` — exact identity binding regression tests.
@@ -73,7 +74,13 @@ not accepted as proof that bottle restraint/contact persists throughout
 `CAPTURE_AND_ROTATION`, nor that clearance holds across reachable motion.
 The current v42 capture-owner test intentionally has no `cad_request`: parent,
 feature/mate, and DOF binding is not in the deployed Remote Queue read-only
-command partition.
+command partition. It does declare three `native_read_candidates` for the
+existing local `sw.query_mates` worker command. These are not queue jobs: each
+is explicitly `remote_queue_authorized: false`, requires independent
+no-mutation verification, and remains `CANDIDATE_UNVERIFIED` until the Windows
+host runs the bounded verification script. A mate/parentage result is evidence
+of CAD connectivity only; it cannot by itself establish preload, force,
+physical closure, operating motion, or mechanical acceptance.
 
 ### Reference precedence
 

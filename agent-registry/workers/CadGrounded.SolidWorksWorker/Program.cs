@@ -9,7 +9,7 @@ namespace CadGrounded.SolidWorksWorker;
 
 internal static class Program
 {
-    internal const string Version = "0.3.0";
+    internal const string Version = "0.3.1";
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         WriteIndented = true,
@@ -354,7 +354,9 @@ internal sealed class SolidWorksSession : IDisposable
             {
                 title = _doc.GetTitle(),
                 path = _doc.GetPathName(),
-                type = DocumentTypeName(_doc.GetType())
+                type = DocumentTypeName(_doc.GetType()),
+                active_configuration = Safe(() => _doc.ConfigurationManager.ActiveConfiguration.Name),
+                save_flag = Safe(() => (object)_doc.GetSaveFlag())
             }
         };
     }
@@ -918,12 +920,68 @@ internal sealed class SolidWorksSession : IDisposable
         throw new CadGroundedException("unexpected_body_array", $"IComponent2.GetBodies3 returned unsupported type '{raw.GetType().FullName}'.");
     }
 
-    private static object ComponentIdentity(IComponent2 c, int state) => new
+    private static object ComponentIdentity(IComponent2 c, int state)
     {
-        name2 = c.Name2,
-        path = c.GetPathName(),
-        suppression_state = state
-    };
+        // Parentage is included because a mate row without the component's
+        // assembly context cannot bind a closure mechanism to a physical
+        // subassembly. This is intentionally a getter-only traversal; it does
+        // not select, activate, edit, rebuild, or resolve anything.
+        var parentNames = new List<string>();
+        var parentPaths = new List<string?>();
+        var parentageErrors = new List<string>();
+        var seen = new HashSet<string>(StringComparer.Ordinal);
+        var current = c;
+
+        while (true)
+        {
+            IComponent2? parent;
+            try
+            {
+                parent = current.GetParent() as IComponent2;
+            }
+            catch (Exception ex)
+            {
+                parentageErrors.Add("GetParent: " + ex.Message);
+                break;
+            }
+
+            if (parent is null)
+                break;
+
+            var parentName = parent.Name2;
+            if (!seen.Add(parentName))
+            {
+                parentageErrors.Add($"GetParent cycle detected at '{parentName}'.");
+                break;
+            }
+
+            parentNames.Add(parentName);
+            try
+            {
+                parentPaths.Add(parent.GetPathName());
+            }
+            catch (Exception ex)
+            {
+                parentPaths.Add(null);
+                parentageErrors.Add("GetParent.GetPathName: " + ex.Message);
+            }
+
+            current = parent;
+        }
+
+        return new
+        {
+            name2 = c.Name2,
+            path = c.GetPathName(),
+            suppression_state = state,
+            referenced_configuration = Safe(() => c.ReferencedConfiguration),
+            fixed_component = SafeBool(() => c.IsFixed()),
+            parent_chain = parentNames.ToArray(),
+            parent_chain_paths = parentPaths.ToArray(),
+            parentage_errors = parentageErrors.ToArray(),
+            is_top_level = parentNames.Count == 0
+        };
+    }
 
     private IAssemblyDoc RequireAssembly()
     {

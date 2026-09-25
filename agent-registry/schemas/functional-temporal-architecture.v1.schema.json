@@ -720,6 +720,53 @@
         }
       }
     },
+    "nativeReadCandidate": {
+      "description": "A separately reviewed local native observation candidate. It is explicitly not a Remote Queue CADRequest and cannot confer transport authority or mechanical acceptance.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "command_id",
+        "write_authority",
+        "remote_queue_authorized",
+        "requires_independent_no_mutation_verification",
+        "execution_state",
+        "verification_contract_id",
+        "payload"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": 1
+        },
+        "command_id": {
+          "enum": [
+            "sw.query_mates"
+          ]
+        },
+        "write_authority": {
+          "const": "NONE"
+        },
+        "remote_queue_authorized": {
+          "const": false
+        },
+        "requires_independent_no_mutation_verification": {
+          "const": true
+        },
+        "execution_state": {
+          "enum": [
+            "CANDIDATE_UNVERIFIED",
+            "LOCAL_NO_MUTATION_VERIFIED",
+            "EXHAUSTED_INSUFFICIENT"
+          ]
+        },
+        "verification_contract_id": {
+          "$ref": "#/$defs/id"
+        },
+        "payload": {
+          "type": "object"
+        }
+      }
+    },
     "nextTest": {
       "type": "object",
       "additionalProperties": false,
@@ -768,6 +815,14 @@
         },
         "cad_request": {
           "$ref": "#/$defs/readOnlyCadRequest"
+        },
+        "native_read_candidates": {
+          "description": "Local-only native observations to be tested under an independent no-mutation contract. These are not Remote Queue requests.",
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/nativeReadCandidate"
+          }
         }
       }
     }

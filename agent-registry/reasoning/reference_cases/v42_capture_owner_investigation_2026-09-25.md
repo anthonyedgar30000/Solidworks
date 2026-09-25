@@ -15,10 +15,12 @@ save, rebuild, insertion, or geometry change was requested or performed.
 
 | Source | Fresh fact | Scope and limit |
 | --- | --- | --- |
-| GitHub `main` | Merge commit `68c7ce2e141d62fa26eee493879a20364498f2c3` contains the functional-temporal architecture. | Source, policy, test, and history authority; not live geometry authority. |
+| GitHub `main` | Merge commit `fb93b243fc1a93e6e9fc759e12327cb2c30f8480` contains the current v42 functional-temporal capture-owner investigation. | Source, policy, test, and history authority; not live geometry authority. |
 | SOLIDWORKS | At `2026-09-25T02:52:41.712318+00:00`, active assembly was exactly `IXOR_Benchmark_v42_ROLLER_GUIDE_HARDSTOP_FIT_CHECK_PORTABLE` at `C:\ChatGPT\Solidworks\IXOR\CAB_IXOR_6130800\IXOR_Benchmark_v42_ROLLER_GUIDE_HARDSTOP_FIT_CHECK_PORTABLE.SLDASM`. | Live document/state identity only. |
 | SOLIDWORKS | At `2026-09-25T02:58:42.924369+00:00`, read-only `sw.query_components` job `5bbec906-9bd2-4910-baf3-4da8644e405d` returned 55 nested components. | A point inventory; it does not establish physical DOF, capture, contact, preload, or reaction path. |
+| SOLIDWORKS | Current-session read-only status plus full inventory again identified the same v42 assembly and 55 components, including the exact belt and both rollers as floating, unsuppressed parts. | Fresh point evidence only; `fixed:false` is not a physical-motion or capture-owner claim. |
 | OEM catalog | CAB IXOR catalog, Status 05/2026, documents mechanism classes: demand-module guides/carriages, lever-mounted wipe-down rollers, spring preload adjustment, and distinct pneumatic variants. | Product-family engineering authority only; it does not bind those classes to the custom `FITCHECK` belt/rollers. |
+| Project/Drive source audit | Exact-name Drive searches and the six unique uploaded September project documents supplied no v42 FITCHECK drawing, BOM, assembly, or owner binding beyond the historic capture note. | Search absence is not physical absence; historical v21/third-party pattern material is not current v42 binding evidence. |
 | Historic v42 distances | The September 18 values (belt `0.329384717 mm`, support roller 2 `0.321626347 mm`) are preserved. | `STALE_STATE`, point-only, and not a current contact/capture conclusion. |
 
 The current full inventory confirms these exact investigation identities:
@@ -108,15 +110,22 @@ further dynamic conclusion:
 
 1. an OEM assembly/BOM/manual identity map that binds the exact FITCHECK belt
    and both rollers to their parent/closure mechanism; or
-2. a separately reviewed, strictly no-mutation native SOLIDWORKS read that
-   returns their parent hierarchy and feature/mate/DOF chain, controlled travel
-   or pivot limits, input/actuation, preload/compliance, and reaction mount.
+2. the smallest current local-native candidate: one `sw.query_mates` read for
+   each exact target, after the v0.3.1 pre/post no-mutation verification. It
+   returns parent hierarchy and active-assembly mate/variation data, but does
+   **not** by itself return force, preload, or intended operating motion.
 
-This test has **no** `cad_request` because the deployed Remote Queue supports
-only `sw.status`, `sw.query_components`, and `sw.closest_distance_pair` with
-`write_authority: NONE`; it does not authorize the needed parent/feature/mate
-or DOF read. No custom broad API call should be repurposed to bypass that
-boundary.
+This test has **no** `cad_request`. It has three explicitly local
+`native_read_candidates`, each with `write_authority: NONE`,
+`remote_queue_authorized: false`, and mandatory independent no-mutation
+verification. The deployed Remote Queue still supports only `sw.status`,
+`sw.query_components`, and `sw.closest_distance_pair`; no custom broad API call
+should be repurposed to bypass that boundary.
+
+The candidate contract is documented in
+`agent-registry/docs/V42_CAPTURE_OWNER_BINDING_EVIDENCE_CONTRACT.md`. Until the
+Windows/SOLIDWORKS host builds and runs it successfully, its state is
+`CANDIDATE_UNVERIFIED`, not new live CAD evidence.
 
 Until that binding is obtained, do not move parts to close the historic gaps,
 and do not promote any capture, contact, clearance, or mechanical-acceptance

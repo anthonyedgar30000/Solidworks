@@ -152,6 +152,8 @@
       ],
       "evidence_refs": [
         "E_V42_COMPONENT_INVENTORY_20260925T025842Z",
+        "E_V42_CAPTURE_OWNER_INVENTORY_20260925T033602Z",
+        "E_V42_CAPTURE_OWNER_SOURCE_AUDIT_20260925T033602Z",
         "E_OEM_IXOR_CAPTURE_MECHANISM_CLASSES_202605"
       ],
       "depends_on_requirement_ids": [],
@@ -1456,6 +1458,117 @@
     {
       "schema_version": 1,
       "record_type": "evidence",
+      "evidence_id": "E_V42_CAPTURE_OWNER_INVENTORY_20260925T033602Z",
+      "evidence_type": "solidworks_observation",
+      "evidence_state": "VERIFIED",
+      "source_authority": "SOLIDWORKS_LIVE_STATE",
+      "source_classification": "verified_from_solidworks_api",
+      "subject": {
+        "subject_type": "assembly",
+        "identity_exact": "IXOR_Benchmark_v42_ROLLER_GUIDE_HARDSTOP_FIT_CHECK_PORTABLE",
+        "document_title_exact": "IXOR_Benchmark_v42_ROLLER_GUIDE_HARDSTOP_FIT_CHECK_PORTABLE",
+        "document_path_exact": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v42_ROLLER_GUIDE_HARDSTOP_FIT_CHECK_PORTABLE.SLDASM"
+      },
+      "provenance": {
+        "recorded_at": "2026-09-25T03:36:02+00:00",
+        "source_ref": "CADGrounded SOLIDWORKS direct read-only sw.status plus full sw.query_components; current-session observation",
+        "tool_path": "CADGrounded SOLIDWORKS bridge 0.3.0"
+      },
+      "dependencies": [],
+      "geometry_state": "FIT_CHECK",
+      "mechanical_acceptance_granted": false,
+      "temporal_scope": {
+        "coverage": "POINT_ONLY",
+        "validity_state": "CURRENT",
+        "state_ids": [],
+        "transition_ids": []
+      },
+      "payload": {
+        "observation_kind": "capture_owner_component_inventory_refresh",
+        "component_count": 55,
+        "top_level_only": false,
+        "target_components": [
+          {
+            "name_exact": "FITCHECK_DRIVEN_WRAP_BELT_5x160x93_V25-1",
+            "fixed": false,
+            "suppressed": false,
+            "translation_mm": [
+              -126.92061528267112,
+              -139,
+              995
+            ]
+          },
+          {
+            "name_exact": "FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25-1",
+            "fixed": false,
+            "suppressed": false,
+            "translation_mm": [
+              -178.66987158875423,
+              -189,
+              995
+            ]
+          },
+          {
+            "name_exact": "FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25-2",
+            "fixed": false,
+            "suppressed": false,
+            "translation_mm": [
+              -193.071626347073,
+              -129,
+              995
+            ]
+          }
+        ],
+        "mechanical_conclusion": "NONE",
+        "engineering_limit": "The fresh inventory verifies only live component identity and point state. fixed:false neither establishes a physical degree of freedom nor identifies a carrier, closure mechanism, preload, contact, reaction-force path, or operating interval."
+      }
+    },
+    {
+      "schema_version": 1,
+      "record_type": "evidence",
+      "evidence_id": "E_V42_CAPTURE_OWNER_SOURCE_AUDIT_20260925T033602Z",
+      "evidence_type": "human_observation",
+      "evidence_state": "UNRESOLVED",
+      "source_authority": "PROJECT_DOCUMENTS_AND_GOOGLE_DRIVE_INDEX",
+      "source_classification": "documentary_evidence_acquisition_audit",
+      "subject": {
+        "subject_type": "capture_owner_evidence_frontier",
+        "identity_exact": "FITCHECK_DRIVEN_WRAP_BELT_5x160x93_V25-1 plus FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25-1/-2"
+      },
+      "provenance": {
+        "recorded_at": "2026-09-25T03:36:02+00:00",
+        "source_ref": "Google Drive exact-name searches; CAB IXOR catalog/manual inventory; uploaded project-document checksum audit",
+        "tool_path": "Google Drive read-only search and local project-document inspection"
+      },
+      "dependencies": [],
+      "geometry_state": "FIT_CHECK",
+      "ambiguity_bucket": "INSUFFICIENT_EVIDENCE",
+      "mechanical_acceptance_granted": false,
+      "temporal_scope": {
+        "coverage": "POINT_ONLY",
+        "validity_state": "CURRENT",
+        "state_ids": [],
+        "transition_ids": []
+      },
+      "payload": {
+        "audit_scope": [
+          "exact FITCHECK belt/roller names in Google Drive",
+          "CAB IXOR catalog/manual product-family mechanism descriptions",
+          "15 uploaded project markdown files collapsing to six unique September v21-era documents"
+        ],
+        "observations": [
+          "No additional OEM drawing, BOM, assembly, or CAD package was indexed under the exact FITCHECK belt or roller identities.",
+          "The exact-name Drive match is the historic September 18 v42 capture-station note, whose distance observations remain STALE_STATE.",
+          "The uploaded project documents describe a plausible wrap-belt/twin-roller architecture and third-party pattern, but none contains the exact FITCHECK identities or binds a closure/preload owner in the current v42 assembly.",
+          "The current CAB catalog documents product-family carrier, lever, spring-preload, and pneumatic mechanism classes, but does not bind any to the FITCHECK target components."
+        ],
+        "non_absence_rule": "A search miss, name-level absence, or historical narrative is not proof that a physical mechanism is absent. Nested configuration, part feature, external assembly, or undocumented hardware remains unresolved.",
+        "mechanical_conclusion": "NONE"
+      }
+    },
+    {
+      "schema_version": 1,
+      "record_type": "evidence",
       "evidence_id": "E_OEM_IXOR_CAPTURE_MECHANISM_CLASSES_202605",
       "evidence_type": "oem_evidence",
       "evidence_state": "VERIFIED",
@@ -1533,7 +1646,7 @@
   "next_tests": [
     {
       "id": "TEST_CAPTURE_KINEMATIC_OWNER",
-      "question": "Using an OEM assembly/BOM/manual identity map or a separately reviewed no-mutation native read, which exact parent, feature/mate/DOF chain, closure input, limits, preload/compliance, and reaction mount own the named FITCHECK belt and both support rollers? The current Remote Queue cannot execute this owner-binding read.",
+      "question": "Using an OEM assembly/BOM/manual identity map or the separately reviewed local-only sw.query_mates candidate, which exact parent and active-assembly constraint chain binds the named FITCHECK belt and both support rollers? The candidate must be independently no-mutation-verified, remains outside the Remote Queue, and cannot by itself establish preload, force, intended operating motion, or mechanical acceptance.",
       "resolves_requirement_ids": [
         "CAPTURE_KINEMATIC_OWNER"
       ],
@@ -1549,9 +1662,47 @@
         "H_OTHER_EXPLICIT_CLOSURE_MECHANISM"
       ],
       "discrimination_power": 0.98,
-      "evidence_confidence": 0.9,
+      "evidence_confidence": 0.85,
       "unresolved_relevance": 1,
-      "cost": 1
+      "cost": 1,
+      "native_read_candidates": [
+        {
+          "schema_version": 1,
+          "command_id": "sw.query_mates",
+          "write_authority": "NONE",
+          "remote_queue_authorized": false,
+          "requires_independent_no_mutation_verification": true,
+          "execution_state": "CANDIDATE_UNVERIFIED",
+          "verification_contract_id": "V42_CAPTURE_OWNER_BINDING_V1",
+          "payload": {
+            "component_name_exact": "FITCHECK_DRIVEN_WRAP_BELT_5x160x93_V25-1"
+          }
+        },
+        {
+          "schema_version": 1,
+          "command_id": "sw.query_mates",
+          "write_authority": "NONE",
+          "remote_queue_authorized": false,
+          "requires_independent_no_mutation_verification": true,
+          "execution_state": "CANDIDATE_UNVERIFIED",
+          "verification_contract_id": "V42_CAPTURE_OWNER_BINDING_V1",
+          "payload": {
+            "component_name_exact": "FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25-1"
+          }
+        },
+        {
+          "schema_version": 1,
+          "command_id": "sw.query_mates",
+          "write_authority": "NONE",
+          "remote_queue_authorized": false,
+          "requires_independent_no_mutation_verification": true,
+          "execution_state": "CANDIDATE_UNVERIFIED",
+          "verification_contract_id": "V42_CAPTURE_OWNER_BINDING_V1",
+          "payload": {
+            "component_name_exact": "FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25-2"
+          }
+        }
+      ]
     },
     {
       "id": "TEST_CAPTURE_RESTRAINT_AND_CONTACT_INTERVAL",

@@ -187,6 +187,43 @@ class FunctionalTemporalTests(unittest.TestCase):
         with self.assertRaises(FunctionalTemporalError):
             validate_architecture(case)
 
+    def test_native_read_candidate_is_not_a_remote_queue_cad_request(self):
+        case = copy.deepcopy(self.case)
+        test = by_id(case["next_tests"], "TEST_CAPTURE_KINEMATIC_OWNER")
+        candidates = test["native_read_candidates"]
+        self.assertEqual(len(candidates), 3)
+        self.assertTrue(
+            all(candidate["command_id"] == "sw.query_mates" for candidate in candidates)
+        )
+        self.assertTrue(
+            all(candidate["remote_queue_authorized"] is False for candidate in candidates)
+        )
+        self.assertTrue(
+            all(
+                candidate["requires_independent_no_mutation_verification"] is True
+                for candidate in candidates
+            )
+        )
+        self.assertNotIn("cad_request", test)
+
+        candidates[0]["remote_queue_authorized"] = True
+        with self.assertRaises(FunctionalTemporalError):
+            validate_architecture(case)
+
+        case = copy.deepcopy(self.case)
+        test = by_id(case["next_tests"], "TEST_CAPTURE_KINEMATIC_OWNER")
+        test["cad_request"] = {
+            "schema_version": 1,
+            "job_id": "unsafe-native-queue-promotion",
+            "command_id": "sw.query_mates",
+            "write_authority": "NONE",
+            "payload": {
+                "component_name_exact": "FITCHECK_DRIVEN_WRAP_BELT_5x160x93_V25-1"
+            },
+        }
+        with self.assertRaises(FunctionalTemporalError):
+            validate_architecture(case)
+
     def test_capture_owner_hypotheses_preserve_exact_resolution_evidence(self):
         indexes = validate_architecture(self.case)
         expected = {
@@ -212,6 +249,17 @@ class FunctionalTemporalTests(unittest.TestCase):
 
         top_test = by_id(self.case["next_tests"], "TEST_CAPTURE_KINEMATIC_OWNER")
         self.assertNotIn("cad_request", top_test)
+        self.assertEqual(
+            [
+                candidate["payload"]["component_name_exact"]
+                for candidate in top_test["native_read_candidates"]
+            ],
+            [
+                "FITCHECK_DRIVEN_WRAP_BELT_5x160x93_V25-1",
+                "FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25-1",
+                "FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25-2",
+            ],
+        )
         self.assertIn("H_MOVING_WRAP_BELT_ASSEMBLY", top_test["hypothesis_ids"])
 
     def test_hypothesis_evidence_and_operating_phase_are_validated(self):
@@ -310,6 +358,15 @@ class FunctionalTemporalTests(unittest.TestCase):
         self.assertIn(
             "required_evidence",
             schema["$defs"]["hypothesis"]["required"],
+        )
+        native_candidate = schema["$defs"]["nativeReadCandidate"]
+        self.assertEqual(
+            native_candidate["properties"]["remote_queue_authorized"]["const"],
+            False,
+        )
+        self.assertEqual(
+            native_candidate["properties"]["requires_independent_no_mutation_verification"]["const"],
+            True,
         )
 
 
