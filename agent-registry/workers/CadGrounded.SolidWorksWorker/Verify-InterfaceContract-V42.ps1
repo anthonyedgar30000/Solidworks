@@ -12,12 +12,13 @@ $ErrorActionPreference = 'Stop'
 # This verifier is local-only. It does not create an asset, insert a component,
 # move/transform a component, create a mate, save, rebuild, or communicate with
 # the Remote Queue. It fails closed on any observation or no-mutation mismatch.
-$ExpectedWorkerVersion = '0.4.0'
+$ExpectedWorkerVersion = '0.4.1'
 $WorkerRoot = $PSScriptRoot
 . (Join-Path $WorkerRoot 'FileEvidence.ps1')
 . (Join-Path $WorkerRoot 'ComponentStateEvidence.ps1')
 . (Join-Path $WorkerRoot 'InterfaceContractEvidence.ps1')
 . (Join-Path $WorkerRoot 'InterfaceConnectorDiagnosticEvidence.ps1')
+. (Join-Path $WorkerRoot 'FeatureManagerTreeDiagnosticEvidence.ps1')
 $WorkerExe = Join-Path $WorkerRoot 'bin\Release\net8.0-windows\win-x64\CadGrounded.SolidWorksWorker.exe'
 $OutputRoot = Join-Path $WorkerRoot 'verification-output\interface-contract-v42'
 $ReasoningRoot = [System.IO.Path]::GetFullPath((Join-Path $WorkerRoot '..\..\reasoning'))
@@ -26,6 +27,7 @@ $LiveVerifierPath = Join-Path $ReasoningRoot 'cad_interface_live_verifier.py'
 
 $CoordinateSystems = @('PRODUCT_ENTRY_CS', 'PRODUCT_EXIT_CS')
 $Connectors = @('Connector2', 'Connector1')
+$FeatureManagerTreeTexts = @('Published References', 'Ground Plane', 'Connector1', 'Connector2')
 
 function Invoke-WorkerJson {
     param([Parameter(Mandatory=$true)][string[]]$Arguments)
@@ -217,6 +219,77 @@ $connectorDiagnosticSummary = [ordered]@{
 $connectorDiagnosticSummaryPath = Join-Path $OutputRoot 'connector-diagnostic-summary.json'
 $connectorDiagnosticSummary | ConvertTo-Json -Depth 80 | Set-Content -LiteralPath $connectorDiagnosticSummaryPath -Encoding UTF8
 
+$featureManagerTreeDiagnosticArguments = @('feature-manager-tree-diagnostic')
+foreach ($text in $FeatureManagerTreeTexts) {
+    $featureManagerTreeDiagnosticArguments += @('--tree-text', $text)
+}
+$featureManagerTreeDiagnosticResult = Invoke-WorkerJson -Arguments $featureManagerTreeDiagnosticArguments
+$featureManagerTreeDiagnosticRawPath = Join-Path $OutputRoot 'sw.diagnose_feature_manager_tree.raw.json'
+$featureManagerTreeDiagnosticResult | ConvertTo-Json -Depth 60 | Set-Content -LiteralPath $featureManagerTreeDiagnosticRawPath -Encoding UTF8
+$featureManagerTreeDiagnosticState = Assert-FeatureManagerTreeDiagnosticObservation `
+    -Envelope $featureManagerTreeDiagnosticResult `
+    -ExpectedTreeTexts $FeatureManagerTreeTexts
+
+$componentsAfterFeatureManagerTreeDiagnostic = Invoke-WorkerJson -Arguments @('components', '--all')
+$wholeAssemblyStateAfterFeatureManagerTreeDiagnostic = Get-WholeAssemblyComponentState -ComponentsEnvelope $componentsAfterFeatureManagerTreeDiagnostic
+$statusAfterFeatureManagerTreeDiagnostic = Invoke-WorkerJson -Arguments @('status')
+Assert-ExpectedStatus $statusAfterFeatureManagerTreeDiagnostic
+$documentStateAfterFeatureManagerTreeDiagnostic = Get-DocumentState -StatusEnvelope $statusAfterFeatureManagerTreeDiagnostic
+$fileAfterFeatureManagerTreeDiagnostic = Get-FileEvidence -Path $ExpectedDocumentPath
+
+if (($wholeAssemblyStateAfterConnectorDiagnostic | ConvertTo-Json -Depth 40 -Compress) -cne ($wholeAssemblyStateAfterFeatureManagerTreeDiagnostic | ConvertTo-Json -Depth 40 -Compress)) {
+    throw 'Complete component transform/state evidence changed during read-only FeatureManager tree diagnostic.'
+}
+if (($documentStateAfterConnectorDiagnostic | ConvertTo-Json -Depth 20 -Compress) -cne ($documentStateAfterFeatureManagerTreeDiagnostic | ConvertTo-Json -Depth 20 -Compress)) {
+    throw 'Active document identity, configuration, or dirty/save state changed during read-only FeatureManager tree diagnostic.'
+}
+if ($fileAfterConnectorDiagnostic.sha256 -cne $fileAfterFeatureManagerTreeDiagnostic.sha256 -or
+    $fileAfterConnectorDiagnostic.length -ne $fileAfterFeatureManagerTreeDiagnostic.length -or
+    $fileAfterConnectorDiagnostic.last_write_time_utc -cne $fileAfterFeatureManagerTreeDiagnostic.last_write_time_utc) {
+    throw 'Assembly file evidence changed during read-only FeatureManager tree diagnostic.'
+}
+
+$featureManagerTreeDiagnosticSummary = [ordered]@{
+    schema_version = 1
+    test = 'sw.diagnose_feature_manager_tree v42 no-mutation verification'
+    result = 'PASS'
+    expected_document = [ordered]@{
+        title = $ExpectedDocumentTitle
+        path = $ExpectedDocumentPath
+    }
+    worker_version = $ExpectedWorkerVersion
+    command_id = 'sw.diagnose_feature_manager_tree'
+    write_authority = 'NONE'
+    model_mutation = $false
+    remote_queue_authorized = $false
+    requested_displayed_tree_texts = $FeatureManagerTreeTexts
+    document_state_before = $documentStateAfterConnectorDiagnostic
+    document_state_after = $documentStateAfterFeatureManagerTreeDiagnostic
+    file_before = $fileAfterConnectorDiagnostic
+    file_after = $fileAfterFeatureManagerTreeDiagnostic
+    component_state_before = $wholeAssemblyStateAfterConnectorDiagnostic
+    component_state_after = $wholeAssemblyStateAfterFeatureManagerTreeDiagnostic
+    feature_manager_tree_diagnostic = $featureManagerTreeDiagnosticState
+    published_asset_coordinate_system_geometric_coincidence_state = 'UNRESOLVED'
+    mechanical_acceptance_granted = $false
+    evidence_contract = [ordered]@{
+        establishes = @(
+            'exact visible FeatureManager tree-text observation for Published References, Ground Plane, Connector1, and Connector2',
+            'each observed target tree item''s depth, path, ObjectType, null status, runtime .NET/COM classification, and IFeature name/type when available',
+            'pre/post document, complete component-state, and assembly-file comparison for the tree diagnostic'
+        )
+        does_not_establish = @(
+            'that a displayed tree item is a MagneticConnectRef or that it should change the interface-contract reader',
+            'that prior direct FeatureByName or ordinary IFeature-traversal negative evidence is invalid',
+            'Published Asset connector-to-coordinate-system geometric coincidence',
+            'asset insertion, snap/mate behavior, physical contact, collision clearance, or interference absence',
+            'degrees of freedom, support, force, preload, temporal operation, or mechanical acceptance'
+        )
+    }
+}
+$featureManagerTreeDiagnosticSummaryPath = Join-Path $OutputRoot 'feature-manager-tree-diagnostic-summary.json'
+$featureManagerTreeDiagnosticSummary | ConvertTo-Json -Depth 80 | Set-Content -LiteralPath $featureManagerTreeDiagnosticSummaryPath -Encoding UTF8
+
 $interfaceArguments = @('interface-contract')
 foreach ($name in $CoordinateSystems) {
     $interfaceArguments += @('--coordinate-system', $name)
@@ -287,6 +360,8 @@ $verification = [ordered]@{
     component_state_after = $wholeAssemblyStateAfter
     connector_diagnostic = $connectorDiagnosticState
     connector_diagnostic_artifact = $connectorDiagnosticSummaryPath
+    feature_manager_tree_diagnostic = $featureManagerTreeDiagnosticState
+    feature_manager_tree_diagnostic_artifact = $featureManagerTreeDiagnosticSummaryPath
     interface_observation = $interfaceState
     deterministic_live_verification = $liveVerification
     published_asset_coordinate_system_geometric_coincidence_state = 'UNRESOLVED'

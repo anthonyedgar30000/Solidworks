@@ -16,6 +16,8 @@ PROGRAM = WORKER / "Program.cs"
 VERIFY_SCRIPT = WORKER / "Verify-InterfaceContract-V42.ps1"
 DIAGNOSTIC_EVIDENCE = WORKER / "InterfaceConnectorDiagnosticEvidence.ps1"
 DIAGNOSTIC_EVIDENCE_TEST = WORKER / "Test-InterfaceConnectorDiagnosticEvidence.ps1"
+TREE_DIAGNOSTIC_EVIDENCE = WORKER / "FeatureManagerTreeDiagnosticEvidence.ps1"
+TREE_DIAGNOSTIC_EVIDENCE_TEST = WORKER / "Test-FeatureManagerTreeDiagnosticEvidence.ps1"
 QUEUE_CONFIGS = (
     REGISTRY / "CADGrounded_RemoteQueue_v1" / "queue-config.json",
     REGISTRY / "remote-queue-runner-v1" / "queue-config.json",
@@ -98,6 +100,46 @@ class NativeInterfaceContractProbeTests(unittest.TestCase):
             "ReadPublishedReferenceFeatureFromDirectLookup",
             self.program,
         )
+
+    def test_feature_manager_tree_diagnostic_is_bounded_and_separate(self):
+        verifier = VERIFY_SCRIPT.read_text(encoding="utf-8")
+        evidence = TREE_DIAGNOSTIC_EVIDENCE.read_text(encoding="utf-8")
+        regression = TREE_DIAGNOSTIC_EVIDENCE_TEST.read_text(encoding="utf-8")
+
+        for expected in (
+            '"sw.diagnose_feature_manager_tree"',
+            "_doc.FeatureManager",
+            "GetFeatureTreeRootItem2",
+            "swFeatMgrPaneBottom",
+            "item.Text",
+            "item.ObjectType",
+            "item.Object",
+            "Marshal.IsComObject",
+            "object_runtime_dotnet_type",
+            "EXACT_DISPLAYED_TREE_TEXTS_ONLY",
+            "ALL_REQUESTED_TREE_TEXTS_OBSERVED",
+            "NO_REQUESTED_TREE_TEXTS_OBSERVED",
+            "remote_queue_authorized = false",
+        ):
+            self.assertIn(expected, self.program)
+
+        self.assertIn("feature-manager-tree-diagnostic", verifier)
+        self.assertIn("sw.diagnose_feature_manager_tree.raw.json", verifier)
+        self.assertIn("feature-manager-tree-diagnostic-summary.json", verifier)
+        self.assertIn("FeatureManagerTreeDiagnosticEvidence.ps1", verifier)
+        self.assertIn("object_is_null", regression)
+        self.assertIn("outside the exact requested-text scope", regression)
+        self.assertIn("EXACT_DISPLAYED_TREE_TEXTS_ONLY", evidence)
+
+        query_start = self.program.index("public object QueryInterfaceContract")
+        query_end = self.program.index("public object DiagnoseInterfaceConnectors", query_start)
+        self.assertNotIn("DiagnoseFeatureManagerTree", self.program[query_start:query_end])
+
+        for queue_config in QUEUE_CONFIGS:
+            contents = queue_config.read_text(encoding="utf-8")
+            self.assertNotIn(
+                "sw.diagnose_feature_manager_tree", contents, msg=str(queue_config)
+            )
 
 
 if __name__ == "__main__":

@@ -9,7 +9,7 @@ namespace CadGrounded.SolidWorksWorker;
 
 internal static class Program
 {
-    internal const string Version = "0.4.0";
+    internal const string Version = "0.4.1";
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         WriteIndented = true,
@@ -33,6 +33,7 @@ internal static class Program
                 "components" => RunComponentsCli(args.Skip(1).ToArray()),
                 "interface-contract" => RunInterfaceContractCli(args.Skip(1).ToArray()),
                 "interface-connectors-diagnostic" => RunInterfaceConnectorDiagnosticCli(args.Skip(1).ToArray()),
+                "feature-manager-tree-diagnostic" => RunFeatureManagerTreeDiagnosticCli(args.Skip(1).ToArray()),
                 "closest-distance" => RunClosestDistanceCli(args.Skip(1).ToArray()),
                 "mates" => RunMatesCli(args.Skip(1).ToArray()),
                 "execute-json" => RunExecuteJson(),
@@ -144,6 +145,37 @@ internal static class Program
         }));
 
         return RunCli("sw.diagnose_interface_connectors", doc.RootElement);
+    }
+
+    private static int RunFeatureManagerTreeDiagnosticCli(string[] args)
+    {
+        var treeTexts = new List<string>();
+
+        for (var i = 0; i < args.Length; i++)
+        {
+            switch (args[i])
+            {
+                case "--tree-text":
+                    treeTexts.Add(RequireNext(args, ref i, "--tree-text"));
+                    break;
+                default:
+                    return Fail($"Unknown feature-manager-tree-diagnostic option: {args[i]}", 2);
+            }
+        }
+
+        if (treeTexts.Count == 0)
+        {
+            return Fail(
+                "feature-manager-tree-diagnostic requires one or more --tree-text <exact displayed tree text>.",
+                2);
+        }
+
+        using var doc = JsonDocument.Parse(JsonSerializer.Serialize(new
+        {
+            displayed_tree_texts = treeTexts
+        }));
+
+        return RunCli("sw.diagnose_feature_manager_tree", doc.RootElement);
     }
 
     private static int RunClosestDistanceCli(string[] args)
@@ -286,6 +318,7 @@ READ-ONLY COMMANDS
   components [--all]
   interface-contract --coordinate-system <exact feature name> [--coordinate-system <exact feature name> ...] --connector <exact feature name> [--connector <exact feature name> ...]
   interface-connectors-diagnostic --connector <exact feature name> [--connector <exact feature name> ...]
+  feature-manager-tree-diagnostic --tree-text <exact displayed tree text> [--tree-text <exact displayed tree text> ...]
   closest-distance --a <exact Name2> --b <exact Name2>
   mates --component <exact Name2>
   execute-json
@@ -311,6 +344,7 @@ internal static class Dispatcher
         "sw.query_components",
         "sw.query_interface_contract",
         "sw.diagnose_interface_connectors",
+        "sw.diagnose_feature_manager_tree",
         "sw.closest_distance_pair",
         "sw.classify_contact_pair",
         "sw.query_mates"
@@ -349,6 +383,12 @@ internal static class Dispatcher
                     payload,
                     "published_reference_connector_names");
             }
+            else if (commandId == "sw.diagnose_feature_manager_tree")
+            {
+                JsonHelpers.RequireOnlyProperties(
+                    payload,
+                    "displayed_tree_texts");
+            }
 
             object data = commandId switch
             {
@@ -366,6 +406,10 @@ internal static class Dispatcher
                     JsonHelpers.GetRequiredUniqueStringArray(
                         payload,
                         "published_reference_connector_names")),
+                "sw.diagnose_feature_manager_tree" => session.DiagnoseFeatureManagerTree(
+                    JsonHelpers.GetRequiredUniqueStringArray(
+                        payload,
+                        "displayed_tree_texts")),
                 "sw.closest_distance_pair" => session.ClosestDistancePair(
                     JsonHelpers.GetRequiredString(payload, "a_name_exact"),
                     JsonHelpers.GetRequiredString(payload, "b_name_exact")),
@@ -747,6 +791,174 @@ internal sealed class SolidWorksSession : IDisposable
             remote_queue_authorized = false,
             evidence = "verified_from_solidworks_api"
         };
+    }
+
+    public object DiagnoseFeatureManagerTree(string[] displayedTreeTexts)
+    {
+        // This is a separate, getter-only observation of the representation
+        // rendered in the FeatureManager design tree. It does not replace the
+        // ordinary IFeature traversal or direct named-feature diagnostic.
+        RequireAssembly();
+
+        var requestedTexts = new HashSet<string>(displayedTreeTexts, StringComparer.Ordinal);
+        var root = RequireFeatureManagerTreeRoot();
+        var observations = EnumerateFeatureManagerTreeObservations(root, requestedTexts).ToArray();
+        var textDiagnostics = displayedTreeTexts
+            .Select(text => ClassifyFeatureManagerTreeText(
+                text,
+                observations.Where(row => string.Equals(
+                    row.displayed_tree_text,
+                    text,
+                    StringComparison.Ordinal))))
+            .ToArray();
+
+        return new
+        {
+            document = ReadDocumentState(),
+            request = new
+            {
+                displayed_tree_texts = displayedTreeTexts,
+                feature_manager_pane = "swFeatMgrPaneBottom"
+            },
+            feature_manager_tree_root_available = true,
+            tree_observations = observations,
+            tree_text_diagnostics = textDiagnostics,
+            diagnostic_state = DetermineFeatureManagerTreeDiagnosticState(textDiagnostics),
+            result_scope = "EXACT_DISPLAYED_TREE_TEXTS_ONLY",
+            interpretation_note =
+                "This diagnostic observes exact visible FeatureManager tree text and its associated " +
+                "ITreeControlItem metadata. It does not replace or erase prior direct FeatureByName or " +
+                "ordinary IFeature-traversal evidence, does not establish that a tree item is an IFeature, " +
+                "and does not establish Published Asset geometry, connector-to-coordinate-system coincidence, " +
+                "snap/mate behavior, contact, clearance, motion, force, or mechanical acceptance.",
+            api =
+                "IModelDoc2.FeatureManager -> IFeatureManager.GetFeatureTreeRootItem2(swFeatMgrPaneBottom) " +
+                "-> ITreeControlItem.Text/ObjectType/Object/GetFirstChild/GetNext; " +
+                "IFeature.Name/GetTypeName2 only when ITreeControlItem.Object resolves to IFeature",
+            model_mutation = false,
+            write_authority = "NONE",
+            remote_queue_authorized = false,
+            evidence = "verified_from_solidworks_api"
+        };
+    }
+
+    private ITreeControlItem RequireFeatureManagerTreeRoot()
+    {
+        var featureManager = _doc.FeatureManager;
+        if (featureManager is null)
+        {
+            throw new CadGroundedException(
+                "feature_manager_unavailable",
+                "The active document does not expose IModelDoc2.FeatureManager.");
+        }
+
+        var root = featureManager.GetFeatureTreeRootItem2(
+            (int)SwConst.swFeatMgrPane_e.swFeatMgrPaneBottom) as ITreeControlItem;
+        if (root is null)
+        {
+            throw new CadGroundedException(
+                "feature_manager_tree_root_unavailable",
+                "IFeatureManager.GetFeatureTreeRootItem2(swFeatMgrPaneBottom) returned no tree root.");
+        }
+
+        return root;
+    }
+
+    private static IEnumerable<FeatureManagerTreeObservation> EnumerateFeatureManagerTreeObservations(
+        ITreeControlItem root,
+        HashSet<string> requestedTexts)
+    {
+        var seen = new HashSet<ITreeControlItem>();
+        foreach (var observation in EnumerateFeatureManagerTreeBranch(
+                     root,
+                     treeDepth: 0,
+                     treePath: "0",
+                     requestedTexts,
+                     seen))
+        {
+            yield return observation;
+        }
+    }
+
+    private static IEnumerable<FeatureManagerTreeObservation> EnumerateFeatureManagerTreeBranch(
+        ITreeControlItem item,
+        int treeDepth,
+        string treePath,
+        HashSet<string> requestedTexts,
+        HashSet<ITreeControlItem> seen)
+    {
+        if (!seen.Add(item))
+        {
+            throw new CadGroundedException(
+                "feature_manager_tree_cycle_detected",
+                "FeatureManager tree traversal encountered the same ITreeControlItem more than once.");
+        }
+
+        var displayedText = item.Text ?? string.Empty;
+        var itemObject = item.Object;
+        var feature = itemObject as IFeature;
+        var observation = new FeatureManagerTreeObservation(
+            displayed_tree_text: displayedText,
+            tree_depth: treeDepth,
+            tree_path: treePath,
+            object_type: item.ObjectType,
+            object_is_null: itemObject is null,
+            object_runtime_dotnet_type: itemObject?.GetType().FullName,
+            object_is_com_object: itemObject is null ? (bool?)null : Marshal.IsComObject(itemObject),
+            feature_name: feature?.Name,
+            feature_type: feature?.GetTypeName2());
+
+        if (requestedTexts.Contains(displayedText))
+            yield return observation;
+
+        var child = item.GetFirstChild() as ITreeControlItem;
+        var childIndex = 0;
+        while (child is not null)
+        {
+            foreach (var nested in EnumerateFeatureManagerTreeBranch(
+                         child,
+                         treeDepth + 1,
+                         $"{treePath}.{childIndex}",
+                         requestedTexts,
+                         seen))
+            {
+                yield return nested;
+            }
+
+            child = child.GetNext() as ITreeControlItem;
+            childIndex++;
+        }
+    }
+
+    private static FeatureManagerTreeTextDiagnostic ClassifyFeatureManagerTreeText(
+        string requestedText,
+        IEnumerable<FeatureManagerTreeObservation> observations)
+    {
+        var matches = observations.ToArray();
+        return new FeatureManagerTreeTextDiagnostic(
+            requested_displayed_tree_text: requestedText,
+            exact_match_count: matches.Length,
+            classification: matches.Length switch
+            {
+                0 => "NOT_OBSERVED",
+                1 => "OBSERVED",
+                _ => "MATCH_NOT_UNIQUE"
+            });
+    }
+
+    private static string DetermineFeatureManagerTreeDiagnosticState(
+        IEnumerable<FeatureManagerTreeTextDiagnostic> textDiagnostics)
+    {
+        var classifications = textDiagnostics
+            .Select(row => row.classification)
+            .ToArray();
+        if (classifications.All(value => value == "OBSERVED"))
+            return "ALL_REQUESTED_TREE_TEXTS_OBSERVED";
+        if (classifications.All(value => value == "NOT_OBSERVED"))
+            return "NO_REQUESTED_TREE_TEXTS_OBSERVED";
+        if (classifications.Any(value => value == "MATCH_NOT_UNIQUE"))
+            return "TREE_TEXT_MATCH_NOT_UNIQUE";
+        return "PARTIAL_REQUESTED_TREE_TEXTS_OBSERVED";
     }
 
     private object ReadDocumentState()
@@ -1711,6 +1923,22 @@ internal sealed class SolidWorksSession : IDisposable
         string direct_lookup_state,
         int traversal_match_count,
         int traversal_expected_type_match_count,
+        string classification);
+
+    private sealed record FeatureManagerTreeObservation(
+        string displayed_tree_text,
+        int tree_depth,
+        string tree_path,
+        int object_type,
+        bool object_is_null,
+        string? object_runtime_dotnet_type,
+        bool? object_is_com_object,
+        string? feature_name,
+        string? feature_type);
+
+    private sealed record FeatureManagerTreeTextDiagnostic(
+        string requested_displayed_tree_text,
+        int exact_match_count,
         string classification);
 }
 

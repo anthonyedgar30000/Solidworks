@@ -31,6 +31,19 @@ direct exact `MagneticConnectRef` with no traversal match is reported as
 not silently change the exact reader. If neither path observes a connector, it
 is `LIVE_STATE_SOURCE_CONFLICT`, not connector evidence.
 
+When that API-negative result conflicts with fresh human observation of the
+same live document's Asset Publisher UI, the result is an observation-surface /
+representation mismatch, not proof that connectors are absent. The separate
+local-only `sw.diagnose_feature_manager_tree` diagnostic then traverses
+`IModelDoc2.FeatureManager -> IFeatureManager.GetFeatureTreeRootItem2`
+(`swFeatMgrPaneBottom`) and returns only the exact requested displayed texts:
+`Published References`, `Ground Plane`, `Connector1`, and `Connector2`. For
+each observed node it records displayed text, depth/path, `ObjectType`, whether
+`ITreeControlItem.Object` is null, its runtime .NET/COM classification, and
+`IFeature` name/type only when that object resolves to `IFeature`. This is a
+representation probe only: it preserves the direct and ordinary feature-path
+negatives and cannot silently change the exact Published Reference reader.
+
 ## Live verifier outcome states
 
 `reasoning/cad_interface_live_verifier.py` validates the source contract, then compares one fresh worker envelope without updating either source of truth.
@@ -43,7 +56,7 @@ is `LIVE_STATE_SOURCE_CONFLICT`, not connector evidence.
 | `AUTHORITY_REJECTED` | Source classification, command scope, write/mutation declaration, or observation scope is invalid. | Reject the observation. |
 | `OBSERVATION_REJECTED` | Required observation fields are absent or internally inconsistent. | Reject the observation. |
 
-The Windows host script `Verify-InterfaceContract-V42.ps1` adds a no-mutation gate: exact active document/configuration/save flag, stable shared-read assembly-file evidence, and complete component state are compared before and after the connector diagnostic and the local interface query. `sw.diagnose_interface_connectors.raw.json` and `connector-diagnostic-summary.json` are written before the unchanged exact interface query runs, so they remain available if that query fails closed. A successful script result is an evidence artifact for review, not an automatic `EvidenceRecord` admission or mechanical acceptance.
+The Windows host script `Verify-InterfaceContract-V42.ps1` adds a no-mutation gate: exact active document/configuration/save flag, stable shared-read assembly-file evidence, and complete component state are compared before and after the connector diagnostic, FeatureManager-tree diagnostic, and local interface query. `sw.diagnose_interface_connectors.raw.json`, `connector-diagnostic-summary.json`, `sw.diagnose_feature_manager_tree.raw.json`, and `feature-manager-tree-diagnostic-summary.json` are written before the unchanged exact interface query runs, so they remain available if that query fails closed. A successful script result is an evidence artifact for review, not an automatic `EvidenceRecord` admission or mechanical acceptance.
 
 ## Authority and unresolved geometry
 
@@ -84,4 +97,5 @@ Frame alignment does not establish connector coincidence, snap/mate behavior, co
 - `test_cad_interface_consumption.py` proves transform composition and inverse algebra, the v42 declared transform, and non-authorization after a fresh frame check.
 - `Test-InterfaceContractEvidence.ps1` exercises strict PowerShell normalization of a local worker envelope.
 - `Test-InterfaceConnectorDiagnosticEvidence.ps1` exercises strict direct-lookup/traversal diagnostic normalization without promoting connector evidence.
+- `Test-FeatureManagerTreeDiagnosticEvidence.ps1` exercises strict visible-tree text/object normalization, including null `ITreeControlItem.Object` and bounded exact-text rejection.
 - GitHub Actions compiles the Windows worker and runs the PowerShell normalization tests, plus deterministic Python tests.
