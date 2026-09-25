@@ -9,6 +9,7 @@ There is no generic code-execution command and no CAD write command.
 - `sw.status`
 - `sw.query_components`
 - `sw.query_interface_contract` (local-only; not Remote Queue authorized)
+- `sw.diagnose_interface_connectors` (local-only; not Remote Queue authorized)
 - `sw.closest_distance_pair`
 - `sw.classify_contact_pair` (native-only unless separately authorized by a transport policy)
 - `sw.query_mates`
@@ -24,6 +25,14 @@ connector-to-coordinate-system geometric coincidence, Asset Publisher snap
 behavior, physical contact, collision clearance, motion, force, or mechanical
 acceptance. It remains local-only until a separate policy review; native
 capability does not imply Remote Queue authorization.
+
+`sw.diagnose_interface_connectors` is a bounded diagnostic for a failed
+Published Reference discovery. For exact requested connector names, it compares
+`IModelDoc2.FeatureByName` with the existing recursive feature traversal and
+records any observed `ConnectRefMgr` / connector rows with name, type, parent,
+and tree depth. It does not substitute direct lookup into
+`sw.query_interface_contract`; a direct-only result is a path-defect candidate
+that requires separate review before the exact reader can change.
 
 `sw.query_mates` is an observation primitive. It requires one exact `Component2.Name2` and traverses the active assembly's mate group without selecting, editing, rebuilding, suppressing, moving, or mating any component. It reports the target's exact identity, component state, referenced configuration, parent chain, and active-assembly mate definitions that reference it, including mate entities, API type/alignment values, active-configuration suppression observation, entity parameters, and distance/angle variation values when SOLIDWORKS exposes them.
 
@@ -70,8 +79,24 @@ JSON example:
 
 For the v42 reference assembly, use `Verify-InterfaceContract-V42.ps1`. It
 compares pre/post complete component state, document state, and stable shared
-file evidence, then runs the deterministic drift/authority verifier. A pass
-verifies only the declared feature/frame baseline at that fresh checkpoint.
+file evidence, first for the connector diagnostic and then for the interface
+query. The diagnostic writes its raw/summary artifacts even if the unchanged
+exact interface query subsequently fails closed. A pass verifies only the
+declared feature/frame baseline at that fresh checkpoint.
+
+## `sw.diagnose_interface_connectors`
+
+CLI example:
+
+    bin\Release\net8.0-windows\win-x64\CadGrounded.SolidWorksWorker.exe interface-connectors-diagnostic ^
+      --connector "Connector2" ^
+      --connector "Connector1"
+
+This command is diagnostic-only. `DIRECT_LOOKUP_TRAVERSAL_PATH_DEFECT` means
+the direct API resolved an exact `MagneticConnectRef` while the existing
+recursive traversal did not; it is not connector acceptance and does not alter
+the reader. `LIVE_STATE_SOURCE_CONFLICT` means neither observation path found a
+requested connector and no connector evidence may be invented.
 
 ## Build
 

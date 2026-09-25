@@ -21,6 +21,16 @@ Its request requires exact coordinate-system feature names and exact connector f
 
 The command uses a bounded `IFeature` traversal and `IFeature.GetDefinition() -> ICoordinateSystemFeatureData -> Transform -> IMathTransform.ArrayData` getter chain for `CoordSys` features. It does not call a generic execute-code interface.
 
+When exact Published Reference discovery fails, the separate local-only
+`sw.diagnose_interface_connectors` command compares
+`IModelDoc2.FeatureByName("Connector1"/"Connector2")` with that recursive
+traversal. It records direct name/type results and any traversal observation of
+`ConnectRefMgr`, `Connector1`, or `Connector2`, including parent/tree depth. A
+direct exact `MagneticConnectRef` with no traversal match is reported as
+`DIRECT_LOOKUP_TRAVERSAL_PATH_DEFECT`; it is diagnostic evidence only and does
+not silently change the exact reader. If neither path observes a connector, it
+is `LIVE_STATE_SOURCE_CONFLICT`, not connector evidence.
+
 ## Live verifier outcome states
 
 `reasoning/cad_interface_live_verifier.py` validates the source contract, then compares one fresh worker envelope without updating either source of truth.
@@ -33,7 +43,7 @@ The command uses a bounded `IFeature` traversal and `IFeature.GetDefinition() ->
 | `AUTHORITY_REJECTED` | Source classification, command scope, write/mutation declaration, or observation scope is invalid. | Reject the observation. |
 | `OBSERVATION_REJECTED` | Required observation fields are absent or internally inconsistent. | Reject the observation. |
 
-The Windows host script `Verify-InterfaceContract-V42.ps1` adds a no-mutation gate: exact active document/configuration/save flag, stable shared-read assembly-file evidence, and complete component state are compared before and after the local query. A successful script result is an evidence artifact for review, not an automatic `EvidenceRecord` admission or mechanical acceptance.
+The Windows host script `Verify-InterfaceContract-V42.ps1` adds a no-mutation gate: exact active document/configuration/save flag, stable shared-read assembly-file evidence, and complete component state are compared before and after the connector diagnostic and the local interface query. `sw.diagnose_interface_connectors.raw.json` and `connector-diagnostic-summary.json` are written before the unchanged exact interface query runs, so they remain available if that query fails closed. A successful script result is an evidence artifact for review, not an automatic `EvidenceRecord` admission or mechanical acceptance.
 
 ## Authority and unresolved geometry
 
@@ -73,4 +83,5 @@ Frame alignment does not establish connector coincidence, snap/mate behavior, co
 - `test_cad_interface_live_verifier.py` covers stale evidence, document/type/transform drift, source/mutation rejection, required-field failure, bounded result scope, and the preserved geometry-coincidence boundary.
 - `test_cad_interface_consumption.py` proves transform composition and inverse algebra, the v42 declared transform, and non-authorization after a fresh frame check.
 - `Test-InterfaceContractEvidence.ps1` exercises strict PowerShell normalization of a local worker envelope.
+- `Test-InterfaceConnectorDiagnosticEvidence.ps1` exercises strict direct-lookup/traversal diagnostic normalization without promoting connector evidence.
 - GitHub Actions compiles the Windows worker and runs the PowerShell normalization tests, plus deterministic Python tests.

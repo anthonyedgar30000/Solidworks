@@ -32,6 +32,7 @@ internal static class Program
                 "status" => RunCli("sw.status", JsonDocument.Parse("{}").RootElement),
                 "components" => RunComponentsCli(args.Skip(1).ToArray()),
                 "interface-contract" => RunInterfaceContractCli(args.Skip(1).ToArray()),
+                "interface-connectors-diagnostic" => RunInterfaceConnectorDiagnosticCli(args.Skip(1).ToArray()),
                 "closest-distance" => RunClosestDistanceCli(args.Skip(1).ToArray()),
                 "mates" => RunMatesCli(args.Skip(1).ToArray()),
                 "execute-json" => RunExecuteJson(),
@@ -112,6 +113,37 @@ internal static class Program
         }));
 
         return RunCli("sw.query_interface_contract", doc.RootElement);
+    }
+
+    private static int RunInterfaceConnectorDiagnosticCli(string[] args)
+    {
+        var connectorNames = new List<string>();
+
+        for (var i = 0; i < args.Length; i++)
+        {
+            switch (args[i])
+            {
+                case "--connector":
+                    connectorNames.Add(RequireNext(args, ref i, "--connector"));
+                    break;
+                default:
+                    return Fail($"Unknown interface-connectors-diagnostic option: {args[i]}", 2);
+            }
+        }
+
+        if (connectorNames.Count == 0)
+        {
+            return Fail(
+                "interface-connectors-diagnostic requires one or more --connector <exact feature name>.",
+                2);
+        }
+
+        using var doc = JsonDocument.Parse(JsonSerializer.Serialize(new
+        {
+            published_reference_connector_names = connectorNames
+        }));
+
+        return RunCli("sw.diagnose_interface_connectors", doc.RootElement);
     }
 
     private static int RunClosestDistanceCli(string[] args)
@@ -253,6 +285,7 @@ READ-ONLY COMMANDS
   status
   components [--all]
   interface-contract --coordinate-system <exact feature name> [--coordinate-system <exact feature name> ...] --connector <exact feature name> [--connector <exact feature name> ...]
+  interface-connectors-diagnostic --connector <exact feature name> [--connector <exact feature name> ...]
   closest-distance --a <exact Name2> --b <exact Name2>
   mates --component <exact Name2>
   execute-json
@@ -277,6 +310,7 @@ internal static class Dispatcher
         "sw.status",
         "sw.query_components",
         "sw.query_interface_contract",
+        "sw.diagnose_interface_connectors",
         "sw.closest_distance_pair",
         "sw.classify_contact_pair",
         "sw.query_mates"
@@ -309,6 +343,12 @@ internal static class Dispatcher
                     "coordinate_system_feature_names",
                     "published_reference_connector_names");
             }
+            else if (commandId == "sw.diagnose_interface_connectors")
+            {
+                JsonHelpers.RequireOnlyProperties(
+                    payload,
+                    "published_reference_connector_names");
+            }
 
             object data = commandId switch
             {
@@ -319,6 +359,10 @@ internal static class Dispatcher
                     JsonHelpers.GetRequiredUniqueStringArray(
                         payload,
                         "coordinate_system_feature_names"),
+                    JsonHelpers.GetRequiredUniqueStringArray(
+                        payload,
+                        "published_reference_connector_names")),
+                "sw.diagnose_interface_connectors" => session.DiagnoseInterfaceConnectors(
                     JsonHelpers.GetRequiredUniqueStringArray(
                         payload,
                         "published_reference_connector_names")),
@@ -630,6 +674,81 @@ internal sealed class SolidWorksSession : IDisposable
         };
     }
 
+    public object DiagnoseInterfaceConnectors(string[] publishedReferenceConnectorNames)
+    {
+        // This diagnostic intentionally compares two bounded getter-only
+        // feature-observation paths. It does not repair, rename, or otherwise
+        // alter any feature, and it does not select, rebuild, or save the model.
+        RequireAssembly();
+
+        var directLookups = publishedReferenceConnectorNames
+            .Select(ReadDirectConnectorLookup)
+            .ToArray();
+
+        FeatureTreeObservation[] traversal;
+        string? traversalError = null;
+        try
+        {
+            traversal = EnumerateFeatureTreeObservations().ToArray();
+        }
+        catch (Exception ex)
+        {
+            traversal = Array.Empty<FeatureTreeObservation>();
+            traversalError = $"{ex.GetType().Name}: {ex.Message}";
+        }
+
+        var relevantNames = new HashSet<string>(publishedReferenceConnectorNames, StringComparer.Ordinal)
+        {
+            "ConnectRefMgr"
+        };
+        var relevantTraversal = traversal
+            .Where(row => relevantNames.Contains(row.feature_name))
+            .ToArray();
+
+        var connectorDiagnostics = publishedReferenceConnectorNames
+            .Select(name => ClassifyConnectorDiagnostic(
+                directLookups.Single(row => string.Equals(
+                    row.requested_name,
+                    name,
+                    StringComparison.Ordinal)),
+                relevantTraversal.Where(row => string.Equals(
+                    row.feature_name,
+                    name,
+                    StringComparison.Ordinal)),
+                traversalError))
+            .ToArray();
+
+        return new
+        {
+            document = ReadDocumentState(),
+            request = new
+            {
+                published_reference_connector_names = publishedReferenceConnectorNames,
+                traversal_anchor_feature_name = "ConnectRefMgr"
+            },
+            direct_lookup = directLookups,
+            traversal_observations = relevantTraversal,
+            traversal_error = traversalError,
+            connector_diagnostics = connectorDiagnostics,
+            diagnostic_state = DetermineConnectorDiagnosticState(
+                connectorDiagnostics,
+                traversalError),
+            result_scope = "EXACT_CONNECTOR_NAMES_PLUS_CONNECT_REF_MANAGER",
+            interpretation_note =
+                "This diagnostic compares IModelDoc2.FeatureByName with the existing recursive " +
+                "feature traversal. It does not establish Published Asset geometry, connector-to-coordinate-system " +
+                "coincidence, snap/mate behavior, contact, clearance, motion, force, or mechanical acceptance.",
+            api =
+                "IModelDoc2.FeatureByName -> IFeature.GetTypeName2; " +
+                "IModelDoc2.FirstFeature/GetNextFeature + IFeature.GetFirstSubFeature/GetNextSubFeature " +
+                "-> IFeature.Name/GetTypeName2 with parent name and tree depth",
+            model_mutation = false,
+            write_authority = "NONE",
+            remote_queue_authorized = false,
+            evidence = "verified_from_solidworks_api"
+        };
+    }
+
     private object ReadDocumentState()
     {
         var configuration = _doc.ConfigurationManager.ActiveConfiguration;
@@ -663,6 +782,29 @@ internal sealed class SolidWorksSession : IDisposable
         }
     }
 
+    private IEnumerable<FeatureTreeObservation> EnumerateFeatureTreeObservations()
+    {
+        var seen = new HashSet<IFeature>();
+        var topLevel = _doc.FirstFeature() as IFeature;
+        var topLevelIndex = 0;
+
+        while (topLevel is not null)
+        {
+            foreach (var row in EnumerateFeatureTreeObservationBranch(
+                         topLevel,
+                         parentFeatureName: null,
+                         treeDepth: 0,
+                         treePath: topLevelIndex.ToString(CultureInfo.InvariantCulture),
+                         seen))
+            {
+                yield return row;
+            }
+
+            topLevel = topLevel.GetNextFeature() as IFeature;
+            topLevelIndex++;
+        }
+    }
+
     private static IEnumerable<IFeature> EnumerateFeatureBranch(
         IFeature feature,
         HashSet<IFeature> seen)
@@ -678,6 +820,44 @@ internal sealed class SolidWorksSession : IDisposable
             foreach (var nested in EnumerateFeatureBranch(subFeature, seen))
                 yield return nested;
             subFeature = subFeature.GetNextSubFeature() as IFeature;
+        }
+    }
+
+    private static IEnumerable<FeatureTreeObservation> EnumerateFeatureTreeObservationBranch(
+        IFeature feature,
+        string? parentFeatureName,
+        int treeDepth,
+        string treePath,
+        HashSet<IFeature> seen)
+    {
+        if (!seen.Add(feature))
+            yield break;
+
+        var featureName = feature.Name;
+        yield return new FeatureTreeObservation(
+            feature_name: featureName,
+            feature_type: feature.GetTypeName2(),
+            parent_feature_name: parentFeatureName,
+            tree_depth: treeDepth,
+            is_top_level: treeDepth == 0,
+            tree_path: treePath);
+
+        var subFeature = feature.GetFirstSubFeature() as IFeature;
+        var childIndex = 0;
+        while (subFeature is not null)
+        {
+            foreach (var nested in EnumerateFeatureTreeObservationBranch(
+                         subFeature,
+                         parentFeatureName: featureName,
+                         treeDepth: treeDepth + 1,
+                         treePath: $"{treePath}.{childIndex}",
+                         seen))
+            {
+                yield return nested;
+            }
+
+            subFeature = subFeature.GetNextSubFeature() as IFeature;
+            childIndex++;
         }
     }
 
@@ -708,6 +888,123 @@ internal sealed class SolidWorksSession : IDisposable
         }
 
         return matches[0];
+    }
+
+    private DirectConnectorLookup ReadDirectConnectorLookup(string exactName)
+    {
+        try
+        {
+            var feature = _doc.FeatureByName(exactName) as IFeature;
+            if (feature is null)
+            {
+                return new DirectConnectorLookup(
+                    requested_name: exactName,
+                    found: false,
+                    feature_name: null,
+                    feature_type: null,
+                    lookup_error: null);
+            }
+
+            return new DirectConnectorLookup(
+                requested_name: exactName,
+                found: true,
+                feature_name: feature.Name,
+                feature_type: feature.GetTypeName2(),
+                lookup_error: null);
+        }
+        catch (Exception ex)
+        {
+            return new DirectConnectorLookup(
+                requested_name: exactName,
+                found: false,
+                feature_name: null,
+                feature_type: null,
+                lookup_error: $"{ex.GetType().Name}: {ex.Message}");
+        }
+    }
+
+    private static ConnectorDiagnostic ClassifyConnectorDiagnostic(
+        DirectConnectorLookup directLookup,
+        IEnumerable<FeatureTreeObservation> traversalMatches,
+        string? traversalError)
+    {
+        var matches = traversalMatches.ToArray();
+        var expectedTraversalMatches = matches
+            .Where(row => string.Equals(
+                row.feature_type,
+                "MagneticConnectRef",
+                StringComparison.Ordinal))
+            .ToArray();
+        var directLookupState = DetermineDirectLookupState(directLookup);
+        var classification =
+            !string.IsNullOrWhiteSpace(directLookup.lookup_error)
+                ? "DIRECT_LOOKUP_ERROR"
+                : !string.IsNullOrWhiteSpace(traversalError)
+                    ? "TRAVERSAL_ERROR"
+                    : directLookupState == "FOUND_EXPECTED_TYPE" && matches.Length == 0
+                        ? "DIRECT_LOOKUP_TRAVERSAL_PATH_DEFECT"
+                        : directLookupState == "NOT_FOUND" && matches.Length == 0
+                            ? "LIVE_STATE_SOURCE_CONFLICT"
+                            : directLookupState == "FOUND_NAME_MISMATCH"
+                                ? "DIRECT_LOOKUP_NAME_MISMATCH"
+                                : directLookupState == "FOUND_TYPE_MISMATCH"
+                                    ? "DIRECT_LOOKUP_TYPE_MISMATCH"
+                                    : matches.Length > 1
+                                        ? "TRAVERSAL_MATCH_NOT_UNIQUE"
+                                        : expectedTraversalMatches.Length != 1
+                                            ? "TRAVERSAL_TYPE_MISMATCH"
+                                            : directLookupState == "NOT_FOUND"
+                                                ? "DIRECT_LOOKUP_PATH_DEFECT"
+                                                : "CONSISTENT";
+
+        return new ConnectorDiagnostic(
+            requested_name: directLookup.requested_name,
+            direct_lookup_state: directLookupState,
+            traversal_match_count: matches.Length,
+            traversal_expected_type_match_count: expectedTraversalMatches.Length,
+            classification: classification);
+    }
+
+    private static string DetermineDirectLookupState(DirectConnectorLookup directLookup)
+    {
+        if (!string.IsNullOrWhiteSpace(directLookup.lookup_error))
+            return "LOOKUP_ERROR";
+        if (!directLookup.found)
+            return "NOT_FOUND";
+        if (!string.Equals(
+                directLookup.feature_name,
+                directLookup.requested_name,
+                StringComparison.Ordinal))
+        {
+            return "FOUND_NAME_MISMATCH";
+        }
+        if (!string.Equals(
+                directLookup.feature_type,
+                "MagneticConnectRef",
+                StringComparison.Ordinal))
+        {
+            return "FOUND_TYPE_MISMATCH";
+        }
+        return "FOUND_EXPECTED_TYPE";
+    }
+
+    private static string DetermineConnectorDiagnosticState(
+        IEnumerable<ConnectorDiagnostic> connectorDiagnostics,
+        string? traversalError)
+    {
+        if (!string.IsNullOrWhiteSpace(traversalError))
+            return "TRAVERSAL_ERROR";
+
+        var classifications = connectorDiagnostics
+            .Select(row => row.classification)
+            .ToArray();
+        if (classifications.All(value => value == "CONSISTENT"))
+            return "DIRECT_AND_TRAVERSAL_CONSISTENT";
+        if (classifications.Any(value => value == "DIRECT_LOOKUP_TRAVERSAL_PATH_DEFECT"))
+            return "DIRECT_LOOKUP_TRAVERSAL_PATH_DEFECT";
+        if (classifications.All(value => value == "LIVE_STATE_SOURCE_CONFLICT"))
+            return "LIVE_STATE_SOURCE_CONFLICT";
+        return "CONNECTOR_OBSERVATION_CONFLICT";
     }
 
     private static object ReadPublishedReferenceFeature(IFeature feature)
@@ -1390,6 +1687,28 @@ internal sealed class SolidWorksSession : IDisposable
     public void Dispose()
     {
     }
+
+    private sealed record DirectConnectorLookup(
+        string requested_name,
+        bool found,
+        string? feature_name,
+        string? feature_type,
+        string? lookup_error);
+
+    private sealed record FeatureTreeObservation(
+        string feature_name,
+        string feature_type,
+        string? parent_feature_name,
+        int tree_depth,
+        bool is_top_level,
+        string tree_path);
+
+    private sealed record ConnectorDiagnostic(
+        string requested_name,
+        string direct_lookup_state,
+        int traversal_match_count,
+        int traversal_expected_type_match_count,
+        string classification);
 }
 
 internal static class ComRot

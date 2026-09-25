@@ -17,6 +17,7 @@ $WorkerRoot = $PSScriptRoot
 . (Join-Path $WorkerRoot 'FileEvidence.ps1')
 . (Join-Path $WorkerRoot 'ComponentStateEvidence.ps1')
 . (Join-Path $WorkerRoot 'InterfaceContractEvidence.ps1')
+. (Join-Path $WorkerRoot 'InterfaceConnectorDiagnosticEvidence.ps1')
 $WorkerExe = Join-Path $WorkerRoot 'bin\Release\net8.0-windows\win-x64\CadGrounded.SolidWorksWorker.exe'
 $OutputRoot = Join-Path $WorkerRoot 'verification-output\interface-contract-v42'
 $ReasoningRoot = [System.IO.Path]::GetFullPath((Join-Path $WorkerRoot '..\..\reasoning'))
@@ -147,6 +148,75 @@ $fileBefore = Get-FileEvidence -Path $ExpectedDocumentPath
 $componentsBefore = Invoke-WorkerJson -Arguments @('components', '--all')
 $wholeAssemblyStateBefore = Get-WholeAssemblyComponentState -ComponentsEnvelope $componentsBefore
 
+$connectorDiagnosticArguments = @('interface-connectors-diagnostic')
+foreach ($name in $Connectors) {
+    $connectorDiagnosticArguments += @('--connector', $name)
+}
+$connectorDiagnosticResult = Invoke-WorkerJson -Arguments $connectorDiagnosticArguments
+$connectorDiagnosticRawPath = Join-Path $OutputRoot 'sw.diagnose_interface_connectors.raw.json'
+$connectorDiagnosticResult | ConvertTo-Json -Depth 60 | Set-Content -LiteralPath $connectorDiagnosticRawPath -Encoding UTF8
+$connectorDiagnosticState = Assert-InterfaceConnectorDiagnosticObservation `
+    -Envelope $connectorDiagnosticResult `
+    -ExpectedConnectors $Connectors
+
+$componentsAfterConnectorDiagnostic = Invoke-WorkerJson -Arguments @('components', '--all')
+$wholeAssemblyStateAfterConnectorDiagnostic = Get-WholeAssemblyComponentState -ComponentsEnvelope $componentsAfterConnectorDiagnostic
+$statusAfterConnectorDiagnostic = Invoke-WorkerJson -Arguments @('status')
+Assert-ExpectedStatus $statusAfterConnectorDiagnostic
+$documentStateAfterConnectorDiagnostic = Get-DocumentState -StatusEnvelope $statusAfterConnectorDiagnostic
+$fileAfterConnectorDiagnostic = Get-FileEvidence -Path $ExpectedDocumentPath
+
+if (($wholeAssemblyStateBefore | ConvertTo-Json -Depth 40 -Compress) -cne ($wholeAssemblyStateAfterConnectorDiagnostic | ConvertTo-Json -Depth 40 -Compress)) {
+    throw 'Complete component transform/state evidence changed during read-only connector diagnostic.'
+}
+if (($documentStateBefore | ConvertTo-Json -Depth 20 -Compress) -cne ($documentStateAfterConnectorDiagnostic | ConvertTo-Json -Depth 20 -Compress)) {
+    throw 'Active document identity, configuration, or dirty/save state changed during read-only connector diagnostic.'
+}
+if ($fileBefore.sha256 -cne $fileAfterConnectorDiagnostic.sha256 -or
+    $fileBefore.length -ne $fileAfterConnectorDiagnostic.length -or
+    $fileBefore.last_write_time_utc -cne $fileAfterConnectorDiagnostic.last_write_time_utc) {
+    throw 'Assembly file evidence changed during read-only connector diagnostic.'
+}
+
+$connectorDiagnosticSummary = [ordered]@{
+    schema_version = 1
+    test = 'sw.diagnose_interface_connectors v42 no-mutation verification'
+    result = 'PASS'
+    expected_document = [ordered]@{
+        title = $ExpectedDocumentTitle
+        path = $ExpectedDocumentPath
+    }
+    worker_version = $ExpectedWorkerVersion
+    command_id = 'sw.diagnose_interface_connectors'
+    write_authority = 'NONE'
+    model_mutation = $false
+    remote_queue_authorized = $false
+    document_state_before = $documentStateBefore
+    document_state_after = $documentStateAfterConnectorDiagnostic
+    file_before = $fileBefore
+    file_after = $fileAfterConnectorDiagnostic
+    component_state_before = $wholeAssemblyStateBefore
+    component_state_after = $wholeAssemblyStateAfterConnectorDiagnostic
+    connector_diagnostic = $connectorDiagnosticState
+    published_asset_coordinate_system_geometric_coincidence_state = 'UNRESOLVED'
+    mechanical_acceptance_granted = $false
+    evidence_contract = [ordered]@{
+        establishes = @(
+            'direct IModelDoc2.FeatureByName observation for exact requested connector names',
+            'recursive feature-traversal observation for ConnectRefMgr and exact requested connector names',
+            'pre/post document, complete component-state, and assembly-file comparison for the diagnostic'
+        )
+        does_not_establish = @(
+            'Published Asset connector-to-coordinate-system geometric coincidence',
+            'whether a direct-only result should change the interface-contract reader before separate review',
+            'asset insertion, snap/mate behavior, physical contact, collision clearance, or interference absence',
+            'degrees of freedom, support, force, preload, temporal operation, or mechanical acceptance'
+        )
+    }
+}
+$connectorDiagnosticSummaryPath = Join-Path $OutputRoot 'connector-diagnostic-summary.json'
+$connectorDiagnosticSummary | ConvertTo-Json -Depth 80 | Set-Content -LiteralPath $connectorDiagnosticSummaryPath -Encoding UTF8
+
 $interfaceArguments = @('interface-contract')
 foreach ($name in $CoordinateSystems) {
     $interfaceArguments += @('--coordinate-system', $name)
@@ -215,6 +285,8 @@ $verification = [ordered]@{
     file_after = $fileAfter
     component_state_before = $wholeAssemblyStateBefore
     component_state_after = $wholeAssemblyStateAfter
+    connector_diagnostic = $connectorDiagnosticState
+    connector_diagnostic_artifact = $connectorDiagnosticSummaryPath
     interface_observation = $interfaceState
     deterministic_live_verification = $liveVerification
     published_asset_coordinate_system_geometric_coincidence_state = 'UNRESOLVED'

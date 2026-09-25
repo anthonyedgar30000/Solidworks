@@ -51,6 +51,9 @@ jobs:
       - name: Test interface contract evidence normalization
         working-directory: agent-registry/workers/CadGrounded.SolidWorksWorker
         run: .\Test-InterfaceContractEvidence.ps1
+      - name: Test interface connector diagnostic normalization
+        working-directory: agent-registry/workers/CadGrounded.SolidWorksWorker
+        run: .\Test-InterfaceConnectorDiagnosticEvidence.ps1
   interface-reasoning:
     name: Interface contract reasoning regressions
     runs-on: ubuntu-latest
