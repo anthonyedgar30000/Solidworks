@@ -96,7 +96,7 @@
         "DETERMINISTIC_CALCULATION"
       ],
       "evidence_refs": [
-        "E_V42_COMPONENT_SNAPSHOT_20260925"
+        "E_V42_COMPONENT_INVENTORY_20260925T025842Z"
       ],
       "depends_on_requirement_ids": [],
       "scope": {
@@ -120,7 +120,7 @@
         "DETERMINISTIC_CALCULATION"
       ],
       "evidence_refs": [
-        "E_V42_COMPONENT_SNAPSHOT_20260925"
+        "E_V42_COMPONENT_INVENTORY_20260925T025842Z"
       ],
       "depends_on_requirement_ids": [
         "PRODUCT_POSITION_STABLE"
@@ -151,12 +151,15 @@
         "SOLIDWORKS_LIVE_STATE"
       ],
       "evidence_refs": [
-        "E_V42_COMPONENT_SNAPSHOT_20260925"
+        "E_V42_COMPONENT_INVENTORY_20260925T025842Z",
+        "E_OEM_IXOR_CAPTURE_MECHANISM_CLASSES_202605"
       ],
       "depends_on_requirement_ids": [],
       "scope": {
         "state_ids": [
-          "CAPTURE_AND_ROTATION"
+          "CAPTURE_AND_ROTATION",
+          "LABEL_TRANSFER_INTERVAL",
+          "WRAP_ACTIVE"
         ],
         "transition_ids": [
           "INDEXED_TO_CAPTURE"
@@ -178,7 +181,7 @@
         "DETERMINISTIC_CALCULATION"
       ],
       "evidence_refs": [
-        "E_V42_COMPONENT_SNAPSHOT_20260925",
+        "E_V42_COMPONENT_INVENTORY_20260925T025842Z",
         "E_V42_CAPTURE_DISTANCE_20260918"
       ],
       "depends_on_requirement_ids": [
@@ -186,7 +189,9 @@
       ],
       "scope": {
         "state_ids": [
-          "CAPTURE_AND_ROTATION"
+          "CAPTURE_AND_ROTATION",
+          "LABEL_TRANSFER_INTERVAL",
+          "WRAP_ACTIVE"
         ],
         "transition_ids": [
           "INDEXED_TO_CAPTURE",
@@ -208,6 +213,7 @@
         "DETERMINISTIC_CALCULATION"
       ],
       "evidence_refs": [
+        "E_V42_COMPONENT_INVENTORY_20260925T025842Z",
         "E_V42_CAPTURE_DISTANCE_20260918"
       ],
       "depends_on_requirement_ids": [
@@ -216,6 +222,7 @@
       "scope": {
         "state_ids": [
           "CAPTURE_AND_ROTATION",
+          "LABEL_TRANSFER_INTERVAL",
           "WRAP_ACTIVE"
         ],
         "transition_ids": [],
@@ -236,7 +243,8 @@
         "DETERMINISTIC_CALCULATION"
       ],
       "evidence_refs": [
-        "E_V42_COMPONENT_SNAPSHOT_20260925"
+        "E_V42_COMPONENT_INVENTORY_20260925T025842Z",
+        "E_OEM_IXOR_CAPTURE_MECHANISM_CLASSES_202605"
       ],
       "depends_on_requirement_ids": [
         "CAPTURE_KINEMATIC_OWNER",
@@ -245,6 +253,7 @@
       "scope": {
         "state_ids": [
           "CAPTURE_AND_ROTATION",
+          "LABEL_TRANSFER_INTERVAL",
           "WRAP_ACTIVE"
         ],
         "transition_ids": [],
@@ -265,7 +274,7 @@
         "DETERMINISTIC_CALCULATION"
       ],
       "evidence_refs": [
-        "E_V42_COMPONENT_SNAPSHOT_20260925"
+        "E_V42_COMPONENT_INVENTORY_20260925T025842Z"
       ],
       "depends_on_requirement_ids": [
         "CAPTURE_KINEMATIC_OWNER"
@@ -296,13 +305,14 @@
         "DETERMINISTIC_CALCULATION"
       ],
       "evidence_refs": [
-        "E_V42_COMPONENT_SNAPSHOT_20260925"
+        "E_V42_COMPONENT_INVENTORY_20260925T025842Z"
       ],
       "depends_on_requirement_ids": [
         "WRAP_CONTACT_THROUGHOUT_CAPTURE"
       ],
       "scope": {
         "state_ids": [
+          "LABEL_TRANSFER_INTERVAL",
           "WRAP_ACTIVE"
         ],
         "transition_ids": [],
@@ -322,7 +332,7 @@
         "DETERMINISTIC_CALCULATION"
       ],
       "evidence_refs": [
-        "E_V42_COMPONENT_SNAPSHOT_20260925"
+        "E_V42_COMPONENT_INVENTORY_20260925T025842Z"
       ],
       "depends_on_requirement_ids": [
         "REACHABLE_MOTION_CLEARANCE",
@@ -354,12 +364,13 @@
         "DETERMINISTIC_CALCULATION"
       ],
       "evidence_refs": [
-        "E_V42_COMPONENT_SNAPSHOT_20260925"
+        "E_V42_COMPONENT_INVENTORY_20260925T025842Z"
       ],
       "depends_on_requirement_ids": [],
       "scope": {
         "state_ids": [
           "CAPTURE_AND_ROTATION",
+          "LABEL_TRANSFER_INTERVAL",
           "WRAP_ACTIVE",
           "RELEASE"
         ],
@@ -399,12 +410,14 @@
       "required_requirement_ids": [
         "BOTTLE_RESTRAINT_THROUGHOUT_CAPTURE",
         "WRAP_CONTACT_THROUGHOUT_CAPTURE",
-        "CAPTURE_REACTION_FORCE_PATH"
+        "CAPTURE_REACTION_FORCE_PATH",
+        "INV_CAPTURE_PHASE_ORDER_AND_CONTAINMENT"
       ],
       "ambiguity_bucket": "KINEMATIC_STATE_UNRESOLVED",
       "scope": {
         "state_ids": [
           "CAPTURE_AND_ROTATION",
+          "LABEL_TRANSFER_INTERVAL",
           "WRAP_ACTIVE"
         ],
         "transition_ids": [],
@@ -423,6 +436,7 @@
       "ambiguity_bucket": "GEOMETRY_UNRESOLVED",
       "scope": {
         "state_ids": [
+          "LABEL_TRANSFER_INTERVAL",
           "WRAP_ACTIVE"
         ],
         "transition_ids": [],
@@ -480,7 +494,7 @@
       "description": "The intended bottle is established at the indexed application position.",
       "event_state": "UNRESOLVED",
       "evidence_refs": [
-        "E_V42_COMPONENT_SNAPSHOT_20260925"
+        "E_V42_COMPONENT_INVENTORY_20260925T025842Z"
       ]
     },
     {
@@ -536,42 +550,56 @@
     {
       "id": "ENTRY",
       "state_type": "PERSISTENT_STATE",
+      "operating_phase": "FREE_APPROACH",
       "owner_subsystem_id": "PRODUCT_TRANSPORT_AND_INDEXING",
-      "description": "A bottle approaches the controlled application cycle."
+      "description": "Free approach: a bottle approaches the controlled application cycle without any asserted capture relationship."
     },
     {
       "id": "INDEXED",
       "state_type": "PERSISTENT_STATE",
+      "operating_phase": "CAPTURE_BEGINNING",
       "owner_subsystem_id": "PRODUCT_TRANSPORT_AND_INDEXING",
-      "description": "One identified bottle occupies the intended indexed position."
+      "description": "Capture beginning: one identified bottle occupies the indexed position and closure may be requested, but capture is not yet established."
     },
     {
       "id": "CAPTURE_AND_ROTATION",
       "state_type": "PERSISTENT_STATE",
+      "operating_phase": "CAPTURED",
       "owner_subsystem_id": "CAPTURE_AND_ROTATION",
-      "description": "The bottle is under the capture/rotation subsystem's required restraint and motion relationship."
+      "description": "Captured state: the bottle is under the capture/rotation subsystem's required restraint and motion relationship; current v42 evidence does not verify that relationship."
+    },
+    {
+      "id": "LABEL_TRANSFER_INTERVAL",
+      "state_type": "MODE",
+      "operating_phase": "LABEL_TRANSFER_INTERVAL",
+      "owner_subsystem_id": "LABEL_PRESENTATION_AND_TRANSFER",
+      "description": "Label-transfer interval: label media must remain valid while the captured bottle receives the label; occurrence and duration remain unresolved."
     },
     {
       "id": "WRAP_ACTIVE",
       "state_type": "MODE",
+      "operating_phase": "WRAP_ROTATION_INTERVAL",
       "owner_subsystem_id": "CAPTURE_AND_ROTATION",
-      "description": "The wrap mechanism is active within CAPTURE_AND_ROTATION."
+      "description": "Wrap-rotation interval: the wrap mechanism is active within the captured state."
     },
     {
       "id": "RELEASE",
       "state_type": "PERSISTENT_STATE",
+      "operating_phase": "RELEASE",
       "owner_subsystem_id": "RELEASE_AND_NEIGHBOR_CLEARANCE",
       "description": "The completed bottle is permitted to leave the controlled station."
     },
     {
       "id": "EXIT_CLEAR",
       "state_type": "PERSISTENT_STATE",
+      "operating_phase": "FREE_EXIT",
       "owner_subsystem_id": "RELEASE_AND_NEIGHBOR_CLEARANCE",
-      "description": "The controlled station is clear and a new product may be considered for entry."
+      "description": "Free exit: the controlled station is clear and a new product may be considered for entry."
     },
     {
       "id": "HOLD_FAULT",
       "state_type": "MODE",
+      "operating_phase": "FAULT_HOLD",
       "owner_subsystem_id": "CAPTURE_AND_ROTATION",
       "description": "A required transition failed to arrive within its bounded watchdog or an evidence contradiction requires a hold."
     }
@@ -590,7 +618,7 @@
         "DETERMINISTIC_CALCULATION"
       ],
       "evidence_refs": [
-        "E_V42_COMPONENT_SNAPSHOT_20260925"
+        "E_V42_COMPONENT_INVENTORY_20260925T025842Z"
       ],
       "depends_on_requirement_ids": [
         "PRODUCT_POSITION_STABLE",
@@ -621,7 +649,7 @@
         "DETERMINISTIC_CALCULATION"
       ],
       "evidence_refs": [
-        "E_V42_COMPONENT_SNAPSHOT_20260925"
+        "E_V42_COMPONENT_INVENTORY_20260925T025842Z"
       ],
       "depends_on_requirement_ids": [
         "CAPTURE_KINEMATIC_OWNER",
@@ -654,13 +682,14 @@
         "DETERMINISTIC_CALCULATION"
       ],
       "evidence_refs": [
-        "E_V42_COMPONENT_SNAPSHOT_20260925"
+        "E_V42_COMPONENT_INVENTORY_20260925T025842Z"
       ],
       "depends_on_requirement_ids": [
         "LABEL_PRESENTATION_DURING_WRAP"
       ],
       "scope": {
         "state_ids": [
+          "LABEL_TRANSFER_INTERVAL",
           "WRAP_ACTIVE"
         ],
         "transition_ids": [
@@ -708,7 +737,7 @@
         "DETERMINISTIC_CALCULATION"
       ],
       "evidence_refs": [
-        "E_V42_COMPONENT_SNAPSHOT_20260925"
+        "E_V42_COMPONENT_INVENTORY_20260925T025842Z"
       ],
       "depends_on_requirement_ids": [
         "RELEASE_PATH_CLEAR_ACROSS_REACHABLE_STATES"
@@ -795,7 +824,7 @@
         "DETERMINISTIC_CALCULATION"
       ],
       "evidence_refs": [
-        "E_V42_COMPONENT_SNAPSHOT_20260925",
+        "E_V42_COMPONENT_INVENTORY_20260925T025842Z",
         "E_V42_CAPTURE_DISTANCE_20260918"
       ],
       "depends_on_requirement_ids": [
@@ -804,6 +833,7 @@
       "scope": {
         "state_ids": [
           "CAPTURE_AND_ROTATION",
+          "LABEL_TRANSFER_INTERVAL",
           "WRAP_ACTIVE"
         ],
         "transition_ids": [],
@@ -823,6 +853,7 @@
         "DETERMINISTIC_CALCULATION"
       ],
       "evidence_refs": [
+        "E_V42_COMPONENT_INVENTORY_20260925T025842Z",
         "E_V42_CAPTURE_DISTANCE_20260918"
       ],
       "depends_on_requirement_ids": [
@@ -830,9 +861,46 @@
       ],
       "scope": {
         "state_ids": [
+          "LABEL_TRANSFER_INTERVAL",
           "WRAP_ACTIVE"
         ],
         "transition_ids": [],
+        "required_coverage": "THROUGHOUT_SCOPE"
+      }
+    },
+    {
+      "id": "INV_CAPTURE_PHASE_ORDER_AND_CONTAINMENT",
+      "owner_subsystem_id": "CAPTURE_AND_ROTATION",
+      "description": "Label-transfer and wrap-rotation intervals occur only within the captured state; a transfer associated with wrap overlaps the wrap-rotation interval and neither may begin before capture is established.",
+      "verification_state": "UNRESOLVED",
+      "ambiguity_bucket": "KINEMATIC_STATE_UNRESOLVED",
+      "criticality": 5,
+      "resolution_cost": 2,
+      "expected_authority": [
+        "OEM_CAD",
+        "OEM_DOCUMENTATION",
+        "SOLIDWORKS_LIVE_STATE",
+        "DETERMINISTIC_CALCULATION"
+      ],
+      "evidence_refs": [
+        "E_V42_COMPONENT_INVENTORY_20260925T025842Z",
+        "E_OEM_IXOR_CAPTURE_MECHANISM_CLASSES_202605"
+      ],
+      "depends_on_requirement_ids": [
+        "CAPTURE_KINEMATIC_OWNER",
+        "BOTTLE_RESTRAINT_THROUGHOUT_CAPTURE",
+        "LABEL_PRESENTATION_DURING_WRAP"
+      ],
+      "scope": {
+        "state_ids": [
+          "CAPTURE_AND_ROTATION",
+          "LABEL_TRANSFER_INTERVAL",
+          "WRAP_ACTIVE"
+        ],
+        "transition_ids": [
+          "INDEXED_TO_CAPTURE",
+          "CAPTURE_TO_RELEASE"
+        ],
         "required_coverage": "THROUGHOUT_SCOPE"
       }
     },
@@ -850,7 +918,7 @@
         "DETERMINISTIC_CALCULATION"
       ],
       "evidence_refs": [
-        "E_V42_COMPONENT_SNAPSHOT_20260925"
+        "E_V42_COMPONENT_INVENTORY_20260925T025842Z"
       ],
       "depends_on_requirement_ids": [
         "REACHABLE_MOTION_CLEARANCE",
@@ -881,7 +949,7 @@
         "SOLIDWORKS_LIVE_STATE"
       ],
       "evidence_refs": [
-        "E_V42_COMPONENT_SNAPSHOT_20260925"
+        "E_V42_COMPONENT_INVENTORY_20260925T025842Z"
       ],
       "depends_on_requirement_ids": [
         "INDEX_HARDSTOP_SEQUENCE",
@@ -942,6 +1010,20 @@
       "from_id": "CAPTURE_AND_ROTATION",
       "relation": "CONTAINS",
       "to_kind": "state",
+      "to_id": "LABEL_TRANSFER_INTERVAL"
+    },
+    {
+      "from_kind": "state",
+      "from_id": "CAPTURE_AND_ROTATION",
+      "relation": "CONTAINS",
+      "to_kind": "state",
+      "to_id": "WRAP_ACTIVE"
+    },
+    {
+      "from_kind": "state",
+      "from_id": "LABEL_TRANSFER_INTERVAL",
+      "relation": "OVERLAPS",
+      "to_kind": "state",
       "to_id": "WRAP_ACTIVE"
     },
     {
@@ -979,11 +1061,20 @@
       "description": "A physical carrier, slide, pivot, actuator, or preload assembly owns bottle-capture closure but is not yet bound into the current v42 evidence model.",
       "prior": "COMMON",
       "evidence_state": "UNRESOLVED",
-      "investigation_state": "ELIGIBLE",
+      "investigation_state": "ACTIVE",
       "related_requirement_ids": [
         "CAPTURE_KINEMATIC_OWNER",
         "BOTTLE_RESTRAINT_THROUGHOUT_CAPTURE",
         "REACHABLE_MOTION_CLEARANCE"
+      ],
+      "affected_state_ids": [
+        "INDEXED",
+        "CAPTURE_AND_ROTATION",
+        "LABEL_TRANSFER_INTERVAL",
+        "WRAP_ACTIVE"
+      ],
+      "required_evidence": [
+        "A no-mutation native read or OEM assembly/drawing map that binds the exact parent, closure input, allowed motion, limits, and reaction mount of the FITCHECK belt and both support rollers."
       ]
     },
     {
@@ -991,11 +1082,19 @@
       "description": "Capture contact depends on a compliant or preloaded element whose evidence and usable range have not been established.",
       "prior": "COMMON",
       "evidence_state": "UNRESOLVED",
-      "investigation_state": "ELIGIBLE",
+      "investigation_state": "ACTIVE",
       "related_requirement_ids": [
         "BOTTLE_RESTRAINT_THROUGHOUT_CAPTURE",
         "WRAP_CONTACT_THROUGHOUT_CAPTURE",
         "CAPTURE_REACTION_FORCE_PATH"
+      ],
+      "affected_state_ids": [
+        "CAPTURE_AND_ROTATION",
+        "LABEL_TRANSFER_INTERVAL",
+        "WRAP_ACTIVE"
+      ],
+      "required_evidence": [
+        "An OEM source or no-mutation native feature read identifying the compliant element, its preload or force range, travel, retention, and reaction path at the FITCHECK capture station."
       ]
     },
     {
@@ -1007,6 +1106,14 @@
       "related_requirement_ids": [
         "BOTTLE_RESTRAINT_THROUGHOUT_CAPTURE",
         "WRAP_CONTACT_THROUGHOUT_CAPTURE"
+      ],
+      "affected_state_ids": [
+        "CAPTURE_AND_ROTATION",
+        "LABEL_TRANSFER_INTERVAL",
+        "WRAP_ACTIVE"
+      ],
+      "required_evidence": [
+        "Only interval-wide evidence with an identified capture owner, required contact, restraint, and reachable-motion coverage could establish operational capture; a static pose, mate, zero distance, or local pass cannot do so."
       ]
     },
     {
@@ -1014,10 +1121,153 @@
       "description": "A required capture mechanism exists in a nested configuration, feature, or external assembly boundary not represented by current top-level inventory.",
       "prior": "UNCOMMON",
       "evidence_state": "UNRESOLVED",
-      "investigation_state": "ELIGIBLE",
+      "investigation_state": "ACTIVE",
       "related_requirement_ids": [
         "CAPTURE_KINEMATIC_OWNER",
         "CAPTURE_REACTION_FORCE_PATH"
+      ],
+      "affected_state_ids": [
+        "INDEXED",
+        "CAPTURE_AND_ROTATION",
+        "LABEL_TRANSFER_INTERVAL",
+        "WRAP_ACTIVE"
+      ],
+      "required_evidence": [
+        "An exact source-package or assembly-boundary map showing whether a nested configuration, feature, or external assembly owns closure and how it connects to the named FITCHECK belt and rollers."
+      ]
+    },
+    {
+      "id": "H_TRANSLATING_ROLLER_CARRIER_OR_SLIDE",
+      "description": "A translating roller carrier or slide moves one or both support rollers to establish bottle capture.",
+      "prior": "COMMON",
+      "evidence_state": "UNRESOLVED",
+      "investigation_state": "ACTIVE",
+      "related_requirement_ids": [
+        "CAPTURE_KINEMATIC_OWNER",
+        "BOTTLE_RESTRAINT_THROUGHOUT_CAPTURE",
+        "CAPTURE_REACTION_FORCE_PATH",
+        "REACHABLE_MOTION_CLEARANCE"
+      ],
+      "affected_state_ids": [
+        "INDEXED",
+        "CAPTURE_AND_ROTATION",
+        "LABEL_TRANSFER_INTERVAL",
+        "WRAP_ACTIVE",
+        "RELEASE"
+      ],
+      "required_evidence": [
+        "A no-mutation mate/feature/DOF read or OEM assembly drawing that binds at least one named FITCHECK support roller to a translating carrier, including travel limits, closure input, and reaction mount."
+      ]
+    },
+    {
+      "id": "H_PIVOTING_ROLLER_ARM_OR_CARRIER",
+      "description": "A pivoting arm, lever, or carrier moves a support roller into controlled bottle capture.",
+      "prior": "COMMON",
+      "evidence_state": "UNRESOLVED",
+      "investigation_state": "ACTIVE",
+      "related_requirement_ids": [
+        "CAPTURE_KINEMATIC_OWNER",
+        "BOTTLE_RESTRAINT_THROUGHOUT_CAPTURE",
+        "CAPTURE_REACTION_FORCE_PATH",
+        "REACHABLE_MOTION_CLEARANCE"
+      ],
+      "affected_state_ids": [
+        "INDEXED",
+        "CAPTURE_AND_ROTATION",
+        "LABEL_TRANSFER_INTERVAL",
+        "WRAP_ACTIVE",
+        "RELEASE"
+      ],
+      "required_evidence": [
+        "A no-mutation native read or OEM drawing identifying the pivot axis, angular limits, linkage to a named FITCHECK roller, closure force source, and reaction path."
+      ]
+    },
+    {
+      "id": "H_MOVING_WRAP_BELT_ASSEMBLY",
+      "description": "The driven wrap-belt assembly itself translates, pivots, or otherwise closes to establish bottle capture against the support rollers.",
+      "prior": "COMMON",
+      "evidence_state": "UNRESOLVED",
+      "investigation_state": "ACTIVE",
+      "related_requirement_ids": [
+        "CAPTURE_KINEMATIC_OWNER",
+        "BOTTLE_RESTRAINT_THROUGHOUT_CAPTURE",
+        "WRAP_CONTACT_THROUGHOUT_CAPTURE",
+        "CAPTURE_REACTION_FORCE_PATH",
+        "REACHABLE_MOTION_CLEARANCE"
+      ],
+      "affected_state_ids": [
+        "INDEXED",
+        "CAPTURE_AND_ROTATION",
+        "LABEL_TRANSFER_INTERVAL",
+        "WRAP_ACTIVE",
+        "RELEASE"
+      ],
+      "required_evidence": [
+        "A no-mutation native read or OEM assembly/drawing map binding FITCHECK_DRIVEN_WRAP_BELT_5x160x93_V25-1 to a carrier or actuator and specifying its controlled motion, limits, drive relationship, and reaction mount."
+      ]
+    },
+    {
+      "id": "H_PNEUMATIC_CAPTURE_ACTUATOR",
+      "description": "A pneumatic cylinder or actuator provides capture closure force or commanded compliance at the v42 FITCHECK station.",
+      "prior": "UNCOMMON",
+      "evidence_state": "WEAKENED",
+      "investigation_state": "ELIGIBLE",
+      "related_requirement_ids": [
+        "CAPTURE_KINEMATIC_OWNER",
+        "BOTTLE_RESTRAINT_THROUGHOUT_CAPTURE",
+        "CAPTURE_REACTION_FORCE_PATH"
+      ],
+      "affected_state_ids": [
+        "INDEXED",
+        "CAPTURE_AND_ROTATION",
+        "LABEL_TRANSFER_INTERVAL",
+        "WRAP_ACTIVE"
+      ],
+      "required_evidence": [
+        "An OEM BOM/drawing and a no-mutation live binding of the exact cylinder or actuator, rod, stroke, force, valve/control relationship, and attachment to a named FITCHECK belt or roller."
+      ]
+    },
+    {
+      "id": "H_SPRING_OR_COMPLIANT_PRELOAD_MECHANISM",
+      "description": "A spring or other compliant preload mechanism maintains capture force while accommodating bottle variation.",
+      "prior": "COMMON",
+      "evidence_state": "UNRESOLVED",
+      "investigation_state": "ACTIVE",
+      "related_requirement_ids": [
+        "BOTTLE_RESTRAINT_THROUGHOUT_CAPTURE",
+        "WRAP_CONTACT_THROUGHOUT_CAPTURE",
+        "CAPTURE_REACTION_FORCE_PATH"
+      ],
+      "affected_state_ids": [
+        "CAPTURE_AND_ROTATION",
+        "LABEL_TRANSFER_INTERVAL",
+        "WRAP_ACTIVE"
+      ],
+      "required_evidence": [
+        "An OEM drawing/BOM or no-mutation native feature read showing the exact spring or compliant element, preload setting or force range, usable travel, retention, and reaction path in the v42 FITCHECK station."
+      ]
+    },
+    {
+      "id": "H_OTHER_EXPLICIT_CLOSURE_MECHANISM",
+      "description": "Another explicit mechanically justified closure mechanism, outside the listed carrier, pivot, belt-motion, pneumatic, or preload classes, owns capture.",
+      "prior": "UNCOMMON",
+      "evidence_state": "UNRESOLVED",
+      "investigation_state": "ACTIVE",
+      "related_requirement_ids": [
+        "CAPTURE_KINEMATIC_OWNER",
+        "BOTTLE_RESTRAINT_THROUGHOUT_CAPTURE",
+        "CAPTURE_REACTION_FORCE_PATH",
+        "REACHABLE_MOTION_CLEARANCE"
+      ],
+      "affected_state_ids": [
+        "INDEXED",
+        "CAPTURE_AND_ROTATION",
+        "LABEL_TRANSFER_INTERVAL",
+        "WRAP_ACTIVE",
+        "RELEASE"
+      ],
+      "required_evidence": [
+        "A precise OEM or no-mutation native source identifying the closure mechanism, its input, constrained motion or force path, limits, interface to the named FITCHECK parts, and affected reachable states."
       ]
     }
   ],
@@ -1043,15 +1293,16 @@
       },
       "dependencies": [],
       "geometry_state": "FIT_CHECK",
+      "ambiguity_bucket": "STALE_STATE",
       "mechanical_acceptance_granted": false,
       "temporal_scope": {
         "coverage": "POINT_ONLY",
-        "validity_state": "CURRENT",
+        "validity_state": "STALE",
         "state_ids": [],
         "transition_ids": []
       },
       "payload": {
-        "observation_kind": "top_level_component_inventory",
+        "observation_kind": "superseded_top_level_component_inventory",
         "document": {
           "title": "IXOR_Benchmark_v42_ROLLER_GUIDE_HARDSTOP_FIT_CHECK_PORTABLE",
           "path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v42_ROLLER_GUIDE_HARDSTOP_FIT_CHECK_PORTABLE.SLDASM"
@@ -1070,6 +1321,177 @@
     {
       "schema_version": 1,
       "record_type": "evidence",
+      "evidence_id": "E_V42_STATUS_20260925T025241Z",
+      "evidence_type": "solidworks_observation",
+      "evidence_state": "VERIFIED",
+      "source_authority": "SOLIDWORKS_LIVE_STATE",
+      "source_classification": "verified_from_solidworks_api",
+      "subject": {
+        "subject_type": "assembly",
+        "identity_exact": "IXOR_Benchmark_v42_ROLLER_GUIDE_HARDSTOP_FIT_CHECK_PORTABLE",
+        "document_title_exact": "IXOR_Benchmark_v42_ROLLER_GUIDE_HARDSTOP_FIT_CHECK_PORTABLE",
+        "document_path_exact": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v42_ROLLER_GUIDE_HARDSTOP_FIT_CHECK_PORTABLE.SLDASM"
+      },
+      "provenance": {
+        "recorded_at": "2026-09-25T02:52:41.712318+00:00",
+        "source_ref": "CADGrounded SOLIDWORKS read-only sw.status; job b6f5442e-051c-4e99-aa1f-938dee6a3893",
+        "tool_path": "solidworks-bridge-01 / compiled-csharp-isldworks / local-interop-v0.3.0",
+        "job_id": "b6f5442e-051c-4e99-aa1f-938dee6a3893"
+      },
+      "dependencies": [],
+      "geometry_state": "FIT_CHECK",
+      "mechanical_acceptance_granted": false,
+      "temporal_scope": {
+        "coverage": "POINT_ONLY",
+        "validity_state": "CURRENT",
+        "state_ids": [],
+        "transition_ids": []
+      },
+      "payload": {
+        "observation_kind": "active_document_status",
+        "document": {
+          "title": "IXOR_Benchmark_v42_ROLLER_GUIDE_HARDSTOP_FIT_CHECK_PORTABLE",
+          "path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v42_ROLLER_GUIDE_HARDSTOP_FIT_CHECK_PORTABLE.SLDASM"
+        },
+        "document_type": "assembly",
+        "visible": true,
+        "application_revision": "34.3.2",
+        "mechanical_conclusion": "NONE"
+      }
+    },
+    {
+      "schema_version": 1,
+      "record_type": "evidence",
+      "evidence_id": "E_V42_COMPONENT_INVENTORY_20260925T025842Z",
+      "evidence_type": "solidworks_observation",
+      "evidence_state": "VERIFIED",
+      "source_authority": "SOLIDWORKS_LIVE_STATE",
+      "source_classification": "verified_from_solidworks_api",
+      "subject": {
+        "subject_type": "assembly",
+        "identity_exact": "IXOR_Benchmark_v42_ROLLER_GUIDE_HARDSTOP_FIT_CHECK_PORTABLE",
+        "document_title_exact": "IXOR_Benchmark_v42_ROLLER_GUIDE_HARDSTOP_FIT_CHECK_PORTABLE",
+        "document_path_exact": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v42_ROLLER_GUIDE_HARDSTOP_FIT_CHECK_PORTABLE.SLDASM"
+      },
+      "provenance": {
+        "recorded_at": "2026-09-25T02:58:42.924369+00:00",
+        "source_ref": "CADGrounded SOLIDWORKS read-only sw.query_components; job 5bbec906-9bd2-4910-baf3-4da8644e405d",
+        "tool_path": "solidworks-bridge-01 / compiled-csharp-isldworks / local-interop-v0.3.0",
+        "job_id": "5bbec906-9bd2-4910-baf3-4da8644e405d"
+      },
+      "dependencies": [],
+      "geometry_state": "FIT_CHECK",
+      "mechanical_acceptance_granted": false,
+      "temporal_scope": {
+        "coverage": "POINT_ONLY",
+        "validity_state": "CURRENT",
+        "state_ids": [],
+        "transition_ids": []
+      },
+      "payload": {
+        "observation_kind": "full_nested_component_inventory",
+        "document": {
+          "title": "IXOR_Benchmark_v42_ROLLER_GUIDE_HARDSTOP_FIT_CHECK_PORTABLE",
+          "path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v42_ROLLER_GUIDE_HARDSTOP_FIT_CHECK_PORTABLE.SLDASM"
+        },
+        "component_count": 55,
+        "top_level_only": false,
+        "capture_station_identities": [
+          {
+            "name_exact": "BENCH_BOTTLE_D48_H180-2",
+            "fixed": true,
+            "translation_mm": [
+              -153.75,
+              -129,
+              950
+            ]
+          },
+          {
+            "name_exact": "FITCHECK_DRIVEN_WRAP_BELT_5x160x93_V25-1",
+            "fixed": false,
+            "translation_mm": [
+              -126.92061528267112,
+              -139,
+              995
+            ]
+          },
+          {
+            "name_exact": "FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25-1",
+            "fixed": false,
+            "translation_mm": [
+              -178.66987158875423,
+              -189,
+              995
+            ]
+          },
+          {
+            "name_exact": "FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25-2",
+            "fixed": false,
+            "translation_mm": [
+              -193.071626347073,
+              -129,
+              995
+            ]
+          }
+        ],
+        "other_observed_components_not_yet_bound_to_capture": [
+          "SP100_6130656_NATIVE_PORTABLE_V17-1",
+          "6130648_01_Carriage_Schlitten_AL_NATIVE_PORTABLE_V22-1",
+          "6130649_01_Carriage_Schlitten_AR_NATIVE_PORTABLE_V20-1",
+          "6130460_03_AR60_NATIVE_PORTABLE_V18-2"
+        ],
+        "name_scan_result": {
+          "no_explicit_named_capture_owner": [
+            "roller carrier or slide for the named FITCHECK rollers",
+            "pivoting arm or carrier for the named FITCHECK rollers",
+            "pneumatic cylinder or actuator",
+            "spring or compliant preload mechanism",
+            "dedicated closure mount"
+          ],
+          "limitation": "Name-level absence and fixed:false CAD component state do not prove physical absence, degree of freedom, actuation, preload, contact, capture, or a reaction-force path. Features, mates, configuration data, and external assemblies were not exposed by this read."
+        },
+        "mechanical_conclusion": "NONE"
+      }
+    },
+    {
+      "schema_version": 1,
+      "record_type": "evidence",
+      "evidence_id": "E_OEM_IXOR_CAPTURE_MECHANISM_CLASSES_202605",
+      "evidence_type": "oem_evidence",
+      "evidence_state": "VERIFIED",
+      "source_authority": "OEM_DOCUMENTATION",
+      "source_classification": "oem_catalog_product_family_evidence",
+      "subject": {
+        "subject_type": "product_family_catalog",
+        "identity_exact": "CAB IXOR catalog Status 05/2026: SP 100/60L (6130656), AL/AR carriages, AR60, SPFA/SPZP/SPAP mechanism classes"
+      },
+      "provenance": {
+        "recorded_at": "2026-09-25T03:05:47+00:00",
+        "source_ref": "Google Drive file 1_CvQw5ffA1e1mpfmwZg5TqPvvJCRR4xe, cab_roxi_ixorplus_en.pdf, Status 05/2026"
+      },
+      "dependencies": [],
+      "geometry_state": "NOT_APPLICABLE",
+      "mechanical_acceptance_granted": false,
+      "temporal_scope": {
+        "coverage": "POINT_ONLY",
+        "validity_state": "CURRENT",
+        "state_ids": [],
+        "transition_ids": []
+      },
+      "payload": {
+        "artifact_identity": "CAB IXOR catalog Status 05/2026",
+        "verified_product_family_facts": [
+          "Regular SP demand modules including SP 100/60L (6130656.xxx) are mounted on two mounting rods and permit label-web path alignment.",
+          "AR/ARS wipe-down rollers are installed on a lever; carriages on the demand-module guide provide three-way adjustment including spring-preload force adjustment.",
+          "The catalog defines a spring-forced pivotable SPFA dispenser tongue and distinct pneumatic SPZP dispenser-tongue and SPAP wipe-down-roller variants."
+        ],
+        "non_binding_limit": "The catalog establishes product-family mechanism classes only. It does not bind any carriage, lever, spring, pneumatic variant, or demand module to FITCHECK_DRIVEN_WRAP_BELT_5x160x93_V25-1 or either named FITCHECK support roller in the current v42 assembly.",
+        "mechanical_conclusion": "NO_CAPTURE_OWNER_IDENTIFIED_FOR_CURRENT_FITCHECK_STATION"
+      }
+    },
+    {
+      "schema_version": 1,
+      "record_type": "evidence",
       "evidence_id": "E_V42_CAPTURE_DISTANCE_20260918",
       "evidence_type": "deterministic_calculation",
       "evidence_state": "MEASURED_CALCULATED",
@@ -1083,9 +1505,7 @@
         "recorded_at": "2026-09-18T05:52:35.359000+00:00",
         "source_ref": "Google Drive V42_CAPTURE_STATION_EVIDENCE_2026-09-18.md"
       },
-      "dependencies": [
-        "E_V42_COMPONENT_SNAPSHOT_20260925"
-      ],
+      "dependencies": [],
       "geometry_state": "FIT_CHECK",
       "ambiguity_bucket": "STALE_STATE",
       "mechanical_acceptance_granted": false,
@@ -1113,14 +1533,20 @@
   "next_tests": [
     {
       "id": "TEST_CAPTURE_KINEMATIC_OWNER",
-      "question": "Which exact physical subassembly owns capture closure, guidance, limits, actuation, and preload for the belt/roller station?",
+      "question": "Using an OEM assembly/BOM/manual identity map or a separately reviewed no-mutation native read, which exact parent, feature/mate/DOF chain, closure input, limits, preload/compliance, and reaction mount own the named FITCHECK belt and both support rollers? The current Remote Queue cannot execute this owner-binding read.",
       "resolves_requirement_ids": [
         "CAPTURE_KINEMATIC_OWNER"
       ],
       "hypothesis_ids": [
         "H_CAPTURE_CLOSURE_OWNER",
         "H_CAPTURE_COMPLIANCE_OR_PRELOAD",
-        "H_UNBOUND_NESTED_OR_EXTERNAL_CAPTURE_MECHANISM"
+        "H_UNBOUND_NESTED_OR_EXTERNAL_CAPTURE_MECHANISM",
+        "H_TRANSLATING_ROLLER_CARRIER_OR_SLIDE",
+        "H_PIVOTING_ROLLER_ARM_OR_CARRIER",
+        "H_MOVING_WRAP_BELT_ASSEMBLY",
+        "H_PNEUMATIC_CAPTURE_ACTUATOR",
+        "H_SPRING_OR_COMPLIANT_PRELOAD_MECHANISM",
+        "H_OTHER_EXPLICIT_CLOSURE_MECHANISM"
       ],
       "discrimination_power": 0.98,
       "evidence_confidence": 0.9,
@@ -1129,12 +1555,13 @@
     },
     {
       "id": "TEST_CAPTURE_RESTRAINT_AND_CONTACT_INTERVAL",
-      "question": "After the capture owner is bound, what evidence proves bottle restraint and required contact throughout capture and WRAP_ACTIVE rather than at one static pose?",
+      "question": "After the capture owner is bound, what interval-wide evidence proves bottle restraint, required contact, and phase ordering throughout CAPTURE_AND_ROTATION, LABEL_TRANSFER_INTERVAL, and WRAP_ACTIVE rather than at one static pose?",
       "resolves_requirement_ids": [
         "BOTTLE_RESTRAINT_THROUGHOUT_CAPTURE",
         "WRAP_CONTACT_THROUGHOUT_CAPTURE",
         "INV_BOTTLE_RESTRAINT_REMAINS_VALID",
-        "INV_CONTACT_REMAINS_VALID_DURING_WRAP"
+        "INV_CONTACT_REMAINS_VALID_DURING_WRAP",
+        "INV_CAPTURE_PHASE_ORDER_AND_CONTAINMENT"
       ],
       "hypothesis_ids": [
         "H_CAPTURE_COMPLIANCE_OR_PRELOAD"
@@ -1162,7 +1589,7 @@
     },
     {
       "id": "TEST_FRESH_V42_COMPONENT_BINDING",
-      "question": "Obtain a fresh exact v42 component binding before interpreting any new geometry-dependent evidence; this read does not itself prove capture or clearance.",
+      "question": "Repeat a read-only full v42 component inventory only if a later claim needs freshness after 2026-09-25T02:58:42.924369+00:00; it does not itself prove capture, contact, clearance, or owner binding.",
       "resolves_requirement_ids": [
         "PRODUCT_POSITION_STABLE"
       ],
@@ -1177,7 +1604,7 @@
         "command_id": "sw.query_components",
         "write_authority": "NONE",
         "payload": {
-          "top_level_only": true
+          "top_level_only": false
         }
       }
     }

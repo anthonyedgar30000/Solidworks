@@ -45,6 +45,17 @@ EVENT_TYPES = {
     "FAULT_EVENT",
 }
 STATE_TYPES = {"PERSISTENT_STATE", "MODE"}
+OPERATING_PHASES = {
+    "FREE_APPROACH",
+    "CAPTURE_BEGINNING",
+    "CAPTURED",
+    "LABEL_TRANSFER_INTERVAL",
+    "WRAP_ROTATION_INTERVAL",
+    "RELEASE",
+    "FREE_EXIT",
+    "FAULT_HOLD",
+    "OTHER",
+}
 VERIFICATION_STATES = {"VERIFIED", "UNRESOLVED", "VIOLATED"}
 EVIDENCE_STATES_USABLE_FOR_PROOF = {"VERIFIED", "MEASURED_CALCULATED"}
 EVIDENCE_STATES = {
@@ -354,6 +365,9 @@ def validate_architecture(architecture: Mapping[str, Any]) -> Dict[str, Dict[str
     for state_id, state in states.items():
         if state.get("state_type") not in STATE_TYPES:
             raise FunctionalTemporalError(f"state {state_id} has invalid state_type")
+        operating_phase = state.get("operating_phase")
+        if operating_phase is not None and operating_phase not in OPERATING_PHASES:
+            raise FunctionalTemporalError(f"state {state_id} has invalid operating_phase")
         owner = state.get("owner_subsystem_id")
         if owner not in subsystems:
             raise FunctionalTemporalError(f"state {state_id} has unknown owner_subsystem_id")
@@ -545,6 +559,24 @@ def validate_architecture(architecture: Mapping[str, Any]) -> Dict[str, Dict[str
             {rid: None for rid in all_requirement_ids},
             f"hypothesis {hypothesis_id}.related_requirement_ids",
         )
+        _ensure_ids_exist(
+            _as_list(hypothesis.get("affected_state_ids"), f"hypothesis {hypothesis_id}.affected_state_ids"),
+            states,
+            f"hypothesis {hypothesis_id}.affected_state_ids",
+        )
+        required_evidence = _as_list(
+            hypothesis.get("required_evidence"),
+            f"hypothesis {hypothesis_id}.required_evidence",
+        )
+        if not required_evidence:
+            raise FunctionalTemporalError(
+                f"hypothesis {hypothesis_id} needs at least one exact required_evidence item"
+            )
+        for position, item in enumerate(required_evidence):
+            _nonempty_string(
+                item,
+                f"hypothesis {hypothesis_id}.required_evidence[{position}]",
+            )
 
     for test_id, test in next_tests.items():
         _nonempty_string(test.get("question"), f"next_test {test_id}.question")
@@ -1108,6 +1140,8 @@ def build_epistemic_graph_fragment(architecture: Mapping[str, Any]) -> Dict[str,
                     "prior": hypothesis["prior"],
                     "evidence_state": hypothesis["evidence_state"],
                     "investigation_state": hypothesis["investigation_state"],
+                    "affected_state_ids": hypothesis["affected_state_ids"],
+                    "required_evidence": hypothesis["required_evidence"],
                     "mechanical_acceptance_granted": False,
                 },
             }

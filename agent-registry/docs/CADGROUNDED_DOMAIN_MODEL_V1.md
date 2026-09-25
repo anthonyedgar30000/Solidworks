@@ -182,6 +182,13 @@ It decomposes a machine goal into:
 - interval **invariants** and Allen temporal relations; and
 - hypothesis-linked, deterministic **next tests**.
 
+States may also carry an optional generic `operating_phase` classification such
+as `FREE_APPROACH`, `CAPTURE_BEGINNING`, `CAPTURED`,
+`LABEL_TRANSFER_INTERVAL`, `WRAP_ROTATION_INTERVAL`, `RELEASE`, or
+`FREE_EXIT`. This makes the intended temporal role queryable without changing
+the stable identity of a state. A phase label is a model declaration, not
+evidence that the machine reached that phase.
+
 This keeps “a subsystem passes locally” distinct from “the machine is
 mechanically accepted.” The model always emits
 `mechanical_acceptance_granted: false`; its graph fragment intentionally does
@@ -217,6 +224,14 @@ their authority, epistemic state, freshness, and temporal coverage without
 changing any of those fields. Hypotheses preserve prior
 (`COMMON`/`UNCOMMON`/`RARE`), evidence state, and investigation frontier
 state; tests may discriminate among them but do not promote them into facts.
+Each hypothesis also names its affected operating states and the exact
+authoritative observation, document, or bounded calculation needed to resolve
+it. That field specifies an investigation; it is never evidence by itself.
+
+When the required observation is outside the deployed read-only CADRequest
+partition, the next test remains a planning-only candidate with no
+`cad_request`. The model must not invent a queue command or convert a broad
+native API capability into an authorized Remote Queue operation.
 
 The first reference case is v42 `CAPTURE_AND_ROTATION`. It records the current
 fit-check evidence while preserving capture kinematic ownership, preload,

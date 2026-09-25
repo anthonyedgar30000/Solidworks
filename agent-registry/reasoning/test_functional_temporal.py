@@ -41,8 +41,18 @@ class FunctionalTemporalTests(unittest.TestCase):
         indexes = validate_architecture(self.case)
         capture = indexes["states"]["CAPTURE_AND_ROTATION"]
         self.assertEqual(capture["state_type"], "PERSISTENT_STATE")
+        self.assertEqual(capture["operating_phase"], "CAPTURED")
         self.assertIn("CAPTURE_AND_ROTATION", indexes["subsystems"])
         self.assertIn("INV_BOTTLE_RESTRAINT_REMAINS_VALID", indexes["invariants"])
+        self.assertEqual(indexes["states"]["ENTRY"]["operating_phase"], "FREE_APPROACH")
+        self.assertEqual(indexes["states"]["INDEXED"]["operating_phase"], "CAPTURE_BEGINNING")
+        self.assertEqual(
+            indexes["states"]["LABEL_TRANSFER_INTERVAL"]["operating_phase"],
+            "LABEL_TRANSFER_INTERVAL",
+        )
+        self.assertEqual(indexes["states"]["WRAP_ACTIVE"]["operating_phase"], "WRAP_ROTATION_INTERVAL")
+        self.assertEqual(indexes["states"]["RELEASE"]["operating_phase"], "RELEASE")
+        self.assertEqual(indexes["states"]["EXIT_CLEAR"]["operating_phase"], "FREE_EXIT")
 
     def test_v42_reference_preserves_stale_interval_evidence_as_unresolved(self):
         report = evaluate_architecture(self.case)
@@ -55,6 +65,15 @@ class FunctionalTemporalTests(unittest.TestCase):
         self.assertEqual(contact["ambiguity_bucket"], "STALE_STATE")
         self.assertEqual(report["machine_acceptance_state"], "MECHANICAL_ACCEPTANCE_BLOCKED")
         self.assertIs(report["mechanical_acceptance_granted"], False)
+        current_inventory = evidence_by_id(
+            self.case, "E_V42_COMPONENT_INVENTORY_20260925T025842Z"
+        )
+        current_status = evidence_by_id(self.case, "E_V42_STATUS_20260925T025241Z")
+        stale_inventory = evidence_by_id(self.case, "E_V42_COMPONENT_SNAPSHOT_20260925")
+        self.assertEqual(current_inventory["temporal_scope"]["validity_state"], "CURRENT")
+        self.assertEqual(current_inventory["payload"]["component_count"], 55)
+        self.assertEqual(current_status["payload"]["document_type"], "assembly")
+        self.assertEqual(stale_inventory["temporal_scope"]["validity_state"], "STALE")
 
     def test_static_point_evidence_cannot_verify_throughout_capture(self):
         case = copy.deepcopy(self.case)
@@ -89,7 +108,11 @@ class FunctionalTemporalTests(unittest.TestCase):
             record["temporal_scope"] = {
                 "coverage": "THROUGHOUT_SCOPE",
                 "validity_state": "CURRENT",
-                "state_ids": ["CAPTURE_AND_ROTATION"],
+                "state_ids": [
+                    "CAPTURE_AND_ROTATION",
+                    "LABEL_TRANSFER_INTERVAL",
+                    "WRAP_ACTIVE",
+                ],
                 "transition_ids": ["INDEXED_TO_CAPTURE", "CAPTURE_TO_RELEASE"],
             }
 
@@ -112,7 +135,11 @@ class FunctionalTemporalTests(unittest.TestCase):
             record["temporal_scope"] = {
                 "coverage": "THROUGHOUT_SCOPE",
                 "validity_state": "CURRENT",
-                "state_ids": ["CAPTURE_AND_ROTATION"],
+                "state_ids": [
+                    "CAPTURE_AND_ROTATION",
+                    "LABEL_TRANSFER_INTERVAL",
+                    "WRAP_ACTIVE",
+                ],
                 "transition_ids": ["INDEXED_TO_CAPTURE", "CAPTURE_TO_RELEASE"],
             }
 
@@ -160,6 +187,44 @@ class FunctionalTemporalTests(unittest.TestCase):
         with self.assertRaises(FunctionalTemporalError):
             validate_architecture(case)
 
+    def test_capture_owner_hypotheses_preserve_exact_resolution_evidence(self):
+        indexes = validate_architecture(self.case)
+        expected = {
+            "H_TRANSLATING_ROLLER_CARRIER_OR_SLIDE": ("COMMON", "UNRESOLVED", "ACTIVE"),
+            "H_PIVOTING_ROLLER_ARM_OR_CARRIER": ("COMMON", "UNRESOLVED", "ACTIVE"),
+            "H_MOVING_WRAP_BELT_ASSEMBLY": ("COMMON", "UNRESOLVED", "ACTIVE"),
+            "H_PNEUMATIC_CAPTURE_ACTUATOR": ("UNCOMMON", "WEAKENED", "ELIGIBLE"),
+            "H_SPRING_OR_COMPLIANT_PRELOAD_MECHANISM": ("COMMON", "UNRESOLVED", "ACTIVE"),
+            "H_OTHER_EXPLICIT_CLOSURE_MECHANISM": ("UNCOMMON", "UNRESOLVED", "ACTIVE"),
+        }
+        for hypothesis_id, expected_state in expected.items():
+            hypothesis = indexes["hypotheses"][hypothesis_id]
+            self.assertEqual(
+                (
+                    hypothesis["prior"],
+                    hypothesis["evidence_state"],
+                    hypothesis["investigation_state"],
+                ),
+                expected_state,
+            )
+            self.assertTrue(hypothesis["required_evidence"])
+            self.assertIn("CAPTURE_AND_ROTATION", hypothesis["affected_state_ids"])
+
+        top_test = by_id(self.case["next_tests"], "TEST_CAPTURE_KINEMATIC_OWNER")
+        self.assertNotIn("cad_request", top_test)
+        self.assertIn("H_MOVING_WRAP_BELT_ASSEMBLY", top_test["hypothesis_ids"])
+
+    def test_hypothesis_evidence_and_operating_phase_are_validated(self):
+        case = copy.deepcopy(self.case)
+        by_id(case["hypotheses"], "H_MOVING_WRAP_BELT_ASSEMBLY").pop("required_evidence")
+        with self.assertRaises(FunctionalTemporalError):
+            validate_architecture(case)
+
+        case = copy.deepcopy(self.case)
+        by_id(case["states"], "CAPTURE_AND_ROTATION")["operating_phase"] = "UNMODELED"
+        with self.assertRaises(FunctionalTemporalError):
+            validate_architecture(case)
+
     def test_duration_and_interface_contract_misconfigurations_are_rejected(self):
         case = copy.deepcopy(self.case)
         case["duration_constraints"][0]["minimum_duration"] = 20
@@ -183,7 +248,7 @@ class FunctionalTemporalTests(unittest.TestCase):
         case = copy.deepcopy(self.case)
         requirement = by_id(case["obligations"], "PRODUCT_POSITION_STABLE")
         requirement["verification_state"] = "VERIFIED"
-        record = evidence_by_id(case, "E_V42_COMPONENT_SNAPSHOT_20260925")
+        record = evidence_by_id(case, "E_V42_COMPONENT_INVENTORY_20260925T025842Z")
         record["evidence_type"] = "ai_visualization_record"
         record["evidence_state"] = "AI_GENERATED"
         record["source_authority"] = "GENERATIVE_AI"
@@ -237,6 +302,14 @@ class FunctionalTemporalTests(unittest.TestCase):
         self.assertIn(
             "REACHABLE_STATE_SET",
             schema["$defs"]["scope"]["properties"]["required_coverage"]["enum"],
+        )
+        self.assertIn(
+            "CAPTURED",
+            schema["$defs"]["state"]["properties"]["operating_phase"]["enum"],
+        )
+        self.assertIn(
+            "required_evidence",
+            schema["$defs"]["hypothesis"]["required"],
         )
 
 
