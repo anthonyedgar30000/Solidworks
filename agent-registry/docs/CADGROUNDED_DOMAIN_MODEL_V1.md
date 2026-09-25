@@ -248,6 +248,42 @@ fit-check evidence while preserving capture kinematic ownership, preload,
 reaction-force path, interval restraint/contact, and reachable motion
 clearance as unresolved. It does not alter live CAD geometry.
 
+
+### CAD interface contract
+
+`../schemas/cad-interface-contract.v1.schema.json` and
+`reasoning/cad_interface_contract.py` define a separate candidate contract for
+machine-facing CAD interfaces. This contract is deliberately distinct from the
+functional-temporal subsystem `interface` object.
+
+A CAD interface contract pairs two evidence channels without collapsing their
+authority:
+
+- a SOLIDWORKS Published Reference / Asset Publisher connector for native
+  snapping and human-visible interface declaration; and
+- an API-readable named coordinate system for deterministic origin/orientation
+  consumption, logging, comparison, and regression testing.
+
+The pairing preserves separate evidence states. A connector identity and its
+human-established semantic role may be verified while exact geometric
+coincidence between the `MagneticConnectRef` and the named coordinate system
+remains `UNRESOLVED` unless a suitable authoritative API or deterministic
+binding proves it.
+
+The v42 reference fixture is
+`reasoning/reference_cases/v42_product_flow.cad-interface-contract.v1.json`.
+It records:
+
+- `Connector2` ↔ `PRODUCT_ENTRY_CS`;
+- `Connector1` ↔ `PRODUCT_EXIT_CS`;
+- local `+X` = product flow, `+Y` = lateral, `+Z` = up; and
+- a deterministic entry-to-exit displacement of `[900, 0, 0] mm` in the
+  entry interface frame.
+
+The contract is a geometry/interface declaration only. It does not establish
+product restraint, collision-free motion, label-transfer correctness,
+mechanical suitability, or mechanical acceptance.
+
 ## 6. Authority boundary
 
 This model does not change the authority hierarchy.
