@@ -59,7 +59,8 @@ A passing CI compile catches C# source and Windows-target build regressions befo
 
 ## Verification before transport exposure
 
-1. The GitHub Actions Windows compile gate must pass.\n2. Build successfully on the SOLIDWORKS Windows host with `build.cmd` (installed interop DLLs).
+1. The GitHub Actions Windows compile gate must pass.
+2. Build successfully on the SOLIDWORKS Windows host with `build.cmd` (installed interop DLLs).
 3. Run `version` and verify worker version `0.3.1`.
 4. Run `status` and verify `write_authority: NONE` and the exact active document.
 5. Run `mates --component <exact Name2>` against a known component.
