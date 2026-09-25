@@ -26,7 +26,9 @@ The important idea is that **a NULL is not treated as an empty hole**. The graph
 - `geometry_projection.py` — calculates conservative AABB relations from admitted exact-identity evidence.
 - `graph_projection.py` — creates a fresh runtime epistemic graph from admitted/calculated live evidence without copying toy geometry values.
 - `functional_temporal.py` — validates and evaluates generic functional decomposition, interface contracts, temporal states/events/invariants, and deterministic next-test ranking without commanding CAD.
+- `cad_interface_contract.py` — validates API-readable CAD interface frames and deterministically derives interface-to-interface displacement without commanding CAD.
 - `reference_cases/v42_capture_and_rotation.functional-temporal.v1.json` — v42 fit-check reference case; it preserves capture-owner binding, interval restraint/contact, and reachable-motion clearance as unresolved while recording the fresh 2026-09-25 full inventory.
+- `reference_cases/v42_product_flow.cad-interface-contract.v1.json` — v42 candidate product-flow interface contract pairing Published Asset connector identities with API-readable entry/exit coordinate-system frames while leaving connector/frame geometric coincidence unresolved.
 - `reference_cases/v42_capture_owner_investigation_2026-09-25.md` — evidence-bound v42 capture-owner investigation note, including stale-state limits and the exact next read-only boundary.
 - `../docs/V42_CAPTURE_OWNER_BINDING_EVIDENCE_CONTRACT.md` — local-only v42 `sw.query_mates` candidate contract. It defines the exact parentage/constraint evidence required, pre/post no-mutation comparison, and the facts the probe cannot establish.
 - `test_reasoner.py` — reasoner regression tests.
@@ -36,6 +38,7 @@ The important idea is that **a NULL is not treated as an empty hole**. The graph
 - `test_graph_projection.py` — live-evidence runtime graph regression tests.
 - `test_domain_model_contract.py` — static regression tests for the CADRequest/EvidenceRecord subtype partitions and authority boundaries.
 - `test_functional_temporal.py` — functional/temporal architecture regression tests, including stale interval evidence and no-acceptance boundaries.
+- `test_cad_interface_contract.py` — CAD-interface regression tests, including the 900 mm +X entry-to-exit product-flow derivation and the connector/frame evidence boundary.
 
 ## Domain Model v1
 
@@ -44,6 +47,41 @@ The candidate domain contract is documented in `../docs/CADGROUNDED_DOMAIN_MODEL
 The model separates object type/subtype from epistemic and lifecycle state. `command_id` partitions read-only CAD request subtypes; `evidence_type` partitions evidence subtypes. States such as `UNRESOLVED`, `FIT_CHECK`, and ambiguity buckets remain attributes rather than becoming new object types.
 
 These files are candidate contracts only. They do not change the deployed remote-queue runner or grant additional CAD authority.
+
+
+## CAD interface contracts
+
+`../schemas/cad-interface-contract.v1.schema.json` defines a candidate,
+non-runtime contract for machine-facing CAD interfaces. It is intentionally
+separate from the functional-temporal subsystem-interface model.
+
+The v42 reference case pairs:
+
+```text
+Connector2 <-> PRODUCT_ENTRY_CS
+Connector1 <-> PRODUCT_EXIT_CS
+```
+
+The Published References remain the native SOLIDWORKS snapping declarations.
+The named coordinate systems provide deterministic API-readable origin and
+orientation. Their shared convention is local `+X` product flow, local `+Y`
+lateral, and local `+Z` up.
+
+The deterministic consumer derives the saved entry-to-exit relation from the
+coordinate-system transforms alone. For the current v42 test assembly that
+relation is `[900, 0, 0] mm` in the entry interface frame.
+
+The contract does **not** claim that the public API has verified geometric
+coincidence between each `MagneticConnectRef` and its paired coordinate
+system. That binding remains explicitly `UNRESOLVED` until authoritative
+geometry evidence is available. The contract cannot grant mechanical
+acceptance.
+
+Run the focused regression tests from this directory:
+
+```powershell
+python -m unittest -v test_cad_interface_contract.py
+```
 
 ## Functional decomposition + temporal operating states
 

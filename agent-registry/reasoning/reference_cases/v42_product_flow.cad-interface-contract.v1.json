@@ -1,0 +1,140 @@
+{
+  "schema_version": 1,
+  "contract_id": "V42_PRODUCT_FLOW_INTERFACE_CONTRACT",
+  "document": {
+    "title_exact": "IXOR_Benchmark_v42_ASSET_INTERFACE_TEST_PORTABLE",
+    "path_exact": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v42_ASSET_INTERFACE_TEST_PORTABLE.SLDASM",
+    "geometry_state": "FIT_CHECK"
+  },
+  "frame_convention": {
+    "flow_axis": "+X",
+    "lateral_axis": "+Y",
+    "up_axis": "+Z",
+    "handedness": "RIGHT_HANDED"
+  },
+  "interfaces": [
+    {
+      "id": "V42.PRODUCT_ENTRY",
+      "semantic_role": "PRODUCT_ENTRY",
+      "native_published_reference": {
+        "manager_name": "Published References",
+        "connector_name": "Connector2",
+        "feature_type": "MagneticConnectRef",
+        "identity_state": "VERIFIED",
+        "semantic_binding_authority": "HUMAN_OBSERVATION",
+        "semantic_binding_state": "VERIFIED",
+        "geometry_binding_state": "UNRESOLVED"
+      },
+      "api_frame": {
+        "feature_name": "PRODUCT_ENTRY_CS",
+        "feature_type": "CoordSys",
+        "source_authority": "SOLIDWORKS_LIVE_STATE",
+        "source_classification": "verified_from_solidworks_api",
+        "evidence_state": "VERIFIED",
+        "origin_mm": [
+          -153.75,
+          226.0,
+          950.0
+        ],
+        "transform16": [
+          6.123233995736766e-17,
+          -1.0,
+          0.0,
+          1.0,
+          6.123233995736766e-17,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          -0.15375000000000003,
+          0.226,
+          0.95,
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "axis_semantics": {
+          "x": "PRODUCT_FLOW",
+          "y": "LATERAL",
+          "z": "UP"
+        }
+      },
+      "pairing": {
+        "semantic_pairing_state": "VERIFIED",
+        "geometric_coincidence_state": "UNRESOLVED"
+      },
+      "mechanical_acceptance_granted": false
+    },
+    {
+      "id": "V42.PRODUCT_EXIT",
+      "semantic_role": "PRODUCT_EXIT",
+      "native_published_reference": {
+        "manager_name": "Published References",
+        "connector_name": "Connector1",
+        "feature_type": "MagneticConnectRef",
+        "identity_state": "VERIFIED",
+        "semantic_binding_authority": "HUMAN_OBSERVATION",
+        "semantic_binding_state": "VERIFIED",
+        "geometry_binding_state": "UNRESOLVED"
+      },
+      "api_frame": {
+        "feature_name": "PRODUCT_EXIT_CS",
+        "feature_type": "CoordSys",
+        "source_authority": "SOLIDWORKS_LIVE_STATE",
+        "source_classification": "verified_from_solidworks_api",
+        "evidence_state": "VERIFIED",
+        "origin_mm": [
+          -153.75,
+          -674.0,
+          950.0
+        ],
+        "transform16": [
+          6.123233995736766e-17,
+          -1.0,
+          0.0,
+          1.0,
+          6.123233995736766e-17,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          -0.15374999999999994,
+          -0.674,
+          0.95,
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "axis_semantics": {
+          "x": "PRODUCT_FLOW",
+          "y": "LATERAL",
+          "z": "UP"
+        }
+      },
+      "pairing": {
+        "semantic_pairing_state": "VERIFIED",
+        "geometric_coincidence_state": "UNRESOLVED"
+      },
+      "mechanical_acceptance_granted": false
+    }
+  ],
+  "relations": [
+    {
+      "id": "V42.ENTRY_TO_EXIT_PRODUCT_FLOW",
+      "from_interface_id": "V42.PRODUCT_ENTRY",
+      "to_interface_id": "V42.PRODUCT_EXIT",
+      "relation_type": "PRODUCT_FLOW_PATH",
+      "derived_local_displacement_mm": [
+        900.0,
+        0.0,
+        0.0
+      ],
+      "evidence_state": "MEASURED_CALCULATED",
+      "source_authority": "DETERMINISTIC_CALCULATION",
+      "mechanical_acceptance_granted": false
+    }
+  ],
+  "mechanical_acceptance_granted": false
+}

@@ -1,0 +1,316 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cadgrounded.local/schemas/cad-interface-contract.v1.schema.json",
+  "title": "CADGrounded CAD interface contract v1",
+  "description": "Candidate non-runtime contract pairing a SOLIDWORKS Published Reference with an API-readable coordinate-system frame while preserving separate evidence states.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "contract_id",
+    "document",
+    "frame_convention",
+    "interfaces",
+    "relations",
+    "mechanical_acceptance_granted"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "contract_id": {
+      "$ref": "#/$defs/id"
+    },
+    "document": {
+      "$ref": "#/$defs/document"
+    },
+    "frame_convention": {
+      "$ref": "#/$defs/frameConvention"
+    },
+    "interfaces": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "$ref": "#/$defs/interface"
+      }
+    },
+    "relations": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/relation"
+      }
+    },
+    "mechanical_acceptance_granted": {
+      "const": false
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 192,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,191}$"
+    },
+    "vec3": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {
+        "type": "number"
+      }
+    },
+    "transform16": {
+      "type": "array",
+      "minItems": 16,
+      "maxItems": 16,
+      "items": {
+        "type": "number"
+      }
+    },
+    "document": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "title_exact",
+        "path_exact",
+        "geometry_state"
+      ],
+      "properties": {
+        "title_exact": {
+          "type": "string",
+          "minLength": 1
+        },
+        "path_exact": {
+          "type": "string",
+          "minLength": 1
+        },
+        "geometry_state": {
+          "enum": [
+            "SOURCE_GEOMETRY",
+            "FIT_CHECK",
+            "CANDIDATE_OPERATING",
+            "MECHANICALLY_ACCEPTED"
+          ]
+        }
+      }
+    },
+    "frameConvention": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "flow_axis",
+        "lateral_axis",
+        "up_axis",
+        "handedness"
+      ],
+      "properties": {
+        "flow_axis": {
+          "const": "+X"
+        },
+        "lateral_axis": {
+          "const": "+Y"
+        },
+        "up_axis": {
+          "const": "+Z"
+        },
+        "handedness": {
+          "const": "RIGHT_HANDED"
+        }
+      }
+    },
+    "publishedReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "manager_name",
+        "connector_name",
+        "feature_type",
+        "identity_state",
+        "semantic_binding_authority",
+        "semantic_binding_state",
+        "geometry_binding_state"
+      ],
+      "properties": {
+        "manager_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "connector_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "feature_type": {
+          "const": "MagneticConnectRef"
+        },
+        "identity_state": {
+          "const": "VERIFIED"
+        },
+        "semantic_binding_authority": {
+          "const": "HUMAN_OBSERVATION"
+        },
+        "semantic_binding_state": {
+          "const": "VERIFIED"
+        },
+        "geometry_binding_state": {
+          "enum": [
+            "VERIFIED",
+            "UNRESOLVED"
+          ]
+        }
+      }
+    },
+    "apiFrame": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "feature_name",
+        "feature_type",
+        "source_authority",
+        "source_classification",
+        "evidence_state",
+        "origin_mm",
+        "transform16",
+        "axis_semantics"
+      ],
+      "properties": {
+        "feature_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "feature_type": {
+          "const": "CoordSys"
+        },
+        "source_authority": {
+          "const": "SOLIDWORKS_LIVE_STATE"
+        },
+        "source_classification": {
+          "const": "verified_from_solidworks_api"
+        },
+        "evidence_state": {
+          "const": "VERIFIED"
+        },
+        "origin_mm": {
+          "$ref": "#/$defs/vec3"
+        },
+        "transform16": {
+          "$ref": "#/$defs/transform16"
+        },
+        "axis_semantics": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "x",
+            "y",
+            "z"
+          ],
+          "properties": {
+            "x": {
+              "const": "PRODUCT_FLOW"
+            },
+            "y": {
+              "const": "LATERAL"
+            },
+            "z": {
+              "const": "UP"
+            }
+          }
+        }
+      }
+    },
+    "pairing": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "semantic_pairing_state",
+        "geometric_coincidence_state"
+      ],
+      "properties": {
+        "semantic_pairing_state": {
+          "const": "VERIFIED"
+        },
+        "geometric_coincidence_state": {
+          "enum": [
+            "VERIFIED",
+            "UNRESOLVED"
+          ]
+        }
+      }
+    },
+    "interface": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "semantic_role",
+        "native_published_reference",
+        "api_frame",
+        "pairing",
+        "mechanical_acceptance_granted"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "semantic_role": {
+          "enum": [
+            "PRODUCT_ENTRY",
+            "PRODUCT_EXIT",
+            "OTHER"
+          ]
+        },
+        "native_published_reference": {
+          "$ref": "#/$defs/publishedReference"
+        },
+        "api_frame": {
+          "$ref": "#/$defs/apiFrame"
+        },
+        "pairing": {
+          "$ref": "#/$defs/pairing"
+        },
+        "mechanical_acceptance_granted": {
+          "const": false
+        }
+      }
+    },
+    "relation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "from_interface_id",
+        "to_interface_id",
+        "relation_type",
+        "derived_local_displacement_mm",
+        "evidence_state",
+        "source_authority",
+        "mechanical_acceptance_granted"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "from_interface_id": {
+          "$ref": "#/$defs/id"
+        },
+        "to_interface_id": {
+          "$ref": "#/$defs/id"
+        },
+        "relation_type": {
+          "const": "PRODUCT_FLOW_PATH"
+        },
+        "derived_local_displacement_mm": {
+          "$ref": "#/$defs/vec3"
+        },
+        "evidence_state": {
+          "const": "MEASURED_CALCULATED"
+        },
+        "source_authority": {
+          "const": "DETERMINISTIC_CALCULATION"
+        },
+        "mechanical_acceptance_granted": {
+          "const": false
+        }
+      }
+    }
+  }
+}
