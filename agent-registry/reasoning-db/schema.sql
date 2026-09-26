@@ -170,3 +170,78 @@ SELECT
         ELSE 'neither'
     END AS truth_state
 FROM proposition_support;
+
+-- Incremental evidence runtime: immutable observation runs, deterministic
+-- component-state fingerprints, canonical EvidenceRecord dependency index, and
+-- derived current-state validity projection. These tables do not store a
+-- competing engineering truth model; EvidenceRecord remains the canonical
+-- evidence contract and historical records remain immutable.
+
+CREATE TABLE IF NOT EXISTS inspection_runs (
+    id TEXT PRIMARY KEY,
+    world_id TEXT NOT NULL REFERENCES worlds(id),
+    recorded_at TEXT NOT NULL,
+    source_authority TEXT NOT NULL,
+    source_classification TEXT NOT NULL,
+    document_title TEXT NOT NULL,
+    document_path TEXT NOT NULL,
+    active_configuration TEXT,
+    observation_sha256 TEXT NOT NULL,
+    state_fingerprint TEXT NOT NULL,
+    metadata_json TEXT NOT NULL DEFAULT '{}',
+    UNIQUE(world_id, observation_sha256)
+);
+
+CREATE INDEX IF NOT EXISTS idx_inspection_runs_world_time
+ON inspection_runs(world_id, recorded_at, id);
+
+CREATE INDEX IF NOT EXISTS idx_inspection_runs_state
+ON inspection_runs(world_id, state_fingerprint);
+
+CREATE TABLE IF NOT EXISTS inspection_component_fingerprints (
+    run_id TEXT NOT NULL REFERENCES inspection_runs(id),
+    component_name2 TEXT NOT NULL,
+    component_fingerprint TEXT NOT NULL,
+    state_json TEXT NOT NULL,
+    PRIMARY KEY(run_id, component_name2)
+);
+
+CREATE INDEX IF NOT EXISTS idx_component_fingerprint_identity
+ON inspection_component_fingerprints(component_name2, component_fingerprint);
+
+CREATE TABLE IF NOT EXISTS evidence_dependency_index (
+    world_id TEXT NOT NULL REFERENCES worlds(id),
+    evidence_id TEXT NOT NULL,
+    dependency_key TEXT NOT NULL,
+    indexed_at TEXT NOT NULL,
+    PRIMARY KEY(world_id, evidence_id, dependency_key)
+);
+
+CREATE INDEX IF NOT EXISTS idx_evidence_dependency_key
+ON evidence_dependency_index(world_id, dependency_key, evidence_id);
+
+CREATE TABLE IF NOT EXISTS invalidation_events (
+    id TEXT PRIMARY KEY,
+    world_id TEXT NOT NULL REFERENCES worlds(id),
+    previous_run_id TEXT NOT NULL REFERENCES inspection_runs(id),
+    current_run_id TEXT NOT NULL REFERENCES inspection_runs(id),
+    changed_dependency_keys_json TEXT NOT NULL,
+    affected_evidence_ids_json TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    metadata_json TEXT NOT NULL DEFAULT '{}'
+);
+
+CREATE TABLE IF NOT EXISTS evidence_validity_projection (
+    world_id TEXT NOT NULL REFERENCES worlds(id),
+    evidence_id TEXT NOT NULL,
+    record_sha256 TEXT NOT NULL,
+    validity_state TEXT NOT NULL CHECK(validity_state IN ('CURRENT','STALE','UNKNOWN')),
+    last_invalidation_event_id TEXT REFERENCES invalidation_events(id),
+    updated_at TEXT NOT NULL,
+    metadata_json TEXT NOT NULL DEFAULT '{}',
+    PRIMARY KEY(world_id, evidence_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_evidence_validity_state
+ON evidence_validity_projection(world_id, validity_state, evidence_id);
+

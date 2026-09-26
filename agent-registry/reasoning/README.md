@@ -26,6 +26,7 @@ The important idea is that **a NULL is not treated as an empty hole**. The graph
 - `geometry_projection.py` — calculates conservative AABB relations from admitted exact-identity evidence.
 - `graph_projection.py` — creates a fresh runtime epistemic graph from admitted/calculated live evidence without copying toy geometry values.
 - `functional_temporal.py` — validates and evaluates generic functional decomposition, interface contracts, temporal states/events/invariants, and deterministic next-test ranking without commanding CAD.
+- `incremental_evidence.py` — persists immutable inspection-run identity and deterministic component-state fingerprints in the existing reasoning DB, materializes `EvidenceRecord.dependencies`, and derives selective `CURRENT → STALE` validity projection after CAD-state deltas without mutating historical evidence.
 - `cad_interface_contract.py` — validates API-readable CAD interface frames and deterministically derives interface-to-interface displacement without commanding CAD.
 - `cad_interface_live_verifier.py` — compares one bounded local native interface observation to a declared contract, preserving `STALE_STATE`, drift, and authority-rejection outcomes rather than rebaselining.
 - `cad_interface_consumption.py` — calculates a non-materialized complementary-asset connection transform from accepted interface-frame inputs; it has no CAD-write capability.
@@ -51,6 +52,8 @@ The important idea is that **a NULL is not treated as an empty hole**. The graph
 The candidate domain contract is documented in `../docs/CADGROUNDED_DOMAIN_MODEL_V1.md` with schemas in `../schemas/cad-read-request.v1.schema.json` and `../schemas/evidence-record.v1.schema.json`.
 
 The model separates object type/subtype from epistemic and lifecycle state. `command_id` partitions read-only CAD request subtypes; `evidence_type` partitions evidence subtypes. States such as `UNRESOLVED`, `FIT_CHECK`, and ambiguity buckets remain attributes rather than becoming new object types.
+
+For evidence, `evidence_state` is the admission-time classification of the immutable historical record, while `temporal_scope.validity_state` (and the incremental current-state projection) answers whether that record is still applicable to the current CAD decision. Staleness reopens dependents; it does not rewrite a previously verified observation or measured calculation.
 
 These files are candidate contracts only. They do not change the deployed remote-queue runner or grant additional CAD authority.
 
@@ -329,3 +332,45 @@ only after authoritative evidence or an accepted deterministic derivation is ava
 7. choose the next read-only investigation based on remaining risk exposure.
 
 This preserves the boundary that SOLIDWORKS observations establish live state, deterministic checks establish mechanical relationships, and LLMs only help select or formulate investigations.
+
+
+## Incremental evidence runtime v0.1
+
+`incremental_evidence.py` selectively reintroduces the useful runtime ideas from
+the superseded Inspector design spike without reviving its separate architecture.
+
+It consumes already-admitted `cad_observation_evidence` transactions and
+immutable `EvidenceRecord` objects. It does not call SOLIDWORKS and has no CAD
+write path.
+
+The runtime persists:
+
+- one immutable inspection identity per exact source observation SHA-256;
+- a separate deterministic state fingerprint so repeated observations can prove
+  that the observed CAD state is unchanged;
+- exact `Component2.Name2` component-state fingerprints;
+- a materialized index of the canonical `EvidenceRecord.dependencies` field;
+- invalidation events and a derived current-state validity projection.
+
+Recognized dependency keys for automatic CAD-delta invalidation are:
+
+```text
+component_name2:<exact Component2.Name2>
+configuration:<configuration>
+evidence_id:<upstream EvidenceRecord.evidence_id>
+```
+
+Other dependency strings are still persisted but are not interpreted by this
+v0.1 delta engine. Transitive invalidation follows `evidence_id:` edges.
+
+A changed component does **not** rewrite or delete historical evidence. Only the
+derived current-state projection changes from `CURRENT` to `STALE`, with
+`STALE_STATE` recorded on the invalidation event. Mechanical acceptance
+remains false.
+
+Run the focused regression:
+
+```powershell
+cd agent-registry/reasoning
+python -m unittest -v test_incremental_evidence.py
+```

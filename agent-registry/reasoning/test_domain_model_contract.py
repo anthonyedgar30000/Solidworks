@@ -236,6 +236,37 @@ class DomainModelContractTests(unittest.TestCase):
         self.assertNotIn("FIT_CHECK", branch_titles)
         self.assertNotIn("UNRESOLVED", branch_titles)
 
+    def test_admission_state_is_separate_from_current_validity(self):
+        props = self.evidence["properties"]
+        self.assertIn("temporal_scope", props)
+        self.assertEqual(
+            props["temporal_scope"]["properties"]["validity_state"]["enum"],
+            ["CURRENT", "STALE", "UNKNOWN"],
+        )
+
+        solidworks = next(
+            b for b in self.evidence["oneOf"]
+            if b["properties"]["evidence_type"].get("const") == "solidworks_observation"
+        )
+        deterministic = next(
+            b for b in self.evidence["oneOf"]
+            if b["properties"]["evidence_type"].get("const") == "deterministic_calculation"
+        )
+
+        self.assertEqual(solidworks["properties"]["evidence_state"]["const"], "VERIFIED")
+        self.assertEqual(
+            deterministic["properties"]["evidence_state"]["const"],
+            "MEASURED_CALCULATED",
+        )
+        self.assertIn(
+            "Current applicability/freshness",
+            props["evidence_state"]["description"],
+        )
+        self.assertIn(
+            "does not rewrite evidence_state",
+            props["temporal_scope"]["description"],
+        )
+
     def test_evidence_never_directly_grants_mechanical_acceptance(self):
         self.assertIs(
             self.evidence["properties"]["mechanical_acceptance_granted"]["const"],

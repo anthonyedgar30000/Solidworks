@@ -22,3 +22,41 @@ Observation identifiers prefixed `OBS_` identify raw read-only connector observa
 ## Current entrypoint
 
 Read `CURRENT_PLAN.json`, then the referenced plan, divergence, and reconciliation records in `ledger/`.
+
+
+## Stale-evidence replanning proposals
+
+`stale_evidence_replanning.py` is a read-only planning bridge from the
+incremental evidence runtime to the functional-temporal next-test model.
+
+It consumes:
+
+- one exact `invalidation_events` row from the existing reasoning DB;
+- the corresponding `evidence_validity_projection` rows;
+- one validated functional-temporal architecture whose `next_tests` are already declared.
+
+It overlays validity onto a deep copy of the architecture, evaluates the affected
+requirements, and filters the existing deterministic next-test ranking to tests
+that actually cover requirements directly bound to stale evidence.
+
+It never invents a test. If stale evidence is not bound to the architecture, or
+no declared test covers the affected requirement, the result is an explicit gap
+rather than an inferred investigation.
+
+The output is a **proposal only**:
+
+- `write_authority: NONE`
+- `cad_write_authorized: false`
+- `mechanical_acceptance_granted: false`
+- `ledger_mutation_performed: false`
+- `execution_performed: false`
+
+A proposal must be reviewed before any append-only planning-ledger record or
+read execution is created.
+
+Focused regression:
+
+```powershell
+cd agent-registry/planning
+python -m unittest -v test_stale_evidence_replanning.py
+```

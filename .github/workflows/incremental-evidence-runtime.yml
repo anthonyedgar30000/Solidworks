@@ -1,0 +1,30 @@
+name: Incremental evidence runtime
+
+on:
+  pull_request:
+    paths:
+      - "agent-registry/reasoning/incremental_evidence.py"
+      - "agent-registry/reasoning/test_incremental_evidence.py"
+      - "agent-registry/reasoning-db/schema.sql"
+      - "agent-registry/reasoning/README.md"
+      - ".github/workflows/incremental-evidence-runtime.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "agent-registry/reasoning/incremental_evidence.py"
+      - "agent-registry/reasoning/test_incremental_evidence.py"
+      - "agent-registry/reasoning-db/schema.sql"
+      - ".github/workflows/incremental-evidence-runtime.yml"
+
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Run incremental evidence regression
+        working-directory: agent-registry/reasoning
+        run: python -m unittest -v test_incremental_evidence.py
