@@ -9,7 +9,7 @@ namespace CadGrounded.SolidWorksWorker;
 
 internal static class Program
 {
-    internal const string Version = "0.4.2";
+    internal const string Version = "0.4.3";
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         WriteIndented = true,
@@ -347,6 +347,7 @@ internal static class Dispatcher
         "sw.diagnose_feature_manager_tree",
         "sw.closest_distance_pair",
         "sw.classify_contact_pair",
+        "sw.classify_contact_pair_at_transform",
         "sw.query_mates"
     };
 
@@ -389,6 +390,18 @@ internal static class Dispatcher
                     payload,
                     "displayed_tree_texts");
             }
+            else if (commandId == "sw.classify_contact_pair_at_transform")
+            {
+                JsonHelpers.RequireOnlyProperties(
+                    payload,
+                    "document_title_exact",
+                    "document_path_exact",
+                    "active_configuration_exact",
+                    "a_name_exact",
+                    "b_name_exact",
+                    "a_candidate_transform",
+                    "b_candidate_transform");
+            }
 
             object data = commandId switch
             {
@@ -416,6 +429,14 @@ internal static class Dispatcher
                 "sw.classify_contact_pair" => session.ClassifyContactPair(
                     JsonHelpers.GetRequiredString(payload, "a_name_exact"),
                     JsonHelpers.GetRequiredString(payload, "b_name_exact")),
+                "sw.classify_contact_pair_at_transform" => session.ClassifyContactPairAtTransform(
+                    JsonHelpers.GetRequiredString(payload, "document_title_exact"),
+                    JsonHelpers.GetRequiredString(payload, "document_path_exact"),
+                    JsonHelpers.GetRequiredString(payload, "active_configuration_exact"),
+                    JsonHelpers.GetRequiredString(payload, "a_name_exact"),
+                    JsonHelpers.GetRequiredString(payload, "b_name_exact"),
+                    JsonHelpers.GetOptionalCandidateTransform(payload, "a_candidate_transform"),
+                    JsonHelpers.GetOptionalCandidateTransform(payload, "b_candidate_transform")),
                 "sw.query_mates" => session.QueryMates(
                     JsonHelpers.GetRequiredString(payload, "component_name_exact")),
                 _ => throw new InvalidOperationException("Unreachable command dispatch.")
@@ -1882,6 +1903,676 @@ internal sealed class SolidWorksSession : IDisposable
         return new { document = new { title = _doc.GetTitle(), path = _doc.GetPathName() }, component_a = ComponentIdentity(a, aState), component_b = ComponentIdentity(b, bState), minimum_distance_m = distanceM, minimum_distance_mm = distanceM * 1000.0, closest_point_a_m = ToDoubleArray(pointA), closest_point_b_m = ToDoubleArray(pointB), closest_point_a_mm = Scale(ToDoubleArray(pointA), 1000.0), closest_point_b_mm = Scale(ToDoubleArray(pointB), 1000.0), classification = classification, contact_tolerance_mm = contactToleranceM * 1000.0, volume_tolerance_mm3 = volumeToleranceM3 * 1e9, solid_body_count_a = booleanExecuted ? aBodies.Length : (int?)null, solid_body_count_b = booleanExecuted ? bBodies.Length : (int?)null, body_pair_count = booleanExecuted ? bodyPairCount : (int?)null, intersection_body_count = booleanExecuted ? intersectionBodyCount : (int?)null, intersection_volume_mm3 = booleanExecuted ? intersectionVolumeM3 * 1e9 : (double?)null, boolean_error_codes = booleanExecuted ? distinctErrors : null, boolean_executed = booleanExecuted, api_distance = "IModelDoc2.ClosestDistance", api_intersection = "IBody2.Operations2(SWBODYINTERSECT) on transformed temporary body copies", interpretation_note = "Positive clearance excludes contact. Near-zero distance is classified with exact B-rep intersection volume on temporary copies; no assembly interference manager is invoked.", model_mutation = false, write_authority = "NONE", evidence = "verified_from_solidworks_api" };
     }
 
+    public object ClassifyContactPairAtTransform(
+        string documentTitleExact,
+        string documentPathExact,
+        string activeConfigurationExact,
+        string aExact,
+        string bExact,
+        CandidateTransform? aCandidate,
+        CandidateTransform? bCandidate)
+    {
+        RequireExactActiveDocument(
+            documentTitleExact,
+            documentPathExact,
+            activeConfigurationExact);
+
+        var assembly = RequireAssembly();
+        var components = GetComponents(assembly, topLevelOnly: true);
+
+        var aMatches = components
+            .Where(c => string.Equals(c.Name2, aExact, StringComparison.Ordinal))
+            .ToArray();
+        var bMatches = components
+            .Where(c => string.Equals(c.Name2, bExact, StringComparison.Ordinal))
+            .ToArray();
+
+        if (aMatches.Length != 1 || bMatches.Length != 1)
+        {
+            throw new CadGroundedException(
+                "component_match_not_unique",
+                $"Exact top-level component matching must be unique. " +
+                $"a_matches={aMatches.Length}, b_matches={bMatches.Length}. " +
+                $"a='{aExact}', b='{bExact}'.");
+        }
+
+        var a = aMatches[0];
+        var b = bMatches[0];
+
+        if (string.Equals(a.Name2, b.Name2, StringComparison.Ordinal))
+        {
+            throw new CadGroundedException(
+                "same_component",
+                "Hypothetical contact classification requires two different components.");
+        }
+
+        var aState = a.GetSuppression2();
+        var bState = b.GetSuppression2();
+        if (!IsResolvedComponentState(aState) || !IsResolvedComponentState(bState))
+        {
+            throw new CadGroundedException(
+                "component_not_resolved",
+                $"Hypothetical contact classification requires resolved components. " +
+                $"a_state={aState}, b_state={bState}.");
+        }
+
+        var (aCurrentTransform, aCurrentArray) = RequireComponentTransform(a, "A");
+        var (bCurrentTransform, bCurrentArray) = RequireComponentTransform(b, "B");
+
+        var aEvaluationTransform = aCandidate is null
+            ? aCurrentTransform
+            : CreateCandidateTransform(aCandidate, "a_candidate_transform");
+        var bEvaluationTransform = bCandidate is null
+            ? bCurrentTransform
+            : CreateCandidateTransform(bCandidate, "b_candidate_transform");
+
+        var aEvaluationArray = aCandidate is null
+            ? aCurrentArray
+            : RequireMathTransformArray(aEvaluationTransform, "a_candidate_transform");
+        var bEvaluationArray = bCandidate is null
+            ? bCurrentArray
+            : RequireMathTransformArray(bEvaluationTransform, "b_candidate_transform");
+
+        var aBodies = GetSolidBodies(a);
+        var bBodies = GetSolidBodies(b);
+
+        const double contactToleranceM = 0.000001;
+        const double volumeToleranceM3 = 0.000000000001;
+        const int maxBodyPairs = 1024;
+        const long maxFacePairs = 250000;
+
+        if (aBodies.Length == 0 || bBodies.Length == 0)
+        {
+            RequireExactActiveDocument(
+                documentTitleExact,
+                documentPathExact,
+                activeConfigurationExact);
+
+            return new
+            {
+                document = CurrentDocumentIdentity(),
+                precondition = new
+                {
+                    document_title_exact = documentTitleExact,
+                    document_path_exact = documentPathExact,
+                    active_configuration_exact = activeConfigurationExact,
+                    matched = true
+                },
+                component_a = ComponentIdentity(a, aState),
+                component_b = ComponentIdentity(b, bState),
+                current_transform_a = TransformSnapshot(aCurrentArray),
+                current_transform_b = TransformSnapshot(bCurrentArray),
+                evaluated_transform_a = TransformSnapshot(aEvaluationArray),
+                evaluated_transform_b = TransformSnapshot(bEvaluationArray),
+                evaluated_transform_source_a = aCandidate is null ? "current_component_transform" : "candidate_absolute_assembly_transform",
+                evaluated_transform_source_b = bCandidate is null ? "current_component_transform" : "candidate_absolute_assembly_transform",
+                minimum_distance_m = (double?)null,
+                minimum_distance_mm = (double?)null,
+                closest_point_a_m = (double[]?)null,
+                closest_point_b_m = (double[]?)null,
+                closest_point_a_mm = (double[]?)null,
+                closest_point_b_mm = (double[]?)null,
+                classification = "indeterminate_non_solid_geometry",
+                contact_tolerance_mm = contactToleranceM * 1000.0,
+                volume_tolerance_mm3 = volumeToleranceM3 * 1e9,
+                solid_body_count_a = aBodies.Length,
+                solid_body_count_b = bBodies.Length,
+                body_pair_count = 0,
+                face_pair_count = 0L,
+                face_distance_failure_count = 0,
+                intersection_body_count = 0,
+                intersection_volume_mm3 = (double?)null,
+                boolean_error_codes = Array.Empty<int>(),
+                api_body_source = "IComponent2.GetBodies3(swSolidBody)",
+                api_body_copy_transform = "IBody2.Copy + IBody2.ApplyTransform on temporary copies only",
+                api_distance = "not_executed_non_solid_geometry",
+                api_intersection = "not_executed_non_solid_geometry",
+                interpretation_note = "Candidate transforms are absolute assembly-space transforms. No Component2.Transform2 setter, selection, rebuild, save, mate, suppression, or assembly mutation is used.",
+                model_mutation = false,
+                write_authority = "NONE",
+                evidence = "verified_from_solidworks_api"
+            };
+        }
+
+        var bodyPairCountLong = (long)aBodies.Length * bBodies.Length;
+        if (bodyPairCountLong > maxBodyPairs)
+        {
+            throw new CadGroundedException(
+                "hypothetical_body_pair_limit_exceeded",
+                $"Hypothetical fit check requires {bodyPairCountLong} solid-body pairs; " +
+                $"limit={maxBodyPairs}.");
+        }
+
+        var booleanErrorCodes = new List<int>();
+        var intersectionBodyCount = 0;
+        var intersectionVolumeM3 = 0.0;
+
+        foreach (var aBody in aBodies)
+        {
+            foreach (var bBody in bBodies)
+            {
+                var aCopy = CopyAndTransformBody(
+                    aBody,
+                    aEvaluationTransform,
+                    "A");
+                var bCopy = CopyAndTransformBody(
+                    bBody,
+                    bEvaluationTransform,
+                    "B");
+
+                int errorCode;
+                object raw;
+                try
+                {
+                    raw = aCopy.Operations2(
+                        (int)SwConst.swBodyOperationType_e.SWBODYINTERSECT,
+                        bCopy,
+                        out errorCode);
+                }
+                catch (COMException ex)
+                {
+                    throw new CadGroundedException(
+                        "body_intersection_com_fault",
+                        $"Body2.Operations2(SWBODYINTERSECT) failed for hypothetical pair " +
+                        $"'{a.Name2}' and '{b.Name2}'.",
+                        ex);
+                }
+
+                booleanErrorCodes.Add(errorCode);
+                if (raw is not Array resultBodies)
+                    continue;
+
+                foreach (var rawBody in resultBodies)
+                {
+                    if (rawBody is not IBody2 resultBody)
+                        continue;
+
+                    var mass = ToDoubleArray(resultBody.GetMassProperties(1.0));
+                    if (mass is null || mass.Length <= 3)
+                        continue;
+
+                    var volume = mass[3];
+                    if (volume > volumeToleranceM3)
+                    {
+                        intersectionBodyCount++;
+                        intersectionVolumeM3 += volume;
+                    }
+                }
+            }
+        }
+
+        var distinctErrors = booleanErrorCodes
+            .Distinct()
+            .OrderBy(v => v)
+            .ToArray();
+        var hasBooleanError = distinctErrors.Any(v => v != 0);
+
+        double? minimumDistanceM = null;
+        double[]? closestPointAM = null;
+        double[]? closestPointBM = null;
+        long facePairCount = 0;
+        var faceDistanceFailureCount = 0;
+        string distanceProvenance;
+
+        if (intersectionVolumeM3 > volumeToleranceM3 && !hasBooleanError)
+        {
+            // Positive exact B-rep intersection means the closed solids overlap,
+            // so the minimum set distance is deterministically zero. We avoid
+            // pretending IModelDoc2.ClosestDistance can measure temporary bodies;
+            // SOLIDWORKS documents that temporary geometric entities are unsupported.
+            minimumDistanceM = 0.0;
+            distanceProvenance = "derived_zero_from_positive_brep_intersection";
+        }
+        else if (!hasBooleanError)
+        {
+            var distanceResult = MeasureTemporaryBodyDistance(
+                aBodies,
+                aEvaluationTransform,
+                bBodies,
+                bEvaluationTransform,
+                maxFacePairs);
+
+            minimumDistanceM = distanceResult.DistanceM;
+            closestPointAM = distanceResult.PointAM;
+            closestPointBM = distanceResult.PointBM;
+            facePairCount = distanceResult.FacePairCount;
+            faceDistanceFailureCount = distanceResult.FailureCount;
+            distanceProvenance =
+                "IEntity.GetDistance(minimum=true) over face pairs from transformed temporary body copies";
+        }
+        else
+        {
+            distanceProvenance = "not_executed_due_to_boolean_error";
+        }
+
+        string classification;
+        if (hasBooleanError)
+            classification = "indeterminate_boolean_error";
+        else if (intersectionVolumeM3 > volumeToleranceM3)
+            classification = "physical_interference";
+        else if (minimumDistanceM is null)
+            classification = "indeterminate_distance_unavailable";
+        else if (minimumDistanceM.Value > contactToleranceM)
+            classification = "clearance";
+        else
+            classification = "contact_or_coincidence_within_tolerance";
+
+        // Re-read the active-document identity after the bounded operation so a
+        // mid-read document/configuration switch fails closed instead of being
+        // returned as if it belonged to the requested precondition.
+        RequireExactActiveDocument(
+            documentTitleExact,
+            documentPathExact,
+            activeConfigurationExact);
+
+        return new
+        {
+            document = CurrentDocumentIdentity(),
+            precondition = new
+            {
+                document_title_exact = documentTitleExact,
+                document_path_exact = documentPathExact,
+                active_configuration_exact = activeConfigurationExact,
+                matched = true
+            },
+            component_a = ComponentIdentity(a, aState),
+            component_b = ComponentIdentity(b, bState),
+            current_transform_a = TransformSnapshot(aCurrentArray),
+            current_transform_b = TransformSnapshot(bCurrentArray),
+            evaluated_transform_a = TransformSnapshot(aEvaluationArray),
+            evaluated_transform_b = TransformSnapshot(bEvaluationArray),
+            evaluated_transform_source_a = aCandidate is null ? "current_component_transform" : "candidate_absolute_assembly_transform",
+            evaluated_transform_source_b = bCandidate is null ? "current_component_transform" : "candidate_absolute_assembly_transform",
+            minimum_distance_m = minimumDistanceM,
+            minimum_distance_mm = minimumDistanceM * 1000.0,
+            closest_point_a_m = closestPointAM,
+            closest_point_b_m = closestPointBM,
+            closest_point_a_mm = Scale(closestPointAM, 1000.0),
+            closest_point_b_mm = Scale(closestPointBM, 1000.0),
+            classification,
+            contact_tolerance_mm = contactToleranceM * 1000.0,
+            volume_tolerance_mm3 = volumeToleranceM3 * 1e9,
+            solid_body_count_a = aBodies.Length,
+            solid_body_count_b = bBodies.Length,
+            body_pair_count = (int)bodyPairCountLong,
+            face_pair_count = facePairCount,
+            face_distance_failure_count = faceDistanceFailureCount,
+            intersection_body_count = intersectionBodyCount,
+            intersection_volume_mm3 = intersectionVolumeM3 * 1e9,
+            boolean_error_codes = distinctErrors,
+            api_body_source = "IComponent2.GetBodies3(swSolidBody)",
+            api_body_copy_transform = "IBody2.Copy + IBody2.ApplyTransform on temporary copies only",
+            api_distance = distanceProvenance,
+            api_intersection = "IBody2.Operations2(SWBODYINTERSECT) on transformed temporary body copies",
+            interpretation_note =
+                "Candidate transforms are absolute assembly-space transforms using SOLIDWORKS MathTransform ArrayData ordering. " +
+                "IModelDoc2.ClosestDistance is intentionally not used for the hypothetical geometry because SOLIDWORKS does not support temporary geometric entities there. " +
+                "No Component2.Transform2 setter, selection, rebuild, save, mate, suppression, or assembly mutation is used.",
+            model_mutation = false,
+            write_authority = "NONE",
+            evidence = "verified_from_solidworks_api"
+        };
+    }
+
+    private void RequireExactActiveDocument(
+        string titleExact,
+        string pathExact,
+        string configurationExact)
+    {
+        var actualTitle = _doc.GetTitle();
+        var actualPath = _doc.GetPathName();
+        var actualConfiguration = _doc.ConfigurationManager.ActiveConfiguration?.Name;
+
+        if (!string.Equals(titleExact, actualTitle, StringComparison.Ordinal))
+        {
+            throw new CadGroundedException(
+                "document_precondition_failed",
+                $"Document title precondition failed. Expected='{titleExact}' Actual='{actualTitle}'.");
+        }
+
+        if (!string.Equals(pathExact, actualPath, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new CadGroundedException(
+                "document_precondition_failed",
+                $"Document path precondition failed. Expected='{pathExact}' Actual='{actualPath}'.");
+        }
+
+        if (!string.Equals(configurationExact, actualConfiguration, StringComparison.Ordinal))
+        {
+            throw new CadGroundedException(
+                "document_precondition_failed",
+                $"Active configuration precondition failed. Expected='{configurationExact}' Actual='{actualConfiguration}'.");
+        }
+    }
+
+    private object CurrentDocumentIdentity()
+    {
+        return new
+        {
+            title = _doc.GetTitle(),
+            path = _doc.GetPathName(),
+            active_configuration = _doc.ConfigurationManager.ActiveConfiguration?.Name
+        };
+    }
+
+    private static bool IsResolvedComponentState(int state)
+    {
+        return state == (int)SwConst.swComponentSuppressionState_e.swComponentFullyResolved ||
+               state == (int)SwConst.swComponentSuppressionState_e.swComponentResolved;
+    }
+
+    private static (MathTransform Transform, double[] Array) RequireComponentTransform(
+        IComponent2 component,
+        string label)
+    {
+        MathTransform? transform;
+        try
+        {
+            transform = component.Transform2;
+        }
+        catch (COMException ex)
+        {
+            throw new CadGroundedException(
+                "component_transform_unavailable",
+                $"Could not read current Transform2 for component {label} '{component.Name2}'.",
+                ex);
+        }
+
+        if (transform is null)
+        {
+            throw new CadGroundedException(
+                "component_transform_unavailable",
+                $"Current Transform2 is null for component {label} '{component.Name2}'.");
+        }
+
+        return (transform, RequireMathTransformArray(transform, $"current component {label}"));
+    }
+
+    private static double[] RequireMathTransformArray(
+        MathTransform transform,
+        string context)
+    {
+        var values = ToDoubleArray(transform.ArrayData);
+        if (values is null || values.Length < 13)
+        {
+            throw new CadGroundedException(
+                "transform_array_unavailable",
+                $"{context} did not expose at least 13 MathTransform ArrayData values.");
+        }
+
+        if (values.Take(13).Any(v => !double.IsFinite(v)))
+        {
+            throw new CadGroundedException(
+                "transform_array_invalid",
+                $"{context} contains a non-finite MathTransform value.");
+        }
+
+        return values;
+    }
+
+    private MathTransform CreateCandidateTransform(
+        CandidateTransform candidate,
+        string context)
+    {
+        ValidateCandidateTransform(candidate, context);
+
+        var transformData = new double[16];
+        Array.Copy(candidate.rotation9, 0, transformData, 0, 9);
+        transformData[9] = candidate.translation_mm[0] / 1000.0;
+        transformData[10] = candidate.translation_mm[1] / 1000.0;
+        transformData[11] = candidate.translation_mm[2] / 1000.0;
+        transformData[12] = 1.0;
+
+        var mathUtility = _app.IGetMathUtility();
+        if (mathUtility is null)
+        {
+            throw new CadGroundedException(
+                "math_utility_unavailable",
+                "ISldWorks.IGetMathUtility returned null.");
+        }
+
+        var rawTransform = mathUtility.CreateTransform(transformData);
+        if (rawTransform is not MathTransform transform)
+        {
+            throw new CadGroundedException(
+                "candidate_transform_creation_failed",
+                $"IMathUtility.CreateTransform returned no MathTransform for {context}.");
+        }
+
+        // CreateTransform can normalize malformed rotations. Candidate input is
+        // independently validated above; verify the resulting transform still
+        // represents the exact requested rigid pose within floating precision.
+        var created = RequireMathTransformArray(transform, context);
+        const double verificationTolerance = 1e-10;
+        for (var i = 0; i < 13; i++)
+        {
+            if (Math.Abs(created[i] - transformData[i]) > verificationTolerance)
+            {
+                throw new CadGroundedException(
+                    "candidate_transform_normalized",
+                    $"{context} was altered by IMathUtility.CreateTransform at ArrayData[{i}]. " +
+                    $"requested={transformData[i]:R}, created={created[i]:R}.");
+            }
+        }
+
+        return transform;
+    }
+
+    private static void ValidateCandidateTransform(
+        CandidateTransform candidate,
+        string context)
+    {
+        if (candidate.rotation9.Length != 9)
+            throw new CadGroundedException(
+                "malformed_candidate_transform",
+                $"{context}.rotation9 must contain exactly 9 numbers.");
+
+        if (candidate.translation_mm.Length != 3)
+            throw new CadGroundedException(
+                "malformed_candidate_transform",
+                $"{context}.translation_mm must contain exactly 3 numbers.");
+
+        if (candidate.rotation9.Any(v => !double.IsFinite(v)) ||
+            candidate.translation_mm.Any(v => !double.IsFinite(v)))
+        {
+            throw new CadGroundedException(
+                "malformed_candidate_transform",
+                $"{context} contains a non-finite number.");
+        }
+
+        static double Dot(double[] r, int a, int b) =>
+            r[a * 3] * r[b * 3] +
+            r[a * 3 + 1] * r[b * 3 + 1] +
+            r[a * 3 + 2] * r[b * 3 + 2];
+
+        const double orthonormalTolerance = 1e-6;
+        for (var row = 0; row < 3; row++)
+        {
+            if (Math.Abs(Dot(candidate.rotation9, row, row) - 1.0) >
+                orthonormalTolerance)
+            {
+                throw new CadGroundedException(
+                    "malformed_candidate_transform",
+                    $"{context}.rotation9 row {row} is not unit length within " +
+                    $"tolerance={orthonormalTolerance:R}.");
+            }
+        }
+
+        if (Math.Abs(Dot(candidate.rotation9, 0, 1)) > orthonormalTolerance ||
+            Math.Abs(Dot(candidate.rotation9, 0, 2)) > orthonormalTolerance ||
+            Math.Abs(Dot(candidate.rotation9, 1, 2)) > orthonormalTolerance)
+        {
+            throw new CadGroundedException(
+                "malformed_candidate_transform",
+                $"{context}.rotation9 rows are not mutually orthogonal within " +
+                $"tolerance={orthonormalTolerance:R}.");
+        }
+
+        var r = candidate.rotation9;
+        var determinant =
+            r[0] * (r[4] * r[8] - r[5] * r[7]) -
+            r[1] * (r[3] * r[8] - r[5] * r[6]) +
+            r[2] * (r[3] * r[7] - r[4] * r[6]);
+
+        if (Math.Abs(determinant - 1.0) > 1e-5)
+        {
+            throw new CadGroundedException(
+                "malformed_candidate_transform",
+                $"{context}.rotation9 must be a proper right-handed rotation; " +
+                $"determinant={determinant:R}.");
+        }
+    }
+
+    private static IBody2 CopyAndTransformBody(
+        IBody2 source,
+        MathTransform transform,
+        string label)
+    {
+        var copy = source.Copy() as IBody2;
+        if (copy is null)
+        {
+            throw new CadGroundedException(
+                "temporary_body_copy_failed",
+                $"IBody2.Copy did not return a temporary solid body for component {label}.");
+        }
+
+        if (!copy.ApplyTransform(transform))
+        {
+            throw new CadGroundedException(
+                "temporary_body_transform_failed",
+                $"IBody2.ApplyTransform failed for temporary component-{label} body copy.");
+        }
+
+        return copy;
+    }
+
+    private static TemporaryDistanceResult MeasureTemporaryBodyDistance(
+        IBody2[] aBodies,
+        MathTransform aTransform,
+        IBody2[] bBodies,
+        MathTransform bTransform,
+        long maxFacePairs)
+    {
+        double? bestDistance = null;
+        double[]? bestPointA = null;
+        double[]? bestPointB = null;
+        long facePairCount = 0;
+        var failureCount = 0;
+
+        foreach (var aBody in aBodies)
+        {
+            foreach (var bBody in bBodies)
+            {
+                var aCopy = CopyAndTransformBody(aBody, aTransform, "A");
+                var bCopy = CopyAndTransformBody(bBody, bTransform, "B");
+                var aFaces = GetBodyEntities(aCopy);
+                var bFaces = GetBodyEntities(bCopy);
+
+                var prospective = facePairCount + (long)aFaces.Length * bFaces.Length;
+                if (prospective > maxFacePairs)
+                {
+                    throw new CadGroundedException(
+                        "hypothetical_face_pair_limit_exceeded",
+                        $"Hypothetical distance calculation would exceed face-pair limit " +
+                        $"{maxFacePairs}; prospective_pairs={prospective}.");
+                }
+
+                foreach (var aFace in aFaces)
+                {
+                    foreach (var bFace in bFaces)
+                    {
+                        facePairCount++;
+
+                        object pointA;
+                        object pointB;
+                        double distance;
+                        int result;
+                        try
+                        {
+                            result = aFace.GetDistance(
+                                bFace,
+                                true,
+                                null!,
+                                out pointA,
+                                out pointB,
+                                out distance);
+                        }
+                        catch (COMException)
+                        {
+                            failureCount++;
+                            continue;
+                        }
+
+                        if (result != 0 || distance < 0.0 || !double.IsFinite(distance))
+                        {
+                            failureCount++;
+                            continue;
+                        }
+
+                        if (bestDistance is null || distance < bestDistance.Value)
+                        {
+                            bestDistance = distance;
+                            bestPointA = ToDoubleArray(pointA);
+                            bestPointB = ToDoubleArray(pointB);
+                        }
+                    }
+                }
+            }
+        }
+
+        return new TemporaryDistanceResult(
+            bestDistance,
+            bestPointA,
+            bestPointB,
+            facePairCount,
+            failureCount);
+    }
+
+    private static IEntity[] GetBodyEntities(IBody2 body)
+    {
+        var raw = body.GetFaces();
+        if (raw is null)
+            return Array.Empty<IEntity>();
+
+        if (raw is object[] objects)
+            return objects.OfType<IEntity>().ToArray();
+
+        if (raw is Array array)
+        {
+            var result = new List<IEntity>();
+            foreach (var item in array)
+            {
+                if (item is IEntity entity)
+                    result.Add(entity);
+            }
+            return result.ToArray();
+        }
+
+        throw new CadGroundedException(
+            "unexpected_face_array",
+            $"IBody2.GetFaces returned unsupported type '{raw.GetType().FullName}'.");
+    }
+
+    private static object TransformSnapshot(double[] transformArray)
+    {
+        var rotation9 = transformArray.Take(9).ToArray();
+        var translationM = new[]
+        {
+            transformArray[9],
+            transformArray[10],
+            transformArray[11]
+        };
+
+        return new
+        {
+            array_data = transformArray,
+            rotation9,
+            translation_m = translationM,
+            translation_mm = Scale(translationM, 1000.0),
+            scale = transformArray.Length > 12 ? transformArray[12] : (double?)null
+        };
+    }
+
     private static IBody2[] GetSolidBodies(IComponent2 component)
     {
         object bodiesInfo;
@@ -2243,6 +2934,56 @@ internal static class JsonHelpers
         };
     }
 
+    public static CandidateTransform? GetOptionalCandidateTransform(
+        JsonElement payload,
+        string name)
+    {
+        if (payload.ValueKind != JsonValueKind.Object ||
+            !payload.TryGetProperty(name, out var value))
+            return null;
+
+        if (value.ValueKind != JsonValueKind.Object)
+            throw new ArgumentException($"payload.{name} must be an object.");
+
+        RequireOnlyProperties(value, "rotation9", "translation_mm");
+
+        return new CandidateTransform(
+            GetRequiredFiniteDoubleArray(value, "rotation9", 9, $"payload.{name}"),
+            GetRequiredFiniteDoubleArray(value, "translation_mm", 3, $"payload.{name}"));
+    }
+
+    private static double[] GetRequiredFiniteDoubleArray(
+        JsonElement parent,
+        string name,
+        int expectedLength,
+        string context)
+    {
+        if (!parent.TryGetProperty(name, out var value) ||
+            value.ValueKind != JsonValueKind.Array ||
+            value.GetArrayLength() != expectedLength)
+        {
+            throw new ArgumentException(
+                $"{context}.{name} is required and must contain exactly {expectedLength} numbers.");
+        }
+
+        var result = new double[expectedLength];
+        var index = 0;
+        foreach (var item in value.EnumerateArray())
+        {
+            if (item.ValueKind != JsonValueKind.Number ||
+                !item.TryGetDouble(out var number) ||
+                !double.IsFinite(number))
+            {
+                throw new ArgumentException(
+                    $"{context}.{name}[{index}] must be a finite JSON number.");
+            }
+
+            result[index++] = number;
+        }
+
+        return result;
+    }
+
     public static string[] GetRequiredUniqueStringArray(JsonElement payload, string name)
     {
         if (payload.ValueKind != JsonValueKind.Object ||
@@ -2277,6 +3018,17 @@ internal static class JsonHelpers
         return result.ToArray();
     }
 }
+
+internal sealed record CandidateTransform(
+    double[] rotation9,
+    double[] translation_mm);
+
+internal sealed record TemporaryDistanceResult(
+    double? DistanceM,
+    double[]? PointAM,
+    double[]? PointBM,
+    long FacePairCount,
+    int FailureCount);
 
 internal sealed record Request(string command_id, JsonElement payload)
 {
