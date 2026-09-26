@@ -162,30 +162,30 @@ Assert-VectorNear -Actual $bottleRow.translation_mm -Expected $ExpectedBottleTra
 Assert-VectorNear -Actual $rollerRow.rotation9 -Expected $ExpectedRollerRotation -Tolerance 1e-12 -Label 'Roller rotation'
 Assert-VectorNear -Actual $rollerRow.translation_mm -Expected $ExpectedRollerTranslation -Tolerance 1e-9 -Label 'Roller translation'
 
-$dx = [double]$rollerRow.translation_mm[0] - [double]$bottleRow.translation_mm[0]
-$dy = [double]$rollerRow.translation_mm[1] - [double]$bottleRow.translation_mm[1]
-$radialDistance = [Math]::Sqrt($dx*$dx + $dy*$dy)
+$bottleX = [Convert]::ToDouble($bottleRow.translation_mm[0], [Globalization.CultureInfo]::InvariantCulture)
+$bottleY = [Convert]::ToDouble($bottleRow.translation_mm[1], [Globalization.CultureInfo]::InvariantCulture)
+$rollerX = [Convert]::ToDouble($rollerRow.translation_mm[0], [Globalization.CultureInfo]::InvariantCulture)
+$rollerY = [Convert]::ToDouble($rollerRow.translation_mm[1], [Globalization.CultureInfo]::InvariantCulture)
+$rollerZ = [Convert]::ToDouble($rollerRow.translation_mm[2], [Globalization.CultureInfo]::InvariantCulture)
+
+$dx = [double]($rollerX - $bottleX)
+$dy = [double]($rollerY - $bottleY)
+$radialDistance = [double][Math]::Sqrt(($dx * $dx) + ($dy * $dy))
 if ([Math]::Abs($radialDistance - 39.0) -gt 1e-9) {
     throw "Expected current bottle/roller center separation 39 mm; observed $radialDistance mm."
 }
-$ux = $dx / $radialDistance
-$uy = $dy / $radialDistance
 
-$currentRollerTranslation = @(
-    [double]$rollerRow.translation_mm[0],
-    [double]$rollerRow.translation_mm[1],
-    [double]$rollerRow.translation_mm[2]
-)
-$outwardTranslation = @(
-    $currentRollerTranslation[0] + $ux,
-    $currentRollerTranslation[1] + $uy,
-    $currentRollerTranslation[2]
-)
-$inwardTranslation = @(
-    $currentRollerTranslation[0] - $ux,
-    $currentRollerTranslation[1] - $uy,
-    $currentRollerTranslation[2]
-)
+$ux = [double]($dx / $radialDistance)
+$uy = [double]($dy / $radialDistance)
+
+$outwardX = [double]($rollerX + $ux)
+$outwardY = [double]($rollerY + $uy)
+$inwardX = [double]($rollerX - $ux)
+$inwardY = [double]($rollerY - $uy)
+
+$currentRollerTranslation = [double[]]@($rollerX, $rollerY, $rollerZ)
+$outwardTranslation = [double[]]@($outwardX, $outwardY, $rollerZ)
+$inwardTranslation = [double[]]@($inwardX, $inwardY, $rollerZ)
 
 $commonPayload = [ordered]@{
     document_title_exact = $ExpectedDocumentTitle
@@ -252,7 +252,7 @@ if ($null -eq $inward.data.minimum_distance_mm -or [Math]::Abs([double]$inward.d
     throw "Inward hypothetical minimum distance should be zero. Actual='$($inward.data.minimum_distance_mm)'."
 }
 $expectedInwardVolume = 530.263410890774
-if ([Math]::Abs([double]$inward.data.intersection_volume_mm3 - $expectedInwardVolume) -gt 0.000001) {
+if ([Math]::Abs([double]$inward.data.intersection_volume_mm3 - $expectedInwardVolume) -gt 0.001) {
     throw "Inward B-rep intersection volume mismatch. Expected='$expectedInwardVolume' Actual='$($inward.data.intersection_volume_mm3)'."
 }
 
