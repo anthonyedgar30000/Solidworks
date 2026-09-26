@@ -159,6 +159,9 @@ physical closure, operating motion, or mechanical acceptance.
 
 ### Reference precedence
 
+The v43 Prism reference is now the current capture-topology reference. It consumes bounded projections of the admitted v43 zero-mate observation and Link-1→reaction-base 1.25 mm clearance observation, weakening only the mate-defined/guided-linkage and direct-contact reaction hypotheses they actually bear on. The next declared topology test is exact current-pose slider-to-both-guide-rails contact classification after a fresh V43_WRAP rebind. These point observations do not establish motion, force, restraint, or mechanical acceptance.
+
+
 For the bottle-labeler capture investigation, the v42 reference case and its
 fresh evidence records take precedence over the legacy v21 examples below.
 The v21 commands and role registry remain useful pipeline examples, but are
