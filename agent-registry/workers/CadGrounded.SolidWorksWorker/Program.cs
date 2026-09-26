@@ -9,7 +9,7 @@ namespace CadGrounded.SolidWorksWorker;
 
 internal static class Program
 {
-    internal const string Version = "0.4.3";
+    internal const string Version = "0.4.4";
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         WriteIndented = true,
@@ -1979,7 +1979,10 @@ internal sealed class SolidWorksSession : IDisposable
         const double contactToleranceM = 0.000001;
         const double volumeToleranceM3 = 0.000000000001;
         const int maxBodyPairs = 1024;
-        const long maxFacePairs = 250000;
+
+        var evaluationIsCurrentPose =
+            TransformArraysEquivalent(aCurrentArray, aEvaluationArray) &&
+            TransformArraysEquivalent(bCurrentArray, bEvaluationArray);
 
         if (aBodies.Length == 0 || bBodies.Length == 0)
         {
@@ -2018,8 +2021,8 @@ internal sealed class SolidWorksSession : IDisposable
                 solid_body_count_a = aBodies.Length,
                 solid_body_count_b = bBodies.Length,
                 body_pair_count = 0,
-                face_pair_count = 0L,
-                face_distance_failure_count = 0,
+                face_pair_count = (long?)null,
+                face_distance_failure_count = (int?)null,
                 intersection_body_count = 0,
                 intersection_volume_mm3 = (double?)null,
                 boolean_error_codes = Array.Empty<int>(),
@@ -2110,39 +2113,61 @@ internal sealed class SolidWorksSession : IDisposable
         double? minimumDistanceM = null;
         double[]? closestPointAM = null;
         double[]? closestPointBM = null;
-        long facePairCount = 0;
-        var faceDistanceFailureCount = 0;
+        long? facePairCount = null;
+        int? faceDistanceFailureCount = null;
         string distanceProvenance;
 
         if (intersectionVolumeM3 > volumeToleranceM3 && !hasBooleanError)
         {
-            // Positive exact B-rep intersection means the closed solids overlap,
-            // so the minimum set distance is deterministically zero. We avoid
-            // pretending IModelDoc2.ClosestDistance can measure temporary bodies;
-            // SOLIDWORKS documents that temporary geometric entities are unsupported.
             minimumDistanceM = 0.0;
             distanceProvenance = "derived_zero_from_positive_brep_intersection";
         }
-        else if (!hasBooleanError)
+        else if (hasBooleanError)
         {
-            var distanceResult = MeasureTemporaryBodyDistance(
-                aBodies,
-                aEvaluationTransform,
-                bBodies,
-                bEvaluationTransform,
-                maxFacePairs);
+            distanceProvenance = "not_executed_due_to_boolean_error";
+        }
+        else if (evaluationIsCurrentPose)
+        {
+            object pointA;
+            object pointB;
+            double currentDistanceM;
+            try
+            {
+                currentDistanceM = _doc.ClosestDistance(a, b, out pointA, out pointB);
+            }
+            catch (COMException ex)
+            {
+                throw new CadGroundedException(
+                    "closest_distance_com_fault",
+                    $"IModelDoc2.ClosestDistance failed for current-pose pair " +
+                    $"'{a.Name2}' and '{b.Name2}'.",
+                    ex);
+            }
 
-            minimumDistanceM = distanceResult.DistanceM;
-            closestPointAM = distanceResult.PointAM;
-            closestPointBM = distanceResult.PointBM;
-            facePairCount = distanceResult.FacePairCount;
-            faceDistanceFailureCount = distanceResult.FailureCount;
+            if (currentDistanceM < 0.0)
+            {
+                throw new CadGroundedException(
+                    "closest_distance_failed",
+                    $"IModelDoc2.ClosestDistance returned {currentDistanceM} for " +
+                    $"current-pose pair '{a.Name2}' and '{b.Name2}'.");
+            }
+
+            minimumDistanceM = currentDistanceM;
+            closestPointAM = ToDoubleArray(pointA);
+            closestPointBM = ToDoubleArray(pointB);
             distanceProvenance =
-                "IEntity.GetDistance(minimum=true) over face pairs from transformed temporary body copies";
+                "IModelDoc2.ClosestDistance on current assembly components";
         }
         else
         {
-            distanceProvenance = "not_executed_due_to_boolean_error";
+            // Runtime regression on v43 demonstrated that IEntity.GetDistance
+            // over faces from transformed temporary body copies can report a
+            // zero-distance coincidence for a deliberately displaced,
+            // non-intersecting candidate pose. That observation invalidates it
+            // as engineering evidence for hypothetical clearance. Fail closed
+            // until a validated temporary-body distance primitive is available.
+            distanceProvenance =
+                "unresolved_for_hypothetical_nonintersecting_temporary_bodies";
         }
 
         string classification;
@@ -2150,6 +2175,8 @@ internal sealed class SolidWorksSession : IDisposable
             classification = "indeterminate_boolean_error";
         else if (intersectionVolumeM3 > volumeToleranceM3)
             classification = "physical_interference";
+        else if (!evaluationIsCurrentPose)
+            classification = "noninterfering_contact_or_clearance_unresolved";
         else if (minimumDistanceM is null)
             classification = "indeterminate_distance_unavailable";
         else if (minimumDistanceM.Value > contactToleranceM)
@@ -2206,7 +2233,9 @@ internal sealed class SolidWorksSession : IDisposable
             api_intersection = "IBody2.Operations2(SWBODYINTERSECT) on transformed temporary body copies",
             interpretation_note =
                 "Candidate transforms are absolute assembly-space transforms using SOLIDWORKS MathTransform ArrayData ordering. " +
-                "IModelDoc2.ClosestDistance is intentionally not used for the hypothetical geometry because SOLIDWORKS does not support temporary geometric entities there. " +
+                "Exact B-rep intersection is evaluated on transformed temporary body copies. " +
+                "IModelDoc2.ClosestDistance is used only when both evaluated transforms equal the current assembly pose; " +
+                "hypothetical non-intersecting poses preserve contact-versus-clearance as unresolved because a validated temporary-body minimum-distance primitive is not yet available. " +
                 "No Component2.Transform2 setter, selection, rebuild, save, mate, suppression, or assembly mutation is used.",
             model_mutation = false,
             write_authority = "NONE",
@@ -2446,111 +2475,21 @@ internal sealed class SolidWorksSession : IDisposable
         return copy;
     }
 
-    private static TemporaryDistanceResult MeasureTemporaryBodyDistance(
-        IBody2[] aBodies,
-        MathTransform aTransform,
-        IBody2[] bBodies,
-        MathTransform bTransform,
-        long maxFacePairs)
+    private static bool TransformArraysEquivalent(
+        double[] current,
+        double[] evaluated)
     {
-        double? bestDistance = null;
-        double[]? bestPointA = null;
-        double[]? bestPointB = null;
-        long facePairCount = 0;
-        var failureCount = 0;
+        if (current.Length < 13 || evaluated.Length < 13)
+            return false;
 
-        foreach (var aBody in aBodies)
+        const double tolerance = 1e-10;
+        for (var i = 0; i < 13; i++)
         {
-            foreach (var bBody in bBodies)
-            {
-                var aCopy = CopyAndTransformBody(aBody, aTransform, "A");
-                var bCopy = CopyAndTransformBody(bBody, bTransform, "B");
-                var aFaces = GetBodyEntities(aCopy);
-                var bFaces = GetBodyEntities(bCopy);
-
-                var prospective = facePairCount + (long)aFaces.Length * bFaces.Length;
-                if (prospective > maxFacePairs)
-                {
-                    throw new CadGroundedException(
-                        "hypothetical_face_pair_limit_exceeded",
-                        $"Hypothetical distance calculation would exceed face-pair limit " +
-                        $"{maxFacePairs}; prospective_pairs={prospective}.");
-                }
-
-                foreach (var aFace in aFaces)
-                {
-                    foreach (var bFace in bFaces)
-                    {
-                        facePairCount++;
-
-                        object pointA;
-                        object pointB;
-                        double distance;
-                        int result;
-                        try
-                        {
-                            result = aFace.GetDistance(
-                                bFace,
-                                true,
-                                null!,
-                                out pointA,
-                                out pointB,
-                                out distance);
-                        }
-                        catch (COMException)
-                        {
-                            failureCount++;
-                            continue;
-                        }
-
-                        if (result != 0 || distance < 0.0 || !double.IsFinite(distance))
-                        {
-                            failureCount++;
-                            continue;
-                        }
-
-                        if (bestDistance is null || distance < bestDistance.Value)
-                        {
-                            bestDistance = distance;
-                            bestPointA = ToDoubleArray(pointA);
-                            bestPointB = ToDoubleArray(pointB);
-                        }
-                    }
-                }
-            }
+            if (Math.Abs(current[i] - evaluated[i]) > tolerance)
+                return false;
         }
 
-        return new TemporaryDistanceResult(
-            bestDistance,
-            bestPointA,
-            bestPointB,
-            facePairCount,
-            failureCount);
-    }
-
-    private static IEntity[] GetBodyEntities(IBody2 body)
-    {
-        var raw = body.GetFaces();
-        if (raw is null)
-            return Array.Empty<IEntity>();
-
-        if (raw is object[] objects)
-            return objects.OfType<IEntity>().ToArray();
-
-        if (raw is Array array)
-        {
-            var result = new List<IEntity>();
-            foreach (var item in array)
-            {
-                if (item is IEntity entity)
-                    result.Add(entity);
-            }
-            return result.ToArray();
-        }
-
-        throw new CadGroundedException(
-            "unexpected_face_array",
-            $"IBody2.GetFaces returned unsupported type '{raw.GetType().FullName}'.");
+        return true;
     }
 
     private static object TransformSnapshot(double[] transformArray)
@@ -3022,13 +2961,6 @@ internal static class JsonHelpers
 internal sealed record CandidateTransform(
     double[] rotation9,
     double[] translation_mm);
-
-internal sealed record TemporaryDistanceResult(
-    double? DistanceM,
-    double[]? PointAM,
-    double[]? PointBM,
-    long FacePairCount,
-    int FailureCount);
 
 internal sealed record Request(string command_id, JsonElement payload)
 {
