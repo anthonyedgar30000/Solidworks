@@ -51,6 +51,9 @@ jobs:
       - name: Test component state evidence normalization
         working-directory: agent-registry/workers/CadGrounded.SolidWorksWorker
         run: .\Test-ComponentStateEvidence.ps1
+      - name: Test hypothetical transform source contract
+        working-directory: agent-registry/workers/CadGrounded.SolidWorksWorker
+        run: .\Test-ClassifyContactPairAtTransformSourceContract.ps1
       - name: Test interface contract evidence normalization
         working-directory: agent-registry/workers/CadGrounded.SolidWorksWorker
         run: .\Test-InterfaceContractEvidence.ps1
