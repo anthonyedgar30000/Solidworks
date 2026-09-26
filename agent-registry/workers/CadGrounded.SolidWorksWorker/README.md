@@ -231,6 +231,35 @@ The local v42 evidence contract and result-interpretation limits are in
 does not alter any Remote Queue file, allowlist, or authority.
 
 
+## V43 hypothetical contact-at-transform regression
+
+`Verify-ClassifyContactAtTransform-V43.ps1` is the local-only runtime regression
+for `sw.classify_contact_pair_at_transform`. It binds the exact active
+`IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE` / `V43_WRAP`
+snapshot and the exact pair `BENCH_BOTTLE_D48_H180-2` ↔
+`FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25-1`.
+
+It verifies three states without assigning `Component2.Transform2`:
+
+- current pose: contact/coincidence within tolerance with zero B-rep overlap;
+- +1 mm radial outward candidate: zero B-rep overlap and
+  `noninterfering_contact_or_clearance_unresolved`, with hypothetical distance
+  deliberately left unresolved;
+- -1 mm radial inward candidate: `physical_interference` with the deterministic
+  B-rep overlap expected for the exact D48/D30 geometry.
+
+The verifier also compares the SOLIDWORKS process ID, exact document/configuration,
+target component transforms/state, and assembly-file evidence before and after.
+It writes a timestamped UTF-8-without-BOM summary under
+`verification-output\classify-contact-at-transform-v43`.
+
+Run it from the worker directory:
+
+    .\Verify-ClassifyContactAtTransform-V43.ps1
+
+This is a bounded capability regression, not a general reachable-motion,
+clearance, force, preload, sequence, or mechanical-acceptance test.
+
 ## V43 Prism link-to-reaction-base verifier
 
 `Verify-ClassifyContact-V43-Prism.ps1` is a local-only, current-pose verifier
