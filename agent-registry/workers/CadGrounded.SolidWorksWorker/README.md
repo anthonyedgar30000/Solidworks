@@ -87,7 +87,7 @@ Example:
     {
       "command_id": "sw.classify_contact_pair_at_transform",
       "payload": {
-        "document_title_exact": "IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE.SLDASM",
+        "document_title_exact": "IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE",
         "document_path_exact": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE.SLDASM",
         "active_configuration_exact": "Default",
         "a_name_exact": "EXACT_COMPONENT_A-1",
