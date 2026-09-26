@@ -367,6 +367,14 @@ derived current-state projection changes from `CURRENT` to `STALE`, with
 `STALE_STATE` recorded on the invalidation event. Mechanical acceptance
 remains false.
 
+The projection deliberately exposes both the immutable admission classification
+(`evidence_type`, `evidence_state`, source authority/classification) and the
+derived current `validity_state`. Re-indexing the same immutable
+`EvidenceRecord` never resets a projected `STALE` record back to the
+record's source `CURRENT` value. Consumers can therefore distinguish
+“historically verified/measured” from “currently applicable” without
+rewriting provenance or resurrecting invalidated evidence.
+
 Run the focused regression:
 
 ```powershell
