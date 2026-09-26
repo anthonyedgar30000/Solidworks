@@ -34,6 +34,12 @@ class V42InterfaceEvidenceAdmissionTests(unittest.TestCase):
         with self.assertRaisesRegex(AdmissionError, "SHA-256"):
             admit_host_artifact(artifact)
 
+    def test_windows_style_uppercase_digest_is_canonicalized(self):
+        artifact = copy.deepcopy(self.artifact)
+        artifact["artifact_sha256"] = "A" * 64
+        record = admit_host_artifact(artifact)
+        self.assertEqual(record["provenance"]["sha256"], "a" * 64)
+
     def test_only_bounded_identity_and_frame_claims_are_current(self):
         graph = build_dependency_graph(self.record)
         states = {node["id"]: node["state"] for node in graph["nodes"]}

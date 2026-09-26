@@ -25,7 +25,7 @@ DOCUMENT_PATH = r"C:\ChatGPT\Solidworks\IXOR\CAB_IXOR_6130800\IXOR_Benchmark_v42
 CONFIGURATION = "Default"
 MERGE_SHA = "9b52604d593f33743bf86f3edff0cb7cedd2b853"
 PR20_HEAD_SHA = "04ef98bb1769dfc6af6d890f9338bafd42be517e"
-SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
+SHA256_RE = re.compile(r"^[0-9A-Fa-f]{64}$")
 
 CURRENT_CLAIMS = (
     "V42.PRODUCT_ENTRY_INTERFACE_IDENTITY",
@@ -104,6 +104,7 @@ def admit_host_artifact(artifact: Mapping[str, Any]) -> dict[str, Any]:
             "An externally computed SHA-256 for the exact passed Windows-host "
             "verification-summary.json is required for admission"
         )
+    artifact_sha256 = artifact_sha256.lower()
     recorded_at = artifact.get("recorded_at")
     if not isinstance(recorded_at, str) or not recorded_at:
         raise AdmissionError(
