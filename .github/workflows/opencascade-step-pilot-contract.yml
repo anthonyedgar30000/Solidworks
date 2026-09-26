@@ -1,0 +1,31 @@
+name: Open CASCADE STEP pilot contract
+
+on:
+  pull_request:
+    paths:
+      - 'agent-registry/docs/OPENCASCADE_STEP_PILOT_V1.md'
+      - 'agent-registry/sidecars/pilots/opencascade-al-carriage-pilot.v1.json'
+      - 'agent-registry/sidecars/opencascade/Prepare-OpenCascade-Step-Pilot-V1.ps1'
+      - 'agent-registry/tests/Test-OpenCascade-Step-Pilot-Contract.ps1'
+      - '.github/workflows/opencascade-step-pilot-contract.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'agent-registry/docs/OPENCASCADE_STEP_PILOT_V1.md'
+      - 'agent-registry/sidecars/pilots/opencascade-al-carriage-pilot.v1.json'
+      - 'agent-registry/sidecars/opencascade/Prepare-OpenCascade-Step-Pilot-V1.ps1'
+      - 'agent-registry/tests/Test-OpenCascade-Step-Pilot-Contract.ps1'
+      - '.github/workflows/opencascade-step-pilot-contract.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  source-contract:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify Open CASCADE STEP pilot contract
+        shell: pwsh
+        run: ./agent-registry/tests/Test-OpenCascade-Step-Pilot-Contract.ps1
