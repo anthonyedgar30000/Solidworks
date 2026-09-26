@@ -327,6 +327,13 @@ def validate_evidence_record(record: Any) -> dict[str, Any]:
     if record.get("record_type") != "evidence":
         raise IncrementalEvidenceError("record_type must be evidence")
     _nonempty(record.get("evidence_id"), "evidence_id")
+    for field in (
+        "evidence_type",
+        "evidence_state",
+        "source_authority",
+        "source_classification",
+    ):
+        _nonempty(record.get(field), field)
     dependencies = record.get("dependencies")
     if not isinstance(dependencies, list):
         raise IncrementalEvidenceError("EvidenceRecord.dependencies must be an array")
@@ -352,9 +359,23 @@ def index_evidence_record(
     evidence_id = record["evidence_id"]
     record_sha256 = sha256_json(record)
     scope = record.get("temporal_scope") or {}
-    validity = scope.get("validity_state", "UNKNOWN")
-    if validity not in {"CURRENT", "STALE", "UNKNOWN"}:
-        raise IncrementalEvidenceError(f"invalid temporal validity_state: {validity}")
+    source_validity = scope.get("validity_state", "UNKNOWN")
+    if source_validity not in {"CURRENT", "STALE", "UNKNOWN"}:
+        raise IncrementalEvidenceError(
+            f"invalid temporal validity_state: {source_validity}"
+        )
+    admission = {
+        "evidence_type": record["evidence_type"],
+        "evidence_state": record["evidence_state"],
+        "source_authority": record["source_authority"],
+        "source_classification": record["source_classification"],
+    }
+    projection_metadata = {
+        "projection_only": True,
+        "admission": admission,
+        "source_temporal_scope": scope,
+        "mechanical_acceptance_granted": False,
+    }
 
     with db_conn(db) as connection:
         if connection.execute("SELECT 1 FROM worlds WHERE id=?", (world_id,)).fetchone() is None:
@@ -380,14 +401,21 @@ def index_evidence_record(
                 world_id,
                 evidence_id,
                 record_sha256,
-                validity,
-                canonical_json(
-                    {
-                        "projection_only": True,
-                        "source_temporal_scope": scope,
-                        "mechanical_acceptance_granted": False,
-                    }
-                ),
+                source_validity,
+                canonical_json(projection_metadata),
+            ),
+        )
+        # Re-indexing the same immutable EvidenceRecord may enrich projection
+        # metadata, but it must never reset a derived STALE projection back to
+        # the record's admission-time/source validity.
+        connection.execute(
+            "UPDATE evidence_validity_projection SET metadata_json=? "
+            "WHERE world_id=? AND evidence_id=? AND record_sha256=?",
+            (
+                canonical_json(projection_metadata),
+                world_id,
+                evidence_id,
+                record_sha256,
             ),
         )
         for dependency in record["dependencies"]:
@@ -397,11 +425,25 @@ def index_evidence_record(
                 ") VALUES(?,?,?,datetime('now'))",
                 (world_id, evidence_id, dependency),
             )
+
+        projection = connection.execute(
+            "SELECT validity_state,last_invalidation_event_id "
+            "FROM evidence_validity_projection "
+            "WHERE world_id=? AND evidence_id=?",
+            (world_id, evidence_id),
+        ).fetchone()
+        if projection is None:
+            raise IncrementalEvidenceError(
+                f"failed to materialize validity projection for {evidence_id}"
+            )
     return {
         "evidence_id": evidence_id,
         "record_sha256": record_sha256,
         "dependency_count": len(record["dependencies"]),
-        "validity_state": validity,
+        "source_validity_state": source_validity,
+        "validity_state": projection["validity_state"],
+        "last_invalidation_event_id": projection["last_invalidation_event_id"],
+        "admission": admission,
     }
 
 
@@ -501,11 +543,24 @@ def validity_projection(db: Path, world_id: str) -> list[dict[str, Any]]:
     init_db(db)
     with db_conn(db) as connection:
         rows = connection.execute(
-            "SELECT evidence_id,record_sha256,validity_state,last_invalidation_event_id "
-            "FROM evidence_validity_projection WHERE world_id=? ORDER BY evidence_id",
+            "SELECT evidence_id,record_sha256,validity_state,last_invalidation_event_id,"
+            "metadata_json FROM evidence_validity_projection "
+            "WHERE world_id=? ORDER BY evidence_id",
             (world_id,),
         ).fetchall()
-    return [dict(row) for row in rows]
+
+    projected: list[dict[str, Any]] = []
+    for row in rows:
+        item = dict(row)
+        metadata = json.loads(item.pop("metadata_json"))
+        source_scope = metadata.get("source_temporal_scope") or {}
+        item["source_validity_state"] = source_scope.get(
+            "validity_state", "UNKNOWN"
+        )
+        item["admission"] = metadata.get("admission") or {}
+        item["projection_only"] = metadata.get("projection_only") is True
+        projected.append(item)
+    return projected
 
 
 def _load_json(path: Path) -> dict[str, Any]:
