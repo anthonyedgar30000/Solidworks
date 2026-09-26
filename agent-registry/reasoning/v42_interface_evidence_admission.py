@@ -25,6 +25,7 @@ DOCUMENT_PATH = r"C:\ChatGPT\Solidworks\IXOR\CAB_IXOR_6130800\IXOR_Benchmark_v42
 CONFIGURATION = "Default"
 MERGE_SHA = "9b52604d593f33743bf86f3edff0cb7cedd2b853"
 PR20_HEAD_SHA = "04ef98bb1769dfc6af6d890f9338bafd42be517e"
+SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 
 CURRENT_CLAIMS = (
     "V42.PRODUCT_ENTRY_INTERFACE_IDENTITY",
@@ -97,6 +98,17 @@ def validate_evidence_record(record: Mapping[str, Any], schema: Mapping[str, Any
 
 
 def admit_host_artifact(artifact: Mapping[str, Any]) -> dict[str, Any]:
+    artifact_sha256 = artifact.get("artifact_sha256")
+    if not isinstance(artifact_sha256, str) or not SHA256_RE.fullmatch(artifact_sha256):
+        raise AdmissionError(
+            "An externally computed SHA-256 for the exact passed Windows-host "
+            "verification-summary.json is required for admission"
+        )
+    recorded_at = artifact.get("recorded_at")
+    if not isinstance(recorded_at, str) or not recorded_at:
+        raise AdmissionError(
+            "The externally supplied verification artifact recorded_at timestamp is required"
+        )
     if artifact.get("result") != "PASS": raise AdmissionError("Host artifact did not pass")
     if artifact.get("write_authority") != "NONE" or artifact.get("model_mutation") is not False:
         raise AdmissionError("Host artifact is not read-only")
@@ -123,11 +135,11 @@ def admit_host_artifact(artifact: Mapping[str, Any]) -> dict[str, Any]:
 
     return {
         "schema_version": 1, "record_type": "evidence",
-        "evidence_id": "v42.interface.host-observation.2026-09-25",
+        "evidence_id": f"v42.interface.host-observation.sha256-{artifact_sha256}",
         "evidence_type": "solidworks_observation", "evidence_state": "VERIFIED",
         "source_authority": "SOLIDWORKS_LIVE_STATE", "source_classification": "verified_from_solidworks_api",
         "subject": {"subject_type": "SOLIDWORKS_ASSEMBLY_INTERFACE", "identity_exact": DOCUMENT_TITLE, "document_title_exact": DOCUMENT_TITLE, "document_path_exact": DOCUMENT_PATH},
-        "provenance": {"recorded_at": artifact["recorded_at"], "source_ref": artifact["artifact_ref"], "tool_path": "Verify-InterfaceContract-V42.ps1", "job_id": "PR-20-WINDOWS-HOST-VERIFY"},
+        "provenance": {"recorded_at": recorded_at, "source_ref": artifact["artifact_ref"], "sha256": artifact_sha256, "tool_path": "Verify-InterfaceContract-V42.ps1", "job_id": "PR-20-WINDOWS-HOST-VERIFY"},
         "dependencies": [f"github:pull/20/head/{PR20_HEAD_SHA}", f"github:commit/{MERGE_SHA}"],
         "geometry_state": "FIT_CHECK", "temporal_scope": {"coverage": "POINT_ONLY", "validity_state": "CURRENT", "state_ids": ["V42.INTERFACE_READ"], "transition_ids": []},
         "ambiguity_bucket": "MECHANICAL_ACCEPTANCE_BLOCKED", "mechanical_acceptance_granted": False,

@@ -1,6 +1,5 @@
 {
-  "artifact_ref": "PR#20:Verify-InterfaceContract-V42.ps1:verification-summary.json",
-  "recorded_at": "2026-09-25T22:10:54Z",
+  "artifact_ref": "C:\\ChatGPT\\Solidworks-pr20\\agent-registry\\workers\\CadGrounded.SolidWorksWorker\\verification-output\\interface-contract-v42\\verification-summary.json",
   "result": "PASS",
   "write_authority": "NONE",
   "model_mutation": false,
