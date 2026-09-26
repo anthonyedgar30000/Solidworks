@@ -1,0 +1,27 @@
+name: V43 Prism mate-read contract
+
+on:
+  pull_request:
+    paths:
+      - 'agent-registry/workers/CadGrounded.SolidWorksWorker/Verify-QueryMates-V43-Prism.ps1'
+      - 'agent-registry/tests/Test-Verify-QueryMates-V43-Prism-SourceContract.ps1'
+      - '.github/workflows/v43-prism-mate-read-contract.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'agent-registry/workers/CadGrounded.SolidWorksWorker/Verify-QueryMates-V43-Prism.ps1'
+      - 'agent-registry/tests/Test-Verify-QueryMates-V43-Prism-SourceContract.ps1'
+      - '.github/workflows/v43-prism-mate-read-contract.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  source-contract:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify bounded read-only source contract
+        shell: pwsh
+        run: ./agent-registry/tests/Test-Verify-QueryMates-V43-Prism-SourceContract.ps1
