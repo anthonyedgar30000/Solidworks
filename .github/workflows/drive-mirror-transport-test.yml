@@ -1,0 +1,30 @@
+name: Drive mirror transport test
+
+on:
+  pull_request:
+    paths:
+      - "agent-registry/drive-transport-v1/**"
+      - ".github/workflows/drive-mirror-transport-test.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "agent-registry/drive-transport-v1/**"
+      - ".github/workflows/drive-mirror-transport-test.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  idempotency:
+    name: Mirror result idempotency
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: powershell
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run file-only mirror transport regression
+        working-directory: agent-registry/drive-transport-v1
+        run: .\tests\Test-CADDriveMirrorTransportIdempotency.ps1
