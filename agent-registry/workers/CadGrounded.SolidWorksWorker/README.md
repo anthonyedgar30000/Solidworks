@@ -1,4 +1,4 @@
-# CADGrounded native C# SOLIDWORKS worker v0.4.2
+# CADGrounded native C# SOLIDWORKS worker v0.4.3
 
 Purpose: keep the SOLIDWORKS COM/API boundary inside a narrow native C# process with a hard read-only command allowlist.
 
@@ -13,6 +13,7 @@ There is no generic code-execution command and no CAD write command.
 - `sw.diagnose_feature_manager_tree` (local-only; not Remote Queue authorized)
 - `sw.closest_distance_pair`
 - `sw.classify_contact_pair` (native-only unless separately authorized by a transport policy)
+- `sw.classify_contact_pair_at_transform` (native-only hypothetical fit check; never assigns `Component2.Transform2`)
 - `sw.query_mates`
 
 `sw.query_interface_contract` requires exact requested coordinate-system feature
@@ -64,6 +65,62 @@ It deliberately does not call the assembly interference detector. Distance alone
 ## `sw.classify_contact_pair`
 
 This worker command uses `IModelDoc2.ClosestDistance` and, only for near-zero pairs, Boolean intersection on transformed temporary body copies. It does not mutate the assembly model. Remote exposure is a separate policy decision.
+
+## `sw.classify_contact_pair_at_transform`
+
+This is a bounded native-only hypothetical fit-check primitive. It evaluates two
+exact top-level components at absolute candidate assembly-space transforms
+without moving either component in the assembly.
+
+The request must bind to the exact active document title, path, and active
+configuration. Each component candidate is optional. When omitted, that
+component's current `Transform2` is read and used as the evaluation transform.
+When supplied, a candidate contains exactly:
+
+- `rotation9`: nine finite doubles in SOLIDWORKS `MathTransform.ArrayData`
+  rotation ordering; the matrix must already be a proper right-handed
+  orthonormal rotation;
+- `translation_mm`: three finite doubles in millimetres.
+
+Example:
+
+    {
+      "command_id": "sw.classify_contact_pair_at_transform",
+      "payload": {
+        "document_title_exact": "IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE.SLDASM",
+        "document_path_exact": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE.SLDASM",
+        "active_configuration_exact": "Default",
+        "a_name_exact": "EXACT_COMPONENT_A-1",
+        "b_name_exact": "EXACT_COMPONENT_B-1",
+        "a_candidate_transform": {
+          "rotation9": [1,0,0,0,1,0,0,0,1],
+          "translation_mm": [100,200,300]
+        }
+      }
+    }
+
+The worker obtains source solids with `IComponent2.GetBodies3`, copies them with
+`IBody2.Copy`, and applies only the evaluation transforms to those temporary
+copies. It performs B-rep intersection with
+`IBody2.Operations2(SWBODYINTERSECT)`. For non-intersecting temporary solids it
+measures face-pair minimum distance with `IEntity.GetDistance`.
+
+`IModelDoc2.ClosestDistance` is deliberately **not** used for hypothetical
+geometry because SOLIDWORKS documents that temporary geometric entities are
+unsupported by that method. Positive B-rep intersection deterministically
+implies zero set distance; otherwise the face-pair distance is reported when
+available. Body-pair and face-pair work are explicitly bounded and fail closed
+when limits are exceeded.
+
+The response includes current and evaluated transforms, exact component
+identities, distance evidence when available, intersection volume,
+classification, API provenance, `model_mutation: false`, and
+`write_authority: "NONE"`.
+
+This command never assigns `Component2.Transform2`; it does not select, move,
+mate, rebuild, save, suppress, or otherwise modify the assembly. Native
+capability does **not** authorize Remote Queue exposure. Remote Queue schema,
+validator, config, and allowlist remain unchanged until separately reviewed.
 
 ## `sw.query_mates`
 
@@ -154,7 +211,7 @@ A passing CI compile catches C# source and Windows-target build regressions befo
 
 1. The GitHub Actions Windows compile gate must pass.
 2. Build successfully on the SOLIDWORKS Windows host with `build.cmd` (installed interop DLLs).
-3. Run `version` and verify worker version `0.4.2`.
+3. Run `version` and verify worker version `0.4.3`.
 4. Run `status` and verify `write_authority: NONE` and the exact active document.
 5. Run `mates --component <exact Name2>` against a known component.
 6. For the v42 capture-owner investigation, run `Verify-QueryMates-V42.ps1` against the exact active v42 assembly. It compares document identity/configuration/save state, target component state/transforms, and assembly file evidence before and after the three target mate reads.
