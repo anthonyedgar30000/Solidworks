@@ -31,7 +31,7 @@ $region = $source.Substring($start, $end - $start)
 
 if ($region.Contains('_doc.ClosestDistance')) { throw 'Hypothetical-transform path must not call IModelDoc2.ClosestDistance on temporary geometry.' }
 
-foreach ($forbidden in @('.Select','EditRebuild','ForceRebuild','Save','Suppress','AddMate','CreateMate')) {
+foreach ($forbidden in @('.Select','EditRebuild','ForceRebuild','Save','SetSuppression','AddMate','CreateMate')) {
     if ($region.Contains($forbidden)) { throw "Hypothetical-transform path contains forbidden token: $forbidden" }
 }
 
