@@ -1,0 +1,26 @@
+name: Temporal planning ledger
+
+on:
+  pull_request:
+    paths:
+      - "agent-registry/planning/**"
+      - "agent-registry/schemas/temporal-plan-ledger.v1.schema.json"
+      - ".github/workflows/temporal-planning-ledger.yml"
+  push:
+    branches: [main]
+    paths:
+      - "agent-registry/planning/**"
+      - "agent-registry/schemas/temporal-plan-ledger.v1.schema.json"
+      - ".github/workflows/temporal-planning-ledger.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  replay:
+    name: Replay ledger links
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate append-only plan lineage
+        run: python3 agent-registry/planning/temporal_planning.py
