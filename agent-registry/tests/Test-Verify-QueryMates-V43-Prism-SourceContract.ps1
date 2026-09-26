@@ -10,7 +10,7 @@ if (-not (Test-Path -LiteralPath $scriptPath -PathType Leaf)) {
 $text = [System.IO.File]::ReadAllText($scriptPath)
 $requiredLiterals = @(
     'IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE',
-    "[string]`$ExpectedDocumentPath = '$canonical'",
+    "[string]`$ExpectedDocumentPath = 'C:\ChatGPT\Solidworks\IXOR\CAB_IXOR_6130800\IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE.SLDASM'",
     'executed_at_utc = $executedAtUtc',
     'FITCHECK_PRISM_CARRIER_SLIDER_15x80x60_V43-1',
     'FITCHECK_PRISM_LINK_15x10x25_V43-1',
