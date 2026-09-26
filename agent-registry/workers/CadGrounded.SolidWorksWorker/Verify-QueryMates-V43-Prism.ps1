@@ -76,6 +76,7 @@ function Get-DocumentState {
     param([Parameter(Mandatory=$true)]$StatusEnvelope)
 
     return [ordered]@{
+        solidworks_process_id = [string]$StatusEnvelope.data.solidworks_process_id
         title = [string]$StatusEnvelope.data.document.title
         path = [string]$StatusEnvelope.data.document.path
         type = [string]$StatusEnvelope.data.document.type
@@ -184,7 +185,7 @@ if (($targetStateBefore | ConvertTo-Json -Depth 20 -Compress) -cne
 
 if (($documentStateBefore | ConvertTo-Json -Depth 10 -Compress) -cne
     ($documentStateAfter | ConvertTo-Json -Depth 10 -Compress)) {
-    throw 'Active document identity, configuration, or dirty/save state changed during read-only mate queries.'
+    throw 'SOLIDWORKS process identity, active document identity, configuration, or dirty/save state changed during read-only mate queries.'
 }
 
 if ($fileBefore.sha256 -cne $fileAfter.sha256 -or
@@ -232,7 +233,7 @@ $verification = [ordered]@{
             'exact target identity and parent chain',
             'incident active-assembly mate identities/types/suppression observation',
             'reported mate variation values when the API exposes them',
-            'pre/post document, target-state, and assembly-file comparison'
+            'pre/post SOLIDWORKS process/document, target-state, and assembly-file comparison'
         )
         does_not_establish = @(
             'physical closure owner',
@@ -241,7 +242,7 @@ $verification = [ordered]@{
             'mechanical acceptance'
         )
     }
-    limitation = 'PASS proves no observed active-document configuration/save-state, target transform/state, or assembly-file change during these queries. Mate and parentage data may narrow the kinematic-binding frontier but cannot by themselves prove physical closure, preload, contact force, operating motion, or mechanical acceptance.'
+    limitation = 'PASS proves the same observed SOLIDWORKS process remained bound and no active-document configuration/save-state, target transform/state, or assembly-file change occurred during these queries. Mate and parentage data may narrow the kinematic-binding frontier but cannot by themselves prove physical closure, preload, contact force, operating motion, or mechanical acceptance.'
 }
 
 $verificationPath = Join-Path $OutputRoot 'verification-summary.json'
