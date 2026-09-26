@@ -9,7 +9,7 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
-$ExpectedWorkerVersion = '0.4.2'
+$ExpectedWorkerVersion = '0.4.3'
 $WorkerRoot = $PSScriptRoot
 . (Join-Path $WorkerRoot 'FileEvidence.ps1')
 . (Join-Path $WorkerRoot 'ComponentStateEvidence.ps1')
@@ -88,6 +88,7 @@ function Get-DocumentState {
     param([Parameter(Mandatory=$true)]$StatusEnvelope)
 
     return [ordered]@{
+        solidworks_process_id = [string]$StatusEnvelope.data.solidworks_process_id
         title = [string]$StatusEnvelope.data.document.title
         path = [string]$StatusEnvelope.data.document.path
         type = [string]$StatusEnvelope.data.document.type
@@ -161,7 +162,7 @@ if (($targetStateBefore | ConvertTo-Json -Depth 20 -Compress) -cne
 }
 if (($documentStateBefore | ConvertTo-Json -Depth 10 -Compress) -cne
     ($documentStateAfter | ConvertTo-Json -Depth 10 -Compress)) {
-    throw 'Active document identity, configuration, or dirty/save state changed during read-only contact query.'
+    throw 'SOLIDWORKS process identity, active document identity, configuration, or dirty/save state changed during read-only contact query.'
 }
 if ($fileBefore.sha256 -cne $fileAfter.sha256 -or
     $fileBefore.length -ne $fileAfter.length -or
@@ -201,7 +202,7 @@ $verification = [ordered]@{
         establishes = @(
             'exact current-pose pair identity',
             'minimum distance and returned current-pose contact classification',
-            'pre/post document, target-state, and assembly-file comparison'
+            'pre/post SOLIDWORKS process/document, target-state, and assembly-file comparison'
         )
         does_not_establish = @(
             'mechanical linkage outside the exact pair',
