@@ -17,7 +17,7 @@ Assert-Contains $source '"sw.classify_contact_pair_at_transform"' 'Native allowl
 Assert-Contains $source 'public object ClassifyContactPairAtTransform(' 'ClassifyContactPairAtTransform method is missing.'
 Assert-Contains $source 'IComponent2.GetBodies3(swSolidBody)' 'Hypothetical result provenance no longer names GetBodies3.'
 Assert-Contains $source 'IBody2.Copy + IBody2.ApplyTransform on temporary copies only' 'Hypothetical temporary-body transform provenance is missing.'
-Assert-Contains $source 'IEntity.GetDistance(minimum=true)' 'Hypothetical temporary-body distance provenance is missing.'
+Assert-Contains $source 'unresolved_for_hypothetical_nonintersecting_temporary_bodies' 'Hypothetical non-intersection must fail closed when temporary-body distance is unresolved.'
 Assert-Contains $source 'IBody2.Operations2(SWBODYINTERSECT)' 'Hypothetical B-rep intersection provenance is missing.'
 Assert-Contains $source 'model_mutation = false' 'Worker source no longer reports model_mutation=false.'
 Assert-Contains $source 'write_authority = "NONE"' 'Worker source no longer reports write_authority=NONE.'
@@ -29,14 +29,18 @@ $end = $source.IndexOf('private static IBody2[] GetSolidBodies(', $start, [Strin
 if ($start -lt 0 -or $end -le $start) { throw 'Could not isolate ClassifyContactPairAtTransform source region.' }
 $region = $source.Substring($start, $end - $start)
 
-if ($region.Contains('_doc.ClosestDistance')) { throw 'Hypothetical-transform path must not call IModelDoc2.ClosestDistance on temporary geometry.' }
+Assert-Contains $region 'evaluationIsCurrentPose' 'Current-pose guard is missing.'
+Assert-Contains $region '_doc.ClosestDistance' 'Current-pose distance path is missing.'
+Assert-Contains $region 'noninterfering_contact_or_clearance_unresolved' 'Hypothetical non-intersection fail-closed classification is missing.'
 
 foreach ($forbidden in @('.Select','EditRebuild','ForceRebuild','Save','SetSuppression','AddMate','CreateMate')) {
     if ($region.Contains($forbidden)) { throw "Hypothetical-transform path contains forbidden token: $forbidden" }
 }
 
-foreach ($required in @('RequireExactActiveDocument(','GetSolidBodies(','CopyAndTransformBody(','Operations2(','MeasureTemporaryBodyDistance(','maxBodyPairs','maxFacePairs')) {
+foreach ($required in @('RequireExactActiveDocument(','GetSolidBodies(','CopyAndTransformBody(','Operations2(','maxBodyPairs','TransformArraysEquivalent(')) {
     if (-not $region.Contains($required)) { throw "Hypothetical-transform path is missing required token: $required" }
 }
 
 Write-Output 'PASS: hypothetical contact-at-transform source contract preserves bounded read-only behavior.'
+
+if ($region.Contains('IEntity.GetDistance')) { throw 'Hypothetical-transform path must not use unvalidated IEntity.GetDistance on temporary geometry.' }
