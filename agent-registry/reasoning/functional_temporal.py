@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import argparse
 import copy
+import hashlib
 import json
 from collections import defaultdict, deque
 from pathlib import Path
@@ -124,6 +125,134 @@ HYPOTHESIS_INVESTIGATION_STATES = {
     "ACTIVE",
     "EXHAUSTED",
 }
+
+
+def evidence_record_sha256(record: Mapping[str, Any]) -> str:
+    """Return the immutable EvidenceRecord digest used by incremental_evidence.py."""
+
+    canonical = json.dumps(
+        record,
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    )
+    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+
+
+def _validity_projection_index(
+    evidence_index: Mapping[str, Mapping[str, Any]],
+    validity_projection: Sequence[Mapping[str, Any]] | None,
+) -> Dict[str, Dict[str, Any]] | None:
+    """Validate an optional derived current-validity projection.
+
+    When a projection is supplied it becomes the authority for current
+    applicability. Missing rows therefore fail currentness closed instead of
+    falling back to an EvidenceRecord's admission/source validity.
+    """
+
+    if validity_projection is None:
+        return None
+    if not isinstance(validity_projection, list):
+        raise FunctionalTemporalError("validity_projection must be an array")
+
+    indexed: Dict[str, Dict[str, Any]] = {}
+    for position, value in enumerate(validity_projection):
+        row = _as_object(value, f"validity_projection[{position}]")
+        evidence_id = _nonempty_string(
+            row.get("evidence_id"),
+            f"validity_projection[{position}].evidence_id",
+        )
+        if evidence_id in indexed:
+            raise FunctionalTemporalError(
+                f"Duplicate validity projection evidence_id: {evidence_id}"
+            )
+        validity = row.get("validity_state")
+        if validity not in FRESHNESS_STATES:
+            raise FunctionalTemporalError(
+                f"validity_projection[{position}].validity_state is not recognized"
+            )
+        digest = _nonempty_string(
+            row.get("record_sha256"),
+            f"validity_projection[{position}].record_sha256",
+        )
+        if len(digest) != 64 or any(ch not in "0123456789abcdef" for ch in digest):
+            raise FunctionalTemporalError(
+                f"validity_projection[{position}].record_sha256 must be a lowercase SHA-256 digest"
+            )
+        if row.get("projection_only") is not True:
+            raise FunctionalTemporalError(
+                f"validity_projection[{position}].projection_only must be true"
+            )
+        indexed[evidence_id] = dict(row)
+
+    return indexed
+
+
+def _effective_validity(
+    record: Mapping[str, Any],
+    projection_index: Mapping[str, Mapping[str, Any]] | None,
+) -> Dict[str, Any]:
+    source_validity = record["temporal_scope"]["validity_state"]
+    evidence_id = record["evidence_id"]
+
+    if projection_index is None:
+        return {
+            "evidence_id": evidence_id,
+            "source_validity_state": source_validity,
+            "validity_state": source_validity,
+            "projection_applied": False,
+            "projection_missing": False,
+            "last_invalidation_event_id": None,
+        }
+
+    row = projection_index.get(evidence_id)
+    if row is None:
+        return {
+            "evidence_id": evidence_id,
+            "source_validity_state": source_validity,
+            "validity_state": "UNKNOWN",
+            "projection_applied": True,
+            "projection_missing": True,
+            "last_invalidation_event_id": None,
+        }
+
+    expected_digest = evidence_record_sha256(record)
+    if row["record_sha256"] != expected_digest:
+        raise FunctionalTemporalError(
+            f"validity projection for {evidence_id} does not bind the exact immutable EvidenceRecord"
+        )
+
+    projected_source = row.get("source_validity_state")
+    if projected_source is not None and projected_source != source_validity:
+        raise FunctionalTemporalError(
+            f"validity projection for {evidence_id} conflicts with the EvidenceRecord source validity"
+        )
+
+    admission = row.get("admission")
+    if admission is not None:
+        admission = _as_object(
+            admission,
+            f"validity projection admission for {evidence_id}",
+        )
+        for field in (
+            "evidence_type",
+            "evidence_state",
+            "source_authority",
+            "source_classification",
+        ):
+            if admission.get(field) != record.get(field):
+                raise FunctionalTemporalError(
+                    f"validity projection for {evidence_id} conflicts with immutable admission field {field}"
+                )
+
+    return {
+        "evidence_id": evidence_id,
+        "source_validity_state": source_validity,
+        "validity_state": row["validity_state"],
+        "projection_applied": True,
+        "projection_missing": False,
+        "last_invalidation_event_id": row.get("last_invalidation_event_id"),
+    }
 
 
 def _as_object(value: Any, label: str) -> Dict[str, Any]:
@@ -701,24 +830,36 @@ def _coverage_satisfies(required_scope: Mapping[str, Any], record: Mapping[str, 
     return required_states.issubset(actual_states) and required_transitions.issubset(actual_transitions)
 
 
-def _unresolved_bucket(requirement: Mapping[str, Any], evidence_records: Sequence[Mapping[str, Any]]) -> str:
-    if any(record["temporal_scope"]["validity_state"] == "STALE" for record in evidence_records):
+def _unresolved_bucket(
+    requirement: Mapping[str, Any],
+    evidence_validity: Sequence[Mapping[str, Any]],
+) -> str:
+    if any(item["validity_state"] == "STALE" for item in evidence_validity):
         return "STALE_STATE"
     return requirement["ambiguity_bucket"]
 
 
-def evaluate_requirement(requirement: Mapping[str, Any], evidence_index: Mapping[str, Mapping[str, Any]]) -> Dict[str, Any]:
+def evaluate_requirement(
+    requirement: Mapping[str, Any],
+    evidence_index: Mapping[str, Mapping[str, Any]],
+    validity_projection_index: Mapping[str, Mapping[str, Any]] | None = None,
+) -> Dict[str, Any]:
     """Evaluate a bounded requirement without promoting its underlying facts."""
 
     evidence_records = [evidence_index[evidence_id] for evidence_id in requirement["evidence_refs"]]
+    evidence_validity = [
+        _effective_validity(record, validity_projection_index)
+        for record in evidence_records
+    ]
     declared = requirement["verification_state"]
     base = {
         "requirement_id": requirement["id"],
         "description": requirement["description"],
         "scope": requirement["scope"],
         "evidence_refs": list(requirement["evidence_refs"]),
+        "evidence_validity": evidence_validity,
         "expected_authority": list(requirement["expected_authority"]),
-        "ambiguity_bucket": _unresolved_bucket(requirement, evidence_records),
+        "ambiguity_bucket": _unresolved_bucket(requirement, evidence_validity),
         "reasons": [],
     }
 
@@ -741,7 +882,7 @@ def evaluate_requirement(requirement: Mapping[str, Any], evidence_index: Mapping
         }
 
     failures: List[str] = []
-    for record in evidence_records:
+    for record, currentness in zip(evidence_records, evidence_validity):
         record_id = record["evidence_id"]
         if record["evidence_type"] == "ai_visualization_record" or record["source_authority"] == "GENERATIVE_AI":
             failures.append(f"{record_id} is AI-generated and cannot satisfy an engineering requirement.")
@@ -752,8 +893,20 @@ def evaluate_requirement(requirement: Mapping[str, Any], evidence_index: Mapping
         if record["source_authority"] not in requirement["expected_authority"]:
             failures.append(f"{record_id} has an authority not accepted by this requirement.")
             continue
-        if record["temporal_scope"]["validity_state"] != "CURRENT":
-            failures.append(f"{record_id} is not a current binding for this operating claim.")
+        if currentness["validity_state"] != "CURRENT":
+            if currentness["projection_missing"]:
+                failures.append(
+                    f"{record_id} has no current-validity projection; source validity cannot be used as current proof."
+                )
+            elif currentness["projection_applied"]:
+                failures.append(
+                    f"{record_id} projected validity is {currentness['validity_state']} "
+                    f"(source validity {currentness['source_validity_state']}); it cannot prove the current operating claim."
+                )
+            else:
+                failures.append(
+                    f"{record_id} is not a current binding for this operating claim."
+                )
             continue
         if not _coverage_satisfies(requirement["scope"], record):
             failures.append(
@@ -765,7 +918,7 @@ def evaluate_requirement(requirement: Mapping[str, Any], evidence_index: Mapping
         return {
             **base,
             "state": "UNRESOLVED",
-            "ambiguity_bucket": _unresolved_bucket(requirement, evidence_records),
+            "ambiguity_bucket": _unresolved_bucket(requirement, evidence_validity),
             "reasons": failures,
         }
     return {**base, "state": "VERIFIED", "ambiguity_bucket": None, "reasons": []}
@@ -809,6 +962,7 @@ def rank_next_tests(
     architecture: Mapping[str, Any],
     *,
     evaluation: Mapping[str, Any] | None = None,
+    validity_projection: Sequence[Mapping[str, Any]] | None = None,
 ) -> List[Dict[str, Any]]:
     """Rank declared tests using the project's explicit value formula.
 
@@ -820,7 +974,10 @@ def rank_next_tests(
     """
 
     indexes = validate_architecture(architecture)
-    report = evaluation or evaluate_architecture(architecture)
+    report = evaluation or evaluate_architecture(
+        architecture,
+        validity_projection=validity_projection,
+    )
     requirement_states = report["requirement_states"]
     centrality = _requirement_centrality(indexes)
     hypotheses = indexes["hypotheses"]
@@ -866,18 +1023,30 @@ def rank_next_tests(
     return sorted(ranked, key=lambda candidate: (-candidate["value"], candidate["test_id"]))
 
 
-def evaluate_architecture(architecture: Mapping[str, Any]) -> Dict[str, Any]:
+def evaluate_architecture(
+    architecture: Mapping[str, Any],
+    *,
+    validity_projection: Sequence[Mapping[str, Any]] | None = None,
+) -> Dict[str, Any]:
     """Evaluate local functional/temporal obligations without global acceptance."""
 
     indexes = validate_architecture(architecture)
     evidence = indexes["evidence"]
+    validity_projection_index = _validity_projection_index(
+        evidence,
+        validity_projection,
+    )
     requirements: Dict[str, Mapping[str, Any]] = {
         **indexes["obligations"],
         **indexes["guards"],
         **indexes["invariants"],
     }
     base_requirement_states = {
-        requirement_id: evaluate_requirement(requirement, evidence)
+        requirement_id: evaluate_requirement(
+            requirement,
+            evidence,
+            validity_projection_index,
+        )
         for requirement_id, requirement in requirements.items()
     }
     requirement_states: Dict[str, Dict[str, Any]] = {}
@@ -990,6 +1159,12 @@ def evaluate_architecture(architecture: Mapping[str, Any]) -> Dict[str, Any]:
         "interfaces": interface_results,
         "transitions": transition_results,
         "temporal_coherence_state": temporal_coherence,
+        "validity_projection_applied": validity_projection is not None,
+        "projected_evidence_count": (
+            len(validity_projection_index)
+            if validity_projection_index is not None
+            else 0
+        ),
         "machine_acceptance_state": "MECHANICAL_ACCEPTANCE_BLOCKED",
         "mechanical_acceptance_granted": False,
         "acceptance_boundary": (
@@ -997,7 +1172,11 @@ def evaluate_architecture(architecture: Mapping[str, Any]) -> Dict[str, Any]:
             "acceptance process; they do not grant acceptance."
         ),
     }
-    report["next_test_candidates"] = rank_next_tests(architecture, evaluation=report)
+    report["next_test_candidates"] = rank_next_tests(
+        architecture,
+        evaluation=report,
+        validity_projection=validity_projection,
+    )
     return report
 
 
@@ -1009,8 +1188,11 @@ def _graph_state(result_state: str) -> str:
     return "NULL"
 
 
-def _evidence_graph_state(record: Mapping[str, Any]) -> str:
-    if record["temporal_scope"]["validity_state"] != "CURRENT":
+def _evidence_graph_state(
+    record: Mapping[str, Any],
+    currentness: Mapping[str, Any],
+) -> str:
+    if currentness["validity_state"] != "CURRENT":
         return "NULL"
     if record["evidence_type"] == "ai_visualization_record":
         return "NULL"
@@ -1019,7 +1201,11 @@ def _evidence_graph_state(record: Mapping[str, Any]) -> str:
     return "NULL"
 
 
-def build_epistemic_graph_fragment(architecture: Mapping[str, Any]) -> Dict[str, Any]:
+def build_epistemic_graph_fragment(
+    architecture: Mapping[str, Any],
+    *,
+    validity_projection: Sequence[Mapping[str, Any]] | None = None,
+) -> Dict[str, Any]:
     """Project the architecture into a dependency-graph fragment.
 
     The fragment is intentionally unlinked from a caller's project acceptance
@@ -1028,20 +1214,28 @@ def build_epistemic_graph_fragment(architecture: Mapping[str, Any]) -> Dict[str,
     """
 
     indexes = validate_architecture(architecture)
-    evaluation = evaluate_architecture(architecture)
+    validity_projection_index = _validity_projection_index(
+        indexes["evidence"],
+        validity_projection,
+    )
+    evaluation = evaluate_architecture(
+        architecture,
+        validity_projection=validity_projection,
+    )
     prefix = f"FT::{architecture['architecture_id']}::"
     nodes: List[Dict[str, Any]] = []
     relations: List[Dict[str, Any]] = []
 
     for evidence_id, record in indexes["evidence"].items():
         node_id = f"{prefix}EVIDENCE::{evidence_id}"
+        currentness = _effective_validity(record, validity_projection_index)
         nodes.append(
             {
                 "id": node_id,
                 "kind": "fact",
                 "description": f"EvidenceRecord {evidence_id}",
                 "value": record["evidence_state"],
-                "state": _evidence_graph_state(record),
+                "state": _evidence_graph_state(record, currentness),
                 "authority": record["source_authority"],
                 "criticality": 1,
                 "expected_authority": [record["source_authority"]],
@@ -1050,9 +1244,13 @@ def build_epistemic_graph_fragment(architecture: Mapping[str, Any]) -> Dict[str,
                     "evidence_type": record["evidence_type"],
                     "evidence_state": record["evidence_state"],
                     "temporal_scope": record["temporal_scope"],
+                    "source_validity_state": currentness["source_validity_state"],
+                    "current_validity_state": currentness["validity_state"],
+                    "validity_projection_applied": currentness["projection_applied"],
+                    "last_invalidation_event_id": currentness["last_invalidation_event_id"],
                     "ambiguity_bucket": (
                         "STALE_STATE"
-                        if record["temporal_scope"]["validity_state"] == "STALE"
+                        if currentness["validity_state"] == "STALE"
                         else None
                     ),
                     "mechanical_acceptance_granted": False,
@@ -1234,6 +1432,8 @@ def build_epistemic_graph_fragment(architecture: Mapping[str, Any]) -> Dict[str,
             "ai_evidence_cannot_satisfy_engineering_requirement": True,
             "local_subsystem_pass_does_not_grant_machine_acceptance": True,
             "llm_may_not_promote_unresolved_requirements": True,
+            "current_validity_projection_overrides_source_temporal_scope": True,
+            "validity_projection_requires_exact_record_sha256": True,
         },
     }
 
@@ -1241,6 +1441,8 @@ def build_epistemic_graph_fragment(architecture: Mapping[str, Any]) -> Dict[str,
 def merge_into_epistemic_graph(
     graph: Mapping[str, Any],
     architecture: Mapping[str, Any],
+    *,
+    validity_projection: Sequence[Mapping[str, Any]] | None = None,
 ) -> Dict[str, Any]:
     """Return a new graph with a functional-temporal fragment attached.
 
@@ -1256,7 +1458,10 @@ def merge_into_epistemic_graph(
         _nonempty_string(_as_object(node, "graph node").get("id"), "graph node.id")
         for node in nodes
     }
-    fragment = build_epistemic_graph_fragment(architecture)
+    fragment = build_epistemic_graph_fragment(
+        architecture,
+        validity_projection=validity_projection,
+    )
     fragment_ids = [node["id"] for node in fragment["nodes"]]
     collisions = sorted(existing_ids.intersection(fragment_ids))
     if collisions:
@@ -1290,6 +1495,16 @@ def _load_json_object(path: Path, label: str) -> Dict[str, Any]:
     return _as_object(value, label)
 
 
+def _load_json_array(path: Path, label: str) -> List[Any]:
+    try:
+        value = json.loads(path.read_text(encoding="utf-8-sig"))
+    except OSError as exc:
+        raise FunctionalTemporalError(f"Could not read {label} {path}: {exc}") from exc
+    except json.JSONDecodeError as exc:
+        raise FunctionalTemporalError(f"Invalid JSON {label} {path}: {exc}") from exc
+    return _as_list(value, label)
+
+
 def load_architecture(path: Path) -> Dict[str, Any]:
     return _load_json_object(path, "architecture")
 
@@ -1301,6 +1516,14 @@ def main() -> None:
     parser.add_argument("architecture", type=Path)
     parser.add_argument("--out", type=Path, help="Write the deterministic evaluation report.")
     parser.add_argument(
+        "--validity-projection",
+        type=Path,
+        help=(
+            "Optional incremental-evidence show-validity JSON array. When supplied, "
+            "projected current validity overrides EvidenceRecord source validity after exact SHA-256 binding."
+        ),
+    )
+    parser.add_argument(
         "--base-graph",
         type=Path,
         help="Optional epistemic graph to extend without changing its acceptance obligation.",
@@ -1310,10 +1533,22 @@ def main() -> None:
 
     try:
         architecture = load_architecture(args.architecture)
-        report = evaluate_architecture(architecture)
+        validity_projection = (
+            _load_json_array(args.validity_projection, "validity projection")
+            if args.validity_projection
+            else None
+        )
+        report = evaluate_architecture(
+            architecture,
+            validity_projection=validity_projection,
+        )
         if args.base_graph:
             base_graph = _load_json_object(args.base_graph, "base graph")
-            report["merged_epistemic_graph"] = merge_into_epistemic_graph(base_graph, architecture)
+            report["merged_epistemic_graph"] = merge_into_epistemic_graph(
+                base_graph,
+                architecture,
+                validity_projection=validity_projection,
+            )
     except FunctionalTemporalError as exc:
         raise SystemExit(f"REJECTED: {exc}") from exc
 
