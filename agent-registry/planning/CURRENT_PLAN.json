@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "project_id": "CADGROUNDED.IXOR",
+  "current_plan_id": "PLAN-0002",
+  "previous_plan_id": "PLAN-0001",
+  "latest_divergence_id": "DIV-0001",
+  "latest_reconciliation_id": "RECON-0001",
+  "updated_at_utc": "2026-09-26T20:03:00Z",
+  "status": "ACTIVE_REPLAN_REQUIRED",
+  "authority_note": "GitHub project-state pointer only. SOLIDWORKS remains the authority for live geometry and active document state."
+}
