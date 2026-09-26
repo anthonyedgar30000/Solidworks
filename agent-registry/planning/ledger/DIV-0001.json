@@ -1,0 +1,59 @@
+{
+  "record_type": "divergence_record",
+  "schema_version": 1,
+  "record_id": "DIV-0001",
+  "project_id": "CADGROUNDED.IXOR",
+  "recorded_at_utc": "2026-09-26T20:03:00Z",
+  "from_plan_id": "PLAN-0001",
+  "classification": "STALE_STATE_REPLAN",
+  "trigger": {
+    "basis": "STALE_STATE",
+    "observation_ids": [
+      "OBS_V43_STATUS_20260926",
+      "OBS_V43_TOP_LEVEL_COMPONENTS_20260926"
+    ],
+    "source": "SOLIDWORKS read-only connector"
+  },
+  "observed_state": {
+    "document_title": "IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE",
+    "document_path": "C:\\\\ChatGPT\\\\Solidworks\\\\IXOR\\\\CAB_IXOR_6130800\\\\IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE.SLDASM",
+    "source_classification": "verified_from_solidworks_api",
+    "top_level_component_count": 58,
+    "v43_prism_components": [
+      "FITCHECK_PRISM_GUIDE_RAIL_100x10x10_V43-1",
+      "FITCHECK_PRISM_GUIDE_RAIL_100x10x10_V43-2",
+      "FITCHECK_PRISM_ACTUATOR_ENVELOPE_45x35x35_V43-1",
+      "FITCHECK_PRISM_CARRIER_SLIDER_15x80x60_V43-1",
+      "FITCHECK_PRISM_LINK_15x10x25_V43-1",
+      "FITCHECK_PRISM_LINK_15x10x25_V43-2",
+      "FITCHECK_PRISM_REACTION_BASE_70x120x20_V43-1",
+      "FITCHECK_PRISM_ARM1_33p0824x10x5_V43-1",
+      "FITCHECK_PRISM_ARM2_18p6806x10x5_V43-1"
+    ]
+  },
+  "reason": "The live SOLIDWORKS assembly is a v43 Prism operating candidate rather than the v42 state bound by PLAN-0001. v42-specific projected work must not be presented as current.",
+  "affected_step_outcomes": [
+    {
+      "step_id": "P0001.1",
+      "outcome": "SUPERSEDED",
+      "reason": "The bound document changed before the plan was executed against it."
+    },
+    {
+      "step_id": "P0001.2",
+      "outcome": "STALE_STATE",
+      "reason": "Interface map requires current v43 admission."
+    },
+    {
+      "step_id": "P0001.3",
+      "outcome": "STALE_STATE",
+      "reason": "Contact/clearance probes must be tied to current v43 identity."
+    },
+    {
+      "step_id": "P0001.4",
+      "outcome": "STALE_STATE",
+      "reason": "Sequence and reaction-path assessment depends on the current mechanism."
+    }
+  ],
+  "successor_plan_id": "PLAN-0002",
+  "mechanical_claim_boundary": "This record does not prove motion, preload, force, reaction, timing, release, or mechanical acceptance."
+}

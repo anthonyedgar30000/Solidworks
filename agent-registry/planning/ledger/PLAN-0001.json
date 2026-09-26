@@ -1,0 +1,59 @@
+{
+  "record_type": "plan",
+  "schema_version": 1,
+  "record_id": "PLAN-0001",
+  "project_id": "CADGROUNDED.IXOR",
+  "created_at_utc": "2026-09-26T18:00:00Z",
+  "parent_plan_id": null,
+  "caused_by_divergence_ids": [],
+  "status": "SUPERSEDED_BY_STALE_STATE",
+  "state_binding": {
+    "source": "SOLIDWORKS",
+    "document_title": "IXOR_Benchmark_v42",
+    "document_path": null,
+    "configuration_exact": null,
+    "configuration_state": "UNRESOLVED",
+    "source_observation_ids": [
+      "OBS_V42_PREVIOUS_CAPTURE"
+    ],
+    "freshness": "STALE"
+  },
+  "intent": "Establish a bounded read-only capture/wrap investigation plan for the then-observed v42 state.",
+  "projected_steps": [
+    {
+      "step_id": "P0001.1",
+      "title": "Bind exact v42 host state",
+      "depends_on": [],
+      "write_authority": "NONE",
+      "status": "SUPERSEDED"
+    },
+    {
+      "step_id": "P0001.2",
+      "title": "Map capture and wrap interfaces",
+      "depends_on": [
+        "P0001.1"
+      ],
+      "write_authority": "NONE",
+      "status": "STALE_STATE"
+    },
+    {
+      "step_id": "P0001.3",
+      "title": "Probe bounded contact and clearance evidence",
+      "depends_on": [
+        "P0001.2"
+      ],
+      "write_authority": "NONE",
+      "status": "STALE_STATE"
+    },
+    {
+      "step_id": "P0001.4",
+      "title": "Assess sequence and reaction-path blockers",
+      "depends_on": [
+        "P0001.3"
+      ],
+      "write_authority": "NONE",
+      "status": "STALE_STATE"
+    }
+  ],
+  "acceptance_gate": "No mechanical acceptance from this plan; live state must remain bound and current."
+}
