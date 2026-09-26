@@ -1,4 +1,4 @@
-# CADGrounded native C# SOLIDWORKS worker v0.4.2
+# CADGrounded native C# SOLIDWORKS worker v0.4.3
 
 Purpose: keep the SOLIDWORKS COM/API boundary inside a narrow native C# process with a hard read-only command allowlist.
 
@@ -154,7 +154,7 @@ A passing CI compile catches C# source and Windows-target build regressions befo
 
 1. The GitHub Actions Windows compile gate must pass.
 2. Build successfully on the SOLIDWORKS Windows host with `build.cmd` (installed interop DLLs).
-3. Run `version` and verify worker version `0.4.2`.
+3. Run `version` and verify worker version `0.4.3`.
 4. Run `status` and verify `write_authority: NONE` and the exact active document.
 5. Run `mates --component <exact Name2>` against a known component.
 6. For the v42 capture-owner investigation, run `Verify-QueryMates-V42.ps1` against the exact active v42 assembly. It compares document identity/configuration/save state, target component state/transforms, and assembly file evidence before and after the three target mate reads.
