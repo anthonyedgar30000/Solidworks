@@ -43,4 +43,4 @@ foreach ($required in @('RequireExactActiveDocument(','GetSolidBodies(','CopyAnd
 
 Write-Output 'PASS: hypothetical contact-at-transform source contract preserves bounded read-only behavior.'
 
-if ($region.Contains('IEntity.GetDistance')) { throw 'Hypothetical-transform path must not use unvalidated IEntity.GetDistance on temporary geometry.' }
+if ($region.Contains('.GetDistance(')) { throw 'Hypothetical-transform path must not invoke unvalidated entity distance on temporary geometry.' }
