@@ -1,0 +1,1552 @@
+{
+  "schema_version": 1,
+  "record_type": "evidence",
+  "evidence_id": "E.V43.PRISM.LIVE_STATE.20260926T200826594Z",
+  "evidence_type": "solidworks_observation",
+  "evidence_state": "VERIFIED",
+  "source_authority": "SOLIDWORKS_LIVE_STATE",
+  "source_classification": "verified_from_solidworks_api",
+  "subject": {
+    "subject_type": "active_assembly_top_level_component_inventory",
+    "identity_exact": "IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE | C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE.SLDASM",
+    "document_title_exact": "IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE",
+    "document_path_exact": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE.SLDASM"
+  },
+  "provenance": {
+    "recorded_at": "2026-09-26T20:08:26.594Z",
+    "source_ref": "OBS.V43.STATUS.20260926T200826594Z; OBS.V43.TOP_LEVEL_COMPONENTS.20260926T200826594Z; direct read-only CADGrounded SOLIDWORKS connector calls",
+    "tool_path": "cadgrounded_solidworks_sw_status; cadgrounded_solidworks_sw_query_components(top_level_only=true)"
+  },
+  "dependencies": [
+    "PLAN-0002",
+    "P0002.1"
+  ],
+  "geometry_state": "CANDIDATE_OPERATING",
+  "temporal_scope": {
+    "coverage": "POINT_ONLY",
+    "validity_state": "CURRENT",
+    "state_ids": [
+      "V43.SNAPSHOT.20260926T200826594Z"
+    ],
+    "transition_ids": []
+  },
+  "ambiguity_bucket": "MECHANICAL_ACCEPTANCE_BLOCKED",
+  "mechanical_acceptance_granted": false,
+  "payload": {
+    "observation_kind": "active_assembly_top_level_component_inventory",
+    "document": {
+      "title": "IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE",
+      "path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE.SLDASM",
+      "document_type": "assembly",
+      "configuration_exact": null,
+      "configuration_state": "UNRESOLVED",
+      "configuration_note": "The read-only status connector did not return an active configuration; none is inferred."
+    },
+    "bridge_version": "0.3.0",
+    "top_level_only": true,
+    "component_count": 58,
+    "components": [
+      {
+        "name2": "5983425_01_Floor_stand_Bodenstativ_1632^IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE-1",
+        "source_path": "C:\\Users\\user\\AppData\\Local\\Temp\\swx23488\\VC~~\\1865522446\\5983425_01_Floor_stand_Bodenstativ_1632^IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE.SLDASM",
+        "fixed": true,
+        "suppressed": false,
+        "translation_mm": [
+          0,
+          0,
+          0
+        ],
+        "rotation9": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          -1,
+          0
+        ],
+        "transform_source": "Component2.Transform2",
+        "source_classification": "verified_from_solidworks_api"
+      },
+      {
+        "name2": "6120069_02_Mounting_rod_NATIVE_PORTABLE_V17-1",
+        "source_path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\6120069_02_Mounting_rod_NATIVE_PORTABLE_V17.SLDPRT",
+        "fixed": false,
+        "suppressed": false,
+        "translation_mm": [
+          -27.999999999999996,
+          -243,
+          1128
+        ],
+        "rotation9": [
+          0,
+          1,
+          0,
+          0,
+          0,
+          1,
+          1,
+          0,
+          0
+        ],
+        "transform_source": "Component2.Transform2",
+        "source_classification": "verified_from_solidworks_api"
+      },
+      {
+        "name2": "6130737_03_GHF_120_NATIVE_PORTABLE_V17-1",
+        "source_path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\6130737_03_GHF_120_NATIVE_PORTABLE_V17.SLDPRT",
+        "fixed": false,
+        "suppressed": false,
+        "translation_mm": [
+          0,
+          -55.765,
+          1022
+        ],
+        "rotation9": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          -1,
+          0
+        ],
+        "transform_source": "Component2.Transform2",
+        "source_classification": "verified_from_solidworks_api"
+      },
+      {
+        "name2": "6130411_01_Tie_rod_NATIVE_PORTABLE_V17-1",
+        "source_path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\6130411_01_Tie_rod_NATIVE_PORTABLE_V17.SLDPRT",
+        "fixed": false,
+        "suppressed": false,
+        "translation_mm": [
+          0,
+          -42,
+          1022
+        ],
+        "rotation9": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          -1,
+          0
+        ],
+        "transform_source": "Component2.Transform2",
+        "source_classification": "verified_from_solidworks_api"
+      },
+      {
+        "name2": "SP100_6130656_NATIVE_PORTABLE_V17-1",
+        "source_path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\SP100_6130656_NATIVE_PORTABLE_V17.SLDPRT",
+        "fixed": false,
+        "suppressed": false,
+        "translation_mm": [
+          -28.62345666595531,
+          -277.05915239846826,
+          1072.3930236066878
+        ],
+        "rotation9": [
+          -2.498001805406599e-16,
+          -3.620748295448021e-32,
+          -1,
+          0.4067366430758011,
+          0.9135454576426006,
+          -1.0160288687283708e-16,
+          0.9135454576426006,
+          -0.4067366430758011,
+          -2.282038202512214e-16
+        ],
+        "transform_source": "Component2.Transform2",
+        "source_classification": "verified_from_solidworks_api"
+      },
+      {
+        "name2": "BENCH_BOTTLE_D48_H180-5",
+        "source_path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\BENCH_BOTTLE_D48_H180.SLDPRT",
+        "fixed": true,
+        "suppressed": false,
+        "translation_mm": [
+          -153.75,
+          -44,
+          950.0000000000001
+        ],
+        "rotation9": [
+          0,
+          1,
+          0,
+          -1,
+          0,
+          0,
+          0,
+          0,
+          1
+        ],
+        "transform_source": "Component2.Transform2",
+        "source_classification": "verified_from_solidworks_api"
+      },
+      {
+        "name2": "BENCH_CONVEYOR_L900_W82_H950-1",
+        "source_path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\BENCH_CONVEYOR_L900_W82_H950.SLDPRT",
+        "fixed": true,
+        "suppressed": false,
+        "translation_mm": [
+          -153.75,
+          -224,
+          950
+        ],
+        "rotation9": [
+          0,
+          1,
+          0,
+          -1,
+          0,
+          0,
+          0,
+          0,
+          1
+        ],
+        "transform_source": "Component2.Transform2",
+        "source_classification": "verified_from_solidworks_api"
+      },
+      {
+        "name2": "IXOR_6130800_NATIVE_PORTABLE_V17-1",
+        "source_path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_6130800_NATIVE_PORTABLE_V17.SLDASM",
+        "fixed": false,
+        "suppressed": false,
+        "translation_mm": [
+          175,
+          -265,
+          1016.9999999999999
+        ],
+        "rotation9": [
+          1,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
+        ],
+        "transform_source": "Component2.Transform2",
+        "source_classification": "verified_from_solidworks_api"
+      },
+      {
+        "name2": "6120069_02_Mounting_rod_NATIVE_PORTABLE_V17-2",
+        "source_path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\6120069_02_Mounting_rod_NATIVE_PORTABLE_V17.SLDPRT",
+        "fixed": false,
+        "suppressed": false,
+        "translation_mm": [
+          -27.999999999999996,
+          -243,
+          1024
+        ],
+        "rotation9": [
+          0,
+          1,
+          0,
+          0,
+          0,
+          1,
+          1,
+          0,
+          0
+        ],
+        "transform_source": "Component2.Transform2",
+        "source_classification": "verified_from_solidworks_api"
+      },
+      {
+        "name2": "BENCH_BOTTLE_D48_H180-1",
+        "source_path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\BENCH_BOTTLE_D48_H180.SLDPRT",
+        "fixed": true,
+        "suppressed": false,
+        "translation_mm": [
+          -153.75,
+          -314,
+          950.0000000000001
+        ],
+        "rotation9": [
+          0,
+          1,
+          0,
+          -1,
+          0,
+          0,
+          0,
+          0,
+          1
+        ],
+        "transform_source": "Component2.Transform2",
+        "source_classification": "verified_from_solidworks_api"
+      },
+      {
+        "name2": "BENCH_BOTTLE_D48_H180-2",
+        "source_path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\BENCH_BOTTLE_D48_H180.SLDPRT",
+        "fixed": false,
+        "suppressed": false,
+        "translation_mm": [
+          -153.42061528267112,
+          -214,
+          950
+        ],
+        "rotation9": [
+          0,
+          1,
+          0,
+          -1,
+          0,
+          0,
+          0,
+          0,
+          1
+        ],
+        "transform_source": "Component2.Transform2",
+        "source_classification": "verified_from_solidworks_api"
+      },
+      {
+        "name2": "BENCH_BOTTLE_D48_H180-4",
+        "source_path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\BENCH_BOTTLE_D48_H180.SLDPRT",
+        "fixed": true,
+        "suppressed": false,
+        "translation_mm": [
+          -153.75,
+          46.000000000000014,
+          950
+        ],
+        "rotation9": [
+          0,
+          1,
+          0,
+          -1,
+          0,
+          0,
+          0,
+          0,
+          1
+        ],
+        "transform_source": "Component2.Transform2",
+        "source_classification": "verified_from_solidworks_api"
+      },
+      {
+        "name2": "BENCH_BOTTLE_D48_H180-3",
+        "source_path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\BENCH_BOTTLE_D48_H180.SLDPRT",
+        "fixed": true,
+        "suppressed": false,
+        "translation_mm": [
+          -153.75,
+          136,
+          950
+        ],
+        "rotation9": [
+          0,
+          1,
+          0,
+          -1,
+          0,
+          0,
+          0,
+          0,
+          1
+        ],
+        "transform_source": "Component2.Transform2",
+        "source_classification": "verified_from_solidworks_api"
+      },
+      {
+        "name2": "FITCHECK_REFERENCE_LABEL_FACET_0p2x5p0118x50_V35-2",
+        "source_path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\FITCHECK_REFERENCE_LABEL_FACET_0p2x5p0118x50_V35.SLDPRT",
+        "fixed": false,
+        "suppressed": false,
+        "translation_mm": [
+          -130.817212452039,
+          143.40926820138725,
+          1016
+        ],
+        "rotation9": [
+          0.9515679480481724,
+          0.30743851458038085,
+          0,
+          -0.30743851458038085,
+          0.9515679480481724,
+          0,
+          0,
+          0,
+          1
+        ],
+        "transform_source": "Component2.Transform2",
+        "source_classification": "verified_from_solidworks_api"
+      },
+      {
+        "name2": "FITCHECK_REFERENCE_LABEL_FACET_0p2x5p0118x50_V35-5",
+        "source_path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\FITCHECK_REFERENCE_LABEL_FACET_0p2x5p0118x50_V35.SLDPRT",
+        "fixed": false,
+        "suppressed": false,
+        "translation_mm": [
+          -139.4874976902713,
+          155.42655470908272,
+          1016
+        ],
+        "rotation9": [
+          0.5918050750924774,
+          0.8060811082606931,
+          0,
+          -0.8060811082606931,
+          0.5918050750924774,
+          0,
+          0,
+          0,
+          1
+        ],
+        "transform_source": "Component2.Transform2",
+        "source_classification": "verified_from_solidworks_api"
+      },
+      {
+        "name2": "6130649_01_Carriage_Schlitten_AR_NATIVE_PORTABLE_V20-1",
+        "source_path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\6130649_01_Carriage_Schlitten_AR_NATIVE_PORTABLE_V20.SLDPRT",
+        "fixed": false,
+        "suppressed": false,
+        "translation_mm": [
+          500,
+          500,
+          1500
+        ],
+        "rotation9": [
+          1,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
+        ],
+        "transform_source": "Component2.Transform2",
+        "source_classification": "verified_from_solidworks_api"
+      },
+      {
+        "name2": "6130648_01_Carriage_Schlitten_AL_NATIVE_PORTABLE_V22-1",
+        "source_path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\6130648_01_Carriage_Schlitten_AL_NATIVE_PORTABLE_V22.SLDPRT",
+        "fixed": false,
+        "suppressed": false,
+        "translation_mm": [
+          650,
+          500,
+          1500
+        ],
+        "rotation9": [
+          1,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
+        ],
+        "transform_source": "Component2.Transform2",
+        "source_classification": "verified_from_solidworks_api"
+      },
+      {
+        "name2": "6130460_03_AR60_NATIVE_PORTABLE_V18-2",
+        "source_path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\6130460_03_AR60_NATIVE_PORTABLE_V18.SLDPRT",
+        "fixed": false,
+        "suppressed": false,
+        "translation_mm": [
+          484.7308852396768,
+          527.8630980015928,
+          1512.441354942933
+        ],
+        "rotation9": [
+          1,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
+        ],
+        "transform_source": "Component2.Transform2",
+        "source_classification": "verified_from_solidworks_api"
+      },
+      {
+        "name2": "FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25-2",
+        "source_path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25.SLDPRT",
+        "fixed": false,
+        "suppressed": false,
+        "translation_mm": [
+          -183.81939742953654,
+          -189.56817558934128,
+          995
+        ],
+        "rotation9": [
+          1,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
+        ],
+        "transform_source": "Component2.Transform2",
+        "source_classification": "verified_from_solidworks_api"
+      },
+      {
+        "name2": "FITCHECK_REFERENCE_LABEL_FACET_0p2x5p0118x50_V35-4",
+        "source_path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\FITCHECK_REFERENCE_LABEL_FACET_0p2x5p0118x50_V35.SLDPRT",
+        "fixed": false,
+        "suppressed": false,
+        "translation_mm": [
+          -135.77791017552954,
+          152.05658703900576,
+          1016
+        ],
+        "rotation9": [
+          0.74572986823529,
+          0.6662484248550067,
+          0,
+          -0.6662484248550067,
+          0.74572986823529,
+          0,
+          0,
+          0,
+          1
+        ],
+        "transform_source": "Component2.Transform2",
+        "source_classification": "verified_from_solidworks_api"
+      },
+      {
+        "name2": "FITCHECK_REFERENCE_LABEL_FACET_0p2x5p0118x50_V35-10",
+        "source_path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\FITCHECK_REFERENCE_LABEL_FACET_0p2x5p0118x50_V35.SLDPRT",
+        "fixed": false,
+        "suppressed": false,
+        "translation_mm": [
+          -163.3204523187286,
+          158.11823777824398,
+          1016
+        ],
+        "rotation9": [
+          -0.39711420409662274,
+          0.9177692024167654,
+          0,
+          -0.9177692024167654,
+          -0.39711420409662274,
+          0,
+          0,
+          0,
+          1
+        ],
+        "transform_source": "Component2.Transform2",
+        "source_classification": "verified_from_solidworks_api"
+      },
+      {
+        "name2": "FITCHECK_REFERENCE_LABEL_FACET_0p2x5p0118x50_V35-1",
+        "source_path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\FITCHECK_REFERENCE_LABEL_FACET_0p2x5p0118x50_V35.SLDPRT",
+        "fixed": false,
+        "suppressed": false,
+        "translation_mm": [
+          -129.78063268266604,
+          138.5058791684204,
+          1016
+        ],
+        "rotation9": [
+          0.9945795567358485,
+          0.1039783887311354,
+          0,
+          -0.1039783887311354,
+          0.9945795567358485,
+          0,
+          0,
+          0,
+          1
+        ],
+        "transform_source": "Component2.Transform2",
+        "source_classification": "verified_from_solidworks_api"
+      },
+      {
+        "name2": "FITCHECK_DRIVEN_WRAP_BELT_5x160x93_V25-1",
+        "source_path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\FITCHECK_DRIVEN_WRAP_BELT_5x160x93_V25.SLDPRT",
+        "fixed": false,
+        "suppressed": false,
+        "translation_mm": [
+          -126.92061528267112,
+          -139,
+          995
+        ],
+        "rotation9": [
+          1,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
+        ],
+        "transform_source": "Component2.Transform2",
+        "source_classification": "verified_from_solidworks_api"
+      },
+      {
+        "name2": "FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25-1",
+        "source_path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25.SLDPRT",
+        "fixed": false,
+        "suppressed": false,
+        "translation_mm": [
+          -169.41764267046375,
+          -249.56817558934128,
+          995
+        ],
+        "rotation9": [
+          1,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
+        ],
+        "transform_source": "Component2.Transform2",
+        "source_classification": "verified_from_solidworks_api"
+      },
+      {
+        "name2": "FITCHECK_REFERENCE_LABEL_FACET_0p2x5p0118x50_V35-3",
+        "source_path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\FITCHECK_REFERENCE_LABEL_FACET_0p2x5p0118x50_V35.SLDPRT",
+        "fixed": false,
+        "suppressed": false,
+        "translation_mm": [
+          -132.84554404000738,
+          147.99223586395516,
+          1016
+        ],
+        "rotation9": [
+          0.8674048116179516,
+          0.4976031478819506,
+          0,
+          -0.4976031478819506,
+          0.8674048116179516,
+          0,
+          0,
+          0,
+          1
+        ],
+        "transform_source": "Component2.Transform2",
+        "source_classification": "verified_from_solidworks_api"
+      },
+      {
+        "name2": "FITCHECK_REFERENCE_LABEL_FACET_0p2x5p0118x50_V35-7",
+        "source_path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\FITCHECK_REFERENCE_LABEL_FACET_0p2x5p0118x50_V35.SLDPRT",
+        "fixed": false,
+        "suppressed": false,
+        "translation_mm": [
+          -148.5699632611728,
+          159.53672065909782,
+          1016
+        ],
+        "rotation9": [
+          0.2149392837687632,
+          0.9766274132405721,
+          0,
+          -0.9766274132405721,
+          0.2149392837687632,
+          0,
+          0,
+          0,
+          1
+        ],
+        "transform_source": "Component2.Transform2",
+        "source_classification": "verified_from_solidworks_api"
+      },
+      {
+        "name2": "FITCHECK_REFERENCE_LABEL_FACET_0p2x5p0118x50_V35-8",
+        "source_path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\FITCHECK_REFERENCE_LABEL_FACET_0p2x5p0118x50_V35.SLDPRT",
+        "fixed": false,
+        "suppressed": false,
+        "translation_mm": [
+          -153.55006081786502,
+          160.0991706148458,
+          1016
+        ],
+        "rotation9": [
+          0.008296231623858156,
+          0.9999655856782489,
+          0,
+          -0.9999655856782489,
+          0.008296231623858156,
+          0,
+          0,
+          0,
+          1
+        ],
+        "transform_source": "Component2.Transform2",
+        "source_classification": "verified_from_solidworks_api"
+      },
+      {
+        "name2": "FITCHECK_REFERENCE_LABEL_FACET_0p2x5p0118x50_V35-9",
+        "source_path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\FITCHECK_REFERENCE_LABEL_FACET_0p2x5p0118x50_V35.SLDPRT",
+        "fixed": false,
+        "suppressed": false,
+        "translation_mm": [
+          -158.538804948685,
+          159.6194273250528,
+          1016
+        ],
+        "rotation9": [
+          -0.19870559953049907,
+          0.9800592251059244,
+          0,
+          -0.9800592251059244,
+          -0.19870559953049907,
+          0,
+          0,
+          0,
+          1
+        ],
+        "transform_source": "Component2.Transform2",
+        "source_classification": "verified_from_solidworks_api"
+      },
+      {
+        "name2": "FITCHECK_REFERENCE_LABEL_FACET_0p2x5p0118x50_V35-6",
+        "source_path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\FITCHECK_REFERENCE_LABEL_FACET_0p2x5p0118x50_V35.SLDPRT",
+        "fixed": false,
+        "suppressed": false,
+        "translation_mm": [
+          -143.81388168358384,
+          157.956401180571,
+          1016
+        ],
+        "rotation9": [
+          0.41228706707121016,
+          0.9110539908950619,
+          0,
+          -0.9110539908950619,
+          0.41228706707121016,
+          0,
+          0,
+          0,
+          1
+        ],
+        "transform_source": "Component2.Transform2",
+        "source_classification": "verified_from_solidworks_api"
+      },
+      {
+        "name2": "FITCHECK_REFERENCE_LABEL_FACET_0p2x5p0118x50_V35-16",
+        "source_path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\FITCHECK_REFERENCE_LABEL_FACET_0p2x5p0118x50_V35.SLDPRT",
+        "fixed": false,
+        "suppressed": false,
+        "translation_mm": [
+          -177.75764509313603,
+          133.89216293750678,
+          1016
+        ],
+        "rotation9": [
+          -0.9961678461882181,
+          -0.08746211877565511,
+          0,
+          0.08746211877565511,
+          -0.9961678461882181,
+          0,
+          0,
+          0,
+          1
+        ],
+        "transform_source": "Component2.Transform2",
+        "source_classification": "verified_from_solidworks_api"
+      },
+      {
+        "name2": "FITCHECK_REFERENCE_LABEL_FACET_0p2x5p0118x50_V35-15",
+        "source_path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\FITCHECK_REFERENCE_LABEL_FACET_0p2x5p0118x50_V35.SLDPRT",
+        "fixed": false,
+        "suppressed": false,
+        "translation_mm": [
+          -177.67449053893168,
+          138.90323138116315,
+          1016
+        ],
+        "rotation9": [
+          -0.9927174497482018,
+          0.12046603241340255,
+          0,
+          -0.12046603241340255,
+          -0.9927174497482018,
+          0,
+          0,
+          0,
+          1
+        ],
+        "transform_source": "Component2.Transform2",
+        "source_classification": "verified_from_solidworks_api"
+      },
+      {
+        "name2": "FITCHECK_REFERENCE_LABEL_FACET_0p2x5p0118x50_V35-22",
+        "source_path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\FITCHECK_REFERENCE_LABEL_FACET_0p2x5p0118x50_V35.SLDPRT",
+        "fixed": false,
+        "suppressed": false,
+        "translation_mm": [
+          -159.31984241390106,
+          112.5524658975767,
+          1016
+        ],
+        "rotation9": [
+          -0.23111379310792707,
+          -0.9729267262416357,
+          0,
+          0.9729267262416357,
+          -0.23111379310792707,
+          0,
+          0,
+          0,
+          1
+        ],
+        "transform_source": "Component2.Transform2",
+        "source_classification": "verified_from_solidworks_api"
+      },
+      {
+        "name2": "FITCHECK_REFERENCE_LABEL_FACET_0p2x5p0118x50_V35-24",
+        "source_path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\FITCHECK_REFERENCE_LABEL_FACET_0p2x5p0118x50_V35.SLDPRT",
+        "fixed": false,
+        "suppressed": false,
+        "translation_mm": [
+          -149.35374524656515,
+          112.30436866967045,
+          1016
+        ],
+        "rotation9": [
+          0.18241720968609268,
+          -0.9832212170261281,
+          0,
+          0.9832212170261281,
+          0.18241720968609268,
+          0,
+          0,
+          0,
+          1
+        ],
+        "transform_source": "Component2.Transform2",
+        "source_classification": "verified_from_solidworks_api"
+      },
+      {
+        "name2": "FITCHECK_REFERENCE_LABEL_FACET_0p2x5p0118x50_V35-17",
+        "source_path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\FITCHECK_REFERENCE_LABEL_FACET_0p2x5p0118x50_V35.SLDPRT",
+        "fixed": false,
+        "suppressed": false,
+        "translation_mm": [
+          -176.80256451646008,
+          128.97225006033614,
+          1016
+        ],
+        "rotation9": [
+          -0.9565379467410824,
+          -0.2916078813138531,
+          0,
+          0.2916078813138531,
+          -0.9565379467410824,
+          0,
+          0,
+          0,
+          1
+        ],
+        "transform_source": "Component2.Transform2",
+        "source_classification": "verified_from_solidworks_api"
+      },
+      {
+        "name2": "FITCHECK_REFERENCE_LABEL_FACET_0p2x5p0118x50_V35-11",
+        "source_path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\FITCHECK_REFERENCE_LABEL_FACET_0p2x5p0118x50_V35.SLDPRT",
+        "fixed": false,
+        "suppressed": false,
+        "translation_mm": [
+          -167.6882157040177,
+          155.66052244952502,
+          1016
+        ],
+        "rotation9": [
+          -0.5783491993368332,
+          0.8157893132582973,
+          0,
+          -0.8157893132582973,
+          -0.5783491993368332,
+          0,
+          0,
+          0,
+          1
+        ],
+        "transform_source": "Component2.Transform2",
+        "source_classification": "verified_from_solidworks_api"
+      },
+      {
+        "name2": "FITCHECK_REFERENCE_LABEL_FACET_0p2x5p0118x50_V35-12",
+        "source_path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\FITCHECK_REFERENCE_LABEL_FACET_0p2x5p0118x50_V35.SLDPRT",
+        "fixed": false,
+        "suppressed": false,
+        "translation_mm": [
+          -171.45320671619146,
+          152.35256774833215,
+          1016
+        ],
+        "rotation9": [
+          -0.7345728927880271,
+          0.6785297820884721,
+          0,
+          -0.6785297820884721,
+          -0.7345728927880271,
+          0,
+          0,
+          0,
+          1
+        ],
+        "transform_source": "Component2.Transform2",
+        "source_classification": "verified_from_solidworks_api"
+      },
+      {
+        "name2": "FITCHECK_REFERENCE_LABEL_FACET_0p2x5p0118x50_V35-13",
+        "source_path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\FITCHECK_REFERENCE_LABEL_FACET_0p2x5p0118x50_V35.SLDPRT",
+        "fixed": false,
+        "suppressed": false,
+        "translation_mm": [
+          -174.4526044737714,
+          148.33742955410807,
+          1016
+        ],
+        "rotation9": [
+          -0.8590292312768217,
+          0.5119265375148592,
+          0,
+          -0.5119265375148592,
+          -0.8590292312768217,
+          0,
+          0,
+          0,
+          1
+        ],
+        "transform_source": "Component2.Transform2",
+        "source_classification": "verified_from_solidworks_api"
+      },
+      {
+        "name2": "FITCHECK_REFERENCE_LABEL_FACET_0p2x5p0118x50_V35-18",
+        "source_path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\FITCHECK_REFERENCE_LABEL_FACET_0p2x5p0118x50_V35.SLDPRT",
+        "fixed": false,
+        "suppressed": false,
+        "translation_mm": [
+          -174.85055224385874,
+          124.35625940669456,
+          1016
+        ],
+        "rotation9": [
+          -0.8755415868821049,
+          -0.4831427632076935,
+          0,
+          0.4831427632076935,
+          -0.8755415868821049,
+          0,
+          0,
+          0,
+          1
+        ],
+        "transform_source": "Component2.Transform2",
+        "source_classification": "verified_from_solidworks_api"
+      },
+      {
+        "name2": "FITCHECK_REFERENCE_LABEL_FACET_0p2x5p0118x50_V35-20",
+        "source_path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\FITCHECK_REFERENCE_LABEL_FACET_0p2x5p0118x50_V35.SLDPRT",
+        "fixed": false,
+        "suppressed": false,
+        "translation_mm": [
+          -168.33286230825894,
+          116.81276135296275,
+          1016
+        ],
+        "rotation9": [
+          -0.6050980210895831,
+          -0.7961509812048657,
+          0,
+          0.7961509812048657,
+          -0.6050980210895831,
+          0,
+          0,
+          0,
+          1
+        ],
+        "transform_source": "Component2.Transform2",
+        "source_classification": "verified_from_solidworks_api"
+      },
+      {
+        "name2": "FITCHECK_REFERENCE_LABEL_FACET_0p2x5p0118x50_V35-14",
+        "source_path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\FITCHECK_REFERENCE_LABEL_FACET_0p2x5p0118x50_V35.SLDPRT",
+        "fixed": false,
+        "suppressed": false,
+        "translation_mm": [
+          -176.55669695746857,
+          143.78874661869244,
+          1016
+        ],
+        "rotation9": [
+          -0.9463359733389455,
+          0.32318450699968687,
+          0,
+          -0.32318450699968687,
+          -0.9463359733389455,
+          0,
+          0,
+          0,
+          1
+        ],
+        "transform_source": "Component2.Transform2",
+        "source_classification": "verified_from_solidworks_api"
+      },
+      {
+        "name2": "FITCHECK_REFERENCE_LABEL_FACET_0p2x5p0118x50_V35-21",
+        "source_path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\FITCHECK_REFERENCE_LABEL_FACET_0p2x5p0118x50_V35.SLDPRT",
+        "fixed": false,
+        "suppressed": false,
+        "translation_mm": [
+          -164.04904880299333,
+          114.21148023032401,
+          1016
+        ],
+        "rotation9": [
+          -0.42734642336071876,
+          -0.9040879572479668,
+          0,
+          0.9040879572479668,
+          -0.42734642336071876,
+          0,
+          0,
+          0,
+          1
+        ],
+        "transform_source": "Component2.Transform2",
+        "source_classification": "verified_from_solidworks_api"
+      },
+      {
+        "name2": "FITCHECK_REFERENCE_LABEL_FACET_0p2x5p0118x50_V35-19",
+        "source_path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\FITCHECK_REFERENCE_LABEL_FACET_0p2x5p0118x50_V35.SLDPRT",
+        "fixed": false,
+        "suppressed": false,
+        "translation_mm": [
+          -171.98602503963608,
+          120.24381420667538,
+          1016
+        ],
+        "rotation9": [
+          -0.7566815369143608,
+          -0.6537836428765413,
+          0,
+          0.6537836428765413,
+          -0.7566815369143608,
+          0,
+          0,
+          0,
+          1
+        ],
+        "transform_source": "Component2.Transform2",
+        "source_classification": "verified_from_solidworks_api"
+      },
+      {
+        "name2": "FITCHECK_REFERENCE_LABEL_FACET_0p2x5p0118x50_V35-23",
+        "source_path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\FITCHECK_REFERENCE_LABEL_FACET_0p2x5p0118x50_V35.SLDPRT",
+        "fixed": false,
+        "suppressed": false,
+        "translation_mm": [
+          -154.34976250118137,
+          111.90746412387902,
+          1016
+        ],
+        "rotation9": [
+          -0.024886410837401455,
+          -0.9996902853162233,
+          0,
+          0.9996902853162233,
+          -0.024886410837401455,
+          0,
+          0,
+          0,
+          0.9999999999999999
+        ],
+        "transform_source": "Component2.Transform2",
+        "source_classification": "verified_from_solidworks_api"
+      },
+      {
+        "name2": "FITCHECK_INDEX_STOP_FINGER_54p25x6x20_V37-2",
+        "source_path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\FITCHECK_INDEX_STOP_FINGER_54p25x6x20_V37.SLDPRT",
+        "fixed": false,
+        "suppressed": false,
+        "translation_mm": [
+          -192.875,
+          -287,
+          1090
+        ],
+        "rotation9": [
+          1,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
+        ],
+        "transform_source": "Component2.Transform2",
+        "source_classification": "verified_from_solidworks_api"
+      },
+      {
+        "name2": "FITCHECK_REFERENCE_LABEL_FACET_0p2x5p0118x50_V35-25",
+        "source_path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\FITCHECK_REFERENCE_LABEL_FACET_0p2x5p0118x50_V35.SLDPRT",
+        "fixed": false,
+        "suppressed": false,
+        "translation_mm": [
+          -144.54784851862323,
+          113.72601499251219,
+          1016
+        ],
+        "rotation9": [
+          0.3818320116753844,
+          -0.9242317430492903,
+          0,
+          0.9242317430492903,
+          0.3818320116753844,
+          0,
+          0,
+          0,
+          1
+        ],
+        "transform_source": "Component2.Transform2",
+        "source_classification": "verified_from_solidworks_api"
+      },
+      {
+        "name2": "FITCHECK_REFERENCE_LABEL_FACET_0p2x5p0118x50_V35-27",
+        "source_path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\FITCHECK_REFERENCE_LABEL_FACET_0p2x5p0118x50_V35.SLDPRT",
+        "fixed": false,
+        "suppressed": false,
+        "translation_mm": [
+          -136.3205502590364,
+          119.35595356509653,
+          1016
+        ],
+        "rotation9": [
+          0.7232136821976602,
+          -0.690624333398485,
+          0,
+          0.690624333398485,
+          0.7232136821976602,
+          0,
+          0,
+          0,
+          1
+        ],
+        "transform_source": "Component2.Transform2",
+        "source_classification": "verified_from_solidworks_api"
+      },
+      {
+        "name2": "FITCHECK_REFERENCE_LABEL_FACET_0p2x5p0118x50_V35-28",
+        "source_path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\FITCHECK_REFERENCE_LABEL_FACET_0p2x5p0118x50_V35.SLDPRT",
+        "fixed": false,
+        "suppressed": false,
+        "translation_mm": [
+          -133.25494664310523,
+          123.32077337145374,
+          1016
+        ],
+        "rotation9": [
+          0.850417151738372,
+          -0.5261089887363594,
+          0,
+          0.5261089887363594,
+          0.850417151738372,
+          0,
+          0,
+          0,
+          1
+        ],
+        "transform_source": "Component2.Transform2",
+        "source_classification": "verified_from_solidworks_api"
+      },
+      {
+        "name2": "FITCHECK_REFERENCE_LABEL_FACET_0p2x5p0118x50_V35-26",
+        "source_path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\FITCHECK_REFERENCE_LABEL_FACET_0p2x5p0118x50_V35.SLDPRT",
+        "fixed": false,
+        "suppressed": false,
+        "translation_mm": [
+          -140.13990822958166,
+          116.11092254525649,
+          1016
+        ],
+        "rotation9": [
+          0.564734098357607,
+          -0.8252729234333458,
+          0,
+          0.8252729234333458,
+          0.564734098357607,
+          0,
+          0,
+          0,
+          1
+        ],
+        "transform_source": "Component2.Transform2",
+        "source_classification": "verified_from_solidworks_api"
+      },
+      {
+        "name2": "FITCHECK_INDEX_STOP_FINGER_54p25x6x20_V37-1",
+        "source_path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\FITCHECK_INDEX_STOP_FINGER_54p25x6x20_V37.SLDPRT",
+        "fixed": false,
+        "suppressed": false,
+        "translation_mm": [
+          -209.875,
+          -197,
+          1090
+        ],
+        "rotation9": [
+          1,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
+        ],
+        "transform_source": "Component2.Transform2",
+        "source_classification": "verified_from_solidworks_api"
+      },
+      {
+        "name2": "FITCHECK_PRISM_GUIDE_RAIL_100x10x10_V43-1",
+        "source_path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\FITCHECK_PRISM_GUIDE_RAIL_100x10x10_V43.SLDPRT",
+        "fixed": true,
+        "suppressed": false,
+        "translation_mm": [
+          -238.75,
+          -260,
+          1020
+        ],
+        "rotation9": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          -1,
+          0,
+          1,
+          0
+        ],
+        "transform_source": "Component2.Transform2",
+        "source_classification": "verified_from_solidworks_api"
+      },
+      {
+        "name2": "FITCHECK_PRISM_GUIDE_RAIL_100x10x10_V43-2",
+        "source_path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\FITCHECK_PRISM_GUIDE_RAIL_100x10x10_V43.SLDPRT",
+        "fixed": true,
+        "suppressed": false,
+        "translation_mm": [
+          -238.75,
+          -170,
+          1020
+        ],
+        "rotation9": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          -1,
+          0,
+          1,
+          0
+        ],
+        "transform_source": "Component2.Transform2",
+        "source_classification": "verified_from_solidworks_api"
+      },
+      {
+        "name2": "FITCHECK_PRISM_ACTUATOR_ENVELOPE_45x35x35_V43-1",
+        "source_path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\FITCHECK_PRISM_ACTUATOR_ENVELOPE_45x35x35_V43.SLDPRT",
+        "fixed": true,
+        "suppressed": false,
+        "translation_mm": [
+          -266.25,
+          -215,
+          1045
+        ],
+        "rotation9": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          -1,
+          0,
+          1,
+          0
+        ],
+        "transform_source": "Component2.Transform2",
+        "source_classification": "verified_from_solidworks_api"
+      },
+      {
+        "name2": "FITCHECK_PRISM_CARRIER_SLIDER_15x80x60_V43-1",
+        "source_path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\FITCHECK_PRISM_CARRIER_SLIDER_15x80x60_V43.SLDPRT",
+        "fixed": false,
+        "suppressed": false,
+        "translation_mm": [
+          -210,
+          -215,
+          1080
+        ],
+        "rotation9": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          -1,
+          0,
+          1,
+          0
+        ],
+        "transform_source": "Component2.Transform2",
+        "source_classification": "verified_from_solidworks_api"
+      },
+      {
+        "name2": "FITCHECK_PRISM_LINK_15x10x25_V43-1",
+        "source_path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\FITCHECK_PRISM_LINK_15x10x25_V43.SLDPRT",
+        "fixed": false,
+        "suppressed": false,
+        "translation_mm": [
+          -210,
+          -249.56817558934128,
+          1020
+        ],
+        "rotation9": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          -1,
+          0,
+          1,
+          0
+        ],
+        "transform_source": "Component2.Transform2",
+        "source_classification": "verified_from_solidworks_api"
+      },
+      {
+        "name2": "FITCHECK_PRISM_LINK_15x10x25_V43-2",
+        "source_path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\FITCHECK_PRISM_LINK_15x10x25_V43.SLDPRT",
+        "fixed": false,
+        "suppressed": false,
+        "translation_mm": [
+          -210,
+          -189.56817558934128,
+          1020
+        ],
+        "rotation9": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          -1,
+          0,
+          1,
+          0
+        ],
+        "transform_source": "Component2.Transform2",
+        "source_classification": "verified_from_solidworks_api"
+      },
+      {
+        "name2": "FITCHECK_PRISM_REACTION_BASE_70x120x20_V43-1",
+        "source_path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\FITCHECK_PRISM_REACTION_BASE_70x120x20_V43.SLDPRT",
+        "fixed": true,
+        "suppressed": false,
+        "translation_mm": [
+          -253.74999999999997,
+          -215,
+          1010
+        ],
+        "rotation9": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          -1,
+          0,
+          1,
+          0
+        ],
+        "transform_source": "Component2.Transform2",
+        "source_classification": "verified_from_solidworks_api"
+      },
+      {
+        "name2": "FITCHECK_PRISM_ARM1_33p0824x10x5_V43-1",
+        "source_path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\FITCHECK_PRISM_ARM1_33p0824x10x5_V43.SLDPRT",
+        "fixed": false,
+        "suppressed": false,
+        "translation_mm": [
+          -185.95882133523187,
+          -249.56817558934128,
+          995
+        ],
+        "rotation9": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          -1,
+          0,
+          1,
+          0
+        ],
+        "transform_source": "Component2.Transform2",
+        "source_classification": "verified_from_solidworks_api"
+      },
+      {
+        "name2": "FITCHECK_PRISM_ARM2_18p6806x10x5_V43-1",
+        "source_path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\FITCHECK_PRISM_ARM2_18p6806x10x5_V43.SLDPRT",
+        "fixed": false,
+        "suppressed": false,
+        "translation_mm": [
+          -193.15969871476827,
+          -189.56817558934128,
+          995
+        ],
+        "rotation9": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          -1,
+          0,
+          1,
+          0
+        ],
+        "transform_source": "Component2.Transform2",
+        "source_classification": "verified_from_solidworks_api"
+      }
+    ],
+    "prism_candidate_components": [
+      {
+        "name2": "FITCHECK_PRISM_GUIDE_RAIL_100x10x10_V43-1",
+        "fixed": true,
+        "suppressed": false,
+        "translation_mm": [
+          -238.75,
+          -260,
+          1020
+        ]
+      },
+      {
+        "name2": "FITCHECK_PRISM_GUIDE_RAIL_100x10x10_V43-2",
+        "fixed": true,
+        "suppressed": false,
+        "translation_mm": [
+          -238.75,
+          -170,
+          1020
+        ]
+      },
+      {
+        "name2": "FITCHECK_PRISM_ACTUATOR_ENVELOPE_45x35x35_V43-1",
+        "fixed": true,
+        "suppressed": false,
+        "translation_mm": [
+          -266.25,
+          -215,
+          1045
+        ]
+      },
+      {
+        "name2": "FITCHECK_PRISM_CARRIER_SLIDER_15x80x60_V43-1",
+        "fixed": false,
+        "suppressed": false,
+        "translation_mm": [
+          -210,
+          -215,
+          1080
+        ]
+      },
+      {
+        "name2": "FITCHECK_PRISM_LINK_15x10x25_V43-1",
+        "fixed": false,
+        "suppressed": false,
+        "translation_mm": [
+          -210,
+          -249.56817558934128,
+          1020
+        ]
+      },
+      {
+        "name2": "FITCHECK_PRISM_LINK_15x10x25_V43-2",
+        "fixed": false,
+        "suppressed": false,
+        "translation_mm": [
+          -210,
+          -189.56817558934128,
+          1020
+        ]
+      },
+      {
+        "name2": "FITCHECK_PRISM_REACTION_BASE_70x120x20_V43-1",
+        "fixed": true,
+        "suppressed": false,
+        "translation_mm": [
+          -253.74999999999997,
+          -215,
+          1010
+        ]
+      },
+      {
+        "name2": "FITCHECK_PRISM_ARM1_33p0824x10x5_V43-1",
+        "fixed": false,
+        "suppressed": false,
+        "translation_mm": [
+          -185.95882133523187,
+          -249.56817558934128,
+          995
+        ]
+      },
+      {
+        "name2": "FITCHECK_PRISM_ARM2_18p6806x10x5_V43-1",
+        "fixed": false,
+        "suppressed": false,
+        "translation_mm": [
+          -193.15969871476827,
+          -189.56817558934128,
+          995
+        ]
+      }
+    ],
+    "admitted_claims": [
+      "The exact active assembly identity above was current at the point observation.",
+      "The exact listed top-level Component2.Name2 identities and their returned fixed/suppressed/transform fields were current at the point observation.",
+      "The observed v43 Prism-named components were present in that inventory."
+    ],
+    "explicitly_not_claimed": [
+      "configuration identity",
+      "motion or reachable state",
+      "degrees of freedom",
+      "closure stroke",
+      "contact or clearance",
+      "preload, force, or reaction",
+      "timing, capture, label transfer, wrap, or release",
+      "mechanical acceptance"
+    ],
+    "model_mutation": false,
+    "write_authority": "NONE"
+  }
+}
