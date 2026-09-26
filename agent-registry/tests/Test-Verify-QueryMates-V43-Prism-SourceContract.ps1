@@ -10,6 +10,8 @@ if (-not (Test-Path -LiteralPath $scriptPath -PathType Leaf)) {
 $text = [System.IO.File]::ReadAllText($scriptPath)
 $requiredLiterals = @(
     'IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE',
+    "[string]`$ExpectedDocumentPath = '$canonical'",
+    'executed_at_utc = $executedAtUtc',
     'FITCHECK_PRISM_CARRIER_SLIDER_15x80x60_V43-1',
     'FITCHECK_PRISM_LINK_15x10x25_V43-1',
     'FITCHECK_PRISM_ARM1_33p0824x10x5_V43-1',
@@ -40,6 +42,10 @@ $forbiddenPatterns = @(
     '(?im)\bSetTransform\b',
     '(?im)\bRemote\s*Queue\b'
 )
+
+if ($text.Contains('C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE.SLDASM')) {
+    throw 'Verifier default document path contains doubled backslashes.'
+}
 
 foreach ($pattern in $forbiddenPatterns) {
     if ([regex]::IsMatch($text, $pattern)) {
