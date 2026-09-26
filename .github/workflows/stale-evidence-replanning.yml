@@ -1,0 +1,33 @@
+name: Stale evidence replanning
+
+on:
+  pull_request:
+    paths:
+      - "agent-registry/planning/stale_evidence_replanning.py"
+      - "agent-registry/planning/test_stale_evidence_replanning.py"
+      - "agent-registry/planning/README.md"
+      - "agent-registry/reasoning/functional_temporal.py"
+      - "agent-registry/reasoning/reference_cases/v43_prism_capture_and_rotation.functional-temporal.v1.json"
+      - "agent-registry/reasoning-db/schema.sql"
+      - ".github/workflows/stale-evidence-replanning.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "agent-registry/planning/stale_evidence_replanning.py"
+      - "agent-registry/planning/test_stale_evidence_replanning.py"
+      - "agent-registry/reasoning/functional_temporal.py"
+      - "agent-registry/reasoning-db/schema.sql"
+      - ".github/workflows/stale-evidence-replanning.yml"
+
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Run stale evidence replanning regression
+        working-directory: agent-registry/planning
+        run: python -m unittest -v test_stale_evidence_replanning.py
