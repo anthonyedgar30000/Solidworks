@@ -1,0 +1,83 @@
+{
+  "record_type": "plan",
+  "schema_version": 1,
+  "record_id": "PLAN-0003",
+  "project_id": "CADGROUNDED.IXOR",
+  "created_at_utc": "2026-09-26T20:51:14.451Z",
+  "parent_plan_id": "PLAN-0002",
+  "caused_by_divergence_ids": [
+    "DIV-0002"
+  ],
+  "status": "ACTIVE",
+  "state_binding": {
+    "source": "SOLIDWORKS",
+    "document_title": "IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE",
+    "document_path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE.SLDASM",
+    "configuration_exact": null,
+    "configuration_state": "REQUIRE_FRESH_OBSERVATION",
+    "source_observation_ids": [
+      "E.V43.PRISM.LIVE_STATE.20260926T200826594Z",
+      "ADMISSION-STATUS-V43-PRISM-MATE-20260926"
+    ],
+    "freshness": "HOST_CANDIDATE_NOT_ADMITTED"
+  },
+  "intent": "Repair and rerun the bounded V43 Prism mate verifier so its exact execution time, document/configuration binding, and no-mutation result can be admitted before any B-rep topology or capture-to-release investigation consumes it.",
+  "projected_steps": [
+    {
+      "step_id": "P0003.1",
+      "title": "Correct default document path and emit execution timestamp in V43 mate verifier",
+      "depends_on": [],
+      "write_authority": "NONE",
+      "expected_outputs": [
+        "canonical default path",
+        "executed_at_utc in PASS summary",
+        "regression guard"
+      ],
+      "status": "PROJECTED"
+    },
+    {
+      "step_id": "P0003.2",
+      "title": "Run corrected local-only V43 Prism mate verification against fresh exact active document",
+      "depends_on": [
+        "P0003.1"
+      ],
+      "write_authority": "NONE",
+      "expected_outputs": [
+        "raw timestamped verification summary",
+        "per-target mate results",
+        "independent no-mutation comparison"
+      ],
+      "status": "PROJECTED"
+    },
+    {
+      "step_id": "P0003.3",
+      "title": "Admit timestamped Prism mate observation or preserve its specific failure",
+      "depends_on": [
+        "P0003.2"
+      ],
+      "write_authority": "NONE",
+      "expected_outputs": [
+        "schema-conforming evidence or explicit admission status",
+        "SHA-256 provenance",
+        "no overclaim"
+      ],
+      "status": "PROJECTED"
+    },
+    {
+      "step_id": "P0003.4",
+      "title": "Choose B-rep current-pose topology test only after mate observation admission",
+      "depends_on": [
+        "P0003.3"
+      ],
+      "write_authority": "NONE",
+      "expected_outputs": [
+        "exact component-pair question",
+        "current-pose contact/distance boundary",
+        "updated kinematic hypothesis status"
+      ],
+      "status": "PROJECTED"
+    }
+  ],
+  "acceptance_gate": "No mate, B-rep, or plan record grants mechanical acceptance. Motion, stroke, force/preload, reaction path, timing, and release require separately admitted evidence.",
+  "no_write_boundary": "No move, rebuild, save, mate, suppress, selection, or Remote Queue action is authorized by this plan."
+}
