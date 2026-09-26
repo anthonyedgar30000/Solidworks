@@ -43,13 +43,6 @@
       "evidence_id": "E.V43.PRISM.LINK1_REACTION_BASE.CONTACT.20260926T212845290Z"
     }
   ],
-  "hypothesis_effects": [
-    {
-      "hypothesis_id": "H_V43_PRISM_REACTION_BASE_CARRIES_LOAD",
-      "effect": "PRESERVE_UNRESOLVED",
-      "reason": "Positive 1.25 mm clearance excludes direct Link-1 to reaction-base contact only at this exact recorded pose. It does not exclude a wider structural or force-reaction path through other components or other reachable states."
-    }
-  ],
-  "conclusion": "P0003.4 is now provenance-complete and admitted. In exact V43_WRAP at the recorded point observation, FITCHECK_PRISM_LINK_15x10x25_V43-1 and FITCHECK_PRISM_REACTION_BASE_70x120x20_V43-1 have 1.2499999999999734 mm positive clearance, so direct contact for this exact pair is absent at this pose. Closure ownership, wider reaction topology, stroke, preload, force, reachable motion, timing, release, and mechanical acceptance remain unresolved.",
+  "conclusion": "P0003.4 is now provenance-complete and admitted. In exact V43_WRAP at the recorded point observation, FITCHECK_PRISM_LINK_15x10x25_V43-1 and FITCHECK_PRISM_REACTION_BASE_70x120x20_V43-1 have 1.2499999999999734 mm positive clearance, so direct contact for this exact pair is absent at this pose. This preserves H_V43_PRISM_REACTION_BASE_CARRIES_LOAD as unresolved rather than disproven because a wider structural or force-reaction path through other components or other reachable states remains possible. Closure ownership, wider reaction topology, stroke, preload, force, reachable motion, timing, release, and mechanical acceptance remain unresolved.",
   "revised_plan_id": "PLAN-0003"
 }
