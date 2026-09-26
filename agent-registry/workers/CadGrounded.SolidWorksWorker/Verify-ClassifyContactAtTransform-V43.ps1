@@ -135,6 +135,19 @@ function Assert-ContactEnvelopeBase {
     }
 }
 
+function Get-OptionalJsonPropertyValue {
+    param(
+        [Parameter(Mandatory=$true)]$Object,
+        [Parameter(Mandatory=$true)][string]$Name
+    )
+
+    $property = $Object.PSObject.Properties[$Name]
+    if ($null -eq $property) {
+        return $null
+    }
+    return $property.Value
+}
+
 if (-not $SkipBuild) {
     & (Join-Path $WorkerRoot 'build.cmd')
     if ($LASTEXITCODE -ne 0) { throw "build.cmd failed with exit code $LASTEXITCODE." }
@@ -203,8 +216,9 @@ Assert-ContactEnvelopeBase $baseline
 if ([string]$baseline.data.classification -cne 'contact_or_coincidence_within_tolerance') {
     throw "Baseline classification mismatch. Actual='$($baseline.data.classification)'."
 }
-if ($null -eq $baseline.data.minimum_distance_mm -or [Math]::Abs([double]$baseline.data.minimum_distance_mm) -gt 0.001) {
-    throw "Baseline minimum distance is not within the 0.001 mm contact tolerance. Actual='$($baseline.data.minimum_distance_mm)'."
+$baselineMinimumDistanceMm = Get-OptionalJsonPropertyValue -Object $baseline.data -Name 'minimum_distance_mm'
+if ($null -eq $baselineMinimumDistanceMm -or [Math]::Abs([double]$baselineMinimumDistanceMm) -gt 0.001) {
+    throw "Baseline minimum distance is not within the 0.001 mm contact tolerance. Actual='$baselineMinimumDistanceMm'."
 }
 if ([Math]::Abs([double]$baseline.data.intersection_volume_mm3) -gt 0.001) {
     throw "Baseline unexpectedly intersects. volume_mm3='$($baseline.data.intersection_volume_mm3)'."
@@ -224,8 +238,9 @@ Assert-ContactEnvelopeBase $outward
 if ([string]$outward.data.classification -cne 'noninterfering_contact_or_clearance_unresolved') {
     throw "Outward hypothetical classification mismatch. Actual='$($outward.data.classification)'."
 }
-if ($null -ne $outward.data.minimum_distance_mm) {
-    throw "Outward hypothetical minimum distance must remain unresolved; actual='$($outward.data.minimum_distance_mm)'."
+$outwardMinimumDistanceMm = Get-OptionalJsonPropertyValue -Object $outward.data -Name 'minimum_distance_mm'
+if ($null -ne $outwardMinimumDistanceMm) {
+    throw "Outward hypothetical minimum distance must remain unresolved; actual='$outwardMinimumDistanceMm'."
 }
 if ([Math]::Abs([double]$outward.data.intersection_volume_mm3) -gt 0.001) {
     throw "Outward hypothetical pose unexpectedly intersects. volume_mm3='$($outward.data.intersection_volume_mm3)'."
@@ -248,8 +263,9 @@ Assert-ContactEnvelopeBase $inward
 if ([string]$inward.data.classification -cne 'physical_interference') {
     throw "Inward hypothetical classification mismatch. Actual='$($inward.data.classification)'."
 }
-if ($null -eq $inward.data.minimum_distance_mm -or [Math]::Abs([double]$inward.data.minimum_distance_mm) -gt 1e-12) {
-    throw "Inward hypothetical minimum distance should be zero. Actual='$($inward.data.minimum_distance_mm)'."
+$inwardMinimumDistanceMm = Get-OptionalJsonPropertyValue -Object $inward.data -Name 'minimum_distance_mm'
+if ($null -eq $inwardMinimumDistanceMm -or [Math]::Abs([double]$inwardMinimumDistanceMm) -gt 1e-12) {
+    throw "Inward hypothetical minimum distance should be zero. Actual='$inwardMinimumDistanceMm'."
 }
 $expectedInwardVolume = 530.263410890774
 if ([Math]::Abs([double]$inward.data.intersection_volume_mm3 - $expectedInwardVolume) -gt 0.001) {
