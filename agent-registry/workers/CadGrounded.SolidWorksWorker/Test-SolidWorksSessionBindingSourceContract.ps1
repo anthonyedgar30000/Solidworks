@@ -16,7 +16,7 @@ function Assert-SourceContains {
 }
 
 Assert-SourceContains 'using System\.Runtime\.InteropServices\.ComTypes;' 'COM Running Object Table types must remain explicitly imported.'
-Assert-SourceContains 'Version\s*=\s*"0\.4\.3"' 'Worker version must identify the session-binding hardening build as 0.4.4.'
+Assert-SourceContains 'Version\s*=\s*"0\.4\.4"' 'Worker version must identify the session-binding hardening build as 0.4.4.'
 Assert-SourceContains 'GetRunningObjectTable' 'Session binding must enumerate the Windows Running Object Table.'
 Assert-SourceContains 'GetRunningSolidWorksApplications' 'Session binding must enumerate candidate SOLIDWORKS automation objects.'
 Assert-SourceContains 'GetProcessID\(\)' 'SOLIDWORKS candidates must be identity-bound through ISldWorks.GetProcessID().'
