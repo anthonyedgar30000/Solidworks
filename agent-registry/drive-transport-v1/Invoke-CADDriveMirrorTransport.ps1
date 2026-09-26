@@ -183,20 +183,57 @@ try {
             }
 
             $mirrorResult = Join-Path $mirrorDirs['results'] $resultFile.Name
+
+            # Make result publication idempotent. A terminal result that is already
+            # present in the Drive Desktop mirror with the same SHA-256 is already
+            # verified and must not be recopied/relogged on every scheduled run.
+            # Do not `continue` after a verified match during a normal run because
+            # the request-retirement logic below must still be allowed to execute.
+            $sourceHash = (Get-FileHash -LiteralPath $resultFile.FullName -Algorithm SHA256).Hash
+            $mirrorResultVerified = $false
+
+            if (Test-Path -LiteralPath $mirrorResult -PathType Leaf) {
+                try {
+                    $mirrorHash = (Get-FileHash -LiteralPath $mirrorResult -Algorithm SHA256).Hash
+                    if ($mirrorHash -ceq $sourceHash) {
+                        $mirrorResultVerified = $true
+                    }
+                }
+                catch {
+                    # Fail toward republishing. An unreadable/unverifiable mirror
+                    # artifact is never treated as authoritative evidence.
+                    $mirrorResultVerified = $false
+                }
+            }
+
             if ($DryRun) {
-                Write-TransportLog "DRYRUN would publish terminal job_id=$jobId state=$state"
+                if (-not $mirrorResultVerified) {
+                    Write-TransportLog "DRYRUN would publish terminal job_id=$jobId state=$state"
+                }
                 continue
             }
 
-            $tempMirror = $mirrorResult + '.' + [Guid]::NewGuid().ToString('N') + '.tmp'
-            Copy-Item -LiteralPath $resultFile.FullName -Destination $tempMirror -Force
-            if ((Get-FileHash -LiteralPath $tempMirror -Algorithm SHA256).Hash -cne
-                (Get-FileHash -LiteralPath $resultFile.FullName -Algorithm SHA256).Hash) {
-                Remove-Item -LiteralPath $tempMirror -Force
-                throw 'mirror result verification hash mismatch'
+            if (-not $mirrorResultVerified) {
+                $tempMirror = $mirrorResult + '.' + [Guid]::NewGuid().ToString('N') + '.tmp'
+                Copy-Item -LiteralPath $resultFile.FullName -Destination $tempMirror -Force
+
+                $tempHash = (Get-FileHash -LiteralPath $tempMirror -Algorithm SHA256).Hash
+                if ($tempHash -cne $sourceHash) {
+                    Remove-Item -LiteralPath $tempMirror -Force
+                    throw 'mirror result verification hash mismatch'
+                }
+
+                Move-Item -LiteralPath $tempMirror -Destination $mirrorResult -Force
+
+                # Verify the final destination as well as the temporary copy before
+                # allowing the corresponding Drive-backed request to be retired.
+                $publishedHash = (Get-FileHash -LiteralPath $mirrorResult -Algorithm SHA256).Hash
+                if ($publishedHash -cne $sourceHash) {
+                    throw 'published mirror result verification hash mismatch'
+                }
+
+                Write-TransportLog "published terminal job_id=$jobId state=$state to Drive Desktop mirror"
             }
-            Move-Item -LiteralPath $tempMirror -Destination $mirrorResult -Force
-            Write-TransportLog "published terminal job_id=$jobId state=$state to Drive Desktop mirror"
 
             if ($retireAfterResult -and (Get-PropertyNames $record) -contains 'request_file_name') {
                 $requestName = [string]$record.request_file_name
