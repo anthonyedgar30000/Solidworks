@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "record_type": "evidence_admission_status",
+  "record_id": "ADMISSION-STATUS-V43-CONTACT-PR23",
+  "recorded_at_utc": "2026-09-26T20:16:19.406Z",
+  "target_plan_id": "PLAN-0002",
+  "target_step_id": "P0002.2",
+  "source": {
+    "pull_request_number": 23,
+    "pull_request_url": "https://github.com/anthonyedgar30000/Solidworks/pull/23",
+    "head_sha": "f5a9544bbd0c1e19bef7b4b58c6738b81fc0faac",
+    "state": "open",
+    "merged": false,
+    "claimed_document_title": "IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE",
+    "claimed_configuration": "V43_WRAP"
+  },
+  "admission_status": "NOT_ADMITTED",
+  "blocker_classification": "PROVENANCE_UNRESOLVED",
+  "blockers": [
+    "The implementation and source-contract CI are on open PR #23, not main.",
+    "The claimed Windows host classifications are PR narrative, not a repository-ingested raw result artifact with a durable hash/job identifier.",
+    "The fresh current status observation confirms the exact document title/path but does not expose an active configuration; V43_WRAP therefore cannot be rebound from the current connector alone."
+  ],
+  "usable_conclusion": "None. PR #23 may guide the next evidence-acquisition request but is not consumed as admitted current mechanical evidence.",
+  "preserved_nonclaims": [
+    "contact or clearance",
+    "capture restraint",
+    "preload or force",
+    "reaction path",
+    "timing, release, or mechanical acceptance"
+  ],
+  "write_authority": "NONE",
+  "model_mutation": false
+}
