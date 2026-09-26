@@ -1,4 +1,4 @@
-# CADGrounded native C# SOLIDWORKS worker v0.4.3
+# CADGrounded native C# SOLIDWORKS worker v0.4.4
 
 Purpose: keep the SOLIDWORKS COM/API boundary inside a narrow native C# process with a hard read-only command allowlist.
 
@@ -101,16 +101,22 @@ Example:
 
 The worker obtains source solids with `IComponent2.GetBodies3`, copies them with
 `IBody2.Copy`, and applies only the evaluation transforms to those temporary
-copies. It performs B-rep intersection with
-`IBody2.Operations2(SWBODYINTERSECT)`. For non-intersecting temporary solids it
-measures face-pair minimum distance with `IEntity.GetDistance`.
+copies. It performs exact B-rep intersection with
+`IBody2.Operations2(SWBODYINTERSECT)`.
 
-`IModelDoc2.ClosestDistance` is deliberately **not** used for hypothetical
-geometry because SOLIDWORKS documents that temporary geometric entities are
-unsupported by that method. Positive B-rep intersection deterministically
-implies zero set distance; otherwise the face-pair distance is reported when
-available. Body-pair and face-pair work are explicitly bounded and fail closed
-when limits are exceeded.
+For the unmodified current pose, the worker may also use
+`IModelDoc2.ClosestDistance` on the actual assembly components. For a genuinely
+hypothetical non-intersecting pose, minimum distance is currently left unresolved
+instead of using face-level `IEntity.GetDistance` on temporary bodies. A v43 host
+regression showed that approach can report a false zero-distance coincidence for
+a deliberately displaced non-intersecting candidate. Positive B-rep intersection
+still deterministically establishes physical interference and zero set distance.
+
+Accordingly, hypothetical non-intersection is classified as
+`noninterfering_contact_or_clearance_unresolved` until a validated temporary-body
+minimum-distance primitive is available. This preserves the project's
+NULL/unresolved rule instead of converting uncertain clearance/contact into a
+verified fact.
 
 The response includes current and evaluated transforms, exact component
 identities, distance evidence when available, intersection volume,
@@ -211,7 +217,7 @@ A passing CI compile catches C# source and Windows-target build regressions befo
 
 1. The GitHub Actions Windows compile gate must pass.
 2. Build successfully on the SOLIDWORKS Windows host with `build.cmd` (installed interop DLLs).
-3. Run `version` and verify worker version `0.4.3`.
+3. Run `version` and verify worker version `0.4.4`.
 4. Run `status` and verify `write_authority: NONE` and the exact active document.
 5. Run `mates --component <exact Name2>` against a known component.
 6. For the v42 capture-owner investigation, run `Verify-QueryMates-V42.ps1` against the exact active v42 assembly. It compares document identity/configuration/save state, target component state/transforms, and assembly file evidence before and after the three target mate reads.
