@@ -251,6 +251,16 @@ class IncrementalEvidenceRuntimeTests(unittest.TestCase):
         with self.assertRaises(runtime.IncrementalEvidenceError):
             runtime.build_inspection_run(bad)
 
+        bad = observation("a" * 64)
+        bad["raw_observation"]["command"] = "sw.transform_component"
+        with self.assertRaises(runtime.IncrementalEvidenceError):
+            runtime.build_inspection_run(bad)
+
+        bad = observation("a" * 64)
+        bad["component_count"] = 999
+        with self.assertRaises(runtime.IncrementalEvidenceError):
+            runtime.build_inspection_run(bad)
+
     def test_duplicate_name2_fails_closed(self):
         bad = observation("a" * 64)
         bad["components"].append(copy.deepcopy(bad["components"][0]))
