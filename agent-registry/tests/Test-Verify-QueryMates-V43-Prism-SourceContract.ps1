@@ -15,7 +15,7 @@ $requiredLiterals = @(
     'FITCHECK_PRISM_ARM1_33p0824x10x5_V43-1',
     "Invoke-WorkerJson -Arguments @('status')",
     "Invoke-WorkerJson -Arguments @('components','--all')",
-    'Invoke-WorkerJson -Arguments @(\'mates\',\'--component\',$name)',
+    'Invoke-WorkerJson -Arguments @(''mates'',''--component'',$name)',
     "write_authority -cne 'NONE'",
     'model_mutation -ne $false',
     'Get-FileEvidence -Path $ExpectedDocumentPath',
