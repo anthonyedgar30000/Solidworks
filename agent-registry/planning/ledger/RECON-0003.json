@@ -1,0 +1,50 @@
+{
+  "record_type": "plan_reconciliation",
+  "schema_version": 1,
+  "record_id": "RECON-0003",
+  "project_id": "CADGROUNDED.IXOR",
+  "reconciled_at_utc": "2026-09-26T20:16:19.406Z",
+  "plan_id": "PLAN-0002",
+  "raw_observation_ids": [
+    "E.V43.PRISM.LIVE_STATE.20260926T200826594Z"
+  ],
+  "actual_actions": [
+    {
+      "action_id": "ACT_PR23_PROVENANCE_REVIEW",
+      "write_authority": "NONE",
+      "result_id": "ADMISSION-STATUS-V43-CONTACT-PR23"
+    },
+    {
+      "action_id": "ACT_V43_PRISM_FUNCTIONAL_TEMPORAL_DECOMPOSITION",
+      "write_authority": "NONE",
+      "result_id": "IXOR_V43_PRISM_CAPTURE_AND_ROTATION_REFERENCE"
+    }
+  ],
+  "step_outcomes": [
+    {
+      "step_id": "P0002.1",
+      "outcome": "COMPLETED_ADMITTED",
+      "evidence_id": "E.V43.PRISM.LIVE_STATE.20260926T200826594Z"
+    },
+    {
+      "step_id": "P0002.2",
+      "outcome": "BLOCKED_PROVENANCE_UNRESOLVED",
+      "status_record_id": "ADMISSION-STATUS-V43-CONTACT-PR23"
+    },
+    {
+      "step_id": "P0002.3",
+      "outcome": "DECOMPOSED_UNRESOLVED",
+      "architecture_id": "IXOR_V43_PRISM_CAPTURE_AND_ROTATION_REFERENCE"
+    },
+    {
+      "step_id": "P0002.4",
+      "outcome": "PROJECTED"
+    },
+    {
+      "step_id": "P0002.5",
+      "outcome": "PROJECTED"
+    }
+  ],
+  "conclusion": "The v43 Prism candidate is functionally decomposed, but the closure chain, stroke/limits, force/preload, reaction path, and interval behavior remain unresolved. PR #23 contact claims are intentionally not admitted until provenance is complete.",
+  "revised_plan_id": "PLAN-0002"
+}
