@@ -1,0 +1,27 @@
+{
+  "record_type": "divergence_record",
+  "schema_version": 1,
+  "record_id": "DIV-0002",
+  "project_id": "CADGROUNDED.IXOR",
+  "recorded_at_utc": "2026-09-26T20:51:14.451Z",
+  "from_plan_id": "PLAN-0002",
+  "classification": "EXECUTION_FAILURE_REPLAN",
+  "trigger_records": [
+    "ADMISSION-STATUS-V43-PRISM-MATE-20260926"
+  ],
+  "actual_path": "The initial v43 mate verifier failed closed on its malformed default document path. A documented explicit-path override then completed a no-mutation read, but the emitted summary lacks the contract-required execution timestamp.",
+  "justification": "The host observation cannot be admitted as verified current evidence until the corrected verifier emits the missing execution timestamp. Preserving the failed attempt, passed candidate, and re-run requirement prevents silent provenance repair.",
+  "affected_step_outcomes": [
+    {
+      "step_id": "P0002.3",
+      "disposition": "COMPLETED_WITH_REFINEMENT_NOT_ADMITTED",
+      "reason": "Candidate report is SHA-bound but has incomplete execution-time provenance."
+    },
+    {
+      "step_id": "P0002.4",
+      "disposition": "DEFERRED",
+      "reason": "Capture-to-release integration must not consume the unadmitted candidate."
+    }
+  ],
+  "successor_plan_id": "PLAN-0003"
+}

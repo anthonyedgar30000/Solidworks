@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param(
     [string]$ExpectedDocumentTitle = 'IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE',
-    [string]$ExpectedDocumentPath = 'C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE.SLDASM',
+    [string]$ExpectedDocumentPath = 'C:\ChatGPT\Solidworks\IXOR\CAB_IXOR_6130800\IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE.SLDASM',
     [string]$ExpectedConfiguration = '',
     [switch]$SkipBuild
 )
@@ -199,10 +199,13 @@ $configurationBinding = if ([string]::IsNullOrWhiteSpace($ExpectedConfiguration)
     'PREASSERTED_AND_OBSERVED'
 }
 
+$executedAtUtc = [DateTime]::UtcNow.ToString('o')
+
 $verification = [ordered]@{
     schema_version = 1
     test = 'sw.query_mates v43 Prism kinematic-binding no-mutation verification'
     result = 'PASS'
+    executed_at_utc = $executedAtUtc
     expected_document = [ordered]@{
         title = $ExpectedDocumentTitle
         path = $ExpectedDocumentPath
