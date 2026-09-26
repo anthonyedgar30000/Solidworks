@@ -10,6 +10,7 @@ from functional_temporal import (
     FunctionalTemporalError,
     build_epistemic_graph_fragment,
     evaluate_architecture,
+    evidence_record_sha256,
     merge_into_epistemic_graph,
     rank_next_tests,
     validate_architecture,
@@ -74,6 +75,130 @@ class FunctionalTemporalTests(unittest.TestCase):
         self.assertEqual(current_inventory["payload"]["component_count"], 55)
         self.assertEqual(current_status["payload"]["document_type"], "assembly")
         self.assertEqual(stale_inventory["temporal_scope"]["validity_state"], "STALE")
+
+    def test_projected_stale_overrides_source_current_for_requirement_and_graph(self):
+        case = copy.deepcopy(self.case)
+        requirement = by_id(case["obligations"], "PRODUCT_POSITION_STABLE")
+        record = evidence_by_id(
+            case, "E_V42_COMPONENT_INVENTORY_20260925T025842Z"
+        )
+        requirement["verification_state"] = "VERIFIED"
+        requirement["depends_on_requirement_ids"] = []
+        requirement["evidence_refs"] = [record["evidence_id"]]
+        requirement["expected_authority"] = [record["source_authority"]]
+        requirement["scope"] = {
+            "required_coverage": "POINT_ONLY",
+            "state_ids": ["INDEXED"],
+            "transition_ids": [],
+        }
+        record["temporal_scope"] = {
+            "coverage": "POINT_ONLY",
+            "validity_state": "CURRENT",
+            "state_ids": ["INDEXED"],
+            "transition_ids": [],
+        }
+
+        baseline = evaluate_architecture(case)
+        self.assertEqual(
+            baseline["requirement_states"]["PRODUCT_POSITION_STABLE"]["state"],
+            "VERIFIED",
+        )
+
+        projection = [
+            {
+                "evidence_id": record["evidence_id"],
+                "record_sha256": evidence_record_sha256(record),
+                "source_validity_state": "CURRENT",
+                "validity_state": "STALE",
+                "last_invalidation_event_id": "invalidation:test",
+                "admission": {
+                    "evidence_type": record["evidence_type"],
+                    "evidence_state": record["evidence_state"],
+                    "source_authority": record["source_authority"],
+                    "source_classification": record["source_classification"],
+                },
+                "projection_only": True,
+            }
+        ]
+        projected = evaluate_architecture(
+            case,
+            validity_projection=projection,
+        )
+        result = projected["requirement_states"]["PRODUCT_POSITION_STABLE"]
+        self.assertEqual(result["state"], "UNRESOLVED")
+        self.assertEqual(result["ambiguity_bucket"], "STALE_STATE")
+        self.assertTrue(projected["validity_projection_applied"])
+        self.assertEqual(result["evidence_validity"][0]["source_validity_state"], "CURRENT")
+        self.assertEqual(result["evidence_validity"][0]["validity_state"], "STALE")
+        self.assertTrue(
+            any("projected validity is STALE" in reason for reason in result["reasons"])
+        )
+
+        fragment = build_epistemic_graph_fragment(
+            case,
+            validity_projection=projection,
+        )
+        node = next(
+            item
+            for item in fragment["nodes"]
+            if item["id"].endswith(
+                "EVIDENCE::E_V42_COMPONENT_INVENTORY_20260925T025842Z"
+            )
+        )
+        self.assertEqual(node["state"], "NULL")
+        self.assertEqual(node["metadata"]["source_validity_state"], "CURRENT")
+        self.assertEqual(node["metadata"]["current_validity_state"], "STALE")
+        self.assertEqual(
+            node["metadata"]["last_invalidation_event_id"],
+            "invalidation:test",
+        )
+
+    def test_supplied_projection_missing_record_fails_currentness_closed(self):
+        case = copy.deepcopy(self.case)
+        requirement = by_id(case["obligations"], "PRODUCT_POSITION_STABLE")
+        record = evidence_by_id(
+            case, "E_V42_COMPONENT_INVENTORY_20260925T025842Z"
+        )
+        requirement["verification_state"] = "VERIFIED"
+        requirement["depends_on_requirement_ids"] = []
+        requirement["evidence_refs"] = [record["evidence_id"]]
+        requirement["expected_authority"] = [record["source_authority"]]
+        requirement["scope"] = {
+            "required_coverage": "POINT_ONLY",
+            "state_ids": ["INDEXED"],
+            "transition_ids": [],
+        }
+        record["temporal_scope"] = {
+            "coverage": "POINT_ONLY",
+            "validity_state": "CURRENT",
+            "state_ids": ["INDEXED"],
+            "transition_ids": [],
+        }
+
+        report = evaluate_architecture(case, validity_projection=[])
+        result = report["requirement_states"]["PRODUCT_POSITION_STABLE"]
+        self.assertEqual(result["state"], "UNRESOLVED")
+        self.assertEqual(result["evidence_validity"][0]["validity_state"], "UNKNOWN")
+        self.assertTrue(
+            any("no current-validity projection" in reason for reason in result["reasons"])
+        )
+
+    def test_validity_projection_must_bind_exact_immutable_record(self):
+        case = copy.deepcopy(self.case)
+        record = evidence_by_id(
+            case, "E_V42_COMPONENT_INVENTORY_20260925T025842Z"
+        )
+        projection = [
+            {
+                "evidence_id": record["evidence_id"],
+                "record_sha256": "0" * 64,
+                "source_validity_state": record["temporal_scope"]["validity_state"],
+                "validity_state": "STALE",
+                "projection_only": True,
+            }
+        ]
+        with self.assertRaises(FunctionalTemporalError):
+            evaluate_architecture(case, validity_projection=projection)
 
     def test_static_point_evidence_cannot_verify_throughout_capture(self):
         case = copy.deepcopy(self.case)

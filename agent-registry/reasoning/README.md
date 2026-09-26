@@ -129,6 +129,7 @@ Run the v42 reference case from this directory:
 ```powershell
 python .\functional_temporal.py `
   .\reference_cases\v42_capture_and_rotation.functional-temporal.v1.json `
+  --validity-projection .\runtime\v42-evidence-validity.json `
   --summary
 ```
 
@@ -137,6 +138,15 @@ acceptance, create a CAD write, or promote `UNRESOLVED` evidence. In
 particular, a `POINT_ONLY` SOLIDWORKS observation or distance calculation is
 not accepted as proof that bottle restraint/contact persists throughout
 `CAPTURE_AND_ROTATION`, nor that clearance holds across reachable motion.
+
+When an incremental-evidence current-validity projection is available, pass it
+with `--validity-projection`. The evaluator binds each projection row to the
+exact immutable `EvidenceRecord` SHA-256 before using its current
+`validity_state`. A projected `STALE` overrides an admission/source
+`CURRENT`; if a projection is supplied but a referenced EvidenceRecord has no
+projection row, currentness fails closed as `UNKNOWN` rather than falling back
+to the historical record. The same effective validity is used for requirement
+evaluation and epistemic evidence-node state.
 The current v42 capture-owner test intentionally has no `cad_request`: parent,
 feature/mate, and DOF binding is not in the deployed Remote Queue read-only
 command partition. It does declare three `native_read_candidates` for the
