@@ -1,0 +1,89 @@
+{
+  "schema_version": 1,
+  "record_type": "evidence",
+  "evidence_id": "E.V43.PRISM.LINK1_REACTION_BASE.CONTACT.20260926T212845290Z",
+  "evidence_type": "solidworks_observation",
+  "evidence_state": "VERIFIED",
+  "source_authority": "SOLIDWORKS_LIVE_STATE",
+  "source_classification": "verified_from_solidworks_api",
+  "subject": {
+    "subject_type": "v43_prism_exact_pair_current_pose_contact_observation",
+    "identity_exact": "FITCHECK_PRISM_LINK_15x10x25_V43-1; FITCHECK_PRISM_REACTION_BASE_70x120x20_V43-1",
+    "document_title_exact": "IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE",
+    "document_path_exact": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE.SLDASM"
+  },
+  "provenance": {
+    "recorded_at": "2026-09-26T21:28:45.2902040Z",
+    "source_ref": "C:\\ChatGPT\\Solidworks-main-current\\agent-registry\\workers\\CadGrounded.SolidWorksWorker\\verification-output\\classify-contact-v43-prism-reaction-base\\verification-summary.json; user-supplied SHA-256 binding",
+    "sha256": "85c5f957e6fbe55fc12c0ec0d1b241e266bf52ffbf122624374edd7c320631c1",
+    "tool_path": "Verify-ClassifyContact-V43-Prism.ps1; CadGrounded.SolidWorksWorker sw.classify_contact_pair"
+  },
+  "dependencies": [
+    "E.V43.PRISM.LIVE_STATE.20260926T200826594Z",
+    "E.V43.PRISM.MATE_BINDING.20260926T205657149Z",
+    "PLAN-0003",
+    "P0003.4",
+    "PR-30"
+  ],
+  "geometry_state": "CANDIDATE_OPERATING",
+  "temporal_scope": {
+    "coverage": "POINT_ONLY",
+    "validity_state": "CURRENT",
+    "state_ids": [
+      "V43_WRAP",
+      "V43.SNAPSHOT.20260926T212845290Z"
+    ],
+    "transition_ids": []
+  },
+  "ambiguity_bucket": "KINEMATIC_STATE_UNRESOLVED",
+  "mechanical_acceptance_granted": false,
+  "payload": {
+    "observation_kind": "exact_top_level_component_pair_current_pose_contact_classification",
+    "document": {
+      "title": "IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE",
+      "path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE.SLDASM",
+      "document_type": "assembly",
+      "active_configuration_exact": "V43_WRAP",
+      "configuration_binding": "PREASSERTED_AND_OBSERVED"
+    },
+    "executed_at_utc": "2026-09-26T21:28:45.2902040Z",
+    "worker_version": "0.4.2",
+    "target_pair": {
+      "a_name_exact": "FITCHECK_PRISM_LINK_15x10x25_V43-1",
+      "b_name_exact": "FITCHECK_PRISM_REACTION_BASE_70x120x20_V43-1"
+    },
+    "current_pose_result": {
+      "minimum_distance_mm": 1.2499999999999734,
+      "classification": "clearance",
+      "contact_tolerance_mm": 0.001,
+      "volume_tolerance_mm3": 0.001,
+      "boolean_executed": false,
+      "api_distance": "IModelDoc2.ClosestDistance",
+      "api_intersection": "IBody2.Operations2(SWBODYINTERSECT) on transformed temporary body copies"
+    },
+    "no_mutation_comparison": {
+      "active_document_path_same_before_after": true,
+      "active_document_title_same_before_after": true,
+      "active_configuration_same_before_after": true,
+      "target_transforms_same_before_after": true,
+      "assembly_file_length_same_before_after": true,
+      "assembly_file_last_write_utc_same_before_after": true,
+      "assembly_file_sha256_before_after": "dcd53467d2693283bb6617bdde1d4da8c19790615385e307671690ddce84b32a",
+      "model_mutation": false,
+      "write_authority": "NONE",
+      "remote_queue_authorized": false
+    },
+    "admitted_claims": [
+      "At the recorded point observation in exact active configuration V43_WRAP, the exact Link-1 to reaction-base pair had positive minimum separation of 1.2499999999999734 mm.",
+      "The returned current-pose classification for the exact pair was clearance.",
+      "Positive separation excludes direct contact between these two exact components at this recorded pose.",
+      "The verifier detected no change to the exact target transforms, active document/configuration state, or assembly-file evidence."
+    ],
+    "explicitly_not_claimed": [
+      "No claim that the reaction base is absent from the wider structural or force-reaction path.",
+      "No claim about contact through another Prism component, fastener, actuator, rail, slider, arm, or unobserved mechanism.",
+      "No claim of closure ownership, stroke, preload, force, stiffness, reachable motion, timing, capture, release, or mechanical acceptance.",
+      "No interval-wide or alternate-pose conclusion is admitted from this point observation."
+    ]
+  }
+}
