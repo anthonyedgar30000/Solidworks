@@ -27,6 +27,8 @@ Examples:
 
 A state change must not silently change object identity or source authority.
 
+An evidence record also separates **admission classification** from **current applicability**. `evidence_state` records what kind of evidentiary claim was admitted at creation time; freshness/current-decision applicability is represented by `temporal_scope.validity_state` and the derived current-state validity projection. A `SolidWorksObservation` admitted as `VERIFIED` remains a verified historical observation even after its applicability becomes `STALE`. Likewise, a `DeterministicCalculation` remains `MEASURED_CALCULATED` as a historical derivation even when changed dependencies make it stale for a current decision. Downstream claims reopen; historical evidence is not rewritten.
+
 ## 1. CADRequest supertype
 
 Common attributes belong to every request:
@@ -136,6 +138,16 @@ The following are examples of state dimensions:
 - `MECHANICALLY_ACCEPTED`
 - `NOT_APPLICABLE`
 
+### Current applicability / freshness
+
+When `temporal_scope` is present, its `validity_state` is:
+
+- `CURRENT`
+- `STALE`
+- `UNKNOWN`
+
+This dimension answers whether the admitted evidence may support a **current** decision. It does not rewrite `evidence_state`, provenance, subtype identity, or source authority.
+
 ### Ambiguity bucket
 
 - `IDENTITY_AMBIGUOUS`
@@ -150,6 +162,8 @@ The following are examples of state dimensions:
 - `STALE_STATE`
 - `POLICY_BLOCKED`
 - `MECHANICAL_ACCEPTANCE_BLOCKED`
+
+`STALE_STATE` may still be used as an investigation/routing bucket when staleness is the reason a dependent claim cannot advance. The authoritative freshness value for an evidence record with temporal scope is `temporal_scope.validity_state`.
 
 A `SolidWorksObservation` can become stale without ceasing to be a SolidWorks observation. A fit-check object can later become candidate operating geometry without changing its component identity. This is why type and state remain separate.
 
