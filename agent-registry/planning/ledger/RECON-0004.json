@@ -1,0 +1,53 @@
+{
+  "record_type": "plan_reconciliation",
+  "schema_version": 1,
+  "record_id": "RECON-0004",
+  "project_id": "CADGROUNDED.IXOR",
+  "reconciled_at_utc": "2026-09-26T20:51:14.451Z",
+  "plan_id": "PLAN-0002",
+  "raw_observation_ids": [
+    "ADMISSION-STATUS-V43-PRISM-MATE-20260926"
+  ],
+  "actual_actions": [
+    {
+      "action_id": "ACT_V43_PRISM_MATE_VERIFIER_DEFAULT_PATH",
+      "write_authority": "NONE",
+      "result": "FAILED_CLOSED",
+      "reason": "default ExpectedDocumentPath contained doubled backslashes"
+    },
+    {
+      "action_id": "ACT_V43_PRISM_MATE_VERIFIER_EXPLICIT_PATH",
+      "write_authority": "NONE",
+      "result_id": "ADMISSION-STATUS-V43-PRISM-MATE-20260926",
+      "reason": "PASS candidate retained but not admitted because execution timestamp was absent"
+    }
+  ],
+  "step_outcomes": [
+    {
+      "step_id": "P0002.1",
+      "outcome": "COMPLETED_ADMITTED",
+      "evidence_id": "E.V43.PRISM.LIVE_STATE.20260926T200826594Z"
+    },
+    {
+      "step_id": "P0002.2",
+      "outcome": "BLOCKED_PROVENANCE_UNRESOLVED",
+      "status_record_id": "ADMISSION-STATUS-V43-CONTACT-PR23"
+    },
+    {
+      "step_id": "P0002.3",
+      "outcome": "COMPLETED_WITH_REFINEMENT_NOT_ADMITTED",
+      "status_record_id": "ADMISSION-STATUS-V43-PRISM-MATE-20260926"
+    },
+    {
+      "step_id": "P0002.4",
+      "outcome": "DEFERRED_BY_PROVENANCE",
+      "divergence_id": "DIV-0002"
+    },
+    {
+      "step_id": "P0002.5",
+      "outcome": "PROJECTED"
+    }
+  ],
+  "conclusion": "The bounded host verifier reached a no-mutation PASS only under an explicit canonical-path override. Because v1 did not emit the required execution timestamp, its zero-mate result remains a SHA-bound candidate rather than admitted current evidence. PLAN-0003 corrects and reruns that provenance boundary before topology or operating-mechanism conclusions advance.",
+  "revised_plan_id": "PLAN-0003"
+}
