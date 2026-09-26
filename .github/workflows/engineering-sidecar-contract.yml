@@ -1,0 +1,31 @@
+name: Engineering sidecar contract
+
+on:
+  pull_request:
+    paths:
+      - 'agent-registry/docs/ENGINEERING_SIDECARS_V1.md'
+      - 'agent-registry/schemas/engineering-sidecar-manifest.v1.schema.json'
+      - 'agent-registry/sidecars/catalog.v1.json'
+      - 'agent-registry/tests/Test-Engineering-Sidecar-Contract.ps1'
+      - '.github/workflows/engineering-sidecar-contract.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'agent-registry/docs/ENGINEERING_SIDECARS_V1.md'
+      - 'agent-registry/schemas/engineering-sidecar-manifest.v1.schema.json'
+      - 'agent-registry/sidecars/catalog.v1.json'
+      - 'agent-registry/tests/Test-Engineering-Sidecar-Contract.ps1'
+      - '.github/workflows/engineering-sidecar-contract.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  source-contract:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify engineering sidecar source contract
+        shell: pwsh
+        run: ./agent-registry/tests/Test-Engineering-Sidecar-Contract.ps1

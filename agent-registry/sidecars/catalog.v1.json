@@ -1,0 +1,148 @@
+{
+  "schema_version": 1,
+  "catalog_state": "RESEARCH_ONLY",
+  "mechanical_acceptance_granted": false,
+  "sidecars": [
+    {
+      "schema_version": 1,
+      "sidecar_id": "opencascade-step-inspector",
+      "display_name": "CAD MCP Server / Open CASCADE STEP Inspector",
+      "role": "STEP_INSPECTOR",
+      "implementation": {
+        "repository_url": "https://github.com/mattmohandiss/cad-mcp-server",
+        "documentation_url": "https://github.com/mattmohandiss/cad-mcp-server/blob/main/README.md",
+        "transport": "STDIO",
+        "local_only": true,
+        "reviewed_at": "2026-09-26T22:45:00Z"
+      },
+      "authority": {
+        "authority_ceiling": "DETERMINISTIC_CALCULATION",
+        "may_observe_solidworks_live": false,
+        "may_modify_solidworks": false,
+        "may_grant_mechanical_acceptance": false
+      },
+      "mutation_scope": "READ_ONLY_SOURCE",
+      "allowed_evidence_type": "deterministic_calculation",
+      "allowed_tool_families": [
+        "inspect_step",
+        "find_faces",
+        "find_edges",
+        "measure_geometry",
+        "diff_step"
+      ],
+      "forbidden_tool_families": [
+        "cad_write",
+        "solidworks_live_read",
+        "mechanical_acceptance"
+      ],
+      "required_provenance": [
+        "tool_identity",
+        "tool_version",
+        "input_artifact_hashes",
+        "method",
+        "recorded_at",
+        "raw_result_ref"
+      ],
+      "status": "RESEARCH_CANDIDATE",
+      "notes": "Preferred first pilot because the implementation is explicitly local, deterministic, Open CASCADE-backed, and read-only. Measurements remain derived calculations over hashed STEP inputs."
+    },
+    {
+      "schema_version": 1,
+      "sidecar_id": "freecad-candidate-sandbox",
+      "display_name": "FreeCAD MCP Candidate Geometry Sandbox",
+      "role": "CAD_SANDBOX",
+      "implementation": {
+        "repository_url": "https://github.com/blwfish/freecad-mcp",
+        "documentation_url": "https://github.com/blwfish/freecad-mcp/blob/main/TOOLS.md",
+        "transport": "LOCAL_BRIDGE",
+        "local_only": true,
+        "reviewed_at": "2026-09-26T22:45:00Z"
+      },
+      "authority": {
+        "authority_ceiling": "DETERMINISTIC_CALCULATION",
+        "may_observe_solidworks_live": false,
+        "may_modify_solidworks": false,
+        "may_grant_mechanical_acceptance": false
+      },
+      "mutation_scope": "ISOLATED_WORKSPACE",
+      "allowed_evidence_type": "deterministic_calculation",
+      "allowed_tool_families": [
+        "part_operations",
+        "assembly_operations",
+        "measurement_operations",
+        "spatial_query",
+        "geometric_verification",
+        "fixture_operations",
+        "mesh_operations"
+      ],
+      "forbidden_tool_families": [
+        "execute_python",
+        "execute_python_async",
+        "macro_operations",
+        "authoritative_solidworks_file_write",
+        "mechanical_acceptance"
+      ],
+      "required_provenance": [
+        "tool_identity",
+        "tool_version",
+        "input_artifact_hashes",
+        "method",
+        "recorded_at",
+        "raw_result_ref"
+      ],
+      "status": "RESEARCH_CANDIDATE",
+      "notes": "Use only against copied/exported neutral geometry or purpose-built sandbox documents. Never treat FreeCAD state as the live machine authority and never permit arbitrary Python in the governed adapter."
+    },
+    {
+      "schema_version": 1,
+      "sidecar_id": "openmodelica-operating-state-simulator",
+      "display_name": "OpenModelica / OMEdit MCP Operating-State Simulator",
+      "role": "DYNAMIC_SIMULATOR",
+      "implementation": {
+        "repository_url": "https://github.com/OpenModelica/OpenModelica",
+        "documentation_url": "https://github.com/OpenModelica/OpenModelica/blob/master/OMEdit/OMEditLIB/MCP/README.md",
+        "transport": "STREAMABLE_HTTP",
+        "local_only": true,
+        "reviewed_at": "2026-09-26T22:45:00Z"
+      },
+      "authority": {
+        "authority_ceiling": "DETERMINISTIC_CALCULATION",
+        "may_observe_solidworks_live": false,
+        "may_modify_solidworks": false,
+        "may_grant_mechanical_acceptance": false
+      },
+      "mutation_scope": "SIMULATION_MODEL_ONLY",
+      "allowed_evidence_type": "deterministic_calculation",
+      "allowed_tool_families": [
+        "read_model",
+        "set_parameters",
+        "simulate",
+        "resimulate",
+        "inspect_results"
+      ],
+      "forbidden_tool_families": [
+        "cad_write",
+        "solidworks_live_read",
+        "mechanical_acceptance",
+        "simulation_to_verified_geometry_promotion"
+      ],
+      "required_provenance": [
+        "tool_identity",
+        "tool_version",
+        "input_artifact_hashes",
+        "method",
+        "recorded_at",
+        "raw_result_ref"
+      ],
+      "status": "RESEARCH_CANDIDATE",
+      "notes": "Use for equation-based operating-state and kinematic/dynamic investigations. A simulated trajectory is not proof that the CAD mechanism can reach the same states without separate geometry and motion verification."
+    }
+  ],
+  "reference_only": [
+    {
+      "name": "Fusion360 MCP Server",
+      "repository_url": "https://github.com/faust-machines/fusion360-mcp-server",
+      "reason": "Useful control-plane design reference for MCP tool annotations, structured timeout handling, mutation non-retry semantics, and post-timeout reread behavior. Not selected as a CADGrounded geometry authority or current runtime dependency."
+    }
+  ]
+}
