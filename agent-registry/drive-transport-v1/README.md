@@ -80,9 +80,19 @@ Terminal results are exported only when:
 - `runner_write_authority` is exactly `NONE`;
 - `state` is `completed`, `failed`, or `rejected`.
 
-For the mirror transport, the result copy is SHA-256 verified before the corresponding Drive-backed request can be retired. For the rclone fallback, the uploaded Drive result is re-read by name before request retirement.
+For the mirror transport, the result copy is SHA-256 verified before the corresponding Drive-backed request can be retired. If the destination result already exists and its SHA-256 matches the canonical local result, publication is treated as already verified: the result is not recopied or relogged, while matching request retirement is still allowed to proceed. For the rclone fallback, the uploaded Drive result is re-read by name before request retirement.
 
 A Drive request is retired only **after** a matching terminal result has been copied and verified. Therefore disappearance from Drive `incoming` without a result is never runner success.
+
+## File-only idempotency regression test
+
+The regression test uses temporary local directories only; it does not call SOLIDWORKS or require Google Drive. Stop/disable the scheduled mirror transport first so the production transport mutex cannot interfere, then run:
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tests\Test-CADDriveMirrorTransportIdempotency.ps1
+```
+
+A passing run verifies that an unchanged terminal result is published only once and that an already-identical verified mirror result can still retire its matching Drive-backed request.
 
 ## Acceptance test
 
