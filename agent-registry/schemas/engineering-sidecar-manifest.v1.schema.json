@@ -1,0 +1,173 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cadgrounded.local/schemas/engineering-sidecar-manifest.v1.schema.json",
+  "title": "CADGrounded Engineering Sidecar Manifest v1",
+  "description": "Candidate non-runtime contract for deterministic external engineering tools. Sidecars may contribute bounded calculations or sandbox artifacts but do not inherit SOLIDWORKS authority or mechanical-acceptance authority.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "sidecar_id",
+    "display_name",
+    "role",
+    "implementation",
+    "authority",
+    "mutation_scope",
+    "allowed_evidence_type",
+    "allowed_tool_families",
+    "forbidden_tool_families",
+    "required_provenance",
+    "status"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "sidecar_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._-]{0,127}$"
+    },
+    "display_name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 160
+    },
+    "role": {
+      "enum": [
+        "STEP_INSPECTOR",
+        "CAD_SANDBOX",
+        "DYNAMIC_SIMULATOR"
+      ]
+    },
+    "implementation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repository_url",
+        "transport",
+        "local_only",
+        "reviewed_at"
+      ],
+      "properties": {
+        "repository_url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "documentation_url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "transport": {
+          "enum": [
+            "STDIO",
+            "STREAMABLE_HTTP",
+            "LOCAL_BRIDGE"
+          ]
+        },
+        "local_only": {
+          "type": "boolean"
+        },
+        "reviewed_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "authority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "authority_ceiling",
+        "may_observe_solidworks_live",
+        "may_modify_solidworks",
+        "may_grant_mechanical_acceptance"
+      ],
+      "properties": {
+        "authority_ceiling": {
+          "const": "DETERMINISTIC_CALCULATION"
+        },
+        "may_observe_solidworks_live": {
+          "const": false
+        },
+        "may_modify_solidworks": {
+          "const": false
+        },
+        "may_grant_mechanical_acceptance": {
+          "const": false
+        }
+      }
+    },
+    "mutation_scope": {
+      "enum": [
+        "READ_ONLY_SOURCE",
+        "ISOLATED_WORKSPACE",
+        "SIMULATION_MODEL_ONLY"
+      ]
+    },
+    "allowed_evidence_type": {
+      "const": "deterministic_calculation"
+    },
+    "allowed_tool_families": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128
+      }
+    },
+    "forbidden_tool_families": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128
+      }
+    },
+    "required_provenance": {
+      "type": "array",
+      "uniqueItems": true,
+      "minItems": 5,
+      "items": {
+        "enum": [
+          "tool_identity",
+          "tool_version",
+          "input_artifact_hashes",
+          "method",
+          "recorded_at",
+          "raw_result_ref"
+        ]
+      },
+      "allOf": [
+        {
+          "contains": { "const": "tool_identity" }
+        },
+        {
+          "contains": { "const": "tool_version" }
+        },
+        {
+          "contains": { "const": "input_artifact_hashes" }
+        },
+        {
+          "contains": { "const": "method" }
+        },
+        {
+          "contains": { "const": "recorded_at" }
+        }
+      ]
+    },
+    "status": {
+      "enum": [
+        "RESEARCH_CANDIDATE",
+        "APPROVED_FOR_READONLY_INGEST",
+        "APPROVED_FOR_SANDBOX",
+        "BLOCKED"
+      ]
+    },
+    "notes": {
+      "type": "string",
+      "maxLength": 4096
+    }
+  }
+}

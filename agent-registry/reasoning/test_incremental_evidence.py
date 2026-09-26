@@ -234,6 +234,58 @@ class IncrementalEvidenceRuntimeTests(unittest.TestCase):
         self.assertEqual(derived, derived_before)
         self.assertEqual(connector, connector_before)
 
+    def test_reindex_same_record_cannot_resurrect_stale_projection(self):
+        before = runtime.record_inspection_run(
+            self.db, "ixor-v42", observation("a" * 64)
+        )
+        after = runtime.record_inspection_run(
+            self.db, "ixor-v42", observation("b" * 64, belt_x=10.5)
+        )
+        record = evidence(
+            "E.REINDEX.STALE",
+            ["component_name2:FITCHECK_DRIVEN_WRAP_BELT-1"],
+        )
+        immutable_before = copy.deepcopy(record)
+
+        first_index = runtime.index_evidence_record(
+            self.db, "ixor-v42", record
+        )
+        self.assertEqual(first_index["source_validity_state"], "CURRENT")
+        self.assertEqual(first_index["validity_state"], "CURRENT")
+        self.assertEqual(
+            first_index["admission"]["evidence_state"], "VERIFIED"
+        )
+
+        runtime.reconcile_runs(
+            self.db, "ixor-v42", before["run_id"], after["run_id"]
+        )
+
+        second_index = runtime.index_evidence_record(
+            self.db, "ixor-v42", record
+        )
+        self.assertEqual(record, immutable_before)
+        self.assertEqual(
+            second_index["record_sha256"], first_index["record_sha256"]
+        )
+        self.assertEqual(second_index["source_validity_state"], "CURRENT")
+        self.assertEqual(second_index["validity_state"], "STALE")
+        self.assertIsNotNone(second_index["last_invalidation_event_id"])
+        self.assertEqual(
+            second_index["admission"]["evidence_state"], "VERIFIED"
+        )
+
+        projection = runtime.validity_projection(self.db, "ixor-v42")
+        row = next(
+            item
+            for item in projection
+            if item["evidence_id"] == "E.REINDEX.STALE"
+        )
+        self.assertEqual(row["record_sha256"], first_index["record_sha256"])
+        self.assertEqual(row["source_validity_state"], "CURRENT")
+        self.assertEqual(row["validity_state"], "STALE")
+        self.assertEqual(row["admission"]["evidence_state"], "VERIFIED")
+        self.assertTrue(row["projection_only"])
+
     def test_same_source_artifact_is_idempotent(self):
         first = runtime.record_inspection_run(self.db, "ixor-v42", observation("a" * 64))
         second = runtime.record_inspection_run(self.db, "ixor-v42", observation("a" * 64))
@@ -266,6 +318,12 @@ class IncrementalEvidenceRuntimeTests(unittest.TestCase):
         bad["components"].append(copy.deepcopy(bad["components"][0]))
         with self.assertRaises(runtime.IncrementalEvidenceError):
             runtime.build_inspection_run(bad)
+
+    def test_evidence_index_requires_admission_classification(self):
+        record = evidence("E.MISSING.STATE", [])
+        del record["evidence_state"]
+        with self.assertRaises(runtime.IncrementalEvidenceError):
+            runtime.index_evidence_record(self.db, "ixor-v42", record)
 
     def test_evidence_id_is_immutable(self):
         record = evidence("E.IMMUTABLE", ["component_name2:Connector1"])
