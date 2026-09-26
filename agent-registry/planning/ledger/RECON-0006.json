@@ -1,0 +1,48 @@
+{
+  "record_type": "plan_reconciliation",
+  "schema_version": 1,
+  "record_id": "RECON-0006",
+  "project_id": "CADGROUNDED.IXOR",
+  "reconciled_at_utc": "2026-09-26T21:41:30Z",
+  "plan_id": "PLAN-0003",
+  "raw_observation_ids": [
+    "E.V43.PRISM.LINK1_REACTION_BASE.CONTACT.20260926T212845290Z"
+  ],
+  "actual_actions": [
+    {
+      "action_id": "ACT_V43_PRISM_LINK1_REACTION_BASE_VERIFIER",
+      "write_authority": "NONE",
+      "result_id": "E.V43.PRISM.LINK1_REACTION_BASE.CONTACT.20260926T212845290Z",
+      "reason": "The exact current-pose verifier passed with no-mutation comparison and the user supplied the durable verification-summary SHA-256."
+    },
+    {
+      "action_id": "ACT_BIND_V43_PRISM_LINK1_REACTION_BASE_ARTIFACT_SHA256",
+      "write_authority": "NONE",
+      "result": "COMPLETED",
+      "reason": "Bound verification-summary.json to SHA-256 85c5f957e6fbe55fc12c0ec0d1b241e266bf52ffbf122624374edd7c320631c1."
+    }
+  ],
+  "step_outcomes": [
+    {
+      "step_id": "P0003.1",
+      "outcome": "COMPLETED"
+    },
+    {
+      "step_id": "P0003.2",
+      "outcome": "COMPLETED_ADMITTED",
+      "evidence_id": "E.V43.PRISM.MATE_BINDING.20260926T205657149Z"
+    },
+    {
+      "step_id": "P0003.3",
+      "outcome": "COMPLETED_ADMITTED",
+      "evidence_id": "E.V43.PRISM.MATE_BINDING.20260926T205657149Z"
+    },
+    {
+      "step_id": "P0003.4",
+      "outcome": "COMPLETED_ADMITTED",
+      "evidence_id": "E.V43.PRISM.LINK1_REACTION_BASE.CONTACT.20260926T212845290Z"
+    }
+  ],
+  "conclusion": "P0003.4 is now provenance-complete and admitted. In exact V43_WRAP at the recorded point observation, FITCHECK_PRISM_LINK_15x10x25_V43-1 and FITCHECK_PRISM_REACTION_BASE_70x120x20_V43-1 have 1.2499999999999734 mm positive clearance, so direct contact for this exact pair is absent at this pose. This preserves H_V43_PRISM_REACTION_BASE_CARRIES_LOAD as unresolved rather than disproven because a wider structural or force-reaction path through other components or other reachable states remains possible. Closure ownership, wider reaction topology, stroke, preload, force, reachable motion, timing, release, and mechanical acceptance remain unresolved.",
+  "revised_plan_id": "PLAN-0003"
+}
