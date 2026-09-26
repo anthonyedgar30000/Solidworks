@@ -14,9 +14,9 @@ SCHEMA = ROOT.parent / "schemas" / "evidence-record.v1.schema.json"
 class V42InterfaceEvidenceAdmissionTests(unittest.TestCase):
     def setUp(self):
         self.artifact = json.loads(ARTIFACT.read_text(encoding="utf-8"))
-        # Test-only stand-in. Production admission fails closed until the actual
-        # Windows-host file digest is supplied by the operator.
-        self.artifact["artifact_sha256"] = "a" * 64
+        # The exact passed Windows-host digest is in the fixture. The real
+        # artifact did not supply a durable recorded_at field, so tests provide
+        # one only to exercise the schema-required external precondition.
         self.artifact["recorded_at"] = "2026-09-25T22:10:54Z"
         self.record = admit_host_artifact(self.artifact)
         self.schema = json.loads(SCHEMA.read_text(encoding="utf-8"))
@@ -25,8 +25,9 @@ class V42InterfaceEvidenceAdmissionTests(unittest.TestCase):
         validate_evidence_record(self.record, self.schema)
         self.assertEqual(self.record["evidence_type"], "solidworks_observation")
         self.assertFalse(self.record["mechanical_acceptance_granted"])
-        self.assertEqual(self.record["provenance"]["sha256"], "a" * 64)
-        self.assertTrue(self.record["evidence_id"].endswith("a" * 64))
+        expected = "1200faffc5150c249bb80084cceaf97b2bade6b137f12b0ebac6f872a6a39975"
+        self.assertEqual(self.record["provenance"]["sha256"], expected)
+        self.assertTrue(self.record["evidence_id"].endswith(expected))
 
     def test_external_digest_is_a_fail_closed_admission_precondition(self):
         artifact = copy.deepcopy(self.artifact)
