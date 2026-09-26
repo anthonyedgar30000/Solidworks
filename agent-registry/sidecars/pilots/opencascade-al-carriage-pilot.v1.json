@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "pilot_id": "opencascade-al-carriage-6130648-v1",
+  "sidecar_id": "opencascade-step-inspector",
+  "state": "NOT_EXECUTED",
+  "mechanical_acceptance_granted": false,
+  "input": {
+    "artifact_identity": "CAB 6130648_01 Carriage Schlitten AL",
+    "source_classification": "OEM_STEP_CAD",
+    "path_windows_exact": "C:\\ChatGPT\\Solidworks\\IXOR\\6130648_01_Carriage_Schlitten_AL (2)\\6130648_01_Carriage_Schlitten_AL.stp",
+    "sha256_expected": "bfcd381045f4e115be81ea22a349dfeccc6453ae49a00acab25c547205b50c5b"
+  },
+  "tool": {
+    "package": "cad-mcp-server",
+    "package_version": "0.6.1",
+    "transport": "STDIO",
+    "launch_command_reference": "npx -y cad-mcp-server@0.6.1",
+    "required_tools": [
+      "inspect_step",
+      "find_faces",
+      "measure_geometry"
+    ]
+  },
+  "historical_comparison_targets": [
+    {
+      "claim_id": "AL.ONE_SOLID_BODY",
+      "description": "AL STEP imported as one solid body in prior OEM-source inspection.",
+      "comparison_only": true
+    },
+    {
+      "claim_id": "AL.ROLLER_MOUNT_BORE_DIAMETER",
+      "description": "AL roller-mount bore nominal diameter",
+      "expected_value": 7,
+      "unit": "mm",
+      "comparison_only": true
+    },
+    {
+      "claim_id": "AL.ROLLER_MOUNT_BORE_DEPTH",
+      "description": "AL roller-mount bore approximate depth",
+      "expected_value": 8,
+      "unit": "mm",
+      "comparison_only": true
+    },
+    {
+      "claim_id": "AL.PIVOT_TO_ROLLER_MOUNT_RADIUS",
+      "description": "AL pivot-to-roller-mount radius",
+      "expected_value": 77,
+      "unit": "mm",
+      "comparison_only": true
+    }
+  ],
+  "execution_requirements": {
+    "verify_input_hash_before_tool_use": true,
+    "preserve_raw_tool_responses": true,
+    "record_tool_version": true,
+    "record_execution_timestamp": true,
+    "record_input_hash": true,
+    "no_source_file_modification": true,
+    "no_solidworks_access": true,
+    "no_solidworks_write": true,
+    "no_automatic_fact_promotion": true
+  },
+  "result_admission": {
+    "evidence_type": "deterministic_calculation",
+    "evidence_state": "MEASURED_CALCULATED",
+    "source_authority": "DETERMINISTIC_CALCULATION",
+    "source_classification": "opencascade_step_inspection",
+    "geometry_state": "SOURCE_GEOMETRY",
+    "mechanical_acceptance_granted": false,
+    "temporal_scope": {
+      "coverage": "POINT_ONLY",
+      "validity_state": "UNKNOWN",
+      "state_ids": [],
+      "transition_ids": []
+    }
+  },
+  "stop_conditions": [
+    "input path missing",
+    "input SHA256 mismatch",
+    "tool version cannot be established",
+    "tool requests or performs mutation",
+    "tool attempts live SOLIDWORKS access",
+    "raw output cannot be preserved"
+  ]
+}
