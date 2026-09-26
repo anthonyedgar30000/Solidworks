@@ -1,0 +1,97 @@
+{
+  "schema_version": 1,
+  "record_type": "evidence",
+  "evidence_id": "E.V43.PRISM.MATE_BINDING.20260926T205657149Z",
+  "evidence_type": "solidworks_observation",
+  "evidence_state": "VERIFIED",
+  "source_authority": "SOLIDWORKS_LIVE_STATE",
+  "source_classification": "verified_from_solidworks_api",
+  "subject": {
+    "subject_type": "v43_prism_exact_target_active_assembly_mate_observation",
+    "identity_exact": "FITCHECK_PRISM_CARRIER_SLIDER_15x80x60_V43-1; FITCHECK_PRISM_LINK_15x10x25_V43-1; FITCHECK_PRISM_ARM1_33p0824x10x5_V43-1",
+    "document_title_exact": "IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE",
+    "document_path_exact": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE.SLDASM"
+  },
+  "provenance": {
+    "recorded_at": "2026-09-26T20:56:57.1491401Z",
+    "source_ref": "C:\\ChatGPT\\Solidworks-main-current\\agent-registry\\workers\\CadGrounded.SolidWorksWorker\\verification-output\\query-mates-v43-prism\\verification-summary.json; V43_PRISM_KINEMATIC_BINDING_V1; corrected verifier run reported by user",
+    "sha256": "13b0eba7ae4ccf9ed883eb55eca5b16316af611f9ebd75631b1fb55a714004b0",
+    "tool_path": "Verify-QueryMates-V43-Prism.ps1; CadGrounded.SolidWorksWorker sw.query_mates"
+  },
+  "dependencies": [
+    "E.V43.PRISM.LIVE_STATE.20260926T200826594Z",
+    "ADMISSION-STATUS-V43-PRISM-MATE-20260926",
+    "PLAN-0003",
+    "P0003.1",
+    "P0003.2"
+  ],
+  "geometry_state": "CANDIDATE_OPERATING",
+  "temporal_scope": {
+    "coverage": "POINT_ONLY",
+    "validity_state": "CURRENT",
+    "state_ids": [
+      "V43_WRAP",
+      "V43.SNAPSHOT.20260926T205657149Z"
+    ],
+    "transition_ids": []
+  },
+  "ambiguity_bucket": "KINEMATIC_STATE_UNRESOLVED",
+  "mechanical_acceptance_granted": false,
+  "payload": {
+    "observation_kind": "exact_top_level_component_incident_active_assembly_mate_query",
+    "document": {
+      "title": "IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE",
+      "path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE.SLDASM",
+      "document_type": "assembly",
+      "active_configuration_exact": "V43_WRAP",
+      "configuration_binding": "OBSERVED_NOT_PREASSERTED"
+    },
+    "executed_at_utc": "2026-09-26T20:56:57.1491401Z",
+    "worker_version": "0.4.2",
+    "evidence_contract_id": "V43_PRISM_KINEMATIC_BINDING_V1",
+    "target_components": [
+      {
+        "name2": "FITCHECK_PRISM_CARRIER_SLIDER_15x80x60_V43-1",
+        "top_level": true,
+        "fixed_component": false,
+        "incident_active_assembly_mate_count": 0,
+        "traversal_error_count": 0
+      },
+      {
+        "name2": "FITCHECK_PRISM_LINK_15x10x25_V43-1",
+        "top_level": true,
+        "fixed_component": false,
+        "incident_active_assembly_mate_count": 0,
+        "traversal_error_count": 0
+      },
+      {
+        "name2": "FITCHECK_PRISM_ARM1_33p0824x10x5_V43-1",
+        "top_level": true,
+        "fixed_component": false,
+        "incident_active_assembly_mate_count": 0,
+        "traversal_error_count": 0
+      }
+    ],
+    "no_mutation_comparison": {
+      "active_document_path_same_before_after": true,
+      "active_document_title_same_before_after": true,
+      "active_configuration_same_before_after": true,
+      "target_transforms_same_before_after": true,
+      "target_incident_mate_results_same_before_after": true,
+      "assembly_file_length_same_before_after": true,
+      "assembly_file_last_write_utc_same_before_after": true,
+      "assembly_file_sha256_before_after": "dcd53467d2693283bb6617bdde1d4da8c19790615385e307671690ddce84b32a",
+      "model_mutation": false,
+      "write_authority": "NONE",
+      "remote_queue_authorized": false
+    },
+    "admitted_claims": [
+      "At the recorded point observation in exact active configuration V43_WRAP, each exact target component had zero incident active-assembly mates and zero mate-traversal errors.",
+      "The observation made no detected active-document, target-transform, target-mate-result, or assembly-file mutation."
+    ],
+    "explicitly_not_claimed": [
+      "No claim that the entire Prism assembly has no mechanical linkage or other mates outside these three exact targets.",
+      "No claim of physical closure, contact or clearance, stroke, preload, force, stiffness, reaction path, operating motion, reachable envelope, timing, capture, release, or mechanical acceptance."
+    ]
+  }
+}
