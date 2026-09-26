@@ -166,3 +166,27 @@ Do not infer that repository source has compiled successfully on a SOLIDWORKS ma
 The local v42 evidence contract and result-interpretation limits are in
 `../../docs/V42_CAPTURE_OWNER_BINDING_EVIDENCE_CONTRACT.md`. This worker change
 does not alter any Remote Queue file, allowlist, or authority.
+
+
+## V43 Prism link-to-reaction-base verifier
+
+`Verify-ClassifyContact-V43-Prism.ps1` is a local-only, current-pose verifier
+for the exact pair `FITCHECK_PRISM_LINK_15x10x25_V43-1` and
+`FITCHECK_PRISM_REACTION_BASE_70x120x20_V43-1` in exact active configuration
+`V43_WRAP`. It invokes the existing `sw.classify_contact_pair` primitive,
+binds the returned exact identities, and compares document state, target
+component state, and shared-read assembly-file evidence before and after.
+
+It writes a timestamped UTF-8-without-BOM `verification-summary.json` below
+`verification-output\classify-contact-v43-prism-reaction-base`. The file is
+an evidence artifact only; the verifier has `write_authority: NONE`,
+`remote_queue_authorized: false`, and no SOLIDWORKS write behavior.
+
+Run it from the worker directory:
+
+    .\Verify-ClassifyContact-V43-Prism.ps1
+
+A positive clearance excludes contact only for the exact pair at the observed
+current pose. The verifier does not establish a complete mechanism, closure,
+stroke, preload, force, reaction capacity, operating sequence, or mechanical
+acceptance.
