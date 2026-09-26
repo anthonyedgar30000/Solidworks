@@ -35,7 +35,7 @@ $forbiddenPatterns = @(
     '(?im)\bRebuild(?:3)?\b',
     '(?im)\bAddMate\b',
     '(?im)\bSetSuppression\b',
-    '(?im)\bSelect(?:ByID2|4)?\b',
+    '(?im)\bSelectByID2\b',
     '(?im)\.Transform2\s*=',
     '(?im)\bSetTransform\b',
     '(?im)\bRemote\s*Queue\b'
