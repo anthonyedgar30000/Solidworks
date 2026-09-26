@@ -96,6 +96,8 @@ def validate_observation_transaction(transaction: Any) -> dict[str, Any]:
         raise IncrementalEvidenceError("observation transaction must be an object")
     if transaction.get("transaction_type") != "cad_observation_evidence":
         raise IncrementalEvidenceError("expected cad_observation_evidence transaction")
+    if transaction.get("admission_status") != "ADMITTED_OBSERVATION":
+        raise IncrementalEvidenceError("inspection requires an admitted observation transaction")
     if transaction.get("source_authority") != "SOLIDWORKS_LIVE_STATE":
         raise IncrementalEvidenceError("inspection requires SOLIDWORKS_LIVE_STATE authority")
     if transaction.get("source_classification") != "verified_from_solidworks_api":
@@ -114,10 +116,16 @@ def validate_observation_transaction(transaction: Any) -> dict[str, Any]:
         raise IncrementalEvidenceError("transaction.raw_observation must be an object")
     _sha256(raw.get("sha256"), "raw_observation.sha256")
     _nonempty(raw.get("recorded_at"), "raw_observation.recorded_at")
+    if raw.get("command") != "sw.query_components":
+        raise IncrementalEvidenceError("inspection runtime accepts only sw.query_components observations")
+    if raw.get("state") != "completed":
+        raise IncrementalEvidenceError("source observation must be completed")
 
     components = transaction.get("components")
     if not isinstance(components, list) or not components:
         raise IncrementalEvidenceError("transaction.components must be a non-empty array")
+    if transaction.get("component_count") != len(components):
+        raise IncrementalEvidenceError("component_count does not match components array")
     seen: set[str] = set()
     for index, component in enumerate(components):
         if not isinstance(component, dict):
