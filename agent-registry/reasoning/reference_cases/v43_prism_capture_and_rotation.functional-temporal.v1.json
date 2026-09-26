@@ -165,7 +165,8 @@
         "SOLIDWORKS_LIVE_STATE"
       ],
       "evidence_refs": [
-        "E.V43.PRISM.LIVE_STATE.20260926T200826594Z"
+        "E.V43.PRISM.LIVE_STATE.20260926T200826594Z",
+        "E.V43.PRISM.MATE_BINDING.ARCH_PROJECTION.20260926"
       ],
       "depends_on_requirement_ids": [],
       "scope": {
@@ -254,7 +255,8 @@
         "DETERMINISTIC_CALCULATION"
       ],
       "evidence_refs": [
-        "E.V43.PRISM.LIVE_STATE.20260926T200826594Z"
+        "E.V43.PRISM.LIVE_STATE.20260926T200826594Z",
+        "E.V43.PRISM.LINK1_REACTION_BASE.ARCH_PROJECTION.20260926"
       ],
       "depends_on_requirement_ids": [
         "CAPTURE_KINEMATIC_OWNER",
@@ -401,7 +403,8 @@
         "OEM_CAD"
       ],
       "evidence_refs": [
-        "E.V43.PRISM.LIVE_STATE.20260926T200826594Z"
+        "E.V43.PRISM.LIVE_STATE.20260926T200826594Z",
+        "E.V43.PRISM.MATE_BINDING.ARCH_PROJECTION.20260926"
       ],
       "depends_on_requirement_ids": [
         "CAPTURE_KINEMATIC_OWNER"
@@ -463,7 +466,8 @@
         "DETERMINISTIC_CALCULATION"
       ],
       "evidence_refs": [
-        "E.V43.PRISM.LIVE_STATE.20260926T200826594Z"
+        "E.V43.PRISM.LIVE_STATE.20260926T200826594Z",
+        "E.V43.PRISM.LINK1_REACTION_BASE.ARCH_PROJECTION.20260926"
       ],
       "depends_on_requirement_ids": [
         "PRISM_KINEMATIC_CHAIN_BOUND",
@@ -1420,7 +1424,7 @@
       "id": "H_V43_PRISM_GUIDED_SLIDER",
       "description": "The two fixed Prism guide rails and floating carrier slider may represent the primary guided closure degree of freedom.",
       "prior": "COMMON",
-      "evidence_state": "UNRESOLVED",
+      "evidence_state": "WEAKENED",
       "investigation_state": "ACTIVE",
       "related_requirement_ids": [
         "PRISM_KINEMATIC_CHAIN_BOUND"
@@ -1430,7 +1434,7 @@
         "CAPTURE_AND_ROTATION"
       ],
       "required_evidence": [
-        "Exact current mate/constraint results for both guide rails and the Prism carrier slider; no inference from fixed/floating flags alone."
+        "Exact current-pose B-rep/contact classification for FITCHECK_PRISM_CARRIER_SLIDER_15x80x60_V43-1 against both fixed guide rails, followed by bounded motion/endpoint evidence if physical guidance remains plausible. Zero incident active-assembly mates on the slider is already admitted and does not by itself disprove geometric guidance."
       ]
     },
     {
@@ -1455,7 +1459,7 @@
       "id": "H_V43_PRISM_LINKS_AND_ARMS_TRANSFER_CLOSURE",
       "description": "The two links and arms may transfer slider movement into a bottle-facing closure or support-roller relationship; that linkage is not shown by the point inventory.",
       "prior": "COMMON",
-      "evidence_state": "UNRESOLVED",
+      "evidence_state": "WEAKENED",
       "investigation_state": "ACTIVE",
       "related_requirement_ids": [
         "PRISM_KINEMATIC_CHAIN_BOUND",
@@ -1465,14 +1469,14 @@
         "CAPTURE_AND_ROTATION"
       ],
       "required_evidence": [
-        "Exact mate/constraint chain from slider through both links/arms to the named capture surfaces, plus a no-mutation motion or endpoint observation."
+        "Exact current-pose topology/contact chain from slider through both links/arms to the named support rollers, followed by a no-mutation motion or endpoint observation if the chain is physically contiguous. Zero incident active-assembly mates on Link-1 and Arm-1 is already admitted."
       ]
     },
     {
       "id": "H_V43_PRISM_REACTION_BASE_CARRIES_LOAD",
       "description": "The fixed reaction base may carry closure reaction load, but attachment, load direction, actuator force, preload, and mounting capacity are unbound.",
       "prior": "COMMON",
-      "evidence_state": "UNRESOLVED",
+      "evidence_state": "WEAKENED",
       "investigation_state": "ACTIVE",
       "related_requirement_ids": [
         "PRISM_REACTION_FORCE_PATH_BOUND"
@@ -1483,7 +1487,7 @@
         "WRAP_ACTIVE"
       ],
       "required_evidence": [
-        "Exact structural attachment chain and authoritative force/preload or deterministic load calculation inputs."
+        "Exact structural/topology path from active closure elements to the reaction base or another fixed support, plus authoritative force/preload or deterministic load inputs. Direct Link-1 to reaction-base contact is already excluded at the recorded V43_WRAP pose by 1.25 mm positive clearance."
       ]
     }
   ],
@@ -1510,6 +1514,70 @@
         "source_document": "IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE",
         "source_component_count": 58,
         "source_limit": "The source observation is point-only. This architecture projection does not add motion, contact, force, timing, or acceptance claims."
+      }
+    },
+    {
+      "schema_version": 1,
+      "record_type": "evidence",
+      "evidence_id": "E.V43.PRISM.MATE_BINDING.ARCH_PROJECTION.20260926",
+      "evidence_type": "deterministic_calculation",
+      "evidence_state": "MEASURED_CALCULATED",
+      "source_authority": "DETERMINISTIC_CALCULATION",
+      "source_classification": "bounded_projection_from_admitted_evidence",
+      "mechanical_acceptance_granted": false,
+      "dependencies": [
+        "E.V43.PRISM.MATE_BINDING.20260926T205657149Z"
+      ],
+      "geometry_state": "CANDIDATE_OPERATING",
+      "temporal_scope": {
+        "coverage": "POINT_ONLY",
+        "validity_state": "CURRENT",
+        "state_ids": [],
+        "transition_ids": []
+      },
+      "ambiguity_bucket": "KINEMATIC_STATE_UNRESOLVED",
+      "payload": {
+        "method": "bounded_evidence_projection",
+        "inputs": [
+          "agent-registry/reasoning/runtime/v43-prism-mate-binding-evidence-20260926T205657149Z.json",
+          "sha256:13b0eba7ae4ccf9ed883eb55eca5b16316af611f9ebd75631b1fb55a714004b0"
+        ],
+        "result": {
+          "admitted_observation": "At the recorded V43_WRAP point, the exact slider, Link-1, and Arm-1 targets each had zero incident active-assembly mates and zero mate-traversal errors.",
+          "interpretation_boundary": "This weakens a conventional active-assembly mate-defined chain for the queried targets but does not disprove physical guidance, contact linkage, feature-level relationships, motion, force, or a wider mechanism."
+        }
+      }
+    },
+    {
+      "schema_version": 1,
+      "record_type": "evidence",
+      "evidence_id": "E.V43.PRISM.LINK1_REACTION_BASE.ARCH_PROJECTION.20260926",
+      "evidence_type": "deterministic_calculation",
+      "evidence_state": "MEASURED_CALCULATED",
+      "source_authority": "DETERMINISTIC_CALCULATION",
+      "source_classification": "bounded_projection_from_admitted_evidence",
+      "mechanical_acceptance_granted": false,
+      "dependencies": [
+        "E.V43.PRISM.LINK1_REACTION_BASE.CONTACT.20260926T212845290Z"
+      ],
+      "geometry_state": "CANDIDATE_OPERATING",
+      "temporal_scope": {
+        "coverage": "POINT_ONLY",
+        "validity_state": "CURRENT",
+        "state_ids": [],
+        "transition_ids": []
+      },
+      "ambiguity_bucket": "KINEMATIC_STATE_UNRESOLVED",
+      "payload": {
+        "method": "bounded_evidence_projection",
+        "inputs": [
+          "agent-registry/reasoning/runtime/v43-prism-link1-reaction-base-contact-evidence-20260926T212845290Z.json",
+          "sha256:85c5f957e6fbe55fc12c0ec0d1b241e266bf52ffbf122624374edd7c320631c1"
+        ],
+        "result": {
+          "admitted_observation": "At the recorded V43_WRAP point, exact Link-1 to reaction-base minimum distance was 1.2499999999999734 mm and classification was clearance.",
+          "interpretation_boundary": "This excludes direct contact for that exact pair at that pose only; it does not exclude a wider reaction path through rails, slider, actuator, arms, fasteners, other components, or other reachable states."
+        }
       }
     }
   ],
@@ -1630,60 +1698,6 @@
       }
     },
     {
-      "id": "TEST_V43_PRISM_KINEMATIC_BINDING",
-      "question": "Using separately reviewed local-only read evidence, what exact mate/constraint chain binds the Prism carrier slider, links, and arms to the rails, actuator envelope, reaction base, and any bottle-facing capture surface? The query cannot establish force, intended motion, preload, or mechanical acceptance by itself.",
-      "resolves_requirement_ids": [
-        "PRISM_KINEMATIC_CHAIN_BOUND",
-        "CAPTURE_KINEMATIC_OWNER"
-      ],
-      "hypothesis_ids": [
-        "H_V43_PRISM_GUIDED_SLIDER",
-        "H_V43_PRISM_LINKS_AND_ARMS_TRANSFER_CLOSURE"
-      ],
-      "discrimination_power": 0.98,
-      "evidence_confidence": 0.85,
-      "unresolved_relevance": 1,
-      "cost": 1,
-      "native_read_candidates": [
-        {
-          "schema_version": 1,
-          "command_id": "sw.query_mates",
-          "write_authority": "NONE",
-          "remote_queue_authorized": false,
-          "requires_independent_no_mutation_verification": true,
-          "execution_state": "CANDIDATE_UNVERIFIED",
-          "verification_contract_id": "V43_PRISM_KINEMATIC_BINDING_V1",
-          "payload": {
-            "component_name_exact": "FITCHECK_PRISM_CARRIER_SLIDER_15x80x60_V43-1"
-          }
-        },
-        {
-          "schema_version": 1,
-          "command_id": "sw.query_mates",
-          "write_authority": "NONE",
-          "remote_queue_authorized": false,
-          "requires_independent_no_mutation_verification": true,
-          "execution_state": "CANDIDATE_UNVERIFIED",
-          "verification_contract_id": "V43_PRISM_KINEMATIC_BINDING_V1",
-          "payload": {
-            "component_name_exact": "FITCHECK_PRISM_LINK_15x10x25_V43-1"
-          }
-        },
-        {
-          "schema_version": 1,
-          "command_id": "sw.query_mates",
-          "write_authority": "NONE",
-          "remote_queue_authorized": false,
-          "requires_independent_no_mutation_verification": true,
-          "execution_state": "CANDIDATE_UNVERIFIED",
-          "verification_contract_id": "V43_PRISM_KINEMATIC_BINDING_V1",
-          "payload": {
-            "component_name_exact": "FITCHECK_PRISM_ARM1_33p0824x10x5_V43-1"
-          }
-        }
-      ]
-    },
-    {
       "id": "TEST_V43_PRISM_ACTUATION_LIMITS_AND_REACTION",
       "question": "What exact actuator/source part, stroke limits, preload/compliance, reaction-base attachment, and mounting/load inputs prove closure and reaction adequacy across the capture interval?",
       "resolves_requirement_ids": [
@@ -1699,6 +1713,21 @@
       "evidence_confidence": 0.9,
       "unresolved_relevance": 1,
       "cost": 2
+    },
+    {
+      "id": "TEST_V43_PRISM_GUIDE_CONTACT_TOPOLOGY",
+      "question": "After a fresh exact V43_WRAP state rebind, classify current-pose B-rep contact for FITCHECK_PRISM_CARRIER_SLIDER_15x80x60_V43-1 against FITCHECK_PRISM_GUIDE_RAIL_100x10x10_V43-1 and FITCHECK_PRISM_GUIDE_RAIL_100x10x10_V43-2. Do the exact pairs establish physical adjacency consistent with a guided slider, or positive clearance/interference that weakens that hypothesis? This point test does not establish allowed motion, stroke, force, preload, reachable envelope, or mechanical acceptance.",
+      "resolves_requirement_ids": [
+        "PRISM_KINEMATIC_CHAIN_BOUND",
+        "CAPTURE_KINEMATIC_OWNER"
+      ],
+      "hypothesis_ids": [
+        "H_V43_PRISM_GUIDED_SLIDER"
+      ],
+      "discrimination_power": 0.98,
+      "evidence_confidence": 0.9,
+      "unresolved_relevance": 1,
+      "cost": 1
     }
   ]
 }
