@@ -58,7 +58,7 @@ The script writes:
 
 `verification-output\query-mates-v43-prism\verification-summary.json`
 
-A candidate result must retain the raw per-component mate responses alongside the summary. Before it is admitted into the temporal planning ledger, the result must be anchored with its execution timestamp, worker version, exact document identity, observed configuration, and a durable GitHub commit or attached artifact hash.
+A PASS summary emits `executed_at_utc` after all no-mutation checks complete. A candidate result must retain the raw per-component mate responses alongside the summary. Before it is admitted into the temporal planning ledger, the result must be anchored with its execution timestamp, worker version, exact document identity, observed configuration, and a durable GitHub commit or attached artifact hash.
 
 ## What a PASS establishes
 
