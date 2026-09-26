@@ -40,6 +40,7 @@
       ]
     },
     "evidence_state": {
+      "description": "Admission-time evidentiary classification of the immutable record. Current applicability/freshness is tracked separately by temporal_scope.validity_state and derived validity projection.",
       "enum": [
         "VERIFIED",
         "MEASURED_CALCULATED",
@@ -149,7 +150,7 @@
       ]
     },
     "temporal_scope": {
-      "description": "Optional explicit scope of the claim. A point observation does not prove an interval invariant or a reachable-motion claim.",
+      "description": "Optional explicit scope of the claim. A point observation does not prove an interval invariant or a reachable-motion claim. validity_state expresses current applicability and does not rewrite evidence_state, subtype identity, provenance, or source authority.",
       "type": "object",
       "additionalProperties": false,
       "required": [
@@ -167,6 +168,7 @@
           ]
         },
         "validity_state": {
+          "description": "Current-decision applicability of this evidence scope. STALE preserves the historical evidence record while blocking its use as current proof.",
           "enum": [
             "CURRENT",
             "STALE",
@@ -194,6 +196,7 @@
       }
     },
     "ambiguity_bucket": {
+      "description": "Optional investigation/routing classification. STALE_STATE here may explain why a dependent claim is blocked; freshness of a temporally scoped evidence record is represented by temporal_scope.validity_state.",
       "enum": [
         "IDENTITY_AMBIGUOUS",
         "GEOMETRY_UNRESOLVED",

@@ -52,6 +52,8 @@ The candidate domain contract is documented in `../docs/CADGROUNDED_DOMAIN_MODEL
 
 The model separates object type/subtype from epistemic and lifecycle state. `command_id` partitions read-only CAD request subtypes; `evidence_type` partitions evidence subtypes. States such as `UNRESOLVED`, `FIT_CHECK`, and ambiguity buckets remain attributes rather than becoming new object types.
 
+For evidence, `evidence_state` is the admission-time classification of the immutable historical record, while `temporal_scope.validity_state` (and the incremental current-state projection) answers whether that record is still applicable to the current CAD decision. Staleness reopens dependents; it does not rewrite a previously verified observation or measured calculation.
+
 These files are candidate contracts only. They do not change the deployed remote-queue runner or grant additional CAD authority.
 
 
