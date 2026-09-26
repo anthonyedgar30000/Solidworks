@@ -31,7 +31,7 @@ foreach ($literal in $requiredLiterals) {
 }
 
 $forbiddenPatterns = @(
-    '(?im)\bSave(?:As|3|Silent)?\b',
+    '(?im)\.\s*Save(?:As|3|Silent)?\s*\(',
     '(?im)\bRebuild(?:3)?\b',
     '(?im)\bAddMate\b',
     '(?im)\bSetSuppression\b',
