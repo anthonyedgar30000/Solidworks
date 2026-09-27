@@ -75,6 +75,7 @@ $requiredPlanned = @(
     'cg.index.hardstop',
     'cg.reaction.path',
     'cg.mount.integrity',
+    'cg.provenance.kinematic-source',
     'cg.motion.candidate',
     'cg.motion.sweep',
     'cg.acceptance.check',
