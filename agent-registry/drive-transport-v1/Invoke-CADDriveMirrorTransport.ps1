@@ -67,6 +67,9 @@ foreach ($name in @('incoming','results')) {
     $mirrorDirs[$name] = Join-Path $mirrorRoot $name
     [void](New-Item -ItemType Directory -Force -Path $mirrorDirs[$name])
 }
+$mirrorCaptureDir = Join-Path $mirrorDirs['results'] 'captures'
+$localCaptureDir = Join-Path $localRoot 'results\captures'
+[void](New-Item -ItemType Directory -Force -Path $mirrorCaptureDir)
 foreach ($name in @('incoming','processing','completed','failed','rejected','results')) {
     $localDirs[$name] = Join-Path $localRoot $name
     [void](New-Item -ItemType Directory -Force -Path $localDirs[$name])
@@ -180,6 +183,52 @@ try {
             $state = [string](Require-Property $record 'state' 'result')
             if (@('completed','failed','rejected') -notcontains $state) {
                 throw "unsupported terminal state: $state"
+            }
+
+            # Publish and verify the image before its JSON result. The result
+            # is the commit marker for a complete capture package.
+            if ($state -ceq 'completed' -and
+                (Get-PropertyNames $record) -contains 'worker_response' -and
+                $null -ne $record.worker_response -and
+                $record.worker_response.command_id -ceq 'sw.capture_view') {
+                $data = $record.worker_response.data
+                $imageName = "$jobId.png"
+                if ([string](Require-Property $data 'image_file_name' 'capture') -cne $imageName) {
+                    throw 'capture filename/job_id mismatch'
+                }
+                $expectedHash = [string](Require-Property $data 'image_sha256' 'capture')
+                if ($expectedHash -cnotmatch '^[a-f0-9]{64}$') { throw 'invalid capture SHA-256' }
+                $localImage = Join-Path $localCaptureDir $imageName
+                if (-not (Test-Path -LiteralPath $localImage -PathType Leaf)) {
+                    throw 'capture image is missing'
+                }
+                $localItem = Get-Item -LiteralPath $localImage
+                if (($localItem.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0 -or
+                    $localItem.Length -le 0 -or $localItem.Length -gt 41943040) {
+                    throw 'capture image is a link, empty, or over the 40 MiB cap'
+                }
+                if ((Get-FileHash -LiteralPath $localImage -Algorithm SHA256).Hash.ToLowerInvariant() -cne $expectedHash) {
+                    throw 'local capture hash mismatch'
+                }
+                $mirrorImage = Join-Path $mirrorCaptureDir $imageName
+                $imageVerified = (Test-Path -LiteralPath $mirrorImage -PathType Leaf) -and
+                    ((Get-FileHash -LiteralPath $mirrorImage -Algorithm SHA256).Hash.ToLowerInvariant() -ceq $expectedHash)
+                if (-not $imageVerified -and -not $DryRun) {
+                    $tempImage = $mirrorImage + '.' + [Guid]::NewGuid().ToString('N') + '.tmp'
+                    try {
+                        Copy-Item -LiteralPath $localImage -Destination $tempImage -Force
+                        if ((Get-FileHash -LiteralPath $tempImage -Algorithm SHA256).Hash.ToLowerInvariant() -cne $expectedHash) {
+                            throw 'staged capture hash mismatch'
+                        }
+                        Move-Item -LiteralPath $tempImage -Destination $mirrorImage -Force
+                        if ((Get-FileHash -LiteralPath $mirrorImage -Algorithm SHA256).Hash.ToLowerInvariant() -cne $expectedHash) {
+                            throw 'published capture hash mismatch'
+                        }
+                        Write-TransportLog "published capture job_id=$jobId to Drive Desktop mirror"
+                    } finally {
+                        if (Test-Path -LiteralPath $tempImage) { Remove-Item -LiteralPath $tempImage -Force }
+                    }
+                }
             }
 
             $mirrorResult = Join-Path $mirrorDirs['results'] $resultFile.Name

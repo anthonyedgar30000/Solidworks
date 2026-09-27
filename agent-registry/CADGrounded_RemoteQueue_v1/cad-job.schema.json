@@ -24,7 +24,8 @@
       "enum": [
         "sw.status",
         "sw.query_components",
-        "sw.closest_distance_pair"
+        "sw.closest_distance_pair",
+        "sw.capture_view"
       ]
     },
     "write_authority": {
@@ -100,6 +101,25 @@
             "top_level_only": {
               "type": "boolean"
             }
+          }
+        }
+      }
+    },
+    {
+      "title": "CaptureViewRequest",
+      "required": ["preconditions"],
+      "properties": {
+        "command_id": { "const": "sw.capture_view" },
+        "preconditions": { "required": ["document_title_exact", "document_path_exact"] },
+        "payload": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["active_configuration_exact"],
+          "properties": {
+            "active_configuration_exact": { "type": "string", "minLength": 1, "maxLength": 512 },
+            "orientation_rotation9": { "type": "array", "minItems": 9, "maxItems": 9, "items": { "type": "number" } },
+            "translation3_m": { "type": "array", "minItems": 3, "maxItems": 3, "items": { "type": "number" } },
+            "scale2": { "type": "number", "exclusiveMinimum": 0, "maximum": 1000000000 }
           }
         }
       }

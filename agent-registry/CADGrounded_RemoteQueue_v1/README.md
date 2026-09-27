@@ -11,6 +11,12 @@ queue never executes downloaded `.ps1`, `.bat`, `.cmd`, or `.exe` files.
 - `sw.status`
 - `sw.query_components`
 - `sw.closest_distance_pair`
+- `sw.capture_view`
+
+`sw.capture_view` poses only the active viewport, exports a PNG under
+`results/captures/`, restores the prior view, and reports the image SHA-256 in
+its result. It requires exact document title, path, and configuration binding.
+The mirror transport publishes and verifies the image before the JSON result.
 
 The native worker may contain additional read-only commands that are not remotely
 exposed. Native capability does not imply Remote Queue authorization.
