@@ -106,8 +106,8 @@ class FunctionFirstBottleHandlingTests(unittest.TestCase):
 
         wrap_axis = by_id(case["obligations"], "BOTTLE_WRAP_AXIS_BOUND")
         self.assertEqual(wrap_axis["verification_state"], "VERIFIED")
-        self.assertIn("E.FUNCTION_FIRST.BOTTLE_CYLINDER_AXIS.20260927T090058895Z", wrap_axis["evidence_refs"])
-        self.assertIn("E.FUNCTION_FIRST.BOTTLE_WRAP_AXIS_BINDING.20260927T090058895Z", wrap_axis["evidence_refs"])
+        self.assertIn("E.FUNCTION_FIRST.BOTTLE_CYLINDER_AXIS.20260927T091941345Z", wrap_axis["evidence_refs"])
+        self.assertIn("E.FUNCTION_FIRST.BOTTLE_WRAP_AXIS_BINDING.20260927T091941345Z", wrap_axis["evidence_refs"])
 
         wrench = by_id(
             case["evidence_catalog"],
