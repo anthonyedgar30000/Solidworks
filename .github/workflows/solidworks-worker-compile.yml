@@ -84,6 +84,9 @@ jobs:
       - name: Test function-first lateral contact manifold verifier source contract
         working-directory: agent-registry/workers/CadGrounded.SolidWorksWorker
         run: .\Test-FunctionFirst-LateralContactManifoldVerifierSourceContract.ps1
+      - name: Test v43 PRISM dual-pivot rotation math regression
+        working-directory: agent-registry/workers/CadGrounded.SolidWorksWorker
+        run: .\Test-V43-Prism-DualPivot-RotationMath.ps1
   interface-reasoning:
     name: Interface contract reasoning regressions
     runs-on: ubuntu-latest

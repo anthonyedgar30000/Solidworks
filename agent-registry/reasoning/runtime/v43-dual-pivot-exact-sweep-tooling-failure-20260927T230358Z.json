@@ -1,0 +1,121 @@
+{
+  "schema_version": 1,
+  "record_type": "read_only_verification_attempt",
+  "attempt_id": "ATTEMPT.PLAN-0011.V43_DUAL_PIVOT_EXACT_SWEEP.TOOLING_FAILURE.20260927T230358Z",
+  "plan_id": "PLAN-0011",
+  "step_id": "P0011.4",
+  "candidate_preflight_id": "PF.PLAN-0011.V43_PRISM_DUAL_PIVOT_OPEN_ENVELOPE.V1.20260927T221310Z",
+  "test_id": "TEST_POP_V43_PRISM_DUAL_PIVOT_EXACT_HYPOTHETICAL_SWEEP",
+  "attempted_at_utc": "2026-09-27T23:03:58.9232869Z",
+  "source_git_commit": "c968056ce1b316aa9465dfefbd8533282bff46e6",
+  "verifier_git_blob_sha1": "0e5857c8b82b183bd1bcc984b81b970a71db40ee",
+  "live_binding": {
+    "document_title_exact": "IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE",
+    "document_path_exact": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE.SLDASM",
+    "active_configuration_exact": "V43_WRAP",
+    "top_level_component_count": 58
+  },
+  "execution_result": "BLOCKED_BEFORE_GEOMETRY_EVALUATION_TOOLING_BUG",
+  "observed_tooling_failure": {
+    "command_stage": "candidate transform generation before pairwise B-rep classification",
+    "powershell_error": "Multiply-Rotation3RowMajor: Unable to index into an object of type System.Int32.",
+    "deterministic_root_cause": "PowerShell variable names are case-insensitive. The result matrix variable $C and the column loop variable $c refer to the same variable, so entering the column loop replaces the Double[] result matrix with an Int32.",
+    "reproduction": "The exact matrix function reproduced the same CannotIndex failure on the CAD host with identity matrices.",
+    "classification": "TOOLING_DEFECT"
+  },
+  "fresh_post_failure_state": {
+    "active_document_reverified": true,
+    "tracked_component_transforms_unchanged": true,
+    "tracked_components": [
+      {
+        "name2": "FITCHECK_PRISM_ARM1_33p0824x10x5_V43-1",
+        "translation_mm": [
+          -185.95882133523187,
+          -249.56817558934128,
+          995
+        ],
+        "rotation9": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          -1,
+          0,
+          1,
+          0
+        ]
+      },
+      {
+        "name2": "FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25-1",
+        "translation_mm": [
+          -169.41764267046375,
+          -249.56817558934128,
+          995
+        ],
+        "rotation9": [
+          1,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "name2": "FITCHECK_PRISM_ARM2_18p6806x10x5_V43-1",
+        "translation_mm": [
+          -193.15969871476827,
+          -189.56817558934128,
+          995
+        ],
+        "rotation9": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          -1,
+          0,
+          1,
+          0
+        ]
+      },
+      {
+        "name2": "FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25-2",
+        "translation_mm": [
+          -183.81939742953654,
+          -189.56817558934128,
+          995
+        ],
+        "rotation9": [
+          1,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
+        ]
+      }
+    ]
+  },
+  "admitted_project_state": [
+    "The exact sampled B-rep sweep did not reach geometry classification.",
+    "No collision, no-clearance, positive-clearance, contact, reachability, or mechanical-acceptance conclusion is admitted from this attempt.",
+    "The live v43 document and tracked PRISM arm/roller transforms remained unchanged on fresh reread.",
+    "The failure is a verifier implementation defect, not negative mechanical evidence against the dual-pivot hypothesis."
+  ],
+  "remediation": {
+    "action": "Use distinct matrix-result and column-loop variable names and add a host-independent regression that executes the verifier's actual rotation-math functions.",
+    "status": "IMPLEMENTED_ON_FIX_BRANCH_PENDING_REVIEW"
+  },
+  "write_authority": "NONE",
+  "model_mutation": false,
+  "mechanical_acceptance_granted": false
+}
