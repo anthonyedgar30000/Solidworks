@@ -6,6 +6,7 @@ on:
       - 'agent-registry/powershell/CADGrounded.Tools/**'
       - 'agent-registry/tests/Test-CADGrounded-Tools-Contract.ps1'
       - 'agent-registry/tests/CADGrounded.EvidenceBoundary.Tests.ps1'
+      - 'agent-registry/tests/CADGrounded.StatusProbe.Tests.ps1'
       - 'agent-registry/tests/Test-PowerShellQuality.ps1'
       - '.github/workflows/cadgrounded-tools-contract.yml'
   push:
@@ -14,6 +15,7 @@ on:
       - 'agent-registry/powershell/CADGrounded.Tools/**'
       - 'agent-registry/tests/Test-CADGrounded-Tools-Contract.ps1'
       - 'agent-registry/tests/CADGrounded.EvidenceBoundary.Tests.ps1'
+      - 'agent-registry/tests/CADGrounded.StatusProbe.Tests.ps1'
       - 'agent-registry/tests/Test-PowerShellQuality.ps1'
       - '.github/workflows/cadgrounded-tools-contract.yml'
 

@@ -4,7 +4,10 @@ $ErrorActionPreference = 'Stop'
 
 $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot '../..')).Path
 $moduleRoot = Join-Path $repoRoot 'agent-registry/powershell/CADGrounded.Tools'
-$testPath = Join-Path $PSScriptRoot 'CADGrounded.EvidenceBoundary.Tests.ps1'
+$testPaths = @(
+    (Join-Path $PSScriptRoot 'CADGrounded.EvidenceBoundary.Tests.ps1'),
+    (Join-Path $PSScriptRoot 'CADGrounded.StatusProbe.Tests.ps1')
+)
 
 Import-Module PSScriptAnalyzer -MinimumVersion 1.22 -ErrorAction Stop
 Import-Module Pester -MinimumVersion 6.0 -ErrorAction Stop
@@ -14,7 +17,8 @@ Import-Module Pester -MinimumVersion 6.0 -ErrorAction Stop
 $files = @(
     (Join-Path $moduleRoot 'CADGrounded.Tools.psm1'),
     (Join-Path $moduleRoot 'CADGrounded.Tools.psd1'),
-    $testPath,
+    $testPaths[0],
+    $testPaths[1],
     $PSCommandPath
 )
 $rules = @('PSAvoidUsingInvokeExpression', 'PSAvoidUsingPlainTextForPassword', 'PSAvoidUsingConvertToSecureStringWithPlainText')
@@ -26,7 +30,7 @@ if ($findings.Count -gt 0) {
     throw "PSScriptAnalyzer found $($findings.Count) prohibited pattern(s)."
 }
 
-$result = Invoke-Pester -Path $testPath -PassThru -Output Detailed
+$result = Invoke-Pester -Path $testPaths -PassThru -Output Detailed
 if ($result.FailedCount -gt 0 -or $result.PassedCount -eq 0) {
     throw "Pester evidence-boundary suite failed: $($result.FailedCount) failed, $($result.PassedCount) passed."
 }
