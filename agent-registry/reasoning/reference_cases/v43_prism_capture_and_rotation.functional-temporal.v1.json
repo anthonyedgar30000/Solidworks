@@ -170,7 +170,8 @@
         "E.V43.PRISM.GUIDE_CONTACT.ARCH_PROJECTION.20260927",
         "E.V43.PRISM.SLIDER_LINK_CONTACT.ARCH_PROJECTION.20260927",
         "E.V43.PRISM.LINK_ARM_CONTACT.ARCH_PROJECTION.20260927",
-        "E.V43.PRISM.ARM_ROLLER_CONTACT.ARCH_PROJECTION.20260927"
+        "E.V43.PRISM.ARM_ROLLER_CONTACT.ARCH_PROJECTION.20260927",
+        "E.V43.PRISM.FULL_CHAIN_MATES.ARCH_PROJECTION.20260927"
       ],
       "depends_on_requirement_ids": [],
       "scope": {
@@ -412,7 +413,8 @@
         "E.V43.PRISM.GUIDE_CONTACT.ARCH_PROJECTION.20260927",
         "E.V43.PRISM.SLIDER_LINK_CONTACT.ARCH_PROJECTION.20260927",
         "E.V43.PRISM.LINK_ARM_CONTACT.ARCH_PROJECTION.20260927",
-        "E.V43.PRISM.ARM_ROLLER_CONTACT.ARCH_PROJECTION.20260927"
+        "E.V43.PRISM.ARM_ROLLER_CONTACT.ARCH_PROJECTION.20260927",
+        "E.V43.PRISM.FULL_CHAIN_MATES.ARCH_PROJECTION.20260927"
       ],
       "depends_on_requirement_ids": [
         "CAPTURE_KINEMATIC_OWNER"
@@ -442,7 +444,8 @@
         "SOLIDWORKS_LIVE_STATE"
       ],
       "evidence_refs": [
-        "E.V43.PRISM.LIVE_STATE.20260926T200826594Z"
+        "E.V43.PRISM.LIVE_STATE.20260926T200826594Z",
+        "E.V43.PRISM.FULL_CHAIN_MATES.ARCH_PROJECTION.20260927"
       ],
       "depends_on_requirement_ids": [
         "PRISM_KINEMATIC_CHAIN_BOUND"
@@ -1460,14 +1463,14 @@
         "RELEASE"
       ],
       "required_evidence": [
-        "Exact actuator part/assembly identity, its mating or feature relationship to the slider, and authoritative stroke/limit data."
+        "Exact actuator/source identity, provenance of the actuator-envelope geometry, explicit attachment relationship to the slider or another closure element, and authoritative or accepted deterministic axis/stroke/limit data. The zero-mate full-chain observation does not bind actuator ownership."
       ]
     },
     {
       "id": "H_V43_PRISM_LINKS_AND_ARMS_TRANSFER_CLOSURE",
       "description": "The two links and arms may transfer slider movement into a bottle-facing closure or support-roller relationship; that linkage is not shown by the point inventory.",
       "prior": "COMMON",
-      "evidence_state": "SUPPORTED",
+      "evidence_state": "WEAKENED",
       "investigation_state": "ACTIVE",
       "related_requirement_ids": [
         "PRISM_KINEMATIC_CHAIN_BOUND",
@@ -1477,7 +1480,7 @@
         "CAPTURE_AND_ROTATION"
       ],
       "required_evidence": [
-        "Fresh exact active-assembly mate/constraint observation for FITCHECK_PRISM_CARRIER_SLIDER_15x80x60_V43-1, both Prism links, both Prism arms, and both named support rollers. The current-pose physical adjacency chain is supported, but motion remains unresolved unless constraints/variation evidence or an independently justified deterministic motion model establishes a candidate DOF."
+        "Static slider-link-arm-roller adjacency is supported, but all seven exact targets returned zero incident active-assembly mates. A designer-authorized/OEM kinematic definition or an explicitly accepted deterministic joint/actuation specification is required before any slider-to-roller motion-transfer claim."
       ]
     },
     {
@@ -1715,6 +1718,39 @@
           "interpretation_boundary": "Combined with admitted slider-link and link-arm observations, this supports a complete current-pose physical adjacency chain along two branches from slider to rollers. It does not establish a mechanism, bearing function, DOF, motion direction, stroke, actuator ownership, force/preload, interval behavior, or mechanical acceptance."
         }
       }
+    },
+    {
+      "schema_version": 1,
+      "record_type": "evidence",
+      "evidence_id": "E.V43.PRISM.FULL_CHAIN_MATES.ARCH_PROJECTION.20260927",
+      "evidence_type": "deterministic_calculation",
+      "evidence_state": "MEASURED_CALCULATED",
+      "source_authority": "DETERMINISTIC_CALCULATION",
+      "source_classification": "bounded_projection_from_admitted_evidence",
+      "mechanical_acceptance_granted": false,
+      "dependencies": [
+        "E.V43.PRISM.FULL_CHAIN_MATES.20260927T070827844Z"
+      ],
+      "geometry_state": "CANDIDATE_OPERATING",
+      "temporal_scope": {
+        "coverage": "POINT_ONLY",
+        "validity_state": "CURRENT",
+        "state_ids": [],
+        "transition_ids": []
+      },
+      "ambiguity_bucket": "KINEMATIC_STATE_UNRESOLVED",
+      "payload": {
+        "method": "bounded_negative_evidence_projection",
+        "inputs": [
+          "agent-registry/reasoning/runtime/v43-prism-full-chain-mates-evidence-20260927T070827844Z.json",
+          "sha256:901d1a81d3a8570fdb69c900d6614b756f70d32b9ee5d192363e9039a18a932f"
+        ],
+        "result": {
+          "admitted_observation": "All seven exact slider/link/arm/support-roller targets returned zero incident active-assembly mates and no mate traversal errors at the admitted V43_WRAP point.",
+          "interpretation_boundary": "This is negative evidence against the active assembly itself defining the proposed linkage kinematics. It does not prove a free DOF, intended motion, or mechanical invalidity. Static physical adjacency remains supported; mechanism motion remains KINEMATIC_STATE_UNRESOLVED.",
+          "configuration_exact": "V43_WRAP"
+        }
+      }
     }
   ],
   "next_tests": [
@@ -1851,14 +1887,17 @@
       "cost": 2
     },
     {
-      "id": "TEST_V43_PRISM_FULL_CHAIN_MATE_BINDING",
-      "question": "After a fresh exact V43_WRAP state rebind, query active-assembly mate/constraint evidence for FITCHECK_PRISM_CARRIER_SLIDER_15x80x60_V43-1, both Prism links, both Prism arms, and both named support rollers. Do any exact mates, suppression states, or variation values establish an assembly-modeled kinematic relation for the now physically contiguous point-topology chain, or does the chain remain CAD-unconstrained and therefore KINEMATIC_STATE_UNRESOLVED? No motion law, stroke, or DOF may be inferred from contact adjacency alone.",
+      "id": "TEST_V43_PRISM_KINEMATIC_DESIGN_INTENT_SOURCE",
+      "question": "Locate and bind a designer-authorized/OEM source or explicitly accepted deterministic specification for the exact V43 Prism slider, links, arms, guides, reaction base, actuator envelope, and support rollers. Which exact source defines joint/guide relationships, slider axis or direction, link/arm pivots, roller retention, actuator ownership/attachment, stroke, limits, and opening/closure endpoints? The admitted zero-mate full-chain result blocks inferring a motion law from the active assembly. If no source exists, preserve KINEMATIC_STATE_UNRESOLVED / OEM_SOURCE_REQUIRED and do not run a hypothetical motion sweep.",
       "resolves_requirement_ids": [
         "PRISM_KINEMATIC_CHAIN_BOUND",
+        "PRISM_STROKE_AND_CLOSURE_LIMITS_BOUND",
         "CAPTURE_KINEMATIC_OWNER"
       ],
       "hypothesis_ids": [
-        "H_V43_PRISM_LINKS_AND_ARMS_TRANSFER_CLOSURE"
+        "H_V43_PRISM_LINKS_AND_ARMS_TRANSFER_CLOSURE",
+        "H_V43_PRISM_ACTUATOR_DRIVES_CLOSURE",
+        "H_V43_PRISM_GUIDED_SLIDER"
       ],
       "discrimination_power": 0.99,
       "evidence_confidence": 0.95,
