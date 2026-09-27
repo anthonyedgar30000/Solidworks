@@ -11,6 +11,11 @@ import yaml
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field, ConfigDict
 
+from semantic_policy import (
+    SemanticPolicyError,
+    validate_semantic_admission,
+)
+
 
 BASE_DIR = Path(r"C:\CADGrounded\reasoning-node")
 NODE_CONFIG = BASE_DIR / "node.yaml"
@@ -27,7 +32,7 @@ MODEL = config["ollama"]["initial_model"]
 
 app = FastAPI(
     title="CADGrounded Reasoning Node",
-    version="0.2.0",
+    version="0.3.0",
 )
 
 
@@ -130,6 +135,7 @@ class ReasonResponse(BaseModel):
     evidence_verification_authority: Literal["NONE"] = "NONE"
 
     schema_validated: Literal[True] = True
+    semantic_admitted: Literal[True] = True
 
     result: AdvisoryPayload
 
@@ -193,23 +199,35 @@ Required JSON structure:
   "ambiguity_buckets": [],
   "claims_used": [],
   "inferences": [],
-  "hypotheses": [
-    {
-      "statement": "",
-      "prior": "COMMON",
-      "evidence_status": "UNTESTED",
-      "investigation_status": "ELIGIBLE"
-    }
-  ],
-  "next_tests": [
-    {
-      "test": "",
-      "diagnostic_value": "",
-      "required_authority": ""
-    }
-  ],
+  "hypotheses": [],
+  "next_tests": [],
   "notes": []
 }
+"""
+
+
+def task_contract(task: str) -> str:
+    if task == "ambiguity_classification":
+        return """
+AMBIGUITY CLASSIFICATION CONTRACT:
+
+- This task is classification only.
+- claims_used MUST contain at least one claim copied from the supplied evidence.
+- Copy claims verbatim except for insignificant whitespace normalization.
+- Do not paraphrase claims_used.
+- ambiguity_buckets must contain only buckets directly supported by claims_used.
+- inferences MUST be [].
+- hypotheses MUST be [].
+- next_tests MUST be [].
+- Do not convert an unresolved fact into VERIFIED state.
+"""
+
+    return """
+SEMANTIC ADMISSION NOTICE:
+
+No deterministic semantic-admission policy is implemented for this task yet.
+Any output may be schema-valid, but it will be rejected rather than
+semantically admitted.
 """
 
 
@@ -251,7 +269,7 @@ def healthz():
 
     return {
         "status": "ok",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "node_id": NODE_ID,
         "role": "bounded_reasoning_node",
         "ollama": ollama,
@@ -259,6 +277,10 @@ def healthz():
         "cad_write_authority": "NONE",
         "mechanical_acceptance_authority": "NONE",
         "evidence_verification_authority": "NONE",
+        "semantic_admission_policy": "fail_closed",
+        "semantic_policy_tasks": [
+            "ambiguity_classification",
+        ],
     }
 
 
@@ -274,6 +296,9 @@ def reason(request: ReasonRequest):
 
 REQUESTED TASK:
 {request.task}
+
+TASK-SPECIFIC CONTRACT:
+{task_contract(request.task)}
 
 SUPPLIED EVIDENCE:
 --- BEGIN EVIDENCE ---
@@ -316,15 +341,66 @@ Return only the required JSON object.
             "model": MODEL,
             "task": request.task,
             "evidence_sha256": evidence_hash,
-            "status": "REJECTED",
+            "status": "REJECTED_SCHEMA",
+            "schema_validated": False,
+            "semantic_admitted": False,
             "reason": type(exc).__name__,
+            "authority": {
+                "solidworks_geometry": "NONE",
+                "cad_write": "NONE",
+                "mechanical_acceptance": "NONE",
+                "evidence_verification": "NONE",
+            },
         }
 
         append_log(failure_record)
 
         raise HTTPException(
             status_code=422,
-            detail="Reasoning output failed deterministic validation.",
+            detail={
+                "status": "REJECTED_SCHEMA",
+                "message": "Reasoning output failed deterministic schema validation.",
+            },
+        )
+
+    try:
+        validate_semantic_admission(
+            task=request.task,
+            evidence=request.evidence,
+            payload=validated,
+        )
+
+    except SemanticPolicyError as exc:
+        failure_record = {
+            "request_id": request_id,
+            "timestamp_utc": timestamp,
+            "node_id": NODE_ID,
+            "model": MODEL,
+            "task": request.task,
+            "evidence_sha256": evidence_hash,
+            "proposal_raw_sha256": sha256_text(raw_result),
+            "proposal_raw": raw_result,
+            "proposal_validated": validated.model_dump(),
+            "status": "REJECTED_SEMANTIC_POLICY",
+            "schema_validated": True,
+            "semantic_admitted": False,
+            "violations": list(exc.violations),
+            "authority": {
+                "solidworks_geometry": "NONE",
+                "cad_write": "NONE",
+                "mechanical_acceptance": "NONE",
+                "evidence_verification": "NONE",
+            },
+        }
+
+        append_log(failure_record)
+
+        raise HTTPException(
+            status_code=422,
+            detail={
+                "status": "REJECTED_SEMANTIC_POLICY",
+                "violations": list(exc.violations),
+            },
         )
 
     result = ReasonResponse(
@@ -344,7 +420,12 @@ Return only the required JSON object.
         "model": MODEL,
         "task": request.task,
         "evidence_sha256": evidence_hash,
-        "status": "ACCEPTED_ADVISORY",
+        "proposal_raw_sha256": sha256_text(raw_result),
+        "proposal_raw": raw_result,
+        "proposal_validated": validated.model_dump(),
+        "status": "SEMANTICALLY_ADMITTED",
+        "schema_validated": True,
+        "semantic_admitted": True,
         "authority": {
             "solidworks_geometry": "NONE",
             "cad_write": "NONE",
