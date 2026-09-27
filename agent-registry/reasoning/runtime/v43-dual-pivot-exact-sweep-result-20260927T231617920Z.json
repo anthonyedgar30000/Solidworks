@@ -1,0 +1,94 @@
+{
+  "schema_version": 1,
+  "record_type": "read_only_verification_attempt",
+  "attempt_id": "ATTEMPT.PLAN-0011.V43_DUAL_PIVOT_EXACT_SWEEP.20260927T231617920Z",
+  "plan_id": "PLAN-0011",
+  "step_id": "P0011.4",
+  "candidate_preflight_id": "PF.PLAN-0011.V43_PRISM_DUAL_PIVOT_OPEN_ENVELOPE.V1.20260927T221310Z",
+  "test_id": "TEST_POP_V43_PRISM_DUAL_PIVOT_EXACT_HYPOTHETICAL_SWEEP",
+  "attempted_at_utc": "2026-09-27T23:16:17.920Z",
+  "intended_method": "Evaluate bounded dual-pivot candidate transforms with temporary-body B-rep intersection operations only, preserving the live v43 assembly unchanged.",
+  "execution_result": "TERMINATED_FAIL_FAST_PHYSICAL_INTERFERENCE_DETECTED",
+  "live_cad_binding": {
+    "document_title_exact": "IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE",
+    "document_path_exact": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE.SLDASM",
+    "active_configuration_exact": "V43_WRAP",
+    "source_classification": "verified_from_solidworks_api",
+    "post_sweep_status_reverified": true
+  },
+  "tooling_context": {
+    "prior_tooling_failure_attempt_id": "ATTEMPT.PLAN-0011.V43_DUAL_PIVOT_EXACT_SWEEP.TOOLING_FAILURE.20260927T230358Z",
+    "merged_rotation_math_fix_commit": "2c03702d1f14fcdb1e2ae346813b71c1b184fb46",
+    "merged_verifier_path": "agent-registry/workers/CadGrounded.SolidWorksWorker/Verify-Pop-V43-Prism-DualPivot-ExactHypotheticalSweep.ps1",
+    "rotation_convention": "SOLIDWORKS row-vector rotation convention used by the merged verifier",
+    "confirmatory_source_sha256": "3cb90ff71664cdf2d1b0a453e100de0cab53ae7f17ad638f0acce2f6a4dd8f77"
+  },
+  "confirmatory_brep_intersections": [
+    {
+      "moving_component": "FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25-1",
+      "fixed_obstacle": "FITCHECK_PRISM_GUIDE_RAIL_100x10x10_V43-1",
+      "angle_deg": -37.932118385834365,
+      "candidate_rotation9": [
+        0.7887396100444625,
+        -0.6147274416738766,
+        0.0,
+        0.6147274416738766,
+        0.7887396100444625,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "candidate_translation_mm": [
+        -176.40663438055,
+        -269.90480847506814,
+        995.0
+      ],
+      "intersection_volume_mm3": 36.87005661597739,
+      "boolean_error_codes": [0]
+    },
+    {
+      "moving_component": "FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25-2",
+      "fixed_obstacle": "FITCHECK_PRISM_GUIDE_RAIL_100x10x10_V43-2",
+      "angle_deg": 16.093399159748615,
+      "candidate_rotation9": [
+        0.9608110962032516,
+        0.2772039635587956,
+        0.0,
+        -0.2772039635587956,
+        0.9608110962032516,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "candidate_translation_mm": [
+        -184.55146976653572,
+        -184.38983851514217,
+        995.0
+      ],
+      "intersection_volume_mm3": 229.78798686025416,
+      "boolean_error_codes": [0]
+    }
+  ],
+  "admitted_project_state": [
+    "The exact v43 document/path and V43_WRAP configuration were freshly rebound before execution.",
+    "The confirmatory candidate transforms use the same row-vector rotation convention as the merged fixed verifier.",
+    "Temporary transformed B-rep body copies were used; no live component transform, mate, suppression, save, or assembly geometry was modified.",
+    "Roller-1 has positive B-rep intersection with fixed Guide-Rail-1 at the tested intermediate candidate state.",
+    "Roller-2 has positive B-rep intersection with fixed Guide-Rail-2 at the tested intermediate candidate state.",
+    "The geometry result is negative for the exact tested dual-pivot motion path and requires explicit project-level disposition review before the next candidate/test is selected.",
+    "The remaining whole-body pair/sample matrix was not exhaustively evaluated after decisive fixed-guide-rail interference was established; the verification terminated fail-fast."
+  ],
+  "explicitly_not_claimed": [
+    "This result does not reject all pivoting roller-arm or carrier architectures.",
+    "This result does not prove that every possible re-authored v43 PRISM kinematic law fails.",
+    "No positive-clearance claim is made for any untested or noninterfering pair because hypothetical temporary-body minimum distance remains unresolved.",
+    "This attempt does not establish actuator identity, synchronization, preload/compliance, reaction-bearing capacity, product tolerance, label-transfer timing, or mechanical acceptance.",
+    "No hypothesis evidence_state or investigation_state is changed automatically by this attempt.",
+    "No claim is made that every obstacle/sample pair in the originally declared sweep was evaluated."
+  ],
+  "write_authority": "NONE",
+  "model_mutation": false,
+  "mechanical_acceptance_granted": false
+}

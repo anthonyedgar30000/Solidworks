@@ -39,7 +39,7 @@ class CurrentFrontierLoadTests(unittest.TestCase):
         self.assertEqual(metadata["current_plan_id"], "PLAN-0011")
         self.assertEqual(
             metadata["current_evidence_id"],
-            "E.FUNCTION_FIRST.MECHANISM_REFERENCE_SOURCE_BOUNDARY.20260927T212442Z",
+            "E.V43.PRISM.DUAL_PIVOT_GUIDE_RAIL_INTERFERENCE.20260927T231617920Z",
         )
         self.assertEqual(
             metadata["current_architecture_id"],

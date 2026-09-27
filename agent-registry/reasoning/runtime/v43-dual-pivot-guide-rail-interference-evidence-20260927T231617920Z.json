@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "record_type": "evidence",
+  "evidence_id": "E.V43.PRISM.DUAL_PIVOT_GUIDE_RAIL_INTERFERENCE.20260927T231617920Z",
+  "evidence_type": "solidworks_observation",
+  "evidence_state": "VERIFIED",
+  "source_authority": "SOLIDWORKS_LIVE_STATE",
+  "source_classification": "verified_from_solidworks_api",
+  "subject": {
+    "subject_type": "candidate_motion_variant_interference",
+    "identity_exact": "CANDIDATE_V43_PRISM_DUAL_INDEPENDENT_PIVOT_ARMS_V1",
+    "document_title_exact": "IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE",
+    "document_path_exact": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE.SLDASM"
+  },
+  "provenance": {
+    "recorded_at": "2026-09-27T23:16:17.920Z",
+    "source_ref": "agent-registry/reasoning/runtime/v43-dual-pivot-exact-sweep-result-20260927T231617920Z.json",
+    "tool_path": "CADGrounded SOLIDWORKS sw_execute_code -> IComponent2.GetBodies3 -> IBody2.Copy/ApplyTransform -> IBody2.Operations2(SWBODYINTERSECT)"
+  },
+  "dependencies": [
+    "PLAN-0011",
+    "PF.PLAN-0011.V43_PRISM_DUAL_PIVOT_OPEN_ENVELOPE.V1.20260927T221310Z",
+    "ATTEMPT.PLAN-0011.V43_LIVE_REBIND.20260927T224059Z",
+    "ATTEMPT.PLAN-0011.V43_DUAL_PIVOT_EXACT_SWEEP.TOOLING_FAILURE.20260927T230358Z"
+  ],
+  "geometry_state": "CANDIDATE_OPERATING",
+  "mechanical_acceptance_granted": false,
+  "payload": {
+    "observation_kind": "hypothetical_candidate_brep_intersection_sweep",
+    "document": {
+      "title": "IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE",
+      "path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE.SLDASM",
+      "active_configuration": "V43_WRAP"
+    },
+    "candidate_motion_variant_id": "CANDIDATE_V43_PRISM_DUAL_INDEPENDENT_PIVOT_ARMS_V1",
+    "merged_verifier_basis": {
+      "commit": "2c03702d1f14fcdb1e2ae346813b71c1b184fb46",
+      "path": "agent-registry/workers/CadGrounded.SolidWorksWorker/Verify-Pop-V43-Prism-DualPivot-ExactHypotheticalSweep.ps1",
+      "rotation_convention": "SOLIDWORKS row-vector rotation convention",
+      "confirmatory_source_sha256": "3cb90ff71664cdf2d1b0a453e100de0cab53ae7f17ad638f0acce2f6a4dd8f77"
+    },
+    "verified_interferences": [
+      {
+        "moving_component": "FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25-1",
+        "fixed_obstacle": "FITCHECK_PRISM_GUIDE_RAIL_100x10x10_V43-1",
+        "angle_deg": -37.932118385834365,
+        "candidate_translation_mm": [
+          -176.40663438055,
+          -269.90480847506814,
+          995.0
+        ],
+        "intersection_volume_mm3": 36.87005661597739,
+        "boolean_error_codes": [0]
+      },
+      {
+        "moving_component": "FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25-2",
+        "fixed_obstacle": "FITCHECK_PRISM_GUIDE_RAIL_100x10x10_V43-2",
+        "angle_deg": 16.093399159748615,
+        "candidate_translation_mm": [
+          -184.55146976653572,
+          -184.38983851514217,
+          995.0
+        ],
+        "intersection_volume_mm3": 229.78798686025416,
+        "boolean_error_codes": [0]
+      }
+    ],
+    "result": {
+      "geometry_result": "POSITIVE_BREP_INTERFERENCE_WITH_FIXED_GUIDE_RAILS",
+      "candidate_motion_variant_disposition": "RESULT_REVIEW_REQUIRED",
+      "mechanical_effect": "NEGATIVE_GEOMETRY_RESULT_EXACT_VARIANT_SCOPE_ONLY",
+      "general_pivot_architecture_state_change": "NONE",
+      "broader_v43_prism_candidate_state_change": "NONE",
+      "model_mutation": false,
+      "write_authority": "NONE",
+      "mechanical_acceptance_granted": false
+    },
+    "scope_boundary": [
+      "The observation is authoritative for the live source bodies and the explicitly evaluated hypothetical transforms.",
+      "The positive intersections are sufficient negative geometry evidence for the tested dual-pivot path, but project-level hypothesis/candidate state changes require explicit review.",
+      "This is not evidence that all pivot architectures fail.",
+      "This is not positive-clearance evidence for any other pair or state.",
+      "This is not mechanical acceptance of an alternate architecture."
+    ]
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "record_type": "plan_reconciliation",
+  "schema_version": 1,
+  "record_id": "RECON-0018",
+  "project_id": "CADGROUNDED.IXOR",
+  "reconciled_at_utc": "2026-09-27T23:16:17.920Z",
+  "plan_id": "PLAN-0011",
+  "revised_plan_id": "PLAN-0011",
+  "raw_observation_ids": [
+    "ATTEMPT.PLAN-0011.V43_DUAL_PIVOT_EXACT_SWEEP.20260927T231617920Z",
+    "E.V43.PRISM.DUAL_PIVOT_GUIDE_RAIL_INTERFERENCE.20260927T231617920Z"
+  ],
+  "actual_actions": [
+    {
+      "action_id": "ACT_REASSERT_MERGED_DUAL_PIVOT_ROTATION_CONVENTION",
+      "write_authority": "NONE",
+      "result": "SUCCESS",
+      "reason": "The confirmatory transforms use the SOLIDWORKS row-vector rotation convention implemented by the merged fixed verifier after the prior PowerShell matrix-variable collision was corrected."
+    },
+    {
+      "action_id": "ACT_EXECUTE_V43_DUAL_PIVOT_CORRECTED_TEMP_BODY_INTERSECTION_CHECKS",
+      "write_authority": "NONE",
+      "result": "SUCCESS_PHYSICAL_INTERFERENCE_DETECTED",
+      "reason": "Freshly rebound v43/V43_WRAP source bodies were evaluated with temporary-body B-rep intersection. Roller-1 intersects fixed Guide-Rail-1 at a tested intermediate state and Roller-2 intersects fixed Guide-Rail-2 at a tested intermediate state; both boolean error codes were zero."
+    },
+    {
+      "action_id": "ACT_RECORD_NEGATIVE_GEOMETRY_WITHOUT_AUTOMATIC_HYPOTHESIS_MUTATION",
+      "write_authority": "NONE",
+      "result": "RESULT_REVIEW_REQUIRED",
+      "reason": "The observed positive intersections are negative geometry evidence for the exact dual-pivot path. The verification attempt itself does not mutate general pivoting, broader v43 PRISM, or other mechanism hypotheses."
+    }
+  ],
+  "step_outcomes": [
+    {
+      "step_id": "P0011.4",
+      "outcome": "POSITIVE_FIXED_GUIDE_RAIL_BREP_INTERFERENCE_RESULT_REVIEW_REQUIRED",
+      "evidence_id": "E.V43.PRISM.DUAL_PIVOT_GUIDE_RAIL_INTERFERENCE.20260927T231617920Z",
+      "artifact": "agent-registry/reasoning/runtime/v43-dual-pivot-exact-sweep-result-20260927T231617920Z.json"
+    }
+  ],
+  "conclusion": "PLAN-0011 remains at P0011.4 for explicit result review. The corrected-convention temporary-body checks produced positive B-rep interference between each tested support roller and its corresponding fixed PRISM guide rail at bounded dual-pivot candidate states. This is negative geometry evidence for the exact tested motion path. No broader hypothesis state is changed automatically, no CAD write is authorized, and mechanical acceptance remains false.",
+  "mechanical_acceptance_granted": false,
+  "write_authority": "NONE"
+}

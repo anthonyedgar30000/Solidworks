@@ -41,7 +41,7 @@ class FrontierStateTests(unittest.TestCase):
         )
         self.assertEqual(
             state["next_action_mode"],
-            "REBIND_LIVE_CAD_BEFORE_DIAGNOSTIC",
+            "REVIEW_DIAGNOSTIC_RESULT",
         )
         self.assertEqual(
             state["current_diagnostic_test_id"],
@@ -49,15 +49,15 @@ class FrontierStateTests(unittest.TestCase):
         )
         self.assertEqual(
             state["current_diagnostic_state"],
-            "BLOCKED_FRESH_CAD_REBIND_REQUIRED",
+            "EXECUTED_RESULT_REVIEW_REQUIRED",
         )
         self.assertEqual(
             state["current_diagnostic_mechanical_effect"],
-            "NO_HYPOTHESIS_STATE_CHANGE",
+            "NO_AUTOMATIC_HYPOTHESIS_STATE_CHANGE",
         )
         self.assertEqual(
             state["current_diagnostic_ambiguity_buckets"],
-            ["STALE_STATE", "CAD_READ_REQUIRED"],
+            [],
         )
         self.assertFalse(state["uncommon_review_eligible"])
         self.assertFalse(state["novel_review_eligible"])
@@ -286,9 +286,9 @@ class FrontierStateTests(unittest.TestCase):
         rendered = render_frontier_state(state)
 
         self.assertIn("COMMON_FRONTIER_OPEN", rendered)
-        self.assertIn("REBIND_LIVE_CAD_BEFORE_DIAGNOSTIC", rendered)
-        self.assertIn("BLOCKED_FRESH_CAD_REBIND_REQUIRED", rendered)
-        self.assertIn("NO_HYPOTHESIS_STATE_CHANGE", rendered)
+        self.assertIn("REVIEW_DIAGNOSTIC_RESULT", rendered)
+        self.assertIn("EXECUTED_RESULT_REVIEW_REQUIRED", rendered)
+        self.assertIn("NO_AUTOMATIC_HYPOTHESIS_STATE_CHANGE", rendered)
         self.assertIn(
             "TEST_FUNCTION_FIRST_POP_ACCEPTANCE_ENVELOPE",
             rendered,
