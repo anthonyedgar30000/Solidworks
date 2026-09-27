@@ -968,11 +968,16 @@ function Get-CGBottleContactWrenchRank {
 
     function Get-Cross3Local {
         param([double[]]$A,[double[]]$B)
-        return @(
-            ([double]$A[1] * [double]$B[2]) - ([double]$A[2] * [double]$B[1]),
-            ([double]$A[2] * [double]$B[0]) - ([double]$A[0] * [double]$B[2]),
-            ([double]$A[0] * [double]$B[1]) - ([double]$A[1] * [double]$B[0])
-        )
+        $ax = [double]$A[0]
+        $ay = [double]$A[1]
+        $az = [double]$A[2]
+        $bx = [double]$B[0]
+        $by = [double]$B[1]
+        $bz = [double]$B[2]
+        $cx = ($ay * $bz) - ($az * $by)
+        $cy = ($az * $bx) - ($ax * $bz)
+        $cz = ($ax * $by) - ($ay * $bx)
+        return @($cx,$cy,$cz)
     }
 
     function New-ConstraintRowLocal {
@@ -986,11 +991,16 @@ function Get-CGBottleContactWrenchRank {
             throw "Pair '$PairId' point/reaction must be 3D."
         }
 
-        $arm = @(
-            [double]$Point[0] - [double]$referencePoint[0],
-            [double]$Point[1] - [double]$referencePoint[1],
-            [double]$Point[2] - [double]$referencePoint[2]
-        )
+        $px = [double]$Point[0]
+        $py = [double]$Point[1]
+        $pz = [double]$Point[2]
+        $rx0 = [double]$referencePoint[0]
+        $ry0 = [double]$referencePoint[1]
+        $rz0 = [double]$referencePoint[2]
+        $armX = $px - $rx0
+        $armY = $py - $ry0
+        $armZ = $pz - $rz0
+        $arm = @($armX,$armY,$armZ)
         $moment = Get-Cross3Local -A $arm -B $Reaction
         return [pscustomobject][ordered]@{
             pair_id = $PairId
@@ -1083,7 +1093,9 @@ function Get-CGBottleContactWrenchRank {
             $factor = [double]$rref[$r,$col]
             if ([Math]::Abs($factor) -le $Tolerance) { continue }
             for ($j = 0; $j -lt $columnCount; $j++) {
-                $rref[$r,$j] = [double]$rref[$r,$j] - $factor * [double]$rref[$pivotRow,$j]
+                $currentValue = [double]$rref[$r,$j]
+                $pivotValueForColumn = [double]$rref[$pivotRow,$j]
+                $rref[$r,$j] = $currentValue - ($factor * $pivotValueForColumn)
             }
         }
 
@@ -1113,7 +1125,9 @@ function Get-CGBottleContactWrenchRank {
     foreach ($row in $rows) {
         $sum = 0.0
         for ($j = 0; $j -lt $columnCount; $j++) {
-            $sum += [double]$row.row[$j] * [double]$wrapTwist[$j]
+            $rowValue = [double]$row.row[$j]
+            $twistValue = [double]$wrapTwist[$j]
+            $sum += $rowValue * $twistValue
         }
         $wrapResiduals += $sum
     }
