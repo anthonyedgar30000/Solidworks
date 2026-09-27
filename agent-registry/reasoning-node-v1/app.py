@@ -12,6 +12,7 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field, ConfigDict
 
 from semantic_policy import (
+    SEMANTIC_POLICY_TASKS,
     SemanticPolicyError,
     supported_bucket_claim_pairs,
     validate_semantic_admission,
@@ -33,7 +34,7 @@ MODEL = config["ollama"]["initial_model"]
 
 app = FastAPI(
     title="CADGrounded Reasoning Node",
-    version="0.4.0",
+    version="0.5.0",
 )
 
 
@@ -97,6 +98,8 @@ class Hypothesis(BaseModel):
     prior: HypothesisPrior
     evidence_status: EvidenceStatus
     investigation_status: InvestigationStatus
+    anchor_buckets: list[AmbiguityBucket]
+    anchor_claims: list[str]
 
 
 class NextTest(BaseModel):
@@ -200,7 +203,16 @@ Required JSON structure:
   "ambiguity_buckets": [],
   "claims_used": [],
   "inferences": [],
-  "hypotheses": [],
+  "hypotheses": [
+    {
+      "statement": "Hypothesis: ... may ...",
+      "prior": "COMMON",
+      "evidence_status": "UNTESTED",
+      "investigation_status": "ELIGIBLE",
+      "anchor_buckets": [],
+      "anchor_claims": []
+    }
+  ],
   "next_tests": [],
   "notes": []
 }
@@ -224,6 +236,28 @@ AMBIGUITY CLASSIFICATION CONTRACT:
 - Do not convert an unresolved fact into VERIFIED state.
 """
 
+    if task == "hypothesis_generation":
+        return """
+HYPOTHESIS GENERATION CONTRACT:
+
+- This task generates candidate explanations only; it does not create findings or observations.
+- Select at least one ambiguity bucket/claim pair from the deterministic grounding catalog.
+- claims_used MUST contain only exact source claims selected from that catalog.
+- Generate between 1 and 3 hypotheses.
+- Every hypothesis statement MUST begin with "Hypothesis: ".
+- Every hypothesis statement MUST use tentative language such as may, might, could, possibly, or potentially.
+- Every hypothesis MUST have evidence_status = "UNTESTED".
+- Every hypothesis MUST have investigation_status = "ELIGIBLE".
+- Every hypothesis MUST include one or more anchor_buckets drawn from the selected top-level ambiguity_buckets.
+- Every hypothesis MUST include one or more anchor_claims drawn from the selected top-level claims_used.
+- Each anchor bucket must be directly supported by at least one of that hypothesis's anchor claims.
+- inferences MUST be [].
+- next_tests MUST be [].
+- notes MUST be [].
+- Do not describe a hypothesis as verified, confirmed, observed, measured, calculated, proven, established, or mechanically accepted.
+- Do not convert unresolved evidence into VERIFIED state.
+"""
+
     return """
 SEMANTIC ADMISSION NOTICE:
 
@@ -234,7 +268,10 @@ semantically admitted.
 
 
 def grounding_catalog(task: str, evidence: str) -> str:
-    if task != "ambiguity_classification":
+    if task not in {
+        "ambiguity_classification",
+        "hypothesis_generation",
+    }:
         return "No deterministic grounding catalog is implemented for this task."
 
     pairs = supported_bucket_claim_pairs(evidence)
@@ -306,7 +343,7 @@ def healthz():
 
     return {
         "status": "ok",
-        "version": "0.4.0",
+        "version": "0.5.0",
         "node_id": NODE_ID,
         "role": "bounded_reasoning_node",
         "ollama": ollama,
@@ -315,9 +352,7 @@ def healthz():
         "mechanical_acceptance_authority": "NONE",
         "evidence_verification_authority": "NONE",
         "semantic_admission_policy": "fail_closed",
-        "semantic_policy_tasks": [
-            "ambiguity_classification",
-        ],
+        "semantic_policy_tasks": sorted(SEMANTIC_POLICY_TASKS),
     }
 
 
@@ -355,7 +390,10 @@ Return only the required JSON object.
                 "model": MODEL,
                 "prompt": prompt,
                 "stream": False,
-                "format": "json",
+                "format": AdvisoryPayload.model_json_schema(),
+                "options": {
+                    "temperature": 0,
+                },
             },
             timeout=120,
         )

@@ -37,6 +37,32 @@ def advisory(
     }
 
 
+def candidate_hypothesis(
+    *,
+    statement="Hypothesis: a missing capture constraint may explain the unresolved kinematic owner.",
+    evidence_status="UNTESTED",
+    investigation_status="ELIGIBLE",
+    anchor_buckets=None,
+    anchor_claims=None,
+):
+    return {
+        "statement": statement,
+        "prior": "COMMON",
+        "evidence_status": evidence_status,
+        "investigation_status": investigation_status,
+        "anchor_buckets": (
+            ["KINEMATIC_STATE_UNRESOLVED"]
+            if anchor_buckets is None
+            else anchor_buckets
+        ),
+        "anchor_claims": (
+            ["Capture kinematic ownership is unresolved."]
+            if anchor_claims is None
+            else anchor_claims
+        ),
+    }
+
+
 class FakeOllamaResponse:
     def __init__(self, payload):
         self.payload = payload
@@ -115,8 +141,17 @@ class SemanticIntegrationTests(unittest.TestCase):
             expected_payload,
         )
 
-        prompt = post.call_args.kwargs["json"]["prompt"]
+        request_json = post.call_args.kwargs["json"]
+        prompt = request_json["prompt"]
 
+        self.assertEqual(
+            request_json["format"],
+            app.AdvisoryPayload.model_json_schema(),
+        )
+        self.assertEqual(
+            request_json["options"],
+            {"temperature": 0},
+        )
         self.assertIn(
             "AMBIGUITY CLASSIFICATION CONTRACT",
             prompt,
@@ -221,6 +256,108 @@ class SemanticIntegrationTests(unittest.TestCase):
 
     @patch("app.append_log")
     @patch("app.requests.post")
+    def test_grounded_hypothesis_generation_is_semantically_admitted(
+        self,
+        post,
+        append_log,
+    ):
+        payload = advisory(
+            buckets=["KINEMATIC_STATE_UNRESOLVED"],
+            claims=[
+                "Capture kinematic ownership is unresolved."
+            ],
+            hypotheses=[candidate_hypothesis()],
+        )
+        post.return_value = FakeOllamaResponse(payload)
+
+        result = app.reason(
+            app.ReasonRequest(
+                task="hypothesis_generation",
+                evidence=EVIDENCE,
+            )
+        )
+
+        self.assertTrue(result.schema_validated)
+        self.assertTrue(result.semantic_admitted)
+        self.assertEqual(result.cad_write_authority, "NONE")
+        self.assertEqual(
+            result.mechanical_acceptance_authority,
+            "NONE",
+        )
+        self.assertEqual(
+            result.evidence_verification_authority,
+            "NONE",
+        )
+
+        record = append_log.call_args.args[0]
+        self.assertEqual(
+            record["status"],
+            "SEMANTICALLY_ADMITTED",
+        )
+        self.assertEqual(
+            record["proposal_validated"],
+            payload,
+        )
+
+        prompt = post.call_args.kwargs["json"]["prompt"]
+        self.assertIn(
+            "HYPOTHESIS GENERATION CONTRACT",
+            prompt,
+        )
+        self.assertIn(
+            "bucket: KINEMATIC_STATE_UNRESOLVED",
+            prompt,
+        )
+        self.assertIn(
+            "claim: Capture kinematic ownership is unresolved.",
+            prompt,
+        )
+
+    @patch("app.append_log")
+    @patch("app.requests.post")
+    def test_hypothesis_generation_rejects_supported_status_promotion(
+        self,
+        post,
+        append_log,
+    ):
+        post.return_value = FakeOllamaResponse(
+            advisory(
+                buckets=["KINEMATIC_STATE_UNRESOLVED"],
+                claims=[
+                    "Capture kinematic ownership is unresolved."
+                ],
+                hypotheses=[
+                    candidate_hypothesis(
+                        evidence_status="SUPPORTED",
+                    )
+                ],
+            )
+        )
+
+        with self.assertRaises(HTTPException) as ctx:
+            app.reason(
+                app.ReasonRequest(
+                    task="hypothesis_generation",
+                    evidence=EVIDENCE,
+                )
+            )
+
+        self.assertEqual(ctx.exception.status_code, 422)
+        self.assertEqual(
+            ctx.exception.detail["status"],
+            "REJECTED_SEMANTIC_POLICY",
+        )
+        self.assertIn(
+            "HYPOTHESIS_EVIDENCE_STATUS_MUST_BE_UNTESTED:0",
+            ctx.exception.detail["violations"],
+        )
+
+        record = append_log.call_args.args[0]
+        self.assertTrue(record["schema_validated"])
+        self.assertFalse(record["semantic_admitted"])
+
+    @patch("app.append_log")
+    @patch("app.requests.post")
     def test_unimplemented_task_fails_closed(
         self,
         post,
@@ -231,7 +368,7 @@ class SemanticIntegrationTests(unittest.TestCase):
         with self.assertRaises(HTTPException) as ctx:
             app.reason(
                 app.ReasonRequest(
-                    task="hypothesis_generation",
+                    task="investigation_planning",
                     evidence=EVIDENCE,
                 )
             )
@@ -241,7 +378,7 @@ class SemanticIntegrationTests(unittest.TestCase):
             "REJECTED_SEMANTIC_POLICY",
         )
         self.assertIn(
-            "SEMANTIC_POLICY_NOT_IMPLEMENTED:hypothesis_generation",
+            "SEMANTIC_POLICY_NOT_IMPLEMENTED:investigation_planning",
             ctx.exception.detail["violations"],
         )
 

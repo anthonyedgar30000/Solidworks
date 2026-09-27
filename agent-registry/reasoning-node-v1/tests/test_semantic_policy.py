@@ -37,6 +37,32 @@ def payload(
     }
 
 
+def candidate_hypothesis(
+    *,
+    statement="Hypothesis: a missing capture constraint may explain the unresolved kinematic owner.",
+    evidence_status="UNTESTED",
+    investigation_status="ELIGIBLE",
+    anchor_buckets=None,
+    anchor_claims=None,
+):
+    return {
+        "statement": statement,
+        "prior": "COMMON",
+        "evidence_status": evidence_status,
+        "investigation_status": investigation_status,
+        "anchor_buckets": (
+            ["KINEMATIC_STATE_UNRESOLVED"]
+            if anchor_buckets is None
+            else anchor_buckets
+        ),
+        "anchor_claims": (
+            ["Capture kinematic ownership is unresolved."]
+            if anchor_claims is None
+            else anchor_claims
+        ),
+    }
+
+
 class AmbiguityClassificationAdmissionTests(unittest.TestCase):
 
     def test_admits_grounded_kinematic_unresolved(self):
@@ -171,16 +197,218 @@ class AmbiguityClassificationAdmissionTests(unittest.TestCase):
     def test_rejects_unimplemented_task(self):
         with self.assertRaises(SemanticPolicyError) as ctx:
             validate_semantic_admission(
-                task="hypothesis_generation",
+                task="investigation_planning",
                 evidence=EVIDENCE,
                 payload=payload(),
             )
 
         self.assertIn(
-            "SEMANTIC_POLICY_NOT_IMPLEMENTED:hypothesis_generation",
+            "SEMANTIC_POLICY_NOT_IMPLEMENTED:investigation_planning",
             ctx.exception.violations,
         )
 
+
+class HypothesisGenerationAdmissionTests(unittest.TestCase):
+
+    def base_payload(self, **overrides):
+        data = payload(
+            buckets=["KINEMATIC_STATE_UNRESOLVED"],
+            claims=[
+                "Capture kinematic ownership is unresolved."
+            ],
+            hypotheses=[candidate_hypothesis()],
+        )
+        data.update(overrides)
+        return data
+
+    def test_admits_grounded_untested_hypothesis(self):
+        validate_semantic_admission(
+            task="hypothesis_generation",
+            evidence=EVIDENCE,
+            payload=self.base_payload(),
+        )
+
+    def test_rejects_missing_hypothesis(self):
+        with self.assertRaises(SemanticPolicyError) as ctx:
+            validate_semantic_admission(
+                task="hypothesis_generation",
+                evidence=EVIDENCE,
+                payload=self.base_payload(hypotheses=[]),
+            )
+
+        self.assertIn(
+            "HYPOTHESIS_REQUIRED",
+            ctx.exception.violations,
+        )
+
+    def test_rejects_status_promotion(self):
+        with self.assertRaises(SemanticPolicyError) as ctx:
+            validate_semantic_admission(
+                task="hypothesis_generation",
+                evidence=EVIDENCE,
+                payload=self.base_payload(
+                    hypotheses=[candidate_hypothesis(
+                        evidence_status="SUPPORTED",
+                    )],
+                ),
+            )
+
+        self.assertIn(
+            "HYPOTHESIS_EVIDENCE_STATUS_MUST_BE_UNTESTED:0",
+            ctx.exception.violations,
+        )
+
+    def test_rejects_noneligible_investigation_state(self):
+        with self.assertRaises(SemanticPolicyError) as ctx:
+            validate_semantic_admission(
+                task="hypothesis_generation",
+                evidence=EVIDENCE,
+                payload=self.base_payload(
+                    hypotheses=[candidate_hypothesis(
+                        investigation_status="ACTIVE",
+                    )],
+                ),
+            )
+
+        self.assertIn(
+            "HYPOTHESIS_INVESTIGATION_STATUS_MUST_BE_ELIGIBLE:0",
+            ctx.exception.violations,
+        )
+
+    def test_rejects_missing_tentative_language(self):
+        with self.assertRaises(SemanticPolicyError) as ctx:
+            validate_semantic_admission(
+                task="hypothesis_generation",
+                evidence=EVIDENCE,
+                payload=self.base_payload(
+                    hypotheses=[candidate_hypothesis(
+                        statement="Hypothesis: a missing capture constraint explains the unresolved kinematic owner.",
+                    )],
+                ),
+            )
+
+        self.assertIn(
+            "HYPOTHESIS_TENTATIVE_LANGUAGE_REQUIRED:0",
+            ctx.exception.violations,
+        )
+
+    def test_rejects_forbidden_assertion_language(self):
+        with self.assertRaises(SemanticPolicyError) as ctx:
+            validate_semantic_admission(
+                task="hypothesis_generation",
+                evidence=EVIDENCE,
+                payload=self.base_payload(
+                    hypotheses=[candidate_hypothesis(
+                        statement="Hypothesis: a verified capture constraint may explain the unresolved kinematic owner.",
+                    )],
+                ),
+            )
+
+        self.assertIn(
+            "HYPOTHESIS_FORBIDDEN_ASSERTION:0",
+            ctx.exception.violations,
+        )
+
+    def test_rejects_unselected_anchor_claim(self):
+        with self.assertRaises(SemanticPolicyError) as ctx:
+            validate_semantic_admission(
+                task="hypothesis_generation",
+                evidence=EVIDENCE,
+                payload=self.base_payload(
+                    hypotheses=[candidate_hypothesis(
+                        anchor_claims=[
+                            "No evidence supplied here establishes the complete operating motion sequence."
+                        ],
+                    )],
+                ),
+            )
+
+        self.assertIn(
+            "HYPOTHESIS_ANCHOR_CLAIM_NOT_SELECTED:0:0",
+            ctx.exception.violations,
+        )
+
+    def test_rejects_anchor_bucket_not_supported_by_anchor_claim(self):
+        with self.assertRaises(SemanticPolicyError) as ctx:
+            validate_semantic_admission(
+                task="hypothesis_generation",
+                evidence=EVIDENCE,
+                payload=payload(
+                    buckets=[
+                        "KINEMATIC_STATE_UNRESOLVED",
+                        "INSUFFICIENT_EVIDENCE",
+                    ],
+                    claims=[
+                        "Capture kinematic ownership is unresolved.",
+                        "No evidence supplied here establishes the complete operating motion sequence.",
+                    ],
+                    hypotheses=[candidate_hypothesis(
+                        anchor_buckets=["INSUFFICIENT_EVIDENCE"],
+                        anchor_claims=[
+                            "Capture kinematic ownership is unresolved."
+                        ],
+                    )],
+                ),
+            )
+
+        self.assertIn(
+            "HYPOTHESIS_ANCHOR_BUCKET_UNSUPPORTED:0:0",
+            ctx.exception.violations,
+        )
+
+    def test_rejects_more_than_three_hypotheses(self):
+        hypotheses = [
+            candidate_hypothesis(
+                statement=f"Hypothesis: candidate mechanism {index} may explain the unresolved kinematic owner."
+            )
+            for index in range(4)
+        ]
+
+        with self.assertRaises(SemanticPolicyError) as ctx:
+            validate_semantic_admission(
+                task="hypothesis_generation",
+                evidence=EVIDENCE,
+                payload=self.base_payload(hypotheses=hypotheses),
+            )
+
+        self.assertIn(
+            "HYPOTHESIS_COUNT_EXCEEDED",
+            ctx.exception.violations,
+        )
+
+    def test_rejects_missing_anchor_bucket(self):
+        with self.assertRaises(SemanticPolicyError) as ctx:
+            validate_semantic_admission(
+                task="hypothesis_generation",
+                evidence=EVIDENCE,
+                payload=self.base_payload(
+                    hypotheses=[candidate_hypothesis(
+                        anchor_buckets=[],
+                    )],
+                ),
+            )
+
+        self.assertIn(
+            "HYPOTHESIS_ANCHOR_BUCKET_REQUIRED:0",
+            ctx.exception.violations,
+        )
+
+    def test_rejects_missing_anchor_claim(self):
+        with self.assertRaises(SemanticPolicyError) as ctx:
+            validate_semantic_admission(
+                task="hypothesis_generation",
+                evidence=EVIDENCE,
+                payload=self.base_payload(
+                    hypotheses=[candidate_hypothesis(
+                        anchor_claims=[],
+                    )],
+                ),
+            )
+
+        self.assertIn(
+            "HYPOTHESIS_ANCHOR_CLAIM_REQUIRED:0",
+            ctx.exception.violations,
+        )
 
 
 class SupportedPairCatalogTests(unittest.TestCase):

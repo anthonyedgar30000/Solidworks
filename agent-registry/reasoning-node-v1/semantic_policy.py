@@ -6,10 +6,19 @@ from typing import Any
 
 SEMANTIC_POLICY_TASKS = frozenset({
     "ambiguity_classification",
+    "hypothesis_generation",
 })
 
 
 _WS_RE = re.compile(r"\s+")
+_HYPOTHESIS_TENTATIVE_RE = re.compile(
+    r"\b(?:may|might|could|possibly|potentially)\b",
+    re.IGNORECASE,
+)
+_HYPOTHESIS_FORBIDDEN_ASSERTION_RE = re.compile(
+    r"\b(?:verified|confirmed|observed|measured|calculated|proven|established|mechanically accepted)\b",
+    re.IGNORECASE,
+)
 
 
 def normalize_whitespace(value: str) -> str:
@@ -248,6 +257,149 @@ def validate_semantic_admission(
                 violations.append(
                     f"UNSUPPORTED_BUCKET:{bucket}"
                 )
+
+    elif task == "hypothesis_generation":
+        claims = list(data.get("claims_used") or [])
+        buckets = list(data.get("ambiguity_buckets") or [])
+        inferences = list(data.get("inferences") or [])
+        hypotheses = list(data.get("hypotheses") or [])
+        next_tests = list(data.get("next_tests") or [])
+        notes = list(data.get("notes") or [])
+
+        if not claims:
+            violations.append("CLAIMS_USED_REQUIRED")
+
+        if not buckets:
+            violations.append("AMBIGUITY_BUCKET_REQUIRED")
+
+        if not hypotheses:
+            violations.append("HYPOTHESIS_REQUIRED")
+
+        if len(hypotheses) > 3:
+            violations.append("HYPOTHESIS_COUNT_EXCEEDED")
+
+        grounded_claims: list[str] = []
+
+        for index, claim in enumerate(claims):
+            if claim_is_grounded(claim, evidence):
+                grounded_claims.append(claim)
+            else:
+                violations.append(
+                    f"UNGROUNDED_CLAIM:{index}"
+                )
+
+        for bucket in buckets:
+            if not _bucket_supported(bucket, grounded_claims):
+                violations.append(
+                    f"UNSUPPORTED_BUCKET:{bucket}"
+                )
+
+        if inferences:
+            violations.append(
+                "HYPOTHESIS_GENERATION_INFERENCES_NOT_ALLOWED"
+            )
+
+        if next_tests:
+            violations.append(
+                "HYPOTHESIS_GENERATION_NEXT_TESTS_NOT_ALLOWED"
+            )
+
+        if notes:
+            violations.append(
+                "HYPOTHESIS_GENERATION_NOTES_NOT_ALLOWED"
+            )
+
+        normalized_claims = {
+            normalize_whitespace(claim)
+            for claim in claims
+        }
+        seen_statements: set[str] = set()
+
+        for index, hypothesis in enumerate(hypotheses):
+            statement = str(hypothesis.get("statement") or "").strip()
+            evidence_status = hypothesis.get("evidence_status")
+            investigation_status = hypothesis.get("investigation_status")
+            anchor_buckets = list(hypothesis.get("anchor_buckets") or [])
+            anchor_claims = list(hypothesis.get("anchor_claims") or [])
+
+            if not statement.startswith("Hypothesis: "):
+                violations.append(
+                    f"HYPOTHESIS_PREFIX_REQUIRED:{index}"
+                )
+
+            if not _HYPOTHESIS_TENTATIVE_RE.search(statement):
+                violations.append(
+                    f"HYPOTHESIS_TENTATIVE_LANGUAGE_REQUIRED:{index}"
+                )
+
+            if _HYPOTHESIS_FORBIDDEN_ASSERTION_RE.search(statement):
+                violations.append(
+                    f"HYPOTHESIS_FORBIDDEN_ASSERTION:{index}"
+                )
+
+            normalized_statement = normalize_whitespace(statement)
+            if normalized_statement in seen_statements:
+                violations.append(
+                    f"DUPLICATE_HYPOTHESIS:{index}"
+                )
+            seen_statements.add(normalized_statement)
+
+            statement_body = statement.removeprefix("Hypothesis: ")
+            if normalize_whitespace(statement_body) in normalized_claims:
+                violations.append(
+                    f"HYPOTHESIS_RESTATES_CLAIM:{index}"
+                )
+
+            if evidence_status != "UNTESTED":
+                violations.append(
+                    f"HYPOTHESIS_EVIDENCE_STATUS_MUST_BE_UNTESTED:{index}"
+                )
+
+            if investigation_status != "ELIGIBLE":
+                violations.append(
+                    f"HYPOTHESIS_INVESTIGATION_STATUS_MUST_BE_ELIGIBLE:{index}"
+                )
+
+            if not anchor_buckets:
+                violations.append(
+                    f"HYPOTHESIS_ANCHOR_BUCKET_REQUIRED:{index}"
+                )
+
+            if not anchor_claims:
+                violations.append(
+                    f"HYPOTHESIS_ANCHOR_CLAIM_REQUIRED:{index}"
+                )
+
+            grounded_anchor_claims: list[str] = []
+
+            for claim_index, anchor_claim in enumerate(anchor_claims):
+                normalized_anchor = normalize_whitespace(anchor_claim)
+
+                if normalized_anchor not in normalized_claims:
+                    violations.append(
+                        f"HYPOTHESIS_ANCHOR_CLAIM_NOT_SELECTED:{index}:{claim_index}"
+                    )
+
+                if claim_is_grounded(anchor_claim, evidence):
+                    grounded_anchor_claims.append(anchor_claim)
+                else:
+                    violations.append(
+                        f"HYPOTHESIS_ANCHOR_CLAIM_UNGROUNDED:{index}:{claim_index}"
+                    )
+
+            for bucket_index, anchor_bucket in enumerate(anchor_buckets):
+                if anchor_bucket not in buckets:
+                    violations.append(
+                        f"HYPOTHESIS_ANCHOR_BUCKET_NOT_SELECTED:{index}:{bucket_index}"
+                    )
+
+                if not _bucket_supported(
+                    anchor_bucket,
+                    grounded_anchor_claims,
+                ):
+                    violations.append(
+                        f"HYPOTHESIS_ANCHOR_BUCKET_UNSUPPORTED:{index}:{bucket_index}"
+                    )
 
     if violations:
         raise SemanticPolicyError(violations)
