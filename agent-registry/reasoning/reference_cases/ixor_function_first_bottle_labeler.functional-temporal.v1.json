@@ -30,6 +30,7 @@
       "local_obligation_ids": [
         "CAPTURE_KINEMATIC_OWNER",
         "BOTTLE_RESTRAINT_THROUGHOUT_CAPTURE",
+        "BOTTLE_ROTATION_SOURCE_BOUND",
         "WRAP_CONTACT_THROUGHOUT_CAPTURE",
         "CAPTURE_REACTION_FORCE_PATH",
         "REACHABLE_MOTION_CLEARANCE"
@@ -148,7 +149,8 @@
       "expected_authority": [
         "OEM_CAD",
         "OEM_DOCUMENTATION",
-        "SOLIDWORKS_LIVE_STATE"
+        "SOLIDWORKS_LIVE_STATE",
+        "DETERMINISTIC_CALCULATION"
       ],
       "evidence_refs": [
         "E.V43.PRISM.LIVE_STATE.20260926T200826594Z",
@@ -201,6 +203,34 @@
           "INDEXED_TO_CAPTURE",
           "CAPTURE_TO_RELEASE"
         ],
+        "required_coverage": "THROUGHOUT_SCOPE"
+      }
+    },
+    {
+      "id": "BOTTLE_ROTATION_SOURCE_BOUND",
+      "owner_subsystem_id": "CAPTURE_AND_ROTATION",
+      "description": "The candidate architecture explicitly identifies how bottle rotation is generated and controlled relative to the label lead and wrap-contact surfaces, including drive source, direction, contact relationship, and required operating interval.",
+      "verification_state": "UNRESOLVED",
+      "ambiguity_bucket": "KINEMATIC_STATE_UNRESOLVED",
+      "criticality": 5,
+      "resolution_cost": 2,
+      "expected_authority": [
+        "OEM_CAD",
+        "OEM_DOCUMENTATION",
+        "SOLIDWORKS_LIVE_STATE",
+        "DETERMINISTIC_CALCULATION"
+      ],
+      "evidence_refs": [],
+      "depends_on_requirement_ids": [
+        "CAPTURE_KINEMATIC_OWNER"
+      ],
+      "scope": {
+        "state_ids": [
+          "CAPTURE_AND_ROTATION",
+          "LABEL_TRANSFER_INTERVAL",
+          "WRAP_ACTIVE"
+        ],
+        "transition_ids": [],
         "required_coverage": "THROUGHOUT_SCOPE"
       }
     },
@@ -413,6 +443,7 @@
       "required_requirement_ids": [
         "BOTTLE_RESTRAINT_THROUGHOUT_CAPTURE",
         "WRAP_CONTACT_THROUGHOUT_CAPTURE",
+        "BOTTLE_ROTATION_SOURCE_BOUND",
         "CAPTURE_REACTION_FORCE_PATH",
         "INV_CAPTURE_PHASE_ORDER_AND_CONTAINMENT"
       ],
@@ -1207,7 +1238,8 @@
         "BOTTLE_RESTRAINT_THROUGHOUT_CAPTURE",
         "WRAP_CONTACT_THROUGHOUT_CAPTURE",
         "CAPTURE_REACTION_FORCE_PATH",
-        "REACHABLE_MOTION_CLEARANCE"
+        "REACHABLE_MOTION_CLEARANCE",
+        "BOTTLE_ROTATION_SOURCE_BOUND"
       ],
       "affected_state_ids": [
         "INDEXED",
@@ -1271,7 +1303,8 @@
         "CAPTURE_KINEMATIC_OWNER",
         "BOTTLE_RESTRAINT_THROUGHOUT_CAPTURE",
         "CAPTURE_REACTION_FORCE_PATH",
-        "REACHABLE_MOTION_CLEARANCE"
+        "REACHABLE_MOTION_CLEARANCE",
+        "BOTTLE_ROTATION_SOURCE_BOUND"
       ],
       "affected_state_ids": [
         "INDEXED",
@@ -1295,7 +1328,8 @@
         "BOTTLE_RESTRAINT_THROUGHOUT_CAPTURE",
         "WRAP_CONTACT_THROUGHOUT_CAPTURE",
         "CAPTURE_REACTION_FORCE_PATH",
-        "REACHABLE_MOTION_CLEARANCE"
+        "REACHABLE_MOTION_CLEARANCE",
+        "BOTTLE_ROTATION_SOURCE_BOUND"
       ],
       "affected_state_ids": [
         "INDEXED",
@@ -1320,7 +1354,8 @@
         "WRAP_CONTACT_THROUGHOUT_CAPTURE",
         "CAPTURE_REACTION_FORCE_PATH",
         "REACHABLE_MOTION_CLEARANCE",
-        "RELEASE_PATH_CLEAR_ACROSS_REACHABLE_STATES"
+        "RELEASE_PATH_CLEAR_ACROSS_REACHABLE_STATES",
+        "BOTTLE_ROTATION_SOURCE_BOUND"
       ],
       "affected_state_ids": [
         "INDEXED",
@@ -1345,7 +1380,8 @@
         "WRAP_CONTACT_THROUGHOUT_CAPTURE",
         "CAPTURE_REACTION_FORCE_PATH",
         "REACHABLE_MOTION_CLEARANCE",
-        "RELEASE_PATH_CLEAR_ACROSS_REACHABLE_STATES"
+        "RELEASE_PATH_CLEAR_ACROSS_REACHABLE_STATES",
+        "BOTTLE_ROTATION_SOURCE_BOUND"
       ],
       "affected_state_ids": [
         "INDEXED",
@@ -1623,7 +1659,8 @@
         "REACHABLE_MOTION_CLEARANCE",
         "LABEL_PRESENTATION_DURING_WRAP",
         "RELEASE_PATH_CLEAR_ACROSS_REACHABLE_STATES",
-        "MOUNTING_SUPPORT_INTEGRITY"
+        "MOUNTING_SUPPORT_INTEGRITY",
+        "BOTTLE_ROTATION_SOURCE_BOUND"
       ],
       "hypothesis_ids": [
         "H_TRANSLATING_ROLLER_CARRIER_OR_SLIDE",
@@ -1668,7 +1705,8 @@
         "WRAP_CONTACT_THROUGHOUT_CAPTURE",
         "CAPTURE_REACTION_FORCE_PATH",
         "REACHABLE_MOTION_CLEARANCE",
-        "RELEASE_PATH_CLEAR_ACROSS_REACHABLE_STATES"
+        "RELEASE_PATH_CLEAR_ACROSS_REACHABLE_STATES",
+        "BOTTLE_ROTATION_SOURCE_BOUND"
       ],
       "hypothesis_ids": [
         "H_TRANSLATING_ROLLER_CARRIER_OR_SLIDE",
