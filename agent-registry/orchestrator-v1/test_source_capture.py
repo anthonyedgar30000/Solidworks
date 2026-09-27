@@ -69,6 +69,15 @@ class SourceCaptureTests(unittest.TestCase):
         with self.assertRaisesRegex(CaptureBlocked, "SOURCE_AUTHORITY_CHANGED"):
             validate_registry(self.registry)
 
+    def test_pdf_identity_is_pinned_at_the_registry_and_fetch_boundaries(self):
+        cab = self.registry["sources"][0]
+        cab["expected_sha256"] = "f9030bdb3360a9ebd02908e580879a905411192e78c7e27ed89d3ad9b7858fbe"
+        with self.assertRaisesRegex(CaptureBlocked, "SOURCE_IDENTITY_CHANGED"):
+            validate_registry(self.registry)
+        cab["expected_sha256"] = ALLOWED[cab["source_id"]][0]  # A URL cannot stand in for a digest.
+        with self.assertRaisesRegex(CaptureBlocked, "SOURCE_IDENTITY_CHANGED"):
+            validate_registry(self.registry)
+
     def test_record_tamper_is_blocked_without_rewrite(self):
         result = self.capture()
         record_path = Path(result["results"][0]["record"])
@@ -144,6 +153,29 @@ class SourceCaptureTests(unittest.TestCase):
         urlopen.return_value = Response(row["url"], "application/pdf")
         with self.assertRaisesRegex(CaptureBlocked, "SOURCE_MEDIA_CHANGED"):
             fetch_source(row)
+
+    @patch("source_capture.urlopen")
+    def test_fetch_rejects_other_pdf_even_from_correct_url(self, urlopen):
+        cab = self.registry["sources"][0]
+
+        class Response:
+            headers = {"Content-Type": "application/pdf"}
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *args):
+                pass
+
+            def geturl(self):
+                return cab["url"]
+
+            def read(self, limit):
+                return b"%PDF-1.7\nthis is not the reviewed IXOR+ manual"
+
+        urlopen.return_value = Response()
+        with self.assertRaisesRegex(CaptureBlocked, "PDF_IDENTITY_CHANGED"):
+            fetch_source(cab)
 
 
 if __name__ == "__main__":

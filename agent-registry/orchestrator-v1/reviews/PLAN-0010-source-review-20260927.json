@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "record_type": "bounded_source_review",
+  "review_id": "R.PLAN-0010.SOURCE_IDENTITY_AND_REFERENCE.20260927T210644Z",
+  "plan_id": "PLAN-0010",
+  "review_state": "UNADMITTED_SOURCE_INTERPRETATION",
+  "source_capture_state": "CAPTURED",
+  "source_capture_basis_main_commit_sha": "c591a3abc5995667468d49fb312e7aeeea07fc71",
+  "source_registry_id": "CADGROUNDED.PLAN-0010.SOURCE_CANDIDATES.V1",
+  "mechanism_screen_evidence_id": "E.FUNCTION_FIRST.MECHANISM_SCREEN.20260927T153026706Z",
+  "source_identity_correction": {
+    "source_id": "CAB.IXORPLUS.ASSEMBLY_INSTRUCTIONS.202604",
+    "misidentified_capture": {
+      "url": "https://www.cab.de/media/pushfile.cfm?file=4444",
+      "raw_sha256": "f9030bdb3360a9ebd02908e580879a905411192e78c7e27ed89d3ad9b7858fbe",
+      "actual_cover_product": "ROXI",
+      "actual_part_number": "9004202.131",
+      "actual_edition": "04/2026",
+      "disposition": "REJECTED_AS_IXORPLUS_SOURCE; immutable raw blob and candidate record retained for provenance"
+    },
+    "corrected_capture": {
+      "url": "https://www.cab.de/media/pushfile.cfm?file=4542",
+      "raw_sha256": "6e15cc68c22eec8535ab58381e35ab81e00b1329f83eb1e40ed83ac22253f9f8",
+      "cover_product": "IXOR+",
+      "part_number": "9004290.131",
+      "edition": "04/2026",
+      "physical_pdf_pages": 69,
+      "evidence_state": "UNADMITTED"
+    }
+  },
+  "reviewed_publisher_statements": [
+    {
+      "source_id": "CAB.IXORPLUS.ASSEMBLY_INSTRUCTIONS.202604",
+      "source_role": "SUBJECT_OEM_DOCUMENT",
+      "raw_sha256": "6e15cc68c22eec8535ab58381e35ab81e00b1329f83eb1e40ed83ac22253f9f8",
+      "locator": "Physical PDF page 58, section 9.3 START, table 9",
+      "bounded_paraphrase": "The START interface lists PRISM as input pin 2 to start product centering, gives a roller prism as an example, and lists labeling START separately at input pin 4.",
+      "scope": "IXOR+ electrical interface description; does not define a product-centering mechanism, its actuator, its travel, or the v43 assembly integration."
+    },
+    {
+      "source_id": "HERMA.152C.PRODUCT_PAGE",
+      "source_role": "COMPARATIVE_MECHANISM_OEM",
+      "url": "https://www.herma.com/machines/products/labeling-machines/wrap-around-labeler-152c/",
+      "captured_raw_sha256": "147d5e192ca173c02f5cae8fe48ab0c289bd0bad2168bcf96b139895dd138ca9",
+      "captured_visible_text_sha256": "a3b6374782e136eb6e39ebe21992ce3e457dd5d4d0771904b24ce004c870560d",
+      "locator": "Why should precision be a matter of price? and Technical Data / Components / Optional features",
+      "bounded_paraphrase": "HERMA describes a wrap belt and counterpressure plate for its 152C; it also offers an optional roller prism with a wrap roller.",
+      "scope": "Comparative HERMA product configuration only; no CAB, IXOR+, or v43 identity, mounting, or mechanics established."
+    },
+    {
+      "source_id": "HERMA.WRAP_TECHNOLOGY.PAGE",
+      "source_role": "COMPARATIVE_MECHANISM_OEM",
+      "url": "https://www.herma.com/machines/types-of-labeling/wrap-around-labeling/",
+      "captured_raw_sha256": "d7bff055ec38bda0ba2692162f832c1078b1973fb6a7b58ca874e2c03d44381d",
+      "captured_visible_text_sha256": "34415c4139b192a3d4f628f1cf9eaf22ec932fb32b97008afdc87fb152b75daa",
+      "locator": "HERMA manages to meet these requirements with its wraparound labeling systems",
+      "bounded_paraphrase": "HERMA says its 152C P roller prism rotates and fixes a product at the moment of labeling.",
+      "scope": "Comparative HERMA mechanism behavior only; no specific capture closure law, capacity, or v43 applicability established."
+    }
+  ],
+  "plan_0010_screen_effect": {
+    "publisher_reference_patterns_identified": [
+      "wrap belt with counterpressure plate in a separate HERMA machine",
+      "roller prism with wrap roller in a separate HERMA machine",
+      "IXOR+ input interface for a possible external product-centering operation"
+    ],
+    "engineering_evidence_layer_status": "UNRESOLVED_FOR_EVERY_CANDIDATE",
+    "unresolved_screen_ids": [
+      "CONTACT_MAINTENANCE_OWNER_BOUND",
+      "OPEN_CAPTURE_RELEASE_MOTION_BOUND",
+      "CONTACT_MAINTENANCE_LAW_BOUND",
+      "BOTTLE_CONTACT_INTERVAL_PROVEN",
+      "WRAP_AXIS_PRESERVATION_PROVEN",
+      "REACTION_PATH_BOUND",
+      "RELEASE_BEHAVIOR_PROVEN",
+      "TANGENTIAL_DRIVE_SEPARATION_BOUND",
+      "QUANTITATIVE_INPUTS_BOUND",
+      "LIMITS_AND_INTERFERENCE_PROVEN"
+    ],
+    "reason": "These publisher statements describe device interfaces or another manufacturer's systems; they do not bind candidate-specific hardware, actuation, maintained contact, motion endpoints, reactions, rotation input, or reachable-state geometry in the live v43 assembly."
+  },
+  "next_reference_question": "Acquire a project-specific/OEM source or accepted deterministic specification naming the actual bottle-handling owner and mounting in v43, with closure and release motion, limits, contact maintenance, rotation input, and reaction support. Only then test reachable geometry and interval-wide contact against PLAN-0010 requirements.",
+  "selection_status": "NOT_SELECTED",
+  "claim_verification_authority": "NONE",
+  "cad_write_authority": "NONE",
+  "mechanical_acceptance_granted": false
+}
