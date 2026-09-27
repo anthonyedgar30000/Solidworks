@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "registry_id": "CADGROUNDED.PLAN-0010.SOURCE_CANDIDATES.V1",
+  "plan_id": "PLAN-0010",
+  "authority_boundary": "Read-only source capture. Source content is a review candidate, not admitted engineering evidence or proof of v43 mechanism identity.",
+  "sources": [
+    {
+      "source_id": "CAB.IXORPLUS.ASSEMBLY_INSTRUCTIONS.202604",
+      "url": "https://www.cab.de/media/pushfile.cfm?file=4444",
+      "publisher": "cab Produkttechnik GmbH & Co. KG",
+      "source_role": "SUBJECT_OEM_DOCUMENT",
+      "relation_to_v43": "IXOR+ device documentation; bottle handling integration remains unresolved",
+      "expected_media_type": "application/pdf",
+      "max_bytes": 9000000,
+      "markers": []
+    },
+    {
+      "source_id": "HERMA.152C.PRODUCT_PAGE",
+      "url": "https://www.herma.com/machines/products/labeling-machines/wrap-around-labeler-152c/",
+      "publisher": "HERMA GmbH",
+      "source_role": "COMPARATIVE_MECHANISM_OEM",
+      "relation_to_v43": "Separate manufacturer's product; no CAB/v43 integration claim",
+      "expected_media_type": "text/html",
+      "max_bytes": 2000000,
+      "markers": ["roller prism", "wrap-around belt", "counterpressure plate"]
+    },
+    {
+      "source_id": "HERMA.WRAP_TECHNOLOGY.PAGE",
+      "url": "https://www.herma.com/machines/types-of-labeling/wrap-around-labeling/",
+      "publisher": "HERMA GmbH",
+      "source_role": "COMPARATIVE_MECHANISM_OEM",
+      "relation_to_v43": "Separate manufacturer's technology description; no CAB/v43 integration claim",
+      "expected_media_type": "text/html",
+      "max_bytes": 2000000,
+      "markers": ["roller prism technology", "sets the product to be labeled in rotation"]
+    }
+  ]
+}
