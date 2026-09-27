@@ -46,4 +46,4 @@
   ],
   "conclusion": "PLAN-0004 is provenance-complete. In exact V43_WRAP at the recorded point, the exact carrier slider is at contact/coincidence tolerance with both fixed guide rails, with approximately 2.78e-14 mm returned minimum distance for each pair and zero intersection volume. This supports bilateral current-pose adjacency consistent with the guided-slider hypothesis, but does not establish a prismatic degree of freedom, allowed motion, stroke, actuator ownership, force/preload, reachable motion, timing, or mechanical acceptance. The next discriminating topology edge is slider-to-Link-1 and slider-to-Link-2.",
   "revised_plan_id": "PLAN-0005"
-}\n
+}
