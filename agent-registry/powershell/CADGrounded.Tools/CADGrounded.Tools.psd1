@@ -14,6 +14,7 @@
         'Get-CGState',
         'Get-CGComponentBinding',
         'Test-CGContactPair',
+        'Get-CGCurrentBottleContacts',
         'Test-CGTopologyChain',
         'Get-CGMateBinding',
         'Get-CGRequiredBottleDOF',
