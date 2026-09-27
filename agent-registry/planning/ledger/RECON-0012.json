@@ -1,0 +1,44 @@
+{
+  "record_type": "plan_reconciliation",
+  "schema_version": 1,
+  "record_id": "RECON-0012",
+  "project_id": "CADGROUNDED.IXOR",
+  "reconciled_at_utc": "2026-09-27T07:37:29.441Z",
+  "plan_id": "PLAN-0009",
+  "revised_plan_id": "PLAN-0010",
+  "raw_observation_ids": [],
+  "actual_actions": [
+    {
+      "action_id": "ACT_REFRAME_FROM_PRISM_TO_FUNCTION_FIRST_BOTTLE_HANDLING",
+      "write_authority": "NONE",
+      "result": "PROJECT_SCOPE_REFRAMED",
+      "reason": "Project design intent no longer treats the current v43 Prism slider/link/arm arrangement as the mechanism that must be completed. Existing v43 observations remain valid bounded evidence about one candidate pose, while mechanism selection is reopened around bottle-handling function."
+    },
+    {
+      "action_id": "ACT_PRESERVE_V43_NEGATIVE_KINEMATIC_EVIDENCE",
+      "write_authority": "NONE",
+      "result": "PRESERVED",
+      "reason": "The admitted zero-mate and contact-topology evidence remains relevant negative/spatial evidence and is not deleted or reinterpreted as mechanical acceptance."
+    }
+  ],
+  "step_outcomes": [
+    {
+      "step_id": "P0009.1",
+      "outcome": "SUPERSEDED_BY_FUNCTION_FIRST_SCOPE",
+      "evidence_id": "E.V43.PRISM.FULL_CHAIN_MATES.20260927T070827844Z"
+    },
+    {
+      "step_id": "P0009.2",
+      "outcome": "SUPERSEDED_BY_FUNCTION_FIRST_SCOPE",
+      "evidence_id": "E.V43.PRISM.FULL_CHAIN_MATES.20260927T070827844Z"
+    },
+    {
+      "step_id": "P0009.3",
+      "outcome": "NOT_EXECUTED_SCOPE_REFRAMED",
+      "evidence_id": "E.V43.PRISM.FULL_CHAIN_MATES.20260927T070827844Z"
+    }
+  ],
+  "conclusion": "PLAN-0009 is superseded as an active investigation because binding design intent for the current Prism mechanism would prematurely constrain the design space. The current Prism fit-check remains one candidate architecture with useful admitted evidence. The governed frontier moves to function-first bottle handling: bind required bottle DOF, support, restraint, wrap contact, and state requirements before selecting or designing a mechanism.",
+  "mechanical_acceptance_granted": false,
+  "write_authority": "NONE"
+}
