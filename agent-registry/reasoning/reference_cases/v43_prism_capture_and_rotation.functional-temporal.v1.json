@@ -168,7 +168,8 @@
         "E.V43.PRISM.LIVE_STATE.20260926T200826594Z",
         "E.V43.PRISM.MATE_BINDING.ARCH_PROJECTION.20260926",
         "E.V43.PRISM.GUIDE_CONTACT.ARCH_PROJECTION.20260927",
-        "E.V43.PRISM.SLIDER_LINK_CONTACT.ARCH_PROJECTION.20260927"
+        "E.V43.PRISM.SLIDER_LINK_CONTACT.ARCH_PROJECTION.20260927",
+        "E.V43.PRISM.LINK_ARM_CONTACT.ARCH_PROJECTION.20260927"
       ],
       "depends_on_requirement_ids": [],
       "scope": {
@@ -408,7 +409,8 @@
         "E.V43.PRISM.LIVE_STATE.20260926T200826594Z",
         "E.V43.PRISM.MATE_BINDING.ARCH_PROJECTION.20260926",
         "E.V43.PRISM.GUIDE_CONTACT.ARCH_PROJECTION.20260927",
-        "E.V43.PRISM.SLIDER_LINK_CONTACT.ARCH_PROJECTION.20260927"
+        "E.V43.PRISM.SLIDER_LINK_CONTACT.ARCH_PROJECTION.20260927",
+        "E.V43.PRISM.LINK_ARM_CONTACT.ARCH_PROJECTION.20260927"
       ],
       "depends_on_requirement_ids": [
         "CAPTURE_KINEMATIC_OWNER"
@@ -1473,7 +1475,7 @@
         "CAPTURE_AND_ROTATION"
       ],
       "required_evidence": [
-        "Exact current-pose contact topology for both Prism links against both Prism arms, testing all four combinations (FITCHECK_PRISM_LINK_15x10x25_V43-1↔FITCHECK_PRISM_ARM1_33p0824x10x5_V43-1, FITCHECK_PRISM_LINK_15x10x25_V43-1↔FITCHECK_PRISM_ARM2_18p6806x10x5_V43-1, FITCHECK_PRISM_LINK_15x10x25_V43-2↔FITCHECK_PRISM_ARM1_33p0824x10x5_V43-1, FITCHECK_PRISM_LINK_15x10x25_V43-2↔FITCHECK_PRISM_ARM2_18p6806x10x5_V43-1) so numbered correspondence is not assumed. Then classify each arm against the named support rollers. Only after a physically contiguous chain is supported should a no-mutation motion or endpoint observation be considered."
+        "Exact current-pose contact topology for both Prism arms against both named support rollers, testing all four combinations (FITCHECK_PRISM_ARM1_33p0824x10x5_V43-1↔FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25-1, FITCHECK_PRISM_ARM1_33p0824x10x5_V43-1↔FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25-2, FITCHECK_PRISM_ARM2_18p6806x10x5_V43-1↔FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25-1, FITCHECK_PRISM_ARM2_18p6806x10x5_V43-1↔FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25-2) so roller pairing is not inferred from numbering. Only after physical contiguity from slider→links→arms→rollers is supported should a no-mutation motion or endpoint observation be considered."
       ]
     },
     {
@@ -1647,6 +1649,38 @@
           "interpretation_boundary": "This supports current-pose slider-to-both-links physical adjacency and strengthens the linkage-transfer hypothesis. It does not establish joint type, numbered link-to-arm correspondence, allowed DOF, motion, stroke, actuator ownership, force/preload, interval behavior, or mechanical acceptance."
         }
       }
+    },
+    {
+      "schema_version": 1,
+      "record_type": "evidence",
+      "evidence_id": "E.V43.PRISM.LINK_ARM_CONTACT.ARCH_PROJECTION.20260927",
+      "evidence_type": "deterministic_calculation",
+      "evidence_state": "MEASURED_CALCULATED",
+      "source_authority": "DETERMINISTIC_CALCULATION",
+      "source_classification": "bounded_projection_from_admitted_evidence",
+      "mechanical_acceptance_granted": false,
+      "dependencies": [
+        "E.V43.PRISM.LINK_ARM_CONTACT.20260927T061831848Z"
+      ],
+      "geometry_state": "CANDIDATE_OPERATING",
+      "temporal_scope": {
+        "coverage": "POINT_ONLY",
+        "validity_state": "CURRENT",
+        "state_ids": [],
+        "transition_ids": []
+      },
+      "ambiguity_bucket": "KINEMATIC_STATE_UNRESOLVED",
+      "payload": {
+        "method": "bounded_evidence_projection",
+        "inputs": [
+          "agent-registry/reasoning/runtime/v43-prism-link-arm-contact-evidence-20260927T061831848Z.json",
+          "sha256:01ff96bee1a596c8420b142d1ed36fe1fa1d0472eedba5d59bc31f82f26c9ee3"
+        ],
+        "result": {
+          "admitted_observation": "At the recorded V43_WRAP point, FITCHECK_PRISM_LINK_15x10x25_V43-1↔FITCHECK_PRISM_ARM1_33p0824x10x5_V43-1 and FITCHECK_PRISM_LINK_15x10x25_V43-2↔FITCHECK_PRISM_ARM2_18p6806x10x5_V43-1 each returned 0 mm minimum distance with contact_or_coincidence_within_tolerance and zero intersection volume; the crossed pairs each returned 49.999999999999986 mm clearance.",
+          "interpretation_boundary": "This supports the same-number link-to-arm current-pose adjacency pattern and excludes crossed current-pose adjacency at 50 mm. It does not establish joint type, allowed DOF, motion, stroke, actuator ownership, force/preload, arm-to-roller continuity, interval behavior, or mechanical acceptance."
+        }
+      }
     }
   ],
   "next_tests": [
@@ -1783,8 +1817,8 @@
       "cost": 2
     },
     {
-      "id": "TEST_V43_PRISM_LINK_ARM_CONTACT_TOPOLOGY",
-      "question": "After a fresh exact V43_WRAP state rebind, classify current-pose B-rep contact for all four Prism link↔arm combinations: FITCHECK_PRISM_LINK_15x10x25_V43-1↔FITCHECK_PRISM_ARM1_33p0824x10x5_V43-1, FITCHECK_PRISM_LINK_15x10x25_V43-1↔FITCHECK_PRISM_ARM2_18p6806x10x5_V43-1, FITCHECK_PRISM_LINK_15x10x25_V43-2↔FITCHECK_PRISM_ARM1_33p0824x10x5_V43-1, and FITCHECK_PRISM_LINK_15x10x25_V43-2↔FITCHECK_PRISM_ARM2_18p6806x10x5_V43-1. Which exact adjacency pattern, if any, continues the proposed closure chain without assuming that matching numeric suffixes imply mechanical pairing? This point test does not establish joint type, allowed motion, stroke, force, preload, reachable envelope, timing, or mechanical acceptance.",
+      "id": "TEST_V43_PRISM_ARM_ROLLER_CONTACT_TOPOLOGY",
+      "question": "After a fresh exact V43_WRAP state rebind, classify current-pose B-rep contact for all four Prism arm↔support-roller combinations: FITCHECK_PRISM_ARM1_33p0824x10x5_V43-1↔FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25-1, FITCHECK_PRISM_ARM1_33p0824x10x5_V43-1↔FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25-2, FITCHECK_PRISM_ARM2_18p6806x10x5_V43-1↔FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25-1, and FITCHECK_PRISM_ARM2_18p6806x10x5_V43-1↔FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25-2. Which exact adjacency pattern, if any, continues the proposed closure chain without assuming that matching suffixes imply mechanical pairing? This point test does not establish joint type, bearing/roller function, allowed motion, stroke, force, preload, reachable envelope, timing, or mechanical acceptance.",
       "resolves_requirement_ids": [
         "PRISM_KINEMATIC_CHAIN_BOUND",
         "CAPTURE_KINEMATIC_OWNER"
