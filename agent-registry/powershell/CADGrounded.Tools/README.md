@@ -63,6 +63,15 @@ Get-CGCapability -Id cg.contact.pair
 ### Get-CGState
 
 Reads exact current SOLIDWORKS document/configuration state through the native worker.
+Each `sw.status` call is bounded to 15 seconds. After a timeout the command
+terminates only its short-lived worker process, confirms exit, and makes at
+most one new attempt. It never retries an ambiguous worker exit, invalid JSON,
+or `no_active_document`. Other CAD commands are not retried. `Get-CGState`
+requires two matching status reads and stable shared-read SHA-256 file evidence;
+it fails with `STALE_STATE` if either binding changes. Its result includes
+`data.file_state` and per-read `data.status_probes`. These observations do not
+establish that unsaved in-memory geometry matches the disk hash, or mechanical
+acceptance.
 
 ```powershell
 Get-CGState -ExpectedConfiguration V43_WRAP

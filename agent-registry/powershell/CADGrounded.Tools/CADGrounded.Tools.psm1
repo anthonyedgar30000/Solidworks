@@ -41,6 +41,10 @@ function Assert-CGWorkerAvailable {
 function Invoke-CGWorkerCli {
     param([Parameter(Mandatory=$true)][string[]]$Arguments)
 
+    if ($Arguments.Count -eq 1 -and $Arguments[0] -ceq 'status') {
+        return Invoke-CGStatusProbe
+    }
+
     Assert-CGWorkerAvailable
     $text = (& $script:WorkerExe @Arguments | Out-String).Trim()
     $exitCode = $LASTEXITCODE
@@ -57,6 +61,122 @@ function Invoke-CGWorkerCli {
         throw "CADGrounded worker returned ok=false. Command=$($envelope.command_id) Error=$message"
     }
     return $envelope
+}
+
+function Invoke-CGStatusProcess {
+    param([Parameter(Mandatory=$true)][int]$TimeoutMilliseconds)
+
+    Assert-CGWorkerAvailable
+    $startInfo = New-Object System.Diagnostics.ProcessStartInfo
+    $startInfo.FileName = $script:WorkerExe
+    $startInfo.Arguments = 'status'
+    $startInfo.WorkingDirectory = $script:WorkerRoot
+    $startInfo.UseShellExecute = $false
+    $startInfo.CreateNoWindow = $true
+    $startInfo.RedirectStandardOutput = $true
+    $startInfo.RedirectStandardError = $true
+
+    $process = New-Object System.Diagnostics.Process
+    $process.StartInfo = $startInfo
+    try {
+        [void]$process.Start()
+        # Drain both streams while waiting so a full pipe cannot block exit.
+        $stdoutTask = $process.StandardOutput.ReadToEndAsync()
+        $stderrTask = $process.StandardError.ReadToEndAsync()
+        if (-not $process.WaitForExit($TimeoutMilliseconds)) {
+            # Kill only the short-lived read-only worker, never SOLIDWORKS.
+            # Do not retry if the old worker cannot be confirmed terminated.
+            try { $process.Kill() }
+            catch { throw "STALE_STATE: timed-out status worker could not be terminated: $($_.Exception.Message)" }
+            if (-not $process.WaitForExit(5000)) {
+                throw 'STALE_STATE: timed-out status worker is still running; retry blocked.'
+            }
+            return [pscustomobject]@{
+                outcome = 'TIMEOUT_TERMINATED'
+                process_id = $process.Id
+                exit_code = $null
+                stdout = $null
+                stderr = $null
+            }
+        }
+        return [pscustomobject]@{
+            outcome = 'EXITED'
+            process_id = $process.Id
+            exit_code = $process.ExitCode
+            stdout = $stdoutTask.GetAwaiter().GetResult()
+            stderr = $stderrTask.GetAwaiter().GetResult()
+        }
+    }
+    finally {
+        $process.Dispose()
+    }
+}
+
+function Invoke-CGStatusProbe {
+    param([ValidateRange(1000,60000)][int]$TimeoutMilliseconds = 15000)
+
+    for ($attempt = 1; $attempt -le 2; $attempt++) {
+        $run = Invoke-CGStatusProcess -TimeoutMilliseconds $TimeoutMilliseconds
+        if ([string]$run.outcome -ceq 'TIMEOUT_TERMINATED') {
+            Write-Verbose "sw.status attempt $attempt timed out; worker PID $($run.process_id) terminated."
+            if ($attempt -eq 2) {
+                throw 'STALE_STATE: sw.status timed out twice; no current CAD identity established.'
+            }
+            continue
+        }
+        if ([string]$run.outcome -cne 'EXITED') {
+            throw "STALE_STATE: sw.status worker outcome '$($run.outcome)' is not a completed read; retry blocked."
+        }
+        if ([string]::IsNullOrWhiteSpace([string]$run.stdout)) {
+            throw 'STALE_STATE: sw.status returned no JSON; retry blocked.'
+        }
+        try { $status = [string]$run.stdout | ConvertFrom-Json -ErrorAction Stop }
+        catch { throw "STALE_STATE: sw.status returned invalid JSON; retry blocked: $($_.Exception.Message)" }
+        if ($null -eq $status -or $status -isnot [pscustomobject] -or
+            -not (@($status.PSObject.Properties.Name) -contains 'ok')) {
+            throw 'STALE_STATE: sw.status returned an invalid envelope; retry blocked.'
+        }
+        if ([int]$run.exit_code -ne 0 -or -not [bool]$status.ok) {
+            $code = if ((@($status.PSObject.Properties.Name) -contains 'error') -and
+                $null -ne $status.error -and
+                (@($status.error.PSObject.Properties.Name) -contains 'type')) { [string]$status.error.type } else { 'worker_failure' }
+            throw "STALE_STATE: sw.status failed with '$code' (exit $($run.exit_code)); retry blocked."
+        }
+        if (-not (@($status.PSObject.Properties.Name) -contains 'command_id') -or
+            -not (@($status.PSObject.Properties.Name) -contains 'data') -or
+            $null -eq $status.data -or
+            -not (@($status.data.PSObject.Properties.Name) -contains 'document') -or
+            -not (@($status.data.PSObject.Properties.Name) -contains 'solidworks_process_id') -or
+            -not (@($status.data.PSObject.Properties.Name) -contains 'write_authority') -or
+            -not (@($status.PSObject.Properties.Name) -contains 'source_classification') -or
+            $null -eq $status.data.document) {
+            throw 'STALE_STATE: sw.status lacks an exact active document or SOLIDWORKS process identity; retry blocked.'
+        }
+        $documentFields = @($status.data.document.PSObject.Properties.Name)
+        if (-not ($documentFields -contains 'title') -or -not ($documentFields -contains 'path') -or
+            -not ($documentFields -contains 'active_configuration')) {
+            throw 'STALE_STATE: sw.status omitted a required document identity field; retry blocked.'
+        }
+        if ([string]$status.command_id -cne 'sw.status' -or $null -eq $status.data -or $null -eq $status.data.document -or
+            [string]::IsNullOrWhiteSpace([string]$status.data.document.title) -or
+            [string]::IsNullOrWhiteSpace([string]$status.data.document.path) -or
+            [string]::IsNullOrWhiteSpace([string]$status.data.document.active_configuration) -or
+            [string]::IsNullOrWhiteSpace([string]$status.data.solidworks_process_id)) {
+            throw 'STALE_STATE: sw.status lacks an exact active document, configuration, or SOLIDWORKS process identity; retry blocked.'
+        }
+        if ([string]$status.data.write_authority -cne 'NONE' -or
+            [string]$status.source_classification -cne 'verified_from_solidworks_api') {
+            throw 'STALE_STATE: sw.status returned untrusted authority or source classification; retry blocked.'
+        }
+        Assert-CGReadOnlyEnvelope -Envelope $status
+        $status | Add-Member -NotePropertyName status_probe -NotePropertyValue ([pscustomobject]@{
+            outcome = if ($attempt -eq 2) { 'RECOVERED_AFTER_TIMEOUT' } else { 'COMPLETED' }
+            attempts = $attempt
+            timeout_ms_per_attempt = $TimeoutMilliseconds
+            worker_process_id = $run.process_id
+        })
+        return $status
+    }
 }
 
 function Invoke-CGWorkerRequest {
@@ -256,16 +376,32 @@ function Get-CGState {
     $status = Invoke-CGWorkerCli -Arguments @('status')
     Assert-CGReadOnlyEnvelope -Envelope $status
     Assert-CGExpectedState -StatusEnvelope $status -ExpectedDocumentTitle $ExpectedDocumentTitle -ExpectedDocumentPath $ExpectedDocumentPath -ExpectedConfiguration $ExpectedConfiguration
+    $fileBefore = Get-CGFileState -Path ([string]$status.data.document.path)
+    $statusAfter = Invoke-CGWorkerCli -Arguments @('status')
+    Assert-CGReadOnlyEnvelope -Envelope $statusAfter
+    Assert-CGExpectedState -StatusEnvelope $statusAfter -ExpectedDocumentTitle $ExpectedDocumentTitle -ExpectedDocumentPath $ExpectedDocumentPath -ExpectedConfiguration $ExpectedConfiguration
+    $fileAfter = Get-CGFileState -Path ([string]$statusAfter.data.document.path)
+
+    $identityBefore = Get-CGDocumentState -StatusEnvelope $status
+    $identityAfter = Get-CGDocumentState -StatusEnvelope $statusAfter
+    if (($identityBefore | ConvertTo-Json -Depth 10 -Compress) -cne ($identityAfter | ConvertTo-Json -Depth 10 -Compress) -or
+        ($fileBefore | ConvertTo-Json -Depth 10 -Compress) -cne ($fileAfter | ConvertTo-Json -Depth 10 -Compress)) {
+        throw 'STALE_STATE: active document/process/configuration or assembly file changed during status readback.'
+    }
 
     $result = New-CGEnvelope -CapabilityId 'cg.state.read' -Result 'PASS' -Data ([ordered]@{
-        worker_version = $status.data.worker_version
-        solidworks_process_id = $status.data.solidworks_process_id
-        document = $status.data.document
+        worker_version = $statusAfter.data.worker_version
+        solidworks_process_id = $statusAfter.data.solidworks_process_id
+        document = $statusAfter.data.document
+        file_state = $fileAfter
+        status_probes = @($status.status_probe,$statusAfter.status_probe)
     }) -Establishes @(
         'exact active SOLIDWORKS document identity at this read',
         'active configuration at this read',
+        'stable assembly file SHA-256 across status readback',
         'worker read-only authority state'
     ) -DoesNotEstablish @(
+        'that an unsaved in-memory SOLIDWORKS model matches the on-disk assembly SHA-256',
         'mechanical correctness',
         'geometry acceptance',
         'operating sequence'
