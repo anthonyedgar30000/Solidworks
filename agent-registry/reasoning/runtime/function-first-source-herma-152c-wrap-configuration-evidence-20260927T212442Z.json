@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "record_type": "evidence",
+  "evidence_id": "E.FUNCTION_FIRST.HERMA_152C.WRAP_CONFIGURATION.20260927T212442Z",
+  "evidence_type": "oem_evidence",
+  "evidence_state": "VERIFIED",
+  "source_authority": "OEM_DOCUMENTATION",
+  "source_classification": "comparative_mechanism_oem_publisher_reference",
+  "subject": {
+    "subject_type": "comparative_wrap_labeling_configuration",
+    "identity_exact": "HERMA wrap-around labeler 152C product page"
+  },
+  "provenance": {
+    "recorded_at": "2026-09-27T21:06:44Z",
+    "source_ref": "HERMA.152C.PRODUCT_PAGE; https://www.herma.com/machines/products/labeling-machines/wrap-around-labeler-152c/; reviewed in agent-registry/orchestrator-v1/reviews/PLAN-0010-source-review-20260927.json",
+    "sha256": "147d5e192ca173c02f5cae8fe48ab0c289bd0bad2168bcf96b139895dd138ca9",
+    "tool_path": "bounded source capture -> publisher-source review -> EvidenceRecord admission"
+  },
+  "dependencies": [
+    "E.FUNCTION_FIRST.MECHANISM_SCREEN.20260927T153026706Z"
+  ],
+  "geometry_state": "NOT_APPLICABLE",
+  "temporal_scope": {
+    "coverage": "POINT_ONLY",
+    "validity_state": "CURRENT",
+    "state_ids": [],
+    "transition_ids": []
+  },
+  "ambiguity_bucket": "OEM_SOURCE_REQUIRED",
+  "mechanical_acceptance_granted": false,
+  "payload": {
+    "artifact_identity": "HERMA 152C product page; captured raw SHA256 147d5e192ca173c02f5cae8fe48ab0c289bd0bad2168bcf96b139895dd138ca9",
+    "captured_visible_text_sha256": "a3b6374782e136eb6e39ebe21992ce3e457dd5d4d0771904b24ce004c870560d",
+    "locator": "Why should precision be a matter of price? and Technical Data / Components / Optional features",
+    "publisher_statement_paraphrase": "HERMA describes a wrap belt and counterpressure plate for its 152C and also offers an optional roller prism with a wrap roller.",
+    "admitted_claims": [
+      "A separate OEM wrap-labeling system uses a wrap belt with a counterpressure plate.",
+      "That HERMA system also offers a roller-prism plus wrap-roller configuration as an optional mechanism pattern."
+    ],
+    "explicitly_not_claimed": [
+      "The HERMA configuration is not CAB, IXOR+, or v43 hardware.",
+      "The source does not establish v43 mounting, closure law, travel, limits, contact maintenance, reaction capacity, release motion, or rotation source.",
+      "No candidate mechanism is selected and no project geometry or mechanical acceptance is established."
+    ],
+    "source_review_id": "R.PLAN-0010.SOURCE_IDENTITY_AND_REFERENCE.20260927T210644Z",
+    "selection_status": "NOT_SELECTED"
+  }
+}
