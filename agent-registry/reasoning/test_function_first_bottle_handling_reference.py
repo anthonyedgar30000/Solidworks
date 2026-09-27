@@ -197,7 +197,7 @@ class FunctionFirstBottleHandlingTests(unittest.TestCase):
             "mechanism-pattern precedent from project-specific geometry",
             "do not use generative imagery as evidence",
             "do not rank, prefer, select",
-            "do not create/move CAD geometry",
+            "Do not infer hidden springs/actuators from appearance, do not use generative imagery as evidence, and do not rank, prefer, select, or create/move CAD geometry.",
         ):
             self.assertIn(token, test["question"])
 
