@@ -106,29 +106,19 @@ class FunctionFirstBottleHandlingTests(unittest.TestCase):
         self.assertEqual(candidate_a["evidence_state"], "WEAKENED")
         self.assertIn("zero-mate", candidate_a["description"])
 
-    def test_candidate_family_registration_and_screen_follow_requirement_binding(self):
+    def test_active_frontier_is_current_contact_set_only(self):
         case = load_case()
         ids = [item["id"] for item in case["next_tests"]]
-        self.assertEqual(
-            ids[:3],
-            [
-                "TEST_FUNCTION_FIRST_CURRENT_CONTACT_SET",
-                "TEST_MECHANISM_CANDIDATE_FAMILY_SET",
-                "TEST_MECHANISM_CANDIDATE_SCREEN",
-            ],
-        )
+        self.assertEqual(ids, ["TEST_FUNCTION_FIRST_CURRENT_CONTACT_SET"])
 
         contact_set = by_id(case["next_tests"], "TEST_FUNCTION_FIRST_CURRENT_CONTACT_SET")
         for token in (
             "BOTTLE_REQUIRED_DOF_BOUND now verified",
             "current contact observations only",
-            "support/normal",
+            "surface/normal",
             "BOTTLE_SUPPORT_CONTACT_SET_BOUND as UNRESOLVED",
         ):
             self.assertIn(token, contact_set["question"])
-
-        candidate_set = by_id(case["next_tests"], "TEST_MECHANISM_CANDIDATE_FAMILY_SET")
-        screen = by_id(case["next_tests"], "TEST_MECHANISM_CANDIDATE_SCREEN")
 
         expected_candidates = {
             "H_TRANSLATING_ROLLER_CARRIER_OR_SLIDE",
@@ -139,25 +129,10 @@ class FunctionFirstBottleHandlingTests(unittest.TestCase):
             "H_CANDIDATE_A_V43_PRISM",
             "H_OTHER_EXPLICIT_CLOSURE_MECHANISM",
         }
-        self.assertEqual(set(candidate_set["hypothesis_ids"]), expected_candidates)
-        self.assertEqual(set(screen["hypothesis_ids"]), expected_candidates)
-
-        for token in (
-            "Only after the function-first bottle DOF/support/contact requirements are bound",
-            "moving side-wall or side-belt drive",
-            "pinch-belt/multi-roller capture",
-            "Do not generate CAD",
-        ):
-            self.assertIn(token, candidate_set["question"])
-
-        for token in (
-            "same deterministic obligation matrix",
-            "controlled rotation source",
-            "PASS, FAIL, or UNRESOLVED",
-            "negative evidence",
-            "do not grant mechanical acceptance",
-        ):
-            self.assertIn(token, screen["question"])
+        hypothesis_ids = {item["id"] for item in case["hypotheses"]}
+        self.assertTrue(expected_candidates.issubset(hypothesis_ids))
+        for item_id in expected_candidates:
+            self.assertEqual(by_id(case["hypotheses"], item_id)["investigation_state"], "DORMANT")
 
     def test_static_fit_remains_disproven_as_operating_proof(self):
         case = load_case()
