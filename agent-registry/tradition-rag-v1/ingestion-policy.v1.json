@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "policy_id": "CADGROUNDED.TRADITION_RAG.INGESTION.V1",
+  "authority_boundary": {
+    "network_ingestion_is_engineering_evidence": false,
+    "automatic_evidence_admission": false,
+    "mechanical_acceptance_authority": "NONE",
+    "cad_write_authority": "NONE"
+  },
+  "network": {
+    "allowed_schemes": [
+      "https"
+    ],
+    "exact_registered_urls_only": true,
+    "recursive_crawl": false,
+    "max_response_bytes": 2000000,
+    "timeout_seconds": 25,
+    "minimum_interval_seconds": 1.0,
+    "user_agent": "CADGrounded-TraditionRAG/1.1 local-research",
+    "allowed_content_types": [
+      "text/html",
+      "text/plain",
+      "application/atom+xml",
+      "application/rss+xml",
+      "application/xml",
+      "text/xml"
+    ],
+    "redirect_policy": "SAME_DOMAIN_FAMILY"
+  },
+  "freshness_days_by_lane": {
+    "AUTHORITATIVE": 30,
+    "PROFESSIONAL_PRACTICE": 30,
+    "FIELD_CHATTER": 7
+  },
+  "storage_modes": {
+    "METADATA_ONLY_UNLESS_USER_LICENSED": {
+      "network_body_ingestion": false,
+      "normalized_char_limit": 0,
+      "chunk_size_chars": 0,
+      "chunk_overlap_chars": 0
+    },
+    "METADATA_AND_PUBLIC_SUMMARY": {
+      "network_body_ingestion": true,
+      "normalized_char_limit": 30000,
+      "chunk_size_chars": 1400,
+      "chunk_overlap_chars": 180
+    },
+    "PUBLIC_SUMMARY_OR_USER_PROVIDED": {
+      "network_body_ingestion": true,
+      "normalized_char_limit": 30000,
+      "chunk_size_chars": 1400,
+      "chunk_overlap_chars": 180
+    },
+    "BOUNDED_DISCOVERY_AND_EXCERPT": {
+      "network_body_ingestion": true,
+      "normalized_char_limit": 12000,
+      "chunk_size_chars": 1000,
+      "chunk_overlap_chars": 120
+    }
+  }
+}

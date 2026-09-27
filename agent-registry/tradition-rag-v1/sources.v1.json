@@ -254,7 +254,7 @@
     {
       "source_id": "CHAT.REDDIT.MACHINISTS",
       "title": "Reddit r/Machinists",
-      "url": "https://www.reddit.com/r/Machinists/",
+      "url": "https://www.reddit.com/r/Machinists/.rss",
       "lane": "FIELD_CHATTER",
       "authority_class": "OPEN_COMMUNITY",
       "traditions": [
