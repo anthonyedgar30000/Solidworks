@@ -78,7 +78,9 @@
         "required deterministic observations and measurements",
         "clear statement that POP test priority is not final mechanism preference"
       ],
-      "status": "READY"
+      "status": "COMPLETED",
+      "completed_output": "agent-registry/reasoning/candidates/function-first-pop-first-test-selection.v1.json",
+      "selected_first_test_candidate": "CANDIDATE_V43_PRISM_AS_PROJECT_PROPOSAL"
     },
     {
       "step_id": "P0011.4",
@@ -95,7 +97,7 @@
         "reaction-path and mounting checks",
         "rollback/preservation strategy that does not overwrite v43"
       ],
-      "status": "PROJECTED"
+      "status": "READY"
     },
     {
       "step_id": "P0011.5",
@@ -117,8 +119,8 @@
   "acceptance_gate": "No candidate progresses because it looks plausible in a static pose. A POP candidate must have explicit closure/release ownership, maintained contact, rotation input, reaction support, limits, reachable-state clearance, and label-transfer coherence. POP success still does not equal mechanically accepted production geometry.",
   "no_write_boundary": "This plan authorizes planning, source review, calculations and read-only CAD inspection only. No SOLIDWORKS geometry creation, transform, mate, insertion, suppression change, rebuild or save is authorized without a separate explicit write authorization and fresh preflight.",
   "progress": {
-    "current_step_id": "P0011.3",
-    "last_completed_step_id": "P0011.2",
-    "note": "Candidate mechanism contracts are defined without ranking or selection; first POP candidate may now be chosen strictly by diagnostic value."
+    "current_step_id": "P0011.4",
+    "last_completed_step_id": "P0011.3",
+    "note": "v43 PRISM selected only as the first diagnostic POP candidate because it has the strongest live evidence basis and lowest bounded test cost for resolving the current closure/contact-maintenance frontier; this is not a production mechanism ranking or preference."
   }
 }
