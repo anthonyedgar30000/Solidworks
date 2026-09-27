@@ -1,0 +1,159 @@
+{
+  "schema_version": 1,
+  "record_type": "evidence",
+  "evidence_id": "E.V43.PRISM.FULL_CHAIN_MATES.20260927T070827844Z",
+  "evidence_type": "solidworks_observation",
+  "evidence_state": "VERIFIED",
+  "source_authority": "SOLIDWORKS_LIVE_STATE",
+  "source_classification": "verified_from_solidworks_api",
+  "subject": {
+    "subject_type": "v43_prism_full_chain_exact_top_level_active_assembly_mate_observation",
+    "identity_exact": "FITCHECK_PRISM_CARRIER_SLIDER_15x80x60_V43-1; FITCHECK_PRISM_LINK_15x10x25_V43-1; FITCHECK_PRISM_LINK_15x10x25_V43-2; FITCHECK_PRISM_ARM1_33p0824x10x5_V43-1; FITCHECK_PRISM_ARM2_18p6806x10x5_V43-1; FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25-1; FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25-2",
+    "document_title_exact": "IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE",
+    "document_path_exact": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE.SLDASM"
+  },
+  "provenance": {
+    "recorded_at": "2026-09-27T07:08:27.8443493Z",
+    "source_ref": "C:\\ChatGPT\\Solidworks-main\\agent-registry\\workers\\CadGrounded.SolidWorksWorker\\verification-output\\query-mates-v43-prism-full-chain\\verification-summary.json; user Windows-host PASS; independent read-only byte retrieval and SHA-256 match",
+    "sha256": "901d1a81d3a8570fdb69c900d6614b756f70d32b9ee5d192363e9039a18a932f",
+    "tool_path": "Verify-QueryMates-V43-Prism-FullChain.ps1; CadGrounded.SolidWorksWorker sw.query_mates"
+  },
+  "dependencies": [
+    "E.V43.PRISM.ARM_ROLLER_CONTACT.20260927T063140284Z",
+    "PLAN-0008"
+  ],
+  "geometry_state": "CANDIDATE_OPERATING",
+  "temporal_scope": {
+    "coverage": "POINT_ONLY",
+    "validity_state": "CURRENT",
+    "state_ids": [
+      "V43_WRAP",
+      "V43.SNAPSHOT.20260927T070827844Z"
+    ],
+    "transition_ids": []
+  },
+  "ambiguity_bucket": "KINEMATIC_STATE_UNRESOLVED",
+  "mechanical_acceptance_granted": false,
+  "payload": {
+    "observation_kind": "exact_seven_component_incident_active_assembly_mate_query",
+    "document": {
+      "title": "IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE",
+      "path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE.SLDASM",
+      "document_type": "assembly",
+      "active_configuration_exact": "V43_WRAP",
+      "configuration_binding": "PREASSERTED_AND_OBSERVED"
+    },
+    "executed_at_utc": "2026-09-27T07:08:27.8443493Z",
+    "worker_version": "0.4.4",
+    "target_components": [
+      {
+        "name2": "FITCHECK_PRISM_CARRIER_SLIDER_15x80x60_V43-1",
+        "path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\FITCHECK_PRISM_CARRIER_SLIDER_15x80x60_V43.SLDPRT",
+        "top_level": true,
+        "fixed_component": false,
+        "suppression_state": 2,
+        "referenced_configuration": "Default",
+        "parent_chain": [],
+        "incident_active_assembly_mate_count": 0,
+        "traversal_error_count": 0,
+        "parentage_error_count": 0
+      },
+      {
+        "name2": "FITCHECK_PRISM_LINK_15x10x25_V43-1",
+        "path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\FITCHECK_PRISM_LINK_15x10x25_V43.SLDPRT",
+        "top_level": true,
+        "fixed_component": false,
+        "suppression_state": 2,
+        "referenced_configuration": "Default",
+        "parent_chain": [],
+        "incident_active_assembly_mate_count": 0,
+        "traversal_error_count": 0,
+        "parentage_error_count": 0
+      },
+      {
+        "name2": "FITCHECK_PRISM_LINK_15x10x25_V43-2",
+        "path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\FITCHECK_PRISM_LINK_15x10x25_V43.SLDPRT",
+        "top_level": true,
+        "fixed_component": false,
+        "suppression_state": 2,
+        "referenced_configuration": "Default",
+        "parent_chain": [],
+        "incident_active_assembly_mate_count": 0,
+        "traversal_error_count": 0,
+        "parentage_error_count": 0
+      },
+      {
+        "name2": "FITCHECK_PRISM_ARM1_33p0824x10x5_V43-1",
+        "path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\FITCHECK_PRISM_ARM1_33p0824x10x5_V43.SLDPRT",
+        "top_level": true,
+        "fixed_component": false,
+        "suppression_state": 2,
+        "referenced_configuration": "Default",
+        "parent_chain": [],
+        "incident_active_assembly_mate_count": 0,
+        "traversal_error_count": 0,
+        "parentage_error_count": 0
+      },
+      {
+        "name2": "FITCHECK_PRISM_ARM2_18p6806x10x5_V43-1",
+        "path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\FITCHECK_PRISM_ARM2_18p6806x10x5_V43.SLDPRT",
+        "top_level": true,
+        "fixed_component": false,
+        "suppression_state": 2,
+        "referenced_configuration": "Default",
+        "parent_chain": [],
+        "incident_active_assembly_mate_count": 0,
+        "traversal_error_count": 0,
+        "parentage_error_count": 0
+      },
+      {
+        "name2": "FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25-1",
+        "path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25.SLDPRT",
+        "top_level": true,
+        "fixed_component": false,
+        "suppression_state": 2,
+        "referenced_configuration": "Default",
+        "parent_chain": [],
+        "incident_active_assembly_mate_count": 0,
+        "traversal_error_count": 0,
+        "parentage_error_count": 0
+      },
+      {
+        "name2": "FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25-2",
+        "path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25.SLDPRT",
+        "top_level": true,
+        "fixed_component": false,
+        "suppression_state": 2,
+        "referenced_configuration": "Default",
+        "parent_chain": [],
+        "incident_active_assembly_mate_count": 0,
+        "traversal_error_count": 0,
+        "parentage_error_count": 0
+      }
+    ],
+    "no_mutation_comparison": {
+      "solidworks_process_id_before_after": "7488",
+      "active_document_title_same_before_after": true,
+      "active_document_path_same_before_after": true,
+      "active_configuration_same_before_after": true,
+      "document_save_flag_before_after": false,
+      "target_component_states_and_transforms_same_before_after": true,
+      "assembly_file_length_before_after": 33580499,
+      "assembly_file_last_write_utc_before_after": "2026-09-26T02:52:27.9309358Z",
+      "assembly_file_sha256_before_after": "dcd53467d2693283bb6617bdde1d4da8c19790615385e307671690ddce84b32a",
+      "model_mutation": false,
+      "write_authority": "NONE",
+      "remote_queue_authorized": false
+    },
+    "admitted_claims": [
+      "At the recorded V43_WRAP point, each of the seven exact top-level target components returned zero incident active-assembly mates and zero mate traversal errors.",
+      "All seven target components were floating; their identities and parentage resolved without reported errors.",
+      "The verifier detected no change to target component state/transform, document/configuration/save state, or assembly-file byte evidence."
+    ],
+    "explicitly_not_claimed": [
+      "Zero incident mates on these seven targets does not prove that all mates or other constraints are absent from the whole assembly.",
+      "Point contact adjacency is not a joint, DOF, motion law, or physical retention constraint.",
+      "No motion direction, stroke, endpoints, actuator ownership, reachable-state clearance, preload, force, stiffness, reaction capacity, capture/release timing, or mechanical acceptance is established."
+    ]
+  }
+}
