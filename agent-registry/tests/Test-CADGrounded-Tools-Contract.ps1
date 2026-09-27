@@ -74,7 +74,8 @@ $requiredImplemented = @(
     'cg.mates.bind',
     'cg.product.required-dof',
     'cg.frontier.read',
-    'cg.verifier.v43.full-chain-mates'
+    'cg.verifier.v43.full-chain-mates',
+    'cg.verifier.function-first.bottle-support-contact'
 )
 foreach ($id in $requiredImplemented) {
     $matches = @($catalog | Where-Object { [string]$_.id -ceq $id -and [string]$_.status -ceq 'IMPLEMENTED' })
@@ -122,6 +123,13 @@ Assert-True ([string]$requiredDof.status -ceq 'IMPLEMENTED') 'Bottle DOF capabil
 Assert-True ([string]$requiredDof.command -ceq 'Get-CGRequiredBottleDOF') 'Bottle DOF capability command binding is incorrect.'
 Assert-True ([string]$requiredDof.execution_kind -ceq 'deterministic_requirement_derivation') 'Bottle DOF capability execution kind is incorrect.'
 Assert-True ([string]$requiredDof.write_authority -ceq 'NONE') 'Bottle DOF capability must remain read-only.'
+
+
+$bottleSupportVerifier = Get-CGCapability -Id 'cg.verifier.function-first.bottle-support-contact'
+Assert-True ([string]$bottleSupportVerifier.status -ceq 'IMPLEMENTED') 'Bottle support/contact verifier must be IMPLEMENTED.'
+Assert-True ([string]$bottleSupportVerifier.execution_kind -ceq 'registered_verifier') 'Bottle support/contact verifier execution kind is incorrect.'
+Assert-True ([string]$bottleSupportVerifier.write_authority -ceq 'NONE') 'Bottle support/contact verifier must remain read-only.'
+Assert-True ([string]$bottleSupportVerifier.verifier_path -ceq 'agent-registry/workers/CadGrounded.SolidWorksWorker/Verify-ClassifyContact-FunctionFirst-BottleSupport.ps1') 'Bottle support/contact verifier path is incorrect.'
 
 $currentPlan = Get-CGCurrentPlan
 Assert-True (-not [string]::IsNullOrWhiteSpace([string]$currentPlan.current_plan_id)) 'CURRENT_PLAN has no current_plan_id.'
