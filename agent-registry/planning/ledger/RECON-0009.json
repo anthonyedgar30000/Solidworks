@@ -1,0 +1,51 @@
+{
+  "record_type": "plan_reconciliation",
+  "schema_version": 1,
+  "record_id": "RECON-0009",
+  "project_id": "CADGROUNDED.IXOR",
+  "reconciled_at_utc": "2026-09-27T06:18:31.8488123Z",
+  "plan_id": "PLAN-0006",
+  "revised_plan_id": "PLAN-0007",
+  "raw_observation_ids": [
+    "E.V43.PRISM.LINK_ARM_CONTACT.20260927T061831848Z"
+  ],
+  "actual_actions": [
+    {
+      "action_id": "ACT_V43_PRISM_LINK_ARM_CONTACT_VERIFIER",
+      "write_authority": "NONE",
+      "result_id": "E.V43.PRISM.LINK_ARM_CONTACT.20260927T061831848Z",
+      "reason": "The exact V43_WRAP all-four link-to-arm verifier passed with exact pair results, SHA-bound artifact provenance, and no-mutation comparison."
+    },
+    {
+      "action_id": "ACT_BIND_V43_PRISM_LINK_ARM_ARTIFACT_SHA256",
+      "write_authority": "NONE",
+      "result": "COMPLETED",
+      "reason": "Bound verification-summary.json to SHA-256 01ff96bee1a596c8420b142d1ed36fe1fa1d0472eedba5d59bc31f82f26c9ee3."
+    }
+  ],
+  "step_outcomes": [
+    {
+      "step_id": "P0006.1",
+      "outcome": "COMPLETED",
+      "evidence_id": "E.V43.PRISM.LINK_ARM_CONTACT.20260927T061831848Z"
+    },
+    {
+      "step_id": "P0006.2",
+      "outcome": "COMPLETED",
+      "evidence_id": "E.V43.PRISM.LINK_ARM_CONTACT.20260927T061831848Z"
+    },
+    {
+      "step_id": "P0006.3",
+      "outcome": "COMPLETED_ADMITTED",
+      "evidence_id": "E.V43.PRISM.LINK_ARM_CONTACT.20260927T061831848Z"
+    },
+    {
+      "step_id": "P0006.4",
+      "outcome": "COMPLETED_REPLANNED",
+      "evidence_id": "E.V43.PRISM.LINK_ARM_CONTACT.20260927T061831848Z"
+    }
+  ],
+  "conclusion": "PLAN-0006 is provenance-complete. At the recorded exact V43_WRAP point, Link-1 is adjacent to Arm-1 and Link-2 is adjacent to Arm-2 at 0 mm returned minimum distance with zero intersection volume; both crossed pairs are 50 mm clear. This supports the same-number current-pose link-to-arm adjacency pattern only. Joint type, DOF, motion, stroke, force/preload, arm-to-roller continuity, capture/release timing, and mechanical acceptance remain unresolved.",
+  "mechanical_acceptance_granted": false,
+  "write_authority": "NONE"
+}

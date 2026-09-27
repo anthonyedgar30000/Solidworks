@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
   "project_id": "CADGROUNDED.IXOR",
-  "current_plan_id": "PLAN-0006",
-  "previous_plan_id": "PLAN-0005",
+  "current_plan_id": "PLAN-0007",
+  "previous_plan_id": "PLAN-0006",
   "latest_divergence_id": "DIV-0002",
-  "latest_reconciliation_id": "RECON-0008",
-  "updated_at_utc": "2026-09-27T06:04:59.0019476Z",
-  "status": "ACTIVE_INVESTIGATION_PRISM_LINK_ARM_CONTACT_TOPOLOGY_PROJECTED",
+  "latest_reconciliation_id": "RECON-0009",
+  "updated_at_utc": "2026-09-27T06:18:31.8488123Z",
+  "status": "ACTIVE_INVESTIGATION_PRISM_ARM_ROLLER_CONTACT_TOPOLOGY_PROJECTED",
   "authority_note": "GitHub project-state pointer only. SOLIDWORKS remains the authority for live geometry and active document state.",
-  "current_evidence_id": "E.V43.PRISM.SLIDER_LINK_CONTACT.20260927T060459001Z",
+  "current_evidence_id": "E.V43.PRISM.LINK_ARM_CONTACT.20260927T061831848Z",
   "current_architecture_id": "IXOR_V43_PRISM_CAPTURE_AND_ROTATION_REFERENCE"
 }
