@@ -65,6 +65,7 @@ foreach ($capability in $implemented) {
 }
 
 $requiredPlanned = @(
+    'cg.product.required-dof',
     'cg.product.support',
     'cg.product.restraint',
     'cg.product.entry-path',
