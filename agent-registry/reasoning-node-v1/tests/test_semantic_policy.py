@@ -3,6 +3,7 @@
 from semantic_policy import (
     SemanticPolicyError,
     supported_bucket_claim_pairs,
+    supported_hypothesis_anchor_pairs,
     validate_semantic_admission,
 )
 
@@ -39,7 +40,8 @@ def payload(
 
 def candidate_hypothesis(
     *,
-    statement="Hypothesis: a missing capture constraint may explain the unresolved kinematic owner.",
+    statement="Hypothesis: a capture carrier may own the unresolved closure kinematics.",
+    hypothesis_class="CLOSURE_KINEMATICS",
     evidence_status="UNTESTED",
     investigation_status="ELIGIBLE",
     anchor_buckets=None,
@@ -48,6 +50,7 @@ def candidate_hypothesis(
     return {
         "statement": statement,
         "prior": "COMMON",
+        "hypothesis_class": hypothesis_class,
         "evidence_status": evidence_status,
         "investigation_status": investigation_status,
         "anchor_buckets": (
@@ -226,6 +229,177 @@ class HypothesisGenerationAdmissionTests(unittest.TestCase):
             task="hypothesis_generation",
             evidence=EVIDENCE,
             payload=self.base_payload(),
+        )
+
+    def test_admits_three_distinct_hypothesis_classes(self):
+        validate_semantic_admission(
+            task="hypothesis_generation",
+            evidence=EVIDENCE,
+            payload=self.base_payload(
+                hypotheses=[
+                    candidate_hypothesis(
+                        statement="Hypothesis: a translating carrier may close the bottle against the rollers.",
+                        hypothesis_class="CLOSURE_KINEMATICS",
+                    ),
+                    candidate_hypothesis(
+                        statement="Hypothesis: a spring preload could maintain bottle capture force during variation.",
+                        hypothesis_class="COMPLIANCE_PRELOAD",
+                    ),
+                    candidate_hypothesis(
+                        statement="Hypothesis: a nested assembly might contain an external capture owner not represented at top level.",
+                        hypothesis_class="SOURCE_BOUNDARY",
+                    ),
+                ],
+            ),
+        )
+
+    def test_rejects_noncausal_hypothesis_bucket(self):
+        with self.assertRaises(SemanticPolicyError) as ctx:
+            validate_semantic_admission(
+                task="hypothesis_generation",
+                evidence=EVIDENCE,
+                payload=payload(
+                    buckets=["INSUFFICIENT_EVIDENCE"],
+                    claims=[
+                        "No evidence supplied here establishes the complete operating motion sequence."
+                    ],
+                    hypotheses=[candidate_hypothesis(
+                        anchor_buckets=["INSUFFICIENT_EVIDENCE"],
+                        anchor_claims=[
+                            "No evidence supplied here establishes the complete operating motion sequence."
+                        ],
+                    )],
+                ),
+            )
+
+        self.assertIn(
+            "HYPOTHESIS_BUCKET_NOT_CAUSAL_ANCHOR:INSUFFICIENT_EVIDENCE",
+            ctx.exception.violations,
+        )
+
+    def test_rejects_evidence_absence_claim_as_hypothesis_anchor(self):
+        with self.assertRaises(SemanticPolicyError) as ctx:
+            validate_semantic_admission(
+                task="hypothesis_generation",
+                evidence=EVIDENCE,
+                payload=payload(
+                    buckets=["KINEMATIC_STATE_UNRESOLVED"],
+                    claims=[
+                        "No evidence supplied here establishes the complete operating motion sequence."
+                    ],
+                    hypotheses=[candidate_hypothesis(
+                        anchor_claims=[
+                            "No evidence supplied here establishes the complete operating motion sequence."
+                        ],
+                    )],
+                ),
+            )
+
+        self.assertIn(
+            "HYPOTHESIS_CLAIM_NOT_CAUSAL_ANCHOR:0",
+            ctx.exception.violations,
+        )
+
+    def test_rejects_duplicate_hypothesis_bucket(self):
+        with self.assertRaises(SemanticPolicyError) as ctx:
+            validate_semantic_admission(
+                task="hypothesis_generation",
+                evidence=EVIDENCE,
+                payload=self.base_payload(
+                    ambiguity_buckets=[
+                        "KINEMATIC_STATE_UNRESOLVED",
+                        "KINEMATIC_STATE_UNRESOLVED",
+                    ]
+                ),
+            )
+
+        self.assertIn(
+            "DUPLICATE_AMBIGUITY_BUCKET:1:KINEMATIC_STATE_UNRESOLVED",
+            ctx.exception.violations,
+        )
+
+    def test_rejects_duplicate_hypothesis_class(self):
+        with self.assertRaises(SemanticPolicyError) as ctx:
+            validate_semantic_admission(
+                task="hypothesis_generation",
+                evidence=EVIDENCE,
+                payload=self.base_payload(
+                    hypotheses=[
+                        candidate_hypothesis(
+                            statement="Hypothesis: a translating carrier may close the bottle against the rollers.",
+                            hypothesis_class="CLOSURE_KINEMATICS",
+                        ),
+                        candidate_hypothesis(
+                            statement="Hypothesis: a pivoting arm could close the bottle against the wrap belt.",
+                            hypothesis_class="CLOSURE_KINEMATICS",
+                        ),
+                    ],
+                ),
+            )
+
+        self.assertIn(
+            "HYPOTHESIS_CLASS_DUPLICATE:1:CLOSURE_KINEMATICS",
+            ctx.exception.violations,
+        )
+
+    def test_rejects_class_not_supported_by_statement(self):
+        with self.assertRaises(SemanticPolicyError) as ctx:
+            validate_semantic_admission(
+                task="hypothesis_generation",
+                evidence=EVIDENCE,
+                payload=self.base_payload(
+                    hypotheses=[candidate_hypothesis(
+                        statement="Hypothesis: a pneumatic actuator may close the capture carrier.",
+                        hypothesis_class="COMPLIANCE_PRELOAD",
+                    )],
+                ),
+            )
+
+        self.assertIn(
+            "HYPOTHESIS_CLASS_UNSUPPORTED:0:COMPLIANCE_PRELOAD",
+            ctx.exception.violations,
+        )
+
+    def test_rejects_epistemic_gap_as_mechanism(self):
+        with self.assertRaises(SemanticPolicyError) as ctx:
+            validate_semantic_admission(
+                task="hypothesis_generation",
+                evidence=EVIDENCE,
+                payload=self.base_payload(
+                    hypotheses=[candidate_hypothesis(
+                        statement="Hypothesis: sensor timing may be wrong because missing data prevents establishing the sequence.",
+                        hypothesis_class="SEQUENCE_CONTROL",
+                    )],
+                ),
+            )
+
+        self.assertIn(
+            "HYPOTHESIS_EPISTEMIC_GAP_IS_NOT_MECHANISM:0",
+            ctx.exception.violations,
+        )
+
+    def test_rejects_near_duplicate_hypotheses(self):
+        with self.assertRaises(SemanticPolicyError) as ctx:
+            validate_semantic_admission(
+                task="hypothesis_generation",
+                evidence=EVIDENCE,
+                payload=self.base_payload(
+                    hypotheses=[
+                        candidate_hypothesis(
+                            statement="Hypothesis: a capture carrier may close the bottle against the rollers during labeling.",
+                            hypothesis_class="CLOSURE_KINEMATICS",
+                        ),
+                        candidate_hypothesis(
+                            statement="Hypothesis: a capture carrier guide could close the bottle against the rollers during labeling.",
+                            hypothesis_class="OTHER_EXPLICIT_MECHANISM",
+                        ),
+                    ],
+                ),
+            )
+
+        self.assertIn(
+            "HYPOTHESIS_NEAR_DUPLICATE:0:1",
+            ctx.exception.violations,
         )
 
     def test_rejects_missing_hypothesis(self):
@@ -412,6 +586,15 @@ class HypothesisGenerationAdmissionTests(unittest.TestCase):
 
 
 class SupportedPairCatalogTests(unittest.TestCase):
+
+    def test_hypothesis_anchor_catalog_excludes_evidence_absence_claims(self):
+        self.assertEqual(
+            supported_hypothesis_anchor_pairs(EVIDENCE),
+            [{
+                "bucket": "KINEMATIC_STATE_UNRESOLVED",
+                "claim": "Capture kinematic ownership is unresolved.",
+            }],
+        )
 
     def test_catalog_contains_only_deterministically_supported_pairs(self):
         self.assertEqual(

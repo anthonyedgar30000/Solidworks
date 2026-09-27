@@ -9,6 +9,12 @@ SEMANTIC_POLICY_TASKS = frozenset({
     "hypothesis_generation",
 })
 
+HYPOTHESIS_ANCHOR_BUCKETS = frozenset({
+    "IDENTITY_AMBIGUOUS",
+    "GEOMETRY_UNRESOLVED",
+    "KINEMATIC_STATE_UNRESOLVED",
+})
+
 
 _WS_RE = re.compile(r"\s+")
 _HYPOTHESIS_TENTATIVE_RE = re.compile(
@@ -19,6 +25,54 @@ _HYPOTHESIS_FORBIDDEN_ASSERTION_RE = re.compile(
     r"\b(?:verified|confirmed|observed|measured|calculated|proven|established|mechanically accepted)\b",
     re.IGNORECASE,
 )
+_HYPOTHESIS_EPISTEMIC_GAP_RE = re.compile(
+    r"\b(?:missing data|insufficient data|lack of evidence|no evidence|not enough evidence|insufficient evidence)\b",
+    re.IGNORECASE,
+)
+_HYPOTHESIS_CLASS_PATTERNS: dict[str, tuple[re.Pattern[str], ...]] = {
+    "CLOSURE_KINEMATICS": (
+        re.compile(
+            r"\b(?:closures?|captures?|carriers?|slides?|sliding|pivots?|pivoting|arms?|rollers?|belts?|translate|translates|translating|translation)\b",
+            re.IGNORECASE,
+        ),
+    ),
+    "COMPLIANCE_PRELOAD": (
+        re.compile(
+            r"\b(?:spring|compliant|compliance|preload|preloaded|deflect|deflection|flex|flexible|elastic)\b",
+            re.IGNORECASE,
+        ),
+    ),
+    "ACTUATION_DRIVE": (
+        re.compile(
+            r"\b(?:actuator|actuation|cylinder|pneumatic|motor|servo|drive|driven)\b",
+            re.IGNORECASE,
+        ),
+    ),
+    "SEQUENCE_CONTROL": (
+        re.compile(
+            r"\b(?:timing|phase|sensor|control|index|indexing|trigger|stepwise|state transition|release)\b",
+            re.IGNORECASE,
+        ),
+    ),
+    "SOURCE_BOUNDARY": (
+        re.compile(
+            r"\b(?:nested|external|unmodeled|unmodelled|configuration|assembly boundary|feature boundary|hidden assembly|hidden feature)\b",
+            re.IGNORECASE,
+        ),
+    ),
+    "OTHER_EXPLICIT_MECHANISM": (
+        re.compile(
+            r"\b(?:linkage|cam|follower|clamp|guide|restraint|lever|mechanical linkage)\b",
+            re.IGNORECASE,
+        ),
+    ),
+}
+_HYPOTHESIS_TOKEN_RE = re.compile(r"[a-z0-9]+", re.IGNORECASE)
+_HYPOTHESIS_SIMILARITY_STOPWORDS = frozenset({
+    "hypothesis", "a", "an", "the", "may", "might", "could",
+    "possibly", "potentially", "be", "have", "has", "is", "are",
+    "to", "of", "for", "and", "or", "that", "this", "due", "because",
+})
 
 
 def normalize_whitespace(value: str) -> str:
@@ -199,6 +253,55 @@ def supported_bucket_claim_pairs(evidence: str) -> list[dict[str, str]]:
     return pairs
 
 
+def supported_hypothesis_anchor_pairs(
+    evidence: str,
+) -> list[dict[str, str]]:
+    """Return supported pairs eligible to anchor causal hypotheses.
+
+    Routing/gate buckets and explicit evidence-absence claims remain useful for
+    classification, but they are not causal explanations and cannot seed a
+    hypothesis.
+    """
+    return [
+        pair
+        for pair in supported_bucket_claim_pairs(evidence)
+        if pair["bucket"] in HYPOTHESIS_ANCHOR_BUCKETS
+        and not _HYPOTHESIS_EPISTEMIC_GAP_RE.search(pair["claim"])
+    ]
+
+
+def _hypothesis_class_supported(
+    hypothesis_class: str,
+    statement: str,
+) -> bool:
+    patterns = _HYPOTHESIS_CLASS_PATTERNS.get(
+        hypothesis_class,
+        (),
+    )
+    return any(pattern.search(statement) for pattern in patterns)
+
+
+def _hypothesis_content_tokens(statement: str) -> set[str]:
+    return {
+        token.lower()
+        for token in _HYPOTHESIS_TOKEN_RE.findall(statement)
+        if token.lower() not in _HYPOTHESIS_SIMILARITY_STOPWORDS
+    }
+
+
+def _hypothesis_similarity(
+    statement_a: str,
+    statement_b: str,
+) -> float:
+    tokens_a = _hypothesis_content_tokens(statement_a)
+    tokens_b = _hypothesis_content_tokens(statement_b)
+
+    if not tokens_a or not tokens_b:
+        return 0.0
+
+    return len(tokens_a & tokens_b) / len(tokens_a | tokens_b)
+
+
 def validate_semantic_admission(
     *,
     task: str,
@@ -228,8 +331,16 @@ def validate_semantic_admission(
             violations.append("AMBIGUITY_BUCKET_REQUIRED")
 
         grounded_claims: list[str] = []
+        seen_claims: set[str] = set()
 
         for index, claim in enumerate(claims):
+            normalized_claim = normalize_whitespace(claim)
+            if normalized_claim in seen_claims:
+                violations.append(
+                    f"DUPLICATE_CLAIM:{index}"
+                )
+            seen_claims.add(normalized_claim)
+
             if claim_is_grounded(claim, evidence):
                 grounded_claims.append(claim)
             else:
@@ -252,7 +363,14 @@ def validate_semantic_admission(
                 "CLASSIFICATION_NEXT_TESTS_NOT_ALLOWED"
             )
 
-        for bucket in buckets:
+        seen_buckets: set[str] = set()
+        for index, bucket in enumerate(buckets):
+            if bucket in seen_buckets:
+                violations.append(
+                    f"DUPLICATE_AMBIGUITY_BUCKET:{index}:{bucket}"
+                )
+            seen_buckets.add(bucket)
+
             if not _bucket_supported(bucket, grounded_claims):
                 violations.append(
                     f"UNSUPPORTED_BUCKET:{bucket}"
@@ -279,8 +397,20 @@ def validate_semantic_admission(
             violations.append("HYPOTHESIS_COUNT_EXCEEDED")
 
         grounded_claims: list[str] = []
+        seen_claims: set[str] = set()
+        eligible_anchor_claims = {
+            normalize_whitespace(pair["claim"])
+            for pair in supported_hypothesis_anchor_pairs(evidence)
+        }
 
         for index, claim in enumerate(claims):
+            normalized_claim = normalize_whitespace(claim)
+            if normalized_claim in seen_claims:
+                violations.append(
+                    f"DUPLICATE_CLAIM:{index}"
+                )
+            seen_claims.add(normalized_claim)
+
             if claim_is_grounded(claim, evidence):
                 grounded_claims.append(claim)
             else:
@@ -288,10 +418,26 @@ def validate_semantic_admission(
                     f"UNGROUNDED_CLAIM:{index}"
                 )
 
-        for bucket in buckets:
+            if normalized_claim not in eligible_anchor_claims:
+                violations.append(
+                    f"HYPOTHESIS_CLAIM_NOT_CAUSAL_ANCHOR:{index}"
+                )
+
+        seen_buckets: set[str] = set()
+        for index, bucket in enumerate(buckets):
+            if bucket in seen_buckets:
+                violations.append(
+                    f"DUPLICATE_AMBIGUITY_BUCKET:{index}:{bucket}"
+                )
+            seen_buckets.add(bucket)
+
             if not _bucket_supported(bucket, grounded_claims):
                 violations.append(
                     f"UNSUPPORTED_BUCKET:{bucket}"
+                )
+            if bucket not in HYPOTHESIS_ANCHOR_BUCKETS:
+                violations.append(
+                    f"HYPOTHESIS_BUCKET_NOT_CAUSAL_ANCHOR:{bucket}"
                 )
 
         if inferences:
@@ -314,9 +460,14 @@ def validate_semantic_admission(
             for claim in claims
         }
         seen_statements: set[str] = set()
+        seen_classes: set[str] = set()
+        prior_statements: list[tuple[int, str]] = []
 
         for index, hypothesis in enumerate(hypotheses):
             statement = str(hypothesis.get("statement") or "").strip()
+            hypothesis_class = str(
+                hypothesis.get("hypothesis_class") or ""
+            ).strip()
             evidence_status = hypothesis.get("evidence_status")
             investigation_status = hypothesis.get("investigation_status")
             anchor_buckets = list(hypothesis.get("anchor_buckets") or [])
@@ -337,12 +488,42 @@ def validate_semantic_admission(
                     f"HYPOTHESIS_FORBIDDEN_ASSERTION:{index}"
                 )
 
+            if _HYPOTHESIS_EPISTEMIC_GAP_RE.search(statement):
+                violations.append(
+                    f"HYPOTHESIS_EPISTEMIC_GAP_IS_NOT_MECHANISM:{index}"
+                )
+
+            if not _hypothesis_class_supported(
+                hypothesis_class,
+                statement,
+            ):
+                violations.append(
+                    f"HYPOTHESIS_CLASS_UNSUPPORTED:{index}:{hypothesis_class or 'EMPTY'}"
+                )
+
+            if hypothesis_class in seen_classes:
+                violations.append(
+                    f"HYPOTHESIS_CLASS_DUPLICATE:{index}:{hypothesis_class}"
+                )
+            seen_classes.add(hypothesis_class)
+
             normalized_statement = normalize_whitespace(statement)
             if normalized_statement in seen_statements:
                 violations.append(
                     f"DUPLICATE_HYPOTHESIS:{index}"
                 )
             seen_statements.add(normalized_statement)
+
+            for prior_index, prior_statement in prior_statements:
+                similarity = _hypothesis_similarity(
+                    prior_statement,
+                    statement,
+                )
+                if similarity >= 0.60:
+                    violations.append(
+                        f"HYPOTHESIS_NEAR_DUPLICATE:{prior_index}:{index}"
+                    )
+            prior_statements.append((index, statement))
 
             statement_body = statement.removeprefix("Hypothesis: ")
             if normalize_whitespace(statement_body) in normalized_claims:
