@@ -1,0 +1,189 @@
+{
+  "schema_version": 1,
+  "record_type": "evidence",
+  "evidence_id": "opencascade.al-carriage.source-geometry.sha256-707f4147e8ca9572b8040fe9e5654576bcfa047681a703cb06a5cff3f3504886",
+  "evidence_type": "deterministic_calculation",
+  "evidence_state": "MEASURED_CALCULATED",
+  "source_authority": "DETERMINISTIC_CALCULATION",
+  "source_classification": "opencascade_step_inspection",
+  "subject": {
+    "subject_type": "OEM_STEP_SOURCE_GEOMETRY",
+    "identity_exact": "CAB 6130648_01 Carriage Schlitten AL",
+    "document_title_exact": "6130648_01_Carriage_Schlitten_AL.stp",
+    "document_path_exact": "C:\\ChatGPT\\Solidworks\\IXOR\\6130648_01_Carriage_Schlitten_AL (2)\\6130648_01_Carriage_Schlitten_AL.stp"
+  },
+  "provenance": {
+    "recorded_at": "2026-09-27T04:12:37.8907054Z",
+    "source_ref": "C:\\ChatGPT\\Solidworks-main-pilot\\agent-registry\\sidecars\\opencascade\\verification-output\\al-carriage-6130648-v1\\pilot-result.candidate.v1.json",
+    "sha256": "707f4147e8ca9572b8040fe9e5654576bcfa047681a703cb06a5cff3f3504886",
+    "tool_path": "cad-mcp-server@0.6.1 via @modelcontextprotocol/inspector",
+    "job_id": "opencascade-al-carriage-6130648-v1"
+  },
+  "dependencies": [
+    "github:commit/482a95396829ed36317b7db965e4471cbd305ddf",
+    "oem-step:sha256-bfcd381045f4e115be81ea22a349dfeccc6453ae49a00acab25c547205b50c5b",
+    "execution-manifest:sha256-3d524263372e477fe46b7deed2038a152387eed2b885c6d17745c79dfbf0d154",
+    "historical-comparison:sha256-79653b6ad288ff9d1ea4a2654e14f0c4f447e0b8fce8781ef0df4b014c325d81",
+    "package-hash-manifest:sha256-896e4bf19c86572e3c42e20ffde1765ded73358f82e7cf8a3fc4ca79c12c260d"
+  ],
+  "geometry_state": "SOURCE_GEOMETRY",
+  "temporal_scope": {
+    "coverage": "POINT_ONLY",
+    "validity_state": "UNKNOWN",
+    "state_ids": [],
+    "transition_ids": []
+  },
+  "mechanical_acceptance_granted": false,
+  "payload": {
+    "method": "Independent read-only Open CASCADE inspection of immutable OEM STEP geometry. The pilot performed source inspection, an unbiased cylindrical-face enumeration, bounded candidate topology inspection, independent point-in-solid probes, and deterministic axis-spacing calculation. Historical target values were used only after measurement for comparison.",
+    "inputs": [
+      {
+        "kind": "OEM_STEP_CAD",
+        "path": "C:\\ChatGPT\\Solidworks\\IXOR\\6130648_01_Carriage_Schlitten_AL (2)\\6130648_01_Carriage_Schlitten_AL.stp",
+        "sha256": "bfcd381045f4e115be81ea22a349dfeccc6453ae49a00acab25c547205b50c5b"
+      },
+      {
+        "kind": "EXECUTION_MANIFEST",
+        "path": "C:\\ChatGPT\\Solidworks-main-pilot\\agent-registry\\sidecars\\opencascade\\verification-output\\al-carriage-6130648-v1\\execution-manifest.v1.json",
+        "sha256": "3d524263372e477fe46b7deed2038a152387eed2b885c6d17745c79dfbf0d154"
+      },
+      {
+        "kind": "HISTORICAL_COMPARISON",
+        "path": "C:\\ChatGPT\\Solidworks-main-pilot\\agent-registry\\sidecars\\opencascade\\verification-output\\al-carriage-6130648-v1\\historical-comparison.v1.json",
+        "sha256": "79653b6ad288ff9d1ea4a2654e14f0c4f447e0b8fce8781ef0df4b014c325d81"
+      },
+      {
+        "kind": "VERIFIED_PILOT_RESULT",
+        "path": "C:\\ChatGPT\\Solidworks-main-pilot\\agent-registry\\sidecars\\opencascade\\verification-output\\al-carriage-6130648-v1\\pilot-result.candidate.v1.json",
+        "sha256": "707f4147e8ca9572b8040fe9e5654576bcfa047681a703cb06a5cff3f3504886"
+      },
+      {
+        "kind": "PACKAGE_HASH_MANIFEST",
+        "path": "C:\\ChatGPT\\Solidworks-main-pilot\\agent-registry\\sidecars\\opencascade\\verification-output\\al-carriage-6130648-v1\\artifact-hashes.sha256",
+        "sha256": "896e4bf19c86572e3c42e20ffde1765ded73358f82e7cf8a3fc4ca79c12c260d"
+      }
+    ],
+    "result": {
+      "source_geometry": {
+        "solid_body_count": 1,
+        "candidate_internal_cylindrical_void": {
+          "face_ids": [
+            "face:160",
+            "face:161"
+          ],
+          "diameter_mm": 7,
+          "axial_span_mm": 8.000000000000002,
+          "axis": {
+            "direction": [
+              -1,
+              5.21461440408067e-17,
+              -4.51566325587369e-16
+            ],
+            "location": [
+              43.2383325091286,
+              -26.9177965032351,
+              -111.20719640018
+            ]
+          },
+          "shared_adjacent_planes": [
+            "face:167",
+            "face:168"
+          ],
+          "axis_void_probes": [
+            {
+              "point": [
+                35.2383325091286,
+                -26.9177965032351,
+                -111.20719640018
+              ],
+              "contains_point": false
+            },
+            {
+              "point": [
+                38.2383325091286,
+                -26.9177965032351,
+                -111.20719640018
+              ],
+              "contains_point": false
+            },
+            {
+              "point": [
+                41.2383325091286,
+                -26.9177965032351,
+                -111.20719640018
+              ],
+              "contains_point": false
+            }
+          ]
+        },
+        "reference_axis_face_id": "face:3",
+        "reference_axis_spacing_mm": 76.99999999999964
+      },
+      "historical_comparisons": [
+        {
+          "claim_id": "AL.ONE_SOLID_BODY",
+          "expected_value": 1,
+          "measured_value": 1,
+          "unit": "body",
+          "delta": 0,
+          "declared_comparison_tolerance": 0,
+          "classification": "AGREE_WITHIN_DECLARED_TOLERANCE"
+        },
+        {
+          "claim_id": "AL.ROLLER_MOUNT_BORE_DIAMETER",
+          "expected_value": 7,
+          "measured_value": 7,
+          "unit": "mm",
+          "delta": 0,
+          "declared_comparison_tolerance": 0.001,
+          "tolerance_semantics": "numeric_evidence_comparison_only_not_manufacturing_tolerance",
+          "classification": "AGREE_WITHIN_DECLARED_TOLERANCE"
+        },
+        {
+          "claim_id": "AL.ROLLER_MOUNT_BORE_DEPTH",
+          "expected_value": 8,
+          "measured_value": 8.000000000000002,
+          "unit": "mm",
+          "delta": 1.7763568394002505e-15,
+          "declared_comparison_tolerance": 0.001,
+          "tolerance_semantics": "numeric_evidence_comparison_only_not_manufacturing_tolerance",
+          "classification": "AGREE_WITHIN_DECLARED_TOLERANCE"
+        },
+        {
+          "claim_id": "AL.PIVOT_TO_ROLLER_MOUNT_RADIUS",
+          "expected_value": 77,
+          "measured_value": 76.99999999999964,
+          "unit": "mm",
+          "delta": 3.552713678800501e-13,
+          "declared_comparison_tolerance": 0.001,
+          "tolerance_semantics": "numeric_evidence_comparison_only_not_manufacturing_tolerance",
+          "classification": "AGREE_WITHIN_DECLARED_TOLERANCE",
+          "semantic_note": "77 mm axis spacing independently measured; pivot semantic binding derives from prior OEM-source provenance."
+        }
+      ],
+      "comparison_semantics": {
+        "comparison_only": true,
+        "historical_values_seeded_into_initial_geometry_search": false,
+        "manufacturing_tolerance_claimed": false,
+        "semantic_boundary": "The sidecar independently establishes measured geometry. Historical semantic labels such as roller-mount bore and pivot are comparison context inherited from prior OEM-source provenance, not semantic identities independently discovered from numerical proximity."
+      },
+      "unresolved": [
+        {
+          "id": "AVAILABLE_LOWER_END_TRAVEL",
+          "state": "UNRESOLVED",
+          "reason": "77 mm geometry does not establish adjustment travel"
+        }
+      ],
+      "explicit_non_claims": [
+        "not a SolidWorksObservation",
+        "not live SOLIDWORKS state",
+        "not assembly operating-state evidence",
+        "not kinematic acceptance",
+        "not bottle restraint evidence",
+        "not product-flow evidence",
+        "not manufacturing tolerance evidence",
+        "not mechanical acceptance"
+      ]
+    }
+  }
+}
