@@ -1,0 +1,138 @@
+{
+  "schema_version": 1,
+  "record_type": "evidence",
+  "evidence_id": "E.FUNCTION_FIRST.CONTACT_MAINTENANCE_SOURCE_PROBE.20260927T150842223Z",
+  "evidence_type": "solidworks_observation",
+  "evidence_state": "VERIFIED",
+  "source_authority": "SOLIDWORKS_LIVE_STATE",
+  "source_classification": "verified_from_solidworks_api",
+  "subject": {
+    "subject_type": "function_first_contact_maintenance_source_probe",
+    "identity_exact": "FITCHECK_PRISM_ACTUATOR_ENVELOPE_45x35x35_V43-1; FITCHECK_PRISM_CARRIER_SLIDER_15x80x60_V43-1; FITCHECK_DRIVEN_WRAP_BELT_5x160x93_V25-1; FITCHECK_PRISM_REACTION_BASE_70x120x20_V43-1; FITCHECK_PRISM_GUIDE_RAIL_100x10x10_V43-1; FITCHECK_PRISM_GUIDE_RAIL_100x10x10_V43-2",
+    "document_title_exact": "IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE",
+    "document_path_exact": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE.SLDASM"
+  },
+  "provenance": {
+    "recorded_at": "2026-09-27T15:08:42.223Z",
+    "source_ref": "Live bounded read-only SOLIDWORKS MaxControl mate/feature probe plus sw_status/sw_query_components post-readback",
+    "sha256": "00a9e0d6783311bcae7dbb3f87ef74bd4eec56958067cf66a568c9caa2d65dda",
+    "tool_path": "sw_execute_code(read-only) -> sw_status -> sw_query_components"
+  },
+  "dependencies": [
+    "E.FUNCTION_FIRST.BOTTLE_LATERAL_CONTACT_MANIFOLD.20260927T100903861Z",
+    "E.FUNCTION_FIRST.BOTTLE_FINITE_LINE_RESTRAINT_RANK.20260927T100903861Z",
+    "PLAN-0010"
+  ],
+  "geometry_state": "CANDIDATE_OPERATING",
+  "temporal_scope": {
+    "coverage": "POINT_ONLY",
+    "validity_state": "CURRENT",
+    "state_ids": [],
+    "transition_ids": []
+  },
+  "ambiguity_bucket": "OEM_SOURCE_REQUIRED",
+  "mechanical_acceptance_granted": false,
+  "payload": {
+    "observation_kind": "exact_current_pose_contact_maintenance_source_probe",
+    "document": {
+      "title": "IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE",
+      "path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE.SLDASM",
+      "active_configuration_exact": "V43_WRAP"
+    },
+    "component_inventory_count": 64,
+    "explicit_name_classification": {
+      "spring_or_spring_synonym_matches": [],
+      "pneumatic_or_cylinder_matches": [],
+      "compliant_or_flex_matches": [],
+      "actuator_matches": [
+        "FITCHECK_PRISM_ACTUATOR_ENVELOPE_45x35x35_V43-1"
+      ]
+    },
+    "targets": [
+      {
+        "name2": "FITCHECK_PRISM_ACTUATOR_ENVELOPE_45x35x35_V43-1",
+        "fixed_component": true,
+        "suppressed": false,
+        "incident_active_assembly_mate_count": 0,
+        "native_modeling_features": [
+          "Sketch1:ProfileFeature",
+          "Boss-Extrude1:Extrusion"
+        ],
+        "material_state": "Material <not specified>"
+      },
+      {
+        "name2": "FITCHECK_PRISM_CARRIER_SLIDER_15x80x60_V43-1",
+        "fixed_component": false,
+        "suppressed": false,
+        "incident_active_assembly_mate_count": 0,
+        "native_modeling_features": [
+          "Sketch1:ProfileFeature",
+          "Boss-Extrude1:Extrusion"
+        ],
+        "material_state": "Material <not specified>"
+      },
+      {
+        "name2": "FITCHECK_DRIVEN_WRAP_BELT_5x160x93_V25-1",
+        "fixed_component": false,
+        "suppressed": false,
+        "incident_active_assembly_mate_count": 0,
+        "native_modeling_features": [
+          "FITCHECK_DRIVEN_WRAP_BELT:BaseBody"
+        ],
+        "material_state": "Material <not specified>"
+      },
+      {
+        "name2": "FITCHECK_PRISM_REACTION_BASE_70x120x20_V43-1",
+        "fixed_component": true,
+        "suppressed": false,
+        "incident_active_assembly_mate_count": 0,
+        "native_modeling_features": [
+          "Sketch1:ProfileFeature",
+          "Boss-Extrude1:Extrusion"
+        ],
+        "material_state": "Material <not specified>"
+      },
+      {
+        "name2": "FITCHECK_PRISM_GUIDE_RAIL_100x10x10_V43-1",
+        "fixed_component": true,
+        "suppressed": false,
+        "incident_active_assembly_mate_count": 0,
+        "native_modeling_features": [
+          "Sketch1:ProfileFeature",
+          "Boss-Extrude1:Extrusion"
+        ],
+        "material_state": "Material <not specified>"
+      },
+      {
+        "name2": "FITCHECK_PRISM_GUIDE_RAIL_100x10x10_V43-2",
+        "fixed_component": true,
+        "suppressed": false,
+        "incident_active_assembly_mate_count": 0,
+        "native_modeling_features": [
+          "Sketch1:ProfileFeature",
+          "Boss-Extrude1:Extrusion"
+        ],
+        "material_state": "Material <not specified>"
+      }
+    ],
+    "post_readback": {
+      "active_document_rebound": true,
+      "same_document_title_path": true,
+      "six_target_identities_present": true,
+      "fixed_floating_states_preserved": true,
+      "transient_named_pipe_disconnect_recovered_before_admission": true
+    },
+    "admitted_claims": [
+      "None of the six exact closure-candidate components has an incident active-assembly mate at the recorded V43_WRAP point.",
+      "The 64-component live inventory contains no explicitly named spring/compliant element and no pneumatic/cylinder component; the only actuator-like name is FITCHECK_PRISM_ACTUATOR_ENVELOPE_45x35x35_V43-1.",
+      "The actuator envelope, slider, reaction base, and guide rails expose only simple fit-check modeling features in their native part feature traversal; the driven belt is a BaseBody fit-check part.",
+      "The current active V43 assembly therefore does not itself bind an exact actuator/spring/compliant owner, stroke/travel law, or active-assembly mate chain that maintains the verified lateral contact set."
+    ],
+    "explicitly_not_claimed": [
+      "Zero incident mates does not prove that no designer intent or external mechanism specification exists outside the active assembly.",
+      "The observation does not determine which mechanism family should be selected.",
+      "It does not establish preload, force, stiffness, friction, traction, stroke, interval-wide contact maintenance, reaction capacity, or mechanical acceptance.",
+      "Simple feature structure does not by itself prove that a component is physically invalid; it only fails to supply authoritative mechanism semantics."
+    ]
+  }
+}

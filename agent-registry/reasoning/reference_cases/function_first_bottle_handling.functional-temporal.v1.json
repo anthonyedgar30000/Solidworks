@@ -169,7 +169,8 @@
         "E.FUNCTION_FIRST.BOTTLE_WRAP_AXIS_BINDING.20260927T090058895Z",
         "E.FUNCTION_FIRST.BOTTLE_CONTACT_WRENCH_RANK.20260927T091125291Z",
         "E.FUNCTION_FIRST.BOTTLE_LATERAL_CONTACT_MANIFOLD.20260927T100903861Z",
-        "E.FUNCTION_FIRST.BOTTLE_FINITE_LINE_RESTRAINT_RANK.20260927T100903861Z"
+        "E.FUNCTION_FIRST.BOTTLE_FINITE_LINE_RESTRAINT_RANK.20260927T100903861Z",
+        "E.FUNCTION_FIRST.CONTACT_MAINTENANCE_SOURCE_PROBE.20260927T150842223Z"
       ],
       "depends_on_requirement_ids": [
         "BOTTLE_REQUIRED_DOF_BOUND"
@@ -246,7 +247,7 @@
       "owner_subsystem_id": "CAPTURE_AND_ROTATION",
       "description": "After function-first bottle requirements are bound and candidate families are screened, the selected physical architecture has an explicit owner for closure/guidance, rotation input, limits, compliance/preload when required, reaction support, and release.",
       "verification_state": "UNRESOLVED",
-      "ambiguity_bucket": "KINEMATIC_STATE_UNRESOLVED",
+      "ambiguity_bucket": "OEM_SOURCE_REQUIRED",
       "criticality": 5,
       "resolution_cost": 1,
       "expected_authority": [
@@ -262,7 +263,8 @@
         "E.V43.PRISM.SLIDER_LINK_CONTACT.ARCH_PROJECTION.20260927",
         "E.V43.PRISM.LINK_ARM_CONTACT.ARCH_PROJECTION.20260927",
         "E.V43.PRISM.ARM_ROLLER_CONTACT.ARCH_PROJECTION.20260927",
-        "E.V43.PRISM.FULL_CHAIN_MATES.ARCH_PROJECTION.20260927"
+        "E.V43.PRISM.FULL_CHAIN_MATES.ARCH_PROJECTION.20260927",
+        "E.FUNCTION_FIRST.CONTACT_MAINTENANCE_SOURCE_PROBE.20260927T150842223Z"
       ],
       "depends_on_requirement_ids": [
         "BOTTLE_REQUIRED_DOF_BOUND",
@@ -296,7 +298,8 @@
       "evidence_refs": [
         "E.V43.PRISM.LIVE_STATE.20260926T200826594Z",
         "E.FUNCTION_FIRST.BOTTLE_LATERAL_CONTACT_MANIFOLD.20260927T100903861Z",
-        "E.FUNCTION_FIRST.BOTTLE_FINITE_LINE_RESTRAINT_RANK.20260927T100903861Z"
+        "E.FUNCTION_FIRST.BOTTLE_FINITE_LINE_RESTRAINT_RANK.20260927T100903861Z",
+        "E.FUNCTION_FIRST.CONTACT_MAINTENANCE_SOURCE_PROBE.20260927T150842223Z"
       ],
       "depends_on_requirement_ids": [
         "CAPTURE_KINEMATIC_OWNER"
@@ -359,7 +362,8 @@
         "DETERMINISTIC_CALCULATION"
       ],
       "evidence_refs": [
-        "E.V43.PRISM.LIVE_STATE.20260926T200826594Z"
+        "E.V43.PRISM.LIVE_STATE.20260926T200826594Z",
+        "E.FUNCTION_FIRST.CONTACT_MAINTENANCE_SOURCE_PROBE.20260927T150842223Z"
       ],
       "depends_on_requirement_ids": [
         "CAPTURE_KINEMATIC_OWNER"
@@ -389,7 +393,8 @@
       ],
       "evidence_refs": [
         "E.V43.PRISM.LIVE_STATE.20260926T200826594Z",
-        "E.V43.PRISM.LINK1_REACTION_BASE.ARCH_PROJECTION.20260926"
+        "E.V43.PRISM.LINK1_REACTION_BASE.ARCH_PROJECTION.20260926",
+        "E.FUNCTION_FIRST.CONTACT_MAINTENANCE_SOURCE_PROBE.20260927T150842223Z"
       ],
       "depends_on_requirement_ids": [
         "CAPTURE_KINEMATIC_OWNER",
@@ -1261,7 +1266,7 @@
       "description": "A physical candidate architecture will eventually own bottle capture/rotation closure, guidance, limits, actuation/preload, and release, but mechanism selection is deferred until bottle requirements are bound and candidates are screened.",
       "prior": "COMMON",
       "evidence_state": "UNRESOLVED",
-      "investigation_state": "DORMANT",
+      "investigation_state": "ACTIVE",
       "related_requirement_ids": [
         "CAPTURE_KINEMATIC_OWNER",
         "BOTTLE_RESTRAINT_THROUGHOUT_CAPTURE",
@@ -1274,7 +1279,7 @@
         "WRAP_ACTIVE"
       ],
       "required_evidence": [
-        "A completed function-first DOF/support/restraint baseline plus candidate-specific evidence binding closure input, allowed motion, bottle contacts, rotation source, limits, release behavior, and reaction mount."
+        "Current V43 fit-check geometry does not bind an authored closure owner. Screen explicit deterministic candidate architectures against CADGROUNDED.IXOR.CONTACT_MAINTENANCE.V1, then bind closure/guidance, rotation input, limits, maintenance law, reaction support, and release for any candidate that advances."
       ]
     },
     {
@@ -1294,7 +1299,7 @@
         "WRAP_ACTIVE"
       ],
       "required_evidence": [
-        "Identify the exact component, mechanism, OEM/design source, mate/constraint source, or accepted deterministic mechanism definition that maintains the belt/roller lateral contact set against bottle variation and operating motion. Bind its compliant or preload behavior, travel/range, retention, and reaction path; preserve force/preload magnitude as UNKNOWN unless an authoritative source or accepted deterministic derivation supplies it."
+        "The ideal finite-line geometry requires maintained unilateral contacts, but the live V43 source probe found no explicit spring/compliant element, pneumatic cylinder, actuator attachment, or active-assembly mate chain. Any advancing candidate must explicitly define its contact-maintenance law, usable travel/range, retention behavior, and reaction path; force/preload magnitude remains UNKNOWN until authoritative or accepted deterministic evidence supplies it."
       ]
     },
     {
@@ -1341,7 +1346,7 @@
       "description": "A translating roller carrier or slide moves one or both support rollers to establish bottle capture.",
       "prior": "COMMON",
       "evidence_state": "UNRESOLVED",
-      "investigation_state": "DORMANT",
+      "investigation_state": "ELIGIBLE",
       "related_requirement_ids": [
         "CAPTURE_KINEMATIC_OWNER",
         "BOTTLE_RESTRAINT_THROUGHOUT_CAPTURE",
@@ -1364,7 +1369,7 @@
       "description": "A pivoting arm, lever, or carrier moves a support roller into controlled bottle capture.",
       "prior": "COMMON",
       "evidence_state": "UNRESOLVED",
-      "investigation_state": "DORMANT",
+      "investigation_state": "ELIGIBLE",
       "related_requirement_ids": [
         "CAPTURE_KINEMATIC_OWNER",
         "BOTTLE_RESTRAINT_THROUGHOUT_CAPTURE",
@@ -1387,7 +1392,7 @@
       "description": "The driven wrap-belt assembly itself translates, pivots, or otherwise closes to establish bottle capture against the support rollers.",
       "prior": "COMMON",
       "evidence_state": "UNRESOLVED",
-      "investigation_state": "DORMANT",
+      "investigation_state": "ELIGIBLE",
       "related_requirement_ids": [
         "CAPTURE_KINEMATIC_OWNER",
         "BOTTLE_RESTRAINT_THROUGHOUT_CAPTURE",
@@ -1424,7 +1429,7 @@
         "WRAP_ACTIVE"
       ],
       "required_evidence": [
-        "An OEM or deterministic candidate specification binding actuator identity, rod/attachment, stroke, force, controls, travel limits, and reaction mount."
+        "Current V43 inventory contains only an unbound FITCHECK actuator envelope and no explicit pneumatic/cylinder component. Reactivate only with an OEM or deterministic candidate specification binding actuator identity, rod/attachment, stroke, force/control law, travel limits, and reaction mount."
       ]
     },
     {
@@ -1432,7 +1437,7 @@
       "description": "A spring or other compliant preload mechanism maintains capture force while accommodating bottle variation.",
       "prior": "COMMON",
       "evidence_state": "UNRESOLVED",
-      "investigation_state": "DORMANT",
+      "investigation_state": "ELIGIBLE",
       "related_requirement_ids": [
         "BOTTLE_RESTRAINT_THROUGHOUT_CAPTURE",
         "WRAP_CONTACT_THROUGHOUT_CAPTURE",
@@ -1492,7 +1497,7 @@
         "RELEASE"
       ],
       "required_evidence": [
-        "If reactivated after requirements are bound, Candidate A needs an explicit deterministic or authoritative joint/actuation specification plus interval-wide restraint, controlled rotation, wrap-contact, reaction-path, reachable-clearance, and release evidence. Existing v43 observations remain bounded fit-check evidence."
+        "The current V43 fit-check assembly has rank-sufficient maintained-contact geometry only in an ideal model, but its actuator envelope, slider, driven belt, reaction base and guide rails have zero incident active-assembly mates and no explicit maintenance source. Reactivation requires an accepted deterministic or authoritative closure/actuation specification plus interval-wide contact, reaction, rotation, clearance and release evidence."
       ]
     },
     {
@@ -3252,23 +3257,164 @@
           "It does not select a mechanism or grant mechanical acceptance."
         ]
       }
+    },
+    {
+      "schema_version": 1,
+      "record_type": "evidence",
+      "evidence_id": "E.FUNCTION_FIRST.CONTACT_MAINTENANCE_SOURCE_PROBE.20260927T150842223Z",
+      "evidence_type": "solidworks_observation",
+      "evidence_state": "VERIFIED",
+      "source_authority": "SOLIDWORKS_LIVE_STATE",
+      "source_classification": "verified_from_solidworks_api",
+      "subject": {
+        "subject_type": "function_first_contact_maintenance_source_probe",
+        "identity_exact": "FITCHECK_PRISM_ACTUATOR_ENVELOPE_45x35x35_V43-1; FITCHECK_PRISM_CARRIER_SLIDER_15x80x60_V43-1; FITCHECK_DRIVEN_WRAP_BELT_5x160x93_V25-1; FITCHECK_PRISM_REACTION_BASE_70x120x20_V43-1; FITCHECK_PRISM_GUIDE_RAIL_100x10x10_V43-1; FITCHECK_PRISM_GUIDE_RAIL_100x10x10_V43-2",
+        "document_title_exact": "IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE",
+        "document_path_exact": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE.SLDASM"
+      },
+      "provenance": {
+        "recorded_at": "2026-09-27T15:08:42.223Z",
+        "source_ref": "Live bounded read-only SOLIDWORKS MaxControl mate/feature probe plus sw_status/sw_query_components post-readback",
+        "sha256": "00a9e0d6783311bcae7dbb3f87ef74bd4eec56958067cf66a568c9caa2d65dda",
+        "tool_path": "sw_execute_code(read-only) -> sw_status -> sw_query_components"
+      },
+      "dependencies": [
+        "E.FUNCTION_FIRST.BOTTLE_LATERAL_CONTACT_MANIFOLD.20260927T100903861Z",
+        "E.FUNCTION_FIRST.BOTTLE_FINITE_LINE_RESTRAINT_RANK.20260927T100903861Z",
+        "PLAN-0010"
+      ],
+      "geometry_state": "CANDIDATE_OPERATING",
+      "temporal_scope": {
+        "coverage": "POINT_ONLY",
+        "validity_state": "CURRENT",
+        "state_ids": [],
+        "transition_ids": []
+      },
+      "ambiguity_bucket": "OEM_SOURCE_REQUIRED",
+      "mechanical_acceptance_granted": false,
+      "payload": {
+        "observation_kind": "exact_current_pose_contact_maintenance_source_probe",
+        "document": {
+          "title": "IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE",
+          "path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE.SLDASM",
+          "active_configuration_exact": "V43_WRAP"
+        },
+        "component_inventory_count": 64,
+        "explicit_name_classification": {
+          "spring_or_spring_synonym_matches": [],
+          "pneumatic_or_cylinder_matches": [],
+          "compliant_or_flex_matches": [],
+          "actuator_matches": [
+            "FITCHECK_PRISM_ACTUATOR_ENVELOPE_45x35x35_V43-1"
+          ]
+        },
+        "targets": [
+          {
+            "name2": "FITCHECK_PRISM_ACTUATOR_ENVELOPE_45x35x35_V43-1",
+            "fixed_component": true,
+            "suppressed": false,
+            "incident_active_assembly_mate_count": 0,
+            "native_modeling_features": [
+              "Sketch1:ProfileFeature",
+              "Boss-Extrude1:Extrusion"
+            ],
+            "material_state": "Material <not specified>"
+          },
+          {
+            "name2": "FITCHECK_PRISM_CARRIER_SLIDER_15x80x60_V43-1",
+            "fixed_component": false,
+            "suppressed": false,
+            "incident_active_assembly_mate_count": 0,
+            "native_modeling_features": [
+              "Sketch1:ProfileFeature",
+              "Boss-Extrude1:Extrusion"
+            ],
+            "material_state": "Material <not specified>"
+          },
+          {
+            "name2": "FITCHECK_DRIVEN_WRAP_BELT_5x160x93_V25-1",
+            "fixed_component": false,
+            "suppressed": false,
+            "incident_active_assembly_mate_count": 0,
+            "native_modeling_features": [
+              "FITCHECK_DRIVEN_WRAP_BELT:BaseBody"
+            ],
+            "material_state": "Material <not specified>"
+          },
+          {
+            "name2": "FITCHECK_PRISM_REACTION_BASE_70x120x20_V43-1",
+            "fixed_component": true,
+            "suppressed": false,
+            "incident_active_assembly_mate_count": 0,
+            "native_modeling_features": [
+              "Sketch1:ProfileFeature",
+              "Boss-Extrude1:Extrusion"
+            ],
+            "material_state": "Material <not specified>"
+          },
+          {
+            "name2": "FITCHECK_PRISM_GUIDE_RAIL_100x10x10_V43-1",
+            "fixed_component": true,
+            "suppressed": false,
+            "incident_active_assembly_mate_count": 0,
+            "native_modeling_features": [
+              "Sketch1:ProfileFeature",
+              "Boss-Extrude1:Extrusion"
+            ],
+            "material_state": "Material <not specified>"
+          },
+          {
+            "name2": "FITCHECK_PRISM_GUIDE_RAIL_100x10x10_V43-2",
+            "fixed_component": true,
+            "suppressed": false,
+            "incident_active_assembly_mate_count": 0,
+            "native_modeling_features": [
+              "Sketch1:ProfileFeature",
+              "Boss-Extrude1:Extrusion"
+            ],
+            "material_state": "Material <not specified>"
+          }
+        ],
+        "post_readback": {
+          "active_document_rebound": true,
+          "same_document_title_path": true,
+          "six_target_identities_present": true,
+          "fixed_floating_states_preserved": true,
+          "transient_named_pipe_disconnect_recovered_before_admission": true
+        },
+        "admitted_claims": [
+          "None of the six exact closure-candidate components has an incident active-assembly mate at the recorded V43_WRAP point.",
+          "The 64-component live inventory contains no explicitly named spring/compliant element and no pneumatic/cylinder component; the only actuator-like name is FITCHECK_PRISM_ACTUATOR_ENVELOPE_45x35x35_V43-1.",
+          "The actuator envelope, slider, reaction base, and guide rails expose only simple fit-check modeling features in their native part feature traversal; the driven belt is a BaseBody fit-check part.",
+          "The current active V43 assembly therefore does not itself bind an exact actuator/spring/compliant owner, stroke/travel law, or active-assembly mate chain that maintains the verified lateral contact set."
+        ],
+        "explicitly_not_claimed": [
+          "Zero incident mates does not prove that no designer intent or external mechanism specification exists outside the active assembly.",
+          "The observation does not determine which mechanism family should be selected.",
+          "It does not establish preload, force, stiffness, friction, traction, stroke, interval-wide contact maintenance, reaction capacity, or mechanical acceptance.",
+          "Simple feature structure does not by itself prove that a component is physically invalid; it only fails to supply authoritative mechanism semantics."
+        ]
+      }
     }
   ],
   "next_tests": [
     {
-      "id": "TEST_FUNCTION_FIRST_CONTACT_MAINTENANCE_PRELOAD_SOURCE",
-      "question": "The current-pose B-rep manifold is now sufficient geometrically in an ideal maintained frictionless model: three 93 mm lateral generator-line contacts plus conveyor support give rank 5/nullity 1 while preserving the bound rotation_wrap_axis. Determine what authoritative mechanism/source actually maintains those unilateral lateral contacts through CAPTURE_AND_ROTATION, LABEL_TRANSFER_INTERVAL, and WRAP_ACTIVE. First bind exact candidate component identities and designer/OEM or accepted deterministic provenance for any spring, pneumatic element, translating/pivoting carrier, compliant belt support, guide, or other closure owner; then establish usable travel/range, contact-retention behavior, and reaction path. Do not infer preload, force, stiffness, friction/traction, or interval-wide maintenance from the static V43 pose. Do not select a mechanism or grant mechanical acceptance until the maintenance source is evidenced.",
+      "id": "TEST_FUNCTION_FIRST_MAINTENANCE_CANDIDATE_ELIGIBILITY",
+      "question": "Execute Get-CGContactMaintenanceRequirements and use its mechanism-neutral requirement model to build the cg.mechanism.candidates registry. Include only explicit candidate families whose assumptions and provenance can be stated without inventing geometry: translating roller carrier/slide, pivoting roller arm/carrier, moving wrap-belt assembly, and spring/compliant preload architecture are ELIGIBLE; the current V43 Prism remains WEAKENED/DORMANT and pneumatic capture remains WEAKENED/DORMANT absent an explicit actuator source. For each eligible family record the required closure input, motion/limits, contact-maintenance law, bottle-contact interval, wrap-axis preservation, reaction path, release behavior, and unresolved quantitative inputs. Do not rank/select a winner and do not create or move CAD geometry.",
       "resolves_requirement_ids": [
-        "BOTTLE_SUPPORT_CONTACT_SET_BOUND",
+        "CAPTURE_KINEMATIC_OWNER",
         "BOTTLE_RESTRAINT_THROUGHOUT_CAPTURE",
         "WRAP_CONTACT_THROUGHOUT_CAPTURE",
         "CAPTURE_REACTION_FORCE_PATH"
       ],
       "hypothesis_ids": [
-        "H_FUNCTION_FIRST_CONTACT_SET",
-        "H_CAPTURE_COMPLIANCE_OR_PRELOAD"
+        "H_CAPTURE_CLOSURE_OWNER",
+        "H_TRANSLATING_ROLLER_CARRIER_OR_SLIDE",
+        "H_PIVOTING_ROLLER_ARM_OR_CARRIER",
+        "H_MOVING_WRAP_BELT_ASSEMBLY",
+        "H_SPRING_OR_COMPLIANT_PRELOAD_MECHANISM"
       ],
-      "discrimination_power": 1,
+      "discrimination_power": 0.95,
       "evidence_confidence": 0.99,
       "unresolved_relevance": 1,
       "cost": 1

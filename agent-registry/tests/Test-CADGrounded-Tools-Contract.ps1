@@ -16,11 +16,13 @@ $manifestPath = Join-Path $moduleRoot 'CADGrounded.Tools.psd1'
 $modulePath = Join-Path $moduleRoot 'CADGrounded.Tools.psm1'
 $registryPath = Join-Path $moduleRoot 'capability-registry.v1.json'
 $requiredDofPath = Join-Path $repoRoot 'agent-registry\reasoning\requirements\function-first-bottle-dof.v1.json'
+$contactMaintenancePath = Join-Path $repoRoot 'agent-registry\reasoning\requirements\function-first-contact-maintenance.v1.json'
 
 Assert-True (Test-Path -LiteralPath $manifestPath -PathType Leaf) 'Module manifest is missing.'
 Assert-True (Test-Path -LiteralPath $modulePath -PathType Leaf) 'Module source is missing.'
 Assert-True (Test-Path -LiteralPath $registryPath -PathType Leaf) 'Capability registry is missing.'
 Assert-True (Test-Path -LiteralPath $requiredDofPath -PathType Leaf) 'Function-first bottle DOF requirement model is missing.'
+Assert-True (Test-Path -LiteralPath $contactMaintenancePath -PathType Leaf) 'Contact-maintenance requirement model is missing.'
 
 Import-Module $manifestPath -Force
 
@@ -54,6 +56,7 @@ $expectedCommands = @(
     'Get-CGRequiredBottleDOF',
     'Get-CGBottleContactConstraintMap',
     'Get-CGBottleContactWrenchRank',
+    'Get-CGContactMaintenanceRequirements',
     'Get-CGCurrentPlan',
     'Get-CGInvestigationFrontier',
     'Invoke-CGRegisteredVerifier'
@@ -77,6 +80,7 @@ $requiredImplemented = @(
     'cg.product.required-dof',
     'cg.product.contact-constraint-map',
     'cg.product.contact-wrench-rank',
+    'cg.requirements.contact-maintenance',
     'cg.frontier.read',
     'cg.verifier.v43.full-chain-mates',
     'cg.verifier.function-first.bottle-support-contact',
@@ -162,6 +166,16 @@ Assert-True ($wrenchRank.data.wrap_axis_rotation_test.is_null_mode -eq $true) 'P
 Assert-True ([int]$wrenchRank.data.restraint_projection.additional_independent_null_modes_beyond_common_axis_rotation -eq 1) 'Expected one additional independent null mode beyond wrap-axis rotation.'
 Assert-True ([string]$wrenchRank.data.restraint_projection.five_dof_restraint_excluding_common_axis_rotation -ceq 'NOT_SUPPORTED_BY_CURRENT_FOUR_POINT_NORMAL_MODEL') 'Four-point normal model must not claim five-DOF restraint.'
 Assert-True ($wrenchRank.mechanical_acceptance_granted -eq $false) 'Wrench-rank calculation must not grant mechanical acceptance.'
+
+$contactMaintenance = Get-CGContactMaintenanceRequirements
+Assert-True ([string]$contactMaintenance.capability_id -ceq 'cg.requirements.contact-maintenance') 'Contact-maintenance capability id is incorrect.'
+Assert-True ([string]$contactMaintenance.result -ceq 'PASS') 'Contact-maintenance requirement projection did not PASS.'
+Assert-True ([string]$contactMaintenance.data.requirement_model_id -ceq 'CADGROUNDED.IXOR.CONTACT_MAINTENANCE.V1') 'Contact-maintenance requirement model id is incorrect.'
+Assert-True ([string]$contactMaintenance.data.candidate_selection_status -ceq 'NOT_SELECTED') 'Contact-maintenance requirements must not select a mechanism.'
+Assert-True ([string]$contactMaintenance.data.source_probe.evidence_id -ceq 'E.FUNCTION_FIRST.CONTACT_MAINTENANCE_SOURCE_PROBE.20260927T150842223Z') 'Contact-maintenance source-probe binding is incorrect.'
+Assert-True ([int]$contactMaintenance.data.source_probe.component_inventory_count -eq 64) 'Contact-maintenance source-probe component count is incorrect.'
+Assert-True (@($contactMaintenance.data.unresolved_quantities).Count -gt 0) 'Contact-maintenance requirements must preserve unresolved quantitative inputs.'
+Assert-True ($contactMaintenance.mechanical_acceptance_granted -eq $false) 'Contact-maintenance requirements must not grant mechanical acceptance.'
 
 $currentPlan = Get-CGCurrentPlan
 Assert-True (-not [string]::IsNullOrWhiteSpace([string]$currentPlan.current_plan_id)) 'CURRENT_PLAN has no current_plan_id.'

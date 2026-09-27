@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "requirement_model_id": "CADGROUNDED.IXOR.CONTACT_MAINTENANCE.V1",
+  "title": "Function-first bottle contact-maintenance requirements",
+  "basis_evidence_ids": [
+    "E.FUNCTION_FIRST.BOTTLE_DOF.20260927T075043247Z",
+    "E.FUNCTION_FIRST.BOTTLE_LATERAL_CONTACT_MANIFOLD.20260927T100903861Z",
+    "E.FUNCTION_FIRST.BOTTLE_FINITE_LINE_RESTRAINT_RANK.20260927T100903861Z",
+    "E.FUNCTION_FIRST.CONTACT_MAINTENANCE_SOURCE_PROBE.20260927T150842223Z"
+  ],
+  "scope_states": [
+    "CAPTURE_AND_ROTATION",
+    "LABEL_TRANSFER_INTERVAL",
+    "WRAP_ACTIVE"
+  ],
+  "transition_scope": [
+    "INDEXED_TO_CAPTURE",
+    "CAPTURE_TO_RELEASE"
+  ],
+  "requirements": [
+    {
+      "id": "CONTACT_MAINTENANCE_OWNER_EXPLICIT",
+      "requirement": "A named physical mechanism or accepted deterministic architecture must own establishment and maintenance of the required lateral bottle contacts.",
+      "quantitative_value": "UNKNOWN"
+    },
+    {
+      "id": "OPEN_CLOSE_RELEASE_MOTION_DEFINED",
+      "requirement": "The maintenance mechanism must define an entry/open condition, a capture/closed condition, and a release/open condition with explicit motion type, usable travel/range, and limits.",
+      "quantitative_value": "UNKNOWN"
+    },
+    {
+      "id": "UNILATERAL_CONTACT_RETENTION",
+      "requirement": "The mechanism must maintain an equivalent rank-sufficient lateral normal-contact set throughout CAPTURE_AND_ROTATION, LABEL_TRANSFER_INTERVAL, and WRAP_ACTIVE rather than only at one static pose.",
+      "quantitative_value": "UNKNOWN"
+    },
+    {
+      "id": "VARIATION_ACCOMMODATION_DEFINED",
+      "requirement": "The mechanism must state how bottle and positioning variation are accommodated by compliance, force-controlled actuation, controlled motion, or another explicit contact-maintenance law.",
+      "quantitative_value": "UNKNOWN"
+    },
+    {
+      "id": "REACTION_PATH_TO_FIXED_SUPPORT",
+      "requirement": "Normal contact reactions and closure reactions must have an explicit structural path to fixed support/mounting geometry.",
+      "quantitative_value": "UNKNOWN"
+    },
+    {
+      "id": "WRAP_AXIS_ROTATION_PRESERVED",
+      "requirement": "Contact maintenance must preserve the verified bottle rotation_wrap_axis as an intentionally available motion during the wrap interval.",
+      "quantitative_value": "BOUND_BY_EXISTING_DOF_AND_AXIS_EVIDENCE"
+    },
+    {
+      "id": "TANGENTIAL_DRIVE_SEPARATE_FROM_NORMAL_CLOSURE",
+      "requirement": "Any tangential traction used to drive bottle rotation must be explicitly bound separately from the normal-force closure geometry.",
+      "quantitative_value": "UNKNOWN"
+    },
+    {
+      "id": "LIMITS_AND_INTERFERENCE_GATED",
+      "requirement": "Open/closed limits and reachable motion must be checked against bottle entry, label-transfer geometry, release, neighboring products, CAB hardware, and mounting structure before mechanical acceptance.",
+      "quantitative_value": "UNKNOWN"
+    }
+  ],
+  "unresolved_quantities": [
+    "closure travel/stroke",
+    "preload magnitude",
+    "normal force range",
+    "stiffness/compliance law",
+    "bottle diameter/process tolerance",
+    "friction coefficient",
+    "traction limit",
+    "actuator type",
+    "actuator speed",
+    "reaction load capacity",
+    "interval-wide reachable clearance"
+  ],
+  "candidate_selection_status": "NOT_SELECTED",
+  "candidate_family_status": {
+    "translating_carrier_or_slide": "ELIGIBLE_FOR_SCREENING",
+    "pivoting_roller_arm_or_carrier": "ELIGIBLE_FOR_SCREENING",
+    "moving_wrap_belt_assembly": "ELIGIBLE_FOR_SCREENING",
+    "spring_or_compliant_preload": "ELIGIBLE_FOR_SCREENING",
+    "pneumatic_or_force_controlled_actuator": "ELIGIBLE_BUT_CURRENT_V43_EVIDENCE_WEAKENED",
+    "other_explicit_closure_mechanism": "ELIGIBLE_FOR_SCREENING",
+    "v43_prism_as_authored_mechanism": "NOT_ESTABLISHED"
+  },
+  "explicitly_not_established": [
+    "No mechanism family is selected by this requirement model.",
+    "No force, stiffness, preload, travel, friction, timing, or interval-wide maintenance value is inferred.",
+    "The current V43 geometry is not promoted from fit-check/candidate evidence to mechanically accepted mechanism geometry."
+  ]
+}

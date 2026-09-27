@@ -511,6 +511,29 @@
       "write_authority": "NONE"
     },
     {
+      "id": "cg.requirements.contact-maintenance",
+      "command": "Get-CGContactMaintenanceRequirements",
+      "status": "IMPLEMENTED",
+      "category": "requirements",
+      "engineering_question": "What mechanism-neutral requirements must any bottle-capture architecture satisfy to establish and maintain the rank-sufficient lateral contact set through capture, label transfer, wrap, and release?",
+      "execution_kind": "deterministic_requirement_projection",
+      "primitive": "admitted required-DOF + finite-contact manifold/rank + V43 contact-maintenance source probe",
+      "write_authority": "NONE",
+      "remote_queue_authorized": false,
+      "establishes": [
+        "mechanism-neutral contact-maintenance requirement set",
+        "explicit UNKNOWN preservation for travel, preload, force, stiffness, friction and reaction capacity",
+        "candidate-family eligibility without architecture selection"
+      ],
+      "does_not_establish": [
+        "mechanism selection",
+        "quantitative preload/force/travel/stiffness/friction values",
+        "interval-wide contact maintenance",
+        "reaction load capacity",
+        "mechanical acceptance"
+      ]
+    },
+    {
       "id": "cg.requirements.functional",
       "future_command": "Get-CGFunctionalRequirements",
       "status": "PLANNED",
