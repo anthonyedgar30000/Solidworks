@@ -128,7 +128,7 @@ class FunctionFirstBottleHandlingTests(unittest.TestCase):
             self.assertEqual(by_id(case["hypotheses"], item_id)["investigation_state"], "DORMANT")
             self.assertEqual(by_id(case["hypotheses"], item_id)["evidence_state"], "WEAKENED")
 
-    def test_nonranking_screen_is_admitted_and_routes_to_reference_source_acquisition(self):
+    def test_reference_sources_are_admitted_without_project_specific_selection(self):
         case = load_case()
 
         screen = by_id(
@@ -136,68 +136,90 @@ class FunctionFirstBottleHandlingTests(unittest.TestCase):
             "E.FUNCTION_FIRST.MECHANISM_SCREEN.20260927T153026706Z",
             field="evidence_id",
         )
-        self.assertEqual(screen["evidence_type"], "deterministic_calculation")
-        self.assertEqual(screen["evidence_state"], "MEASURED_CALCULATED")
         self.assertEqual(screen["payload"]["result"]["selection_status"], "NOT_SELECTED")
-        self.assertFalse(screen["mechanical_acceptance_granted"])
 
-        by_candidate = {
-            item["candidate_id"]: item
-            for item in screen["payload"]["result"]["candidates"]
-        }
-        for candidate_id in (
-            "CANDIDATE_TRANSLATING_ROLLER_CARRIER",
-            "CANDIDATE_PIVOTING_ROLLER_CARRIER",
-            "CANDIDATE_MOVING_WRAP_BELT_ASSEMBLY",
-        ):
-            self.assertEqual(
-                by_candidate[candidate_id]["definition_layer"]["standalone_kinematic_architecture_class"],
-                "PASS",
-            )
-            self.assertTrue(
-                all(
-                    status == "UNRESOLVED"
-                    for status in by_candidate[candidate_id]["engineering_evidence_layer"].values()
-                )
-            )
+        cab = by_id(
+            case["evidence_catalog"],
+            "E.FUNCTION_FIRST.CAB_IXORPLUS.CENTERING_INTERFACE.20260927T212442Z",
+            field="evidence_id",
+        )
+        self.assertEqual(cab["evidence_type"], "oem_evidence")
+        self.assertEqual(cab["source_authority"], "OEM_DOCUMENTATION")
+        self.assertEqual(cab["evidence_state"], "VERIFIED")
+        self.assertIn(
+            "product centering",
+            cab["payload"]["publisher_statement_paraphrase"],
+        )
+        self.assertIn(
+            "labeling START separately",
+            cab["payload"]["publisher_statement_paraphrase"],
+        )
+        self.assertFalse(cab["mechanical_acceptance_granted"])
 
-        spring = by_candidate["CANDIDATE_SPRING_OR_COMPLIANT_PRELOAD"]
+        herma_config = by_id(
+            case["evidence_catalog"],
+            "E.FUNCTION_FIRST.HERMA_152C.WRAP_CONFIGURATION.20260927T212442Z",
+            field="evidence_id",
+        )
+        self.assertEqual(herma_config["evidence_type"], "oem_evidence")
+        self.assertIn(
+            "wrap belt and counterpressure plate",
+            herma_config["payload"]["publisher_statement_paraphrase"],
+        )
+
+        herma_behavior = by_id(
+            case["evidence_catalog"],
+            "E.FUNCTION_FIRST.HERMA_152C.ROLLER_PRISM_BEHAVIOR.20260927T212442Z",
+            field="evidence_id",
+        )
+        self.assertIn(
+            "rotates and fixes",
+            herma_behavior["payload"]["publisher_statement_paraphrase"],
+        )
+
+        projection = by_id(
+            case["evidence_catalog"],
+            "E.FUNCTION_FIRST.MECHANISM_REFERENCE_SOURCE_BOUNDARY.20260927T212442Z",
+            field="evidence_id",
+        )
+        self.assertEqual(projection["evidence_type"], "deterministic_calculation")
         self.assertEqual(
-            spring["definition_layer"]["standalone_kinematic_architecture_class"],
-            "FAIL",
+            projection["payload"]["result"]["source_acquisition_status"],
+            "REFERENCE_PATTERNS_ADMITTED_PROJECT_SPECIFIC_OWNER_UNRESOLVED",
         )
-        self.assertTrue(
-            all(
-                status == "UNRESOLVED"
-                for status in spring["engineering_evidence_layer"].values()
-            )
+        self.assertEqual(
+            projection["payload"]["result"]["selection_status"],
+            "NOT_SELECTED",
         )
+        self.assertEqual(
+            projection["payload"]["result"]["engineering_evidence_layer_status"],
+            "UNRESOLVED_FOR_EVERY_CANDIDATE",
+        )
+        self.assertFalse(projection["mechanical_acceptance_granted"])
 
         owner = by_id(case["obligations"], "CAPTURE_KINEMATIC_OWNER")
-        self.assertIn(screen["evidence_id"], owner["evidence_refs"])
         self.assertEqual(owner["verification_state"], "UNRESOLVED")
         self.assertEqual(owner["ambiguity_bucket"], "OEM_SOURCE_REQUIRED")
+        self.assertIn(cab["evidence_id"], owner["evidence_refs"])
+        self.assertIn(projection["evidence_id"], owner["evidence_refs"])
 
         ids = [item["id"] for item in case["next_tests"]]
-        self.assertEqual(ids, ["TEST_FUNCTION_FIRST_MECHANISM_REFERENCE_SOURCE_ACQUISITION"])
+        self.assertEqual(ids, ["TEST_FUNCTION_FIRST_PROJECT_SPECIFIC_CAPTURE_OWNER_BINDING"])
         test = by_id(
             case["next_tests"],
-            "TEST_FUNCTION_FIRST_MECHANISM_REFERENCE_SOURCE_ACQUISITION",
+            "TEST_FUNCTION_FIRST_PROJECT_SPECIFIC_CAPTURE_OWNER_BINDING",
         )
-
         for token in (
-            "CAB/OEM documentation",
-            "machine OEM/integrator documentation",
-            "trusted third-party CAD/manual evidence",
-            "general vendor/web references",
-            "translating carriers",
-            "pivoting carriers",
-            "moving wrap-belt assemblies",
-            "compliant/preload augmentation",
-            "mechanism-pattern precedent from project-specific geometry",
-            "do not use generative imagery as evidence",
-            "do not rank, prefer, select",
-            "Do not infer hidden springs/actuators from appearance, do not use generative imagery as evidence, and do not rank, prefer, select, or create/move CAD geometry.",
+            "project-specific evidence",
+            "actual bottle-handling owner in v43",
+            "exact owner/component identity and mounting",
+            "closure and release motion",
+            "contact-maintenance method",
+            "rotation input",
+            "reaction support",
+            "fresh live SOLIDWORKS identity",
+            "mechanism-pattern precedent only",
+            "do not rank or select a candidate",
         ):
             self.assertIn(token, test["question"])
 
