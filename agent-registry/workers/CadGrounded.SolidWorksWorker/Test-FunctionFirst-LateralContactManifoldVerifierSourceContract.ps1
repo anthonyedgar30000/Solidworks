@@ -32,11 +32,15 @@ $source = Get-Content -LiteralPath $path -Raw
 
 foreach ($required in @(
     'function Get-MatrixRank',
+    '(($ay*$bz)-($az*$by))',
+    '(($az*$bx)-($ax*$bz))',
+    '(($ax*$by)-($ay*$bx))',
     'sw.contact_surface_normals_pair',
     'sw.classify_contact_pair',
     'TANGENT_CYLINDER_PLANE_GENERATOR_LINE',
     'EXTERNAL_TANGENT_PARALLEL_CYLINDER_GENERATOR_LINE',
     'five_dof_restraint_excluding_wrap_rotation',
+    ',([double[]]$_)',
     "write_authority='NONE'",
     'mechanical_acceptance_granted=$false'
 )) {
