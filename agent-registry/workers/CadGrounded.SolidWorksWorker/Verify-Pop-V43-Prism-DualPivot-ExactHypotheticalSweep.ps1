@@ -322,16 +322,16 @@ foreach ($name in $MoverNames) {
 }
 $targetStateBefore = Get-TargetState -ComponentsEnvelope $componentsBefore -TargetComponents $AllTrackedNames
 
-$sampleRows = New-Object System.Collections.Generic.List[object]
-$interferenceRows = New-Object System.Collections.Generic.List[object]
-$indeterminateRows = New-Object System.Collections.Generic.List[object]
+$sampleRows = [System.Collections.Generic.List[object]]::new()
+$interferenceRows = [System.Collections.Generic.List[object]]::new()
+$indeterminateRows = [System.Collections.Generic.List[object]]::new()
 
 foreach ($fraction in $SampleFractions) {
     $transformMap = Get-MoverTransformMap -ComponentsEnvelope $componentsBefore -Fraction ([double]$fraction)
     $angle1 = [double]$Branch1.open_angle_deg * [double]$fraction
     $angle2 = [double]$Branch2.open_angle_deg * [double]$fraction
 
-    $pairRows = New-Object System.Collections.Generic.List[object]
+    $pairRows = [System.Collections.Generic.List[object]]::new()
 
     foreach ($mover in $MoverNames) {
         foreach ($obstacle in $StaticObstacleNames) {
@@ -393,7 +393,7 @@ foreach ($fraction in $SampleFractions) {
         indeterminate_count = @($pairRows | Where-Object { $_.classification -match '^indeterminate_' }).Count
         nonintersecting_contact_or_clearance_unresolved_count = @($pairRows | Where-Object { $_.classification -ceq 'noninterfering_contact_or_clearance_unresolved' }).Count
         current_pose_contact_or_coincidence_count = @($pairRows | Where-Object { $_.classification -ceq 'contact_or_coincidence_within_tolerance' }).Count
-        pair_results = @($pairRows)
+        pair_results = $pairRows.ToArray()
     })
 }
 
@@ -459,9 +459,9 @@ $verification = [ordered]@{
     file_after = $fileAfter
     tracked_state_before = $targetStateBefore
     tracked_state_after = $targetStateAfter
-    physical_interferences = @($interferenceRows)
-    indeterminate_results = @($indeterminateRows)
-    samples = @($sampleRows)
+    physical_interferences = $interferenceRows.ToArray()
+    indeterminate_results = $indeterminateRows.ToArray()
+    samples = $sampleRows.ToArray()
     evidence_contract = [ordered]@{
         status = 'OBSERVATION_READY_ONLY'
         establishes = @(
