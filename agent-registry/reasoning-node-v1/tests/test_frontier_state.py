@@ -58,7 +58,10 @@ class FrontierStateTests(unittest.TestCase):
         )
         self.assertEqual(
             state["declared_next_test_ids"],
-            ["TEST_FUNCTION_FIRST_MECHANISM_REFERENCE_SOURCE_ACQUISITION"],
+            [
+                "TEST_FUNCTION_FIRST_POP_ACCEPTANCE_ENVELOPE",
+                "TEST_POP_CANDIDATE_CONTRACT_SCREEN",
+            ],
         )
         self.assertNotIn(
             "H_FUNCTION_FIRST_CONTACT_SET",
@@ -263,7 +266,11 @@ class FrontierStateTests(unittest.TestCase):
 
         self.assertIn("COMMON_FRONTIER_OPEN", rendered)
         self.assertIn(
-            "TEST_FUNCTION_FIRST_MECHANISM_REFERENCE_SOURCE_ACQUISITION",
+            "TEST_FUNCTION_FIRST_POP_ACCEPTANCE_ENVELOPE",
+            rendered,
+        )
+        self.assertIn(
+            "TEST_POP_CANDIDATE_CONTRACT_SCREEN",
             rendered,
         )
         self.assertIn(

@@ -85,7 +85,7 @@ class SemanticIntegrationTests(unittest.TestCase):
         self.assertEqual(result["version"], "0.8.0")
         self.assertEqual(
             result["frontier_snapshot"]["current_plan_id"],
-            "PLAN-0010",
+            "PLAN-0011",
         )
         self.assertEqual(
             result["frontier_state"]["common_frontier_state"],
@@ -347,9 +347,12 @@ class SemanticIntegrationTests(unittest.TestCase):
             result.frontier_state["widening_state"],
             "BLOCKED_BY_COMMON_OPEN",
         )
-        self.assertIn(
-            "TEST_FUNCTION_FIRST_MECHANISM_REFERENCE_SOURCE_ACQUISITION",
+        self.assertEqual(
             result.frontier_state["declared_next_test_ids"],
+            [
+                "TEST_FUNCTION_FIRST_POP_ACCEPTANCE_ENVELOPE",
+                "TEST_POP_CANDIDATE_CONTRACT_SCREEN",
+            ],
         )
         self.assertEqual(post.call_count, 1)
         self.assertEqual(result.cad_write_authority, "NONE")
