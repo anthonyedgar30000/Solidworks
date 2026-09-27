@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "record_type": "evidence",
+  "evidence_id": "E.FUNCTION_FIRST.BOTTLE_WRAP_AXIS_BINDING.20260927T091941345Z",
+  "evidence_type": "deterministic_calculation",
+  "evidence_state": "MEASURED_CALCULATED",
+  "source_authority": "DETERMINISTIC_CALCULATION",
+  "source_classification": "measured_calculated_from_admitted_solidworks_observation",
+  "subject": {
+    "subject_type": "function_first_wrap_axis_binding",
+    "identity_exact": "BENCH_BOTTLE_D48_H180-2 longitudinal/cylindrical axis ↔ derived common-axis candidate ↔ rotation_wrap_axis",
+    "document_title_exact": "IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE",
+    "document_path_exact": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE.SLDASM"
+  },
+  "provenance": {
+    "recorded_at": "2026-09-27T09:19:41.3455912Z",
+    "source_ref": "Deterministic axis-line comparison using E.FUNCTION_FIRST.BOTTLE_CYLINDER_AXIS.20260927T091941345Z, E.FUNCTION_FIRST.BOTTLE_CONTACT_CONSTRAINT.20260927T084903368Z, and E.FUNCTION_FIRST.BOTTLE_DOF.20260927T075043247Z.",
+    "tool_path": "CADGrounded deterministic axis-line coincidence calculation"
+  },
+  "dependencies": [
+    "E.FUNCTION_FIRST.BOTTLE_CYLINDER_AXIS.20260927T091941345Z",
+    "E.FUNCTION_FIRST.BOTTLE_CONTACT_CONSTRAINT.20260927T084903368Z",
+    "E.FUNCTION_FIRST.BOTTLE_DOF.20260927T075043247Z"
+  ],
+  "geometry_state": "CANDIDATE_OPERATING",
+  "temporal_scope": {
+    "coverage": "POINT_ONLY",
+    "validity_state": "CURRENT",
+    "state_ids": [],
+    "transition_ids": []
+  },
+  "mechanical_acceptance_granted": false,
+  "payload": {
+    "method": "Compare the fresh exact live B-rep D48 bottle cylinder axis against the admitted contact-constraint common-axis candidate, then bind the coincident geometric line to the function-first definition of rotation_wrap_axis as bottle longitudinal-axis rotation for circumferential wrapping.",
+    "inputs": [
+      "E.FUNCTION_FIRST.BOTTLE_CYLINDER_AXIS.20260927T091941345Z",
+      "E.FUNCTION_FIRST.BOTTLE_CONTACT_CONSTRAINT.20260927T084903368Z",
+      "E.FUNCTION_FIRST.BOTTLE_DOF.20260927T075043247Z"
+    ],
+    "result": {
+      "bottle_main_cylinder": {
+        "radius_mm": 24,
+        "axis_point_xy_mm": [
+          -153.42061528267112,
+          -214
+        ],
+        "axis_direction_assembly": [
+          0,
+          0,
+          1
+        ]
+      },
+      "derived_common_axis": {
+        "point_xy_mm": [
+          -153.42061528267115,
+          -214
+        ],
+        "direction_assembly": [
+          0,
+          0,
+          1
+        ]
+      },
+      "comparison": {
+        "xy_offset_mm": 2.842170943040401e-14,
+        "direction_dot": 1,
+        "direction_parallel": true,
+        "line_coincident_within_1e_9_mm": true
+      },
+      "functional_axis_definition": "rotation_wrap_axis = bottle upright longitudinal-axis rotation used for circumferential labeling/wrapping",
+      "admitted_claims": [
+        "The derived contact common-axis candidate is coincident with the exact live main D48 bottle cylindrical axis to numerical precision.",
+        "The common/bottle axis direction is assembly [0,0,1].",
+        "That exact bottle longitudinal/cylindrical axis is the geometric axis referenced by the function-first rotation_wrap_axis requirement."
+      ],
+      "explicitly_not_claimed": [
+        "assembly +Z is gravity/up",
+        "the current belt or rollers are the required final mechanism",
+        "rotation source, frictional traction, speed, torque, preload, tilt restraint, interval-wide contact, or mechanical acceptance"
+      ]
+    }
+  }
+}
