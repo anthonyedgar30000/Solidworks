@@ -1,0 +1,41 @@
+{
+  "record_type": "plan_reconciliation",
+  "schema_version": 1,
+  "record_id": "RECON-0014",
+  "project_id": "CADGROUNDED.IXOR",
+  "reconciled_at_utc": "2026-09-27T21:48:22Z",
+  "plan_id": "PLAN-0010",
+  "revised_plan_id": "PLAN-0011",
+  "raw_observation_ids": [],
+  "review_id": "R.PLAN-0010.CAPTURE_OWNER_SOURCE_SEARCH_EXHAUSTION.20260927T214822Z",
+  "actual_actions": [
+    {
+      "action_id": "ACT_EXHAUST_ACCESSIBLE_CAPTURE_OWNER_SOURCE_PATH",
+      "write_authority": "NONE",
+      "result": "SOURCE_PATH_EXHAUSTED_WITH_UNKNOWN_PRESERVED",
+      "reason": "Fresh nested v43 inventory, accessible Drive project references, current GitHub project state, and CAB public IXOR+ documentation did not bind a project-specific centering owner. The result is bounded source-search exhaustion, not proof of global nonexistence."
+    },
+    {
+      "action_id": "ACT_PRESERVE_COMPARATIVE_MECHANISMS_AS_PATTERNS_ONLY",
+      "write_authority": "NONE",
+      "result": "PATTERN_REFERENCES_PRESERVED_NO_TRANSFER",
+      "reason": "HERMA and Aesus sources demonstrate plausible roller-prism and roller-against-wrap-belt mechanism classes, but none transfers geometry, dimensions, actuation, or design intent into CAB/v43."
+    },
+    {
+      "action_id": "ACT_TRANSITION_TO_EXPLICIT_MECHANISM_ENGINEERING_POP",
+      "write_authority": "NONE",
+      "result": "PLAN_0011_PROJECTED",
+      "reason": "The previously declared source-exhaustion boundary is reached for accessible sources. The next phase therefore engineers and tests candidate product-handling mechanisms explicitly rather than treating v43 Candidate A as discovered OEM intent."
+    }
+  ],
+  "step_outcomes": [
+    {
+      "step_id": "P0010.4",
+      "outcome": "PROJECT_SPECIFIC_OWNER_SOURCE_SEARCH_EXHAUSTED_WITHIN_ACCESSIBLE_SURFACES; MECHANISM_SELECTION_REMAINS_OPEN",
+      "evidence_id": "E.FUNCTION_FIRST.MECHANISM_REFERENCE_SOURCE_BOUNDARY.20260927T212442Z"
+    }
+  ],
+  "conclusion": "PLAN-0010 completed its current accessible source-discovery branch without resolving CAPTURE_KINEMATIC_OWNER. Unknownness is preserved. The project moves to PLAN-0011: mechanism-independent Proof-of-Principle requirements and explicit candidate engineering. New authoritative integration evidence may reopen source discovery at any time.",
+  "mechanical_acceptance_granted": false,
+  "write_authority": "NONE"
+}

@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
   "project_id": "CADGROUNDED.IXOR",
-  "current_plan_id": "PLAN-0010",
-  "previous_plan_id": "PLAN-0009",
+  "current_plan_id": "PLAN-0011",
+  "previous_plan_id": "PLAN-0010",
   "latest_divergence_id": "DIV-0002",
-  "latest_reconciliation_id": "RECON-0013",
-  "updated_at_utc": "2026-09-27T21:42:46Z",
-  "status": "ACTIVE_INVESTIGATION_FUNCTION_FIRST_CAPTURE_OWNER_INTEGRATION_SOURCE_NARROWED",
+  "latest_reconciliation_id": "RECON-0014",
+  "updated_at_utc": "2026-09-27T21:48:22Z",
+  "status": "ACTIVE_INVESTIGATION_MECHANISM_ENGINEERING_POP_REQUIREMENTS_PROJECTED",
   "authority_note": "GitHub project-state pointer only. SOLIDWORKS remains the authority for live geometry and active document state.",
   "current_evidence_id": "E.FUNCTION_FIRST.MECHANISM_REFERENCE_SOURCE_BOUNDARY.20260927T212442Z",
   "current_architecture_id": "IXOR_FUNCTION_FIRST_BOTTLE_HANDLING_REFERENCE"

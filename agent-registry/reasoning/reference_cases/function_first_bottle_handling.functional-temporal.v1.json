@@ -3959,24 +3959,48 @@
   ],
   "next_tests": [
     {
-      "id": "TEST_FUNCTION_FIRST_PROJECT_SPECIFIC_CAPTURE_OWNER_BINDING",
-      "question": "Acquire and bind authoritative project-specific evidence for the actual bottle-handling owner in v43. Search project/OEM CAD and integration documentation first, then accepted deterministic specifications. Require exact owner/component identity and mounting plus closure and release motion, limits, contact-maintenance method, rotation input, and reaction support. If a source names an owner, bind it to fresh live SOLIDWORKS identity before any candidate geometry is created or moved. Preserve the admitted CAB IXOR+ interface evidence and HERMA references as mechanism-pattern precedent only; do not transfer comparative hardware into v43, do not infer hidden actuators/springs, and do not rank or select a candidate until project-specific ownership is established.",
+      "id": "TEST_FUNCTION_FIRST_POP_ACCEPTANCE_ENVELOPE",
+      "question": "Before creating or moving candidate mechanism geometry, bind the mechanism-independent Proof-of-Principle acceptance envelope for the upright D48 bottle: required support/restraint and intentionally permitted wrap rotation by state; minimum functional contact roles; indexed, capture, label-transfer, wrap and release state relationships; observable pass/fail conditions for maintained contact, reaction support and clearance; and explicit UNKNOWN/MEASUREMENT_REQUIRED treatment for friction, preload, force, stiffness, tolerances and physical product variation. Do not infer a closure owner from v43 FITCHECK geometry.",
       "resolves_requirement_ids": [
-        "CAPTURE_KINEMATIC_OWNER",
+        "BOTTLE_SUPPORT_CONTACT_SET_BOUND",
         "BOTTLE_RESTRAINT_THROUGHOUT_CAPTURE",
         "WRAP_CONTACT_THROUGHOUT_CAPTURE",
         "CAPTURE_REACTION_FORCE_PATH",
-        "BOTTLE_ROTATION_SOURCE_BOUND"
+        "REACHABLE_MOTION_CLEARANCE"
+      ],
+      "hypothesis_ids": [
+        "H_FUNCTION_FIRST_CONTACT_SET",
+        "H_CAPTURE_CLOSURE_OWNER",
+        "H_CAPTURE_COMPLIANCE_OR_PRELOAD",
+        "H_TRANSLATING_ROLLER_CARRIER_OR_SLIDE",
+        "H_PIVOTING_ROLLER_ARM_OR_CARRIER",
+        "H_MOVING_WRAP_BELT_ASSEMBLY",
+        "H_SPRING_OR_COMPLIANT_PRELOAD_MECHANISM"
+      ],
+      "discrimination_power": 0.95,
+      "evidence_confidence": 0.98,
+      "unresolved_relevance": 1,
+      "cost": 1
+    },
+    {
+      "id": "TEST_POP_CANDIDATE_CONTRACT_SCREEN",
+      "question": "After the POP acceptance envelope is bound, define candidate mechanism contracts for translating roller carrier, pivoting roller carrier, moving wrap-belt assembly and v43 Prism as a project proposal. For each candidate bind proposed closure/release ownership, motion law, limits, contact-maintenance method, rotation input, reaction support, adjustment/compliance model and required evidence. Screen definitions without ranking a production design; select the first POP candidate only by diagnostic value.",
+      "resolves_requirement_ids": [
+        "CAPTURE_KINEMATIC_OWNER",
+        "BOTTLE_ROTATION_SOURCE_BOUND",
+        "CAPTURE_REACTION_FORCE_PATH",
+        "REACHABLE_MOTION_CLEARANCE"
       ],
       "hypothesis_ids": [
         "H_CAPTURE_CLOSURE_OWNER",
         "H_TRANSLATING_ROLLER_CARRIER_OR_SLIDE",
         "H_PIVOTING_ROLLER_ARM_OR_CARRIER",
         "H_MOVING_WRAP_BELT_ASSEMBLY",
-        "H_SPRING_OR_COMPLIANT_PRELOAD_MECHANISM"
+        "H_SPRING_OR_COMPLIANT_PRELOAD_MECHANISM",
+        "H_CANDIDATE_A_V43_PRISM"
       ],
-      "discrimination_power": 1,
-      "evidence_confidence": 0.98,
+      "discrimination_power": 0.9,
+      "evidence_confidence": 0.9,
       "unresolved_relevance": 1,
       "cost": 2
     }
