@@ -41,6 +41,19 @@ def _digest(value: Any) -> str:
                                     ensure_ascii=False).encode("utf-8")).hexdigest()
 
 
+def _verified_git_blob(response: Any, label: str) -> dict[str, Any]:
+    response = _object(response, label)
+    content = _text(response.get("content"), f"{label}.content")
+    raw = content.encode("utf-8")
+    sha = hashlib.sha1(b"blob " + str(len(raw)).encode("ascii") + b"\0" + raw).hexdigest()
+    if response.get("sha") != sha:
+        raise SourceFreshnessError(f"{label} blob SHA does not match returned content")
+    try:
+        return _object(json.loads(content.lstrip("\ufeff")), label)
+    except json.JSONDecodeError as exc:
+        raise SourceFreshnessError(f"{label} is invalid JSON") from exc
+
+
 def normalize(bundle: dict[str, Any]) -> dict[str, Any]:
     if not isinstance(bundle, dict) or bundle.get("schema_version") != 1:
         raise SourceFreshnessError("expected source-response bundle schema_version 1")
@@ -61,6 +74,7 @@ def normalize(bundle: dict[str, Any]) -> dict[str, Any]:
 
     gh = _object(bundle.get("github"), "github")
     gh_response = _object(gh.get("response"), "github.response")
+    plan_response = _object(gh.get("current_plan_response"), "github.current_plan_response")
     commit = _text(gh.get("commit_sha"), "github.commit_sha")
     if not SHA40.fullmatch(commit):
         raise SourceFreshnessError("github.commit_sha must be a full commit SHA")
@@ -69,15 +83,12 @@ def normalize(bundle: dict[str, Any]) -> dict[str, Any]:
     if not (record_path.startswith("agent-registry/reasoning/runtime/") and
             record_path.endswith(".json")):
         raise SourceFreshnessError("GitHub source must be a runtime EvidenceRecord path")
-    content = _text(gh_response.get("content"), "github.response.content")
-    raw = content.encode("utf-8")
-    blob_sha = hashlib.sha1(b"blob " + str(len(raw)).encode("ascii") + b"\0" + raw).hexdigest()
-    if gh_response.get("sha") != blob_sha:
-        raise SourceFreshnessError("GitHub blob SHA does not match returned content")
-    try:
-        record = _object(json.loads(content.lstrip("\ufeff")), "GitHub EvidenceRecord")
-    except json.JSONDecodeError as exc:
-        raise SourceFreshnessError("GitHub EvidenceRecord is invalid JSON") from exc
+    record = _verified_git_blob(gh_response, "GitHub EvidenceRecord")
+    plan = _verified_git_blob(plan_response, "GitHub CURRENT_PLAN")
+    blob_sha = gh_response["sha"]
+    if (plan.get("schema_version") != 1 or plan.get("project_id") != "CADGROUNDED.IXOR" or
+            plan.get("current_evidence_id") != record.get("evidence_id")):
+        raise SourceFreshnessError("GitHub EvidenceRecord is not CURRENT_PLAN's current evidence")
     if (record.get("schema_version") != 1 or
             record.get("record_type") != "evidence" or
             record.get("evidence_type") != "solidworks_observation" or
@@ -122,7 +133,7 @@ def normalize(bundle: dict[str, Any]) -> dict[str, Any]:
         "github": {
             "retrieval_state": "OK", "reference_kind": "admitted_evidence",
             "observed_at": gh.get("observed_at"),
-            "source_ref": f"{repository}/{record_path}@{commit}#blob={blob_sha};evidence_id={_text(record.get('evidence_id'), 'evidence_id')}",
+            "source_ref": f"{repository}/{record_path}@{commit}#blob={blob_sha};current_plan_blob={plan_response['sha']};evidence_id={_text(record.get('evidence_id'), 'evidence_id')}",
             "document_title_exact": gh_title, "document_path_exact": gh_path,
         },
         "google_drive": {

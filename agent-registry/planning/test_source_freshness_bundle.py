@@ -24,6 +24,12 @@ def bundle():
     content = json.dumps(record)
     data = content.encode("utf-8")
     blob = hashlib.sha1(b"blob " + str(len(data)).encode() + b"\0" + data).hexdigest()
+    plan_content = json.dumps({
+        "schema_version": 1, "project_id": "CADGROUNDED.IXOR",
+        "current_evidence_id": "E.test.v43",
+    })
+    plan_bytes = plan_content.encode("utf-8")
+    plan_blob = hashlib.sha1(b"blob " + str(len(plan_bytes)).encode() + b"\0" + plan_bytes).hexdigest()
     return {
         "schema_version": 1,
         "solidworks": {
@@ -39,6 +45,7 @@ def bundle():
             "repository_full_name": "example/Solidworks", "commit_sha": "a" * 40,
             "path": "agent-registry/reasoning/runtime/example.json",
             "response": {"content": content, "sha": blob},
+            "current_plan_response": {"content": plan_content, "sha": plan_blob},
         },
         "google_drive": {
             "observed_at": "2026-09-27T06:00:02Z",
@@ -65,6 +72,7 @@ class SourceBundleTests(unittest.TestCase):
         self.assertEqual(report["comparisons"]["google_drive"]["state"], "STALE_REFERENCE")
         self.assertEqual(report["comparisons"]["github"]["state"], "ALIGNED_AT_CHECKPOINT_LEVEL")
         self.assertIn("#blob=", report["comparisons"]["github"]["source_ref"])
+        self.assertIn("current_plan_blob=", report["comparisons"]["github"]["source_ref"])
         self.assertIn("revision-one", report["comparisons"]["google_drive"]["source_ref"])
         self.assertEqual(report["input_verification"], "CALLER_SUPPLIED_UNVERIFIED")
         self.assertFalse(report["mechanical_acceptance_granted"])
@@ -73,6 +81,19 @@ class SourceBundleTests(unittest.TestCase):
         source = bundle()
         source["github"]["response"]["content"] += " "
         with self.assertRaisesRegex(SourceFreshnessError, "blob SHA"):
+            normalize(source)
+
+    def test_rejects_old_evidence_after_plan_pointer_moves(self):
+        source = bundle()
+        plan = json.loads(source["github"]["current_plan_response"]["content"])
+        plan["current_evidence_id"] = "E.newer.v43"
+        content = json.dumps(plan)
+        data = content.encode()
+        source["github"]["current_plan_response"] = {
+            "content": content,
+            "sha": hashlib.sha1(b"blob " + str(len(data)).encode() + b"\0" + data).hexdigest(),
+        }
+        with self.assertRaisesRegex(SourceFreshnessError, "not CURRENT_PLAN"):
             normalize(source)
 
     def test_rejects_non_observation_record_even_with_matching_blob(self):
