@@ -208,5 +208,9 @@ lane only in a trusted local environment. No collector is run by the sender.
 
 Focused regression: `python -m unittest -v test_source_freshness_send.py`
 from `agent-registry/planning`. It exercises an in-process loopback receiver;
-it does not establish that a Docker Collector is running or that a file has
-been exported.
+the `collector-smoke` CI job also starts the pinned Docker Collector, posts a
+synthetic unverified observation, and checks the rotating file export for the
+bounded event and false acceptance flag. The CI job deletes its test volume
+afterward. A passing CI job verifies this Collector image and configuration on
+the Ubuntu runner; it does not prove that any particular Windows host has
+started a collector or observed live source freshness.

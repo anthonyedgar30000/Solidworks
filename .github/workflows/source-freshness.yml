@@ -40,3 +40,20 @@ jobs:
       - name: Verify source-freshness classifications
         working-directory: agent-registry/planning
         run: python -m unittest -v test_source_freshness.py test_source_freshness_bundle.py test_source_freshness_otlp.py test_source_freshness_send.py
+  collector-smoke:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Start local Collector
+        run: docker compose -f agent-registry/planning/telemetry/compose.yaml up -d
+      - name: Verify OTLP receipt and file export
+        run: python agent-registry/planning/telemetry/smoke.py
+      - name: Show Collector logs on failure
+        if: failure()
+        run: docker compose -f agent-registry/planning/telemetry/compose.yaml logs --no-color
+      - name: Remove ephemeral test volume
+        if: always()
+        run: docker compose -f agent-registry/planning/telemetry/compose.yaml down -v
