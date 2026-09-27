@@ -1175,8 +1175,8 @@
       "id": "H_FUNCTION_FIRST_REQUIRED_DOF",
       "description": "A realistic wrap-labeling station can be specified first by bottle support/restraint and permitted bottle motion requirements without committing to the current v43 Prism mechanism.",
       "prior": "COMMON",
-      "evidence_state": "UNRESOLVED",
-      "investigation_state": "ACTIVE",
+      "evidence_state": "SUPPORTED",
+      "investigation_state": "EXHAUSTED",
       "related_requirement_ids": [
         "BOTTLE_REQUIRED_DOF_BOUND",
         "BOTTLE_RESTRAINT_THROUGHOUT_CAPTURE",
@@ -1190,7 +1190,7 @@
         "RELEASE"
       ],
       "required_evidence": [
-        "A deterministic state-by-state DOF/restraint analysis grounded in the D48 bottle, conveyor support, CAB label-presentation relationship, and required wrap rotation; current fit-check contacts may inform the analysis but cannot define requirements by themselves."
+        "Satisfied for the current requirement model by E.FUNCTION_FIRST.BOTTLE_DOF.20260927T075043247Z. Future changes to product geometry, state semantics, or function-first requirement policy require a fresh derivation."
       ]
     },
     {
