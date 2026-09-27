@@ -173,6 +173,7 @@ Assert-True (@($frontier.next_tests).Count -gt 0) 'Investigation frontier return
 Assert-True ($frontier.mechanical_acceptance_granted -eq $false) 'Investigation frontier must not grant mechanical acceptance.'
 
 $source = Get-Content -LiteralPath $modulePath -Raw
+Assert-True ($source.Contains("PSObject.Properties.Name -contains 'parent_name'")) 'Component target-state projection must tolerate worker rows without optional parent_name.'
 foreach ($forbidden in @(
     'sw.set_transform',
     'sw.insert_component',
