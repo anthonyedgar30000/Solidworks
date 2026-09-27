@@ -166,7 +166,8 @@
         "E.FUNCTION_FIRST.BOTTLE_CONVEYOR_NORMALS.20260927T081632302Z",
         "E.FUNCTION_FIRST.BOTTLE_CONTACT_NORMAL_MAP.20260927T082707281Z",
         "E.FUNCTION_FIRST.BOTTLE_CONTACT_CONSTRAINT.20260927T084903368Z",
-        "E.FUNCTION_FIRST.BOTTLE_WRAP_AXIS_BINDING.20260927T090058895Z"
+        "E.FUNCTION_FIRST.BOTTLE_WRAP_AXIS_BINDING.20260927T090058895Z",
+        "E.FUNCTION_FIRST.BOTTLE_CONTACT_WRENCH_RANK.20260927T091125291Z"
       ],
       "depends_on_requirement_ids": [
         "BOTTLE_REQUIRED_DOF_BOUND"
@@ -1248,7 +1249,7 @@
         "WRAP_ACTIVE"
       ],
       "required_evidence": [
-        "The common contact axis is now bound to the exact bottle D48 cylindrical/longitudinal axis and the function-first rotation_wrap_axis. Determine the full six-coordinate maintained frictionless point-normal constraint rank. If rank < 5 while wrap-axis rotation is a null mode, preserve missing tilt/full-restraint evidence and investigate the missing constraint class rather than selecting a mechanism."
+        "The exact bottle wrap axis is bound and the live-fresh four-contact maintained frictionless sampled point-normal model has rank 4/nullity 2: wrap-axis rotation is one null mode and one additional coupled instantaneous mode remains. Characterize the exact finite B-rep contact manifolds and their axial extents before concluding that tilt/full restraint is missing or supplied. Preload/compliance, unilateral contact maintenance, friction/traction, interval-wide behavior, reaction capacity, and mechanism selection remain unresolved."
       ]
     },
     {
@@ -2684,12 +2685,174 @@
           "rotation source, frictional traction, speed, torque, preload, tilt restraint, interval-wide contact, or mechanical acceptance"
         ]
       }
+    },
+    {
+      "schema_version": 1,
+      "record_type": "evidence",
+      "evidence_id": "E.FUNCTION_FIRST.BOTTLE_CONTACT_WRENCH_RANK.20260927T091125291Z",
+      "evidence_type": "deterministic_calculation",
+      "evidence_state": "MEASURED_CALCULATED",
+      "source_authority": "DETERMINISTIC_CALCULATION",
+      "source_classification": "measured_calculated_from_contact_constraint_map",
+      "subject": {
+        "subject_type": "function_first_four_contact_point_normal_wrench_rank",
+        "identity_exact": "BENCH_BOTTLE_D48_H180-2 current-pose maintained frictionless point-normal constraint model for conveyor, driven wrap belt, support roller 1, support roller 2",
+        "document_title_exact": "IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE",
+        "document_path_exact": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE.SLDASM"
+      },
+      "provenance": {
+        "recorded_at": "2026-09-27T09:11:25.2915470Z",
+        "source_ref": "C:\\ChatGPT\\CADGrounded-verifier-runs\\contact-wrench-rank-62a5e6996bd8\\contact-wrench-rank-result.json",
+        "sha256": "e7207803c005e1674e75359a114e2cc7d0807bada7691640d25e268da2c12fcd",
+        "tool_path": "Get-CGBottleContactWrenchRank @ git 62a5e6996bd8a42c9dc6e658453abf8c9d53e35e"
+      },
+      "dependencies": [
+        "E.FUNCTION_FIRST.BOTTLE_CONTACT_CONSTRAINT.20260927T084903368Z",
+        "E.FUNCTION_FIRST.BOTTLE_WRAP_AXIS_BINDING.20260927T090058895Z",
+        "PLAN-0010"
+      ],
+      "geometry_state": "CANDIDATE_OPERATING",
+      "temporal_scope": {
+        "coverage": "POINT_ONLY",
+        "validity_state": "CURRENT",
+        "state_ids": [],
+        "transition_ids": []
+      },
+      "ambiguity_bucket": "KINEMATIC_STATE_UNRESOLVED",
+      "mechanical_acceptance_granted": false,
+      "payload": {
+        "method": "6-DOF rank/nullspace calculation over four maintained frictionless sampled point-normal constraints, with live assembly/configuration and assembly-file SHA256 freshness inherited from cg.product.contact-constraint-map",
+        "inputs": [
+          "cg.product.contact-constraint-map from E.FUNCTION_FIRST.BOTTLE_CONTACT_NORMAL_MAP.20260927T082707281Z",
+          "bound bottle wrap axis from E.FUNCTION_FIRST.BOTTLE_WRAP_AXIS_BINDING.20260927T090058895Z",
+          "active V43_WRAP assembly file SHA256 dcd53467d2693283bb6617bdde1d4da8c19790615385e307671690ddce84b32a"
+        ],
+        "result": {
+          "freshness": {
+            "mode": "LIVE_ASSEMBLY_FILE_MATCH_REQUIRED",
+            "live_match": true,
+            "observed_file_sha256": "dcd53467d2693283bb6617bdde1d4da8c19790615385e307671690ddce84b32a",
+            "expected_file_sha256": "dcd53467d2693283bb6617bdde1d4da8c19790615385e307671690ddce84b32a"
+          },
+          "model": {
+            "name": "CURRENT_POSE_MAINTAINED_FRICTIONLESS_POINT_NORMAL_CONSTRAINT_MODEL",
+            "twist_coordinate_order": [
+              "vx",
+              "vy",
+              "vz",
+              "omega_x",
+              "omega_y",
+              "omega_z"
+            ],
+            "reference_point_mm": [
+              -153.42061528267115,
+              -214,
+              950
+            ],
+            "note": "Each observed touching pair contributes one maintained frictionless sampled point-normal constraint. Finite line/surface contact and unilateral contact maintenance are not represented."
+          },
+          "matrix_rank": 4,
+          "nullity": 2,
+          "pivot_columns_zero_based": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "free_columns_zero_based": [
+            4,
+            5
+          ],
+          "rref": [
+            [
+              1,
+              0,
+              0,
+              0,
+              45,
+              0
+            ],
+            [
+              0,
+              1,
+              0,
+              0,
+              -255.88778467555275,
+              0
+            ],
+            [
+              0,
+              0,
+              1,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              1,
+              -2.1573704090265395,
+              0
+            ]
+          ],
+          "nullspace_basis_free_variable_one": [
+            [
+              -45,
+              255.88778467555275,
+              2.842170943040401e-14,
+              2.1573704090265395,
+              1,
+              0
+            ],
+            [
+              0,
+              8.080376339935172e-14,
+              0,
+              7.266769361895148e-16,
+              0,
+              1
+            ]
+          ],
+          "wrap_axis_rotation_test": {
+            "twist": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              1
+            ],
+            "max_abs_residual": 1.7763568394002505e-14,
+            "is_null_mode": true
+          },
+          "restraint_projection": {
+            "required_rank_to_leave_only_wrap_axis_rotation_free": 5,
+            "observed_rank": 4,
+            "observed_nullity": 2,
+            "additional_independent_null_modes_beyond_wrap_axis_rotation": 1,
+            "five_dof_restraint_excluding_wrap_axis_rotation": "NOT_SUPPORTED_BY_CURRENT_FOUR_POINT_NORMAL_MODEL"
+          },
+          "admitted_claims": [
+            "The current four sampled maintained frictionless point-normal constraints have rank 4 and nullity 2.",
+            "Pure rotation about the bound bottle wrap axis is a null mode to numerical precision.",
+            "One additional independent instantaneous null mode remains beyond wrap-axis rotation in this sampled point-normal model.",
+            "Therefore the current four sampled point normals do not establish five-DOF bottle restraint while leaving only the intended wrap-axis rotation free."
+          ],
+          "explicitly_not_claimed": [
+            "The result does not establish that the real finite line/surface contact manifold has the same rank as the sampled point-normal model.",
+            "It does not establish unilateral contact maintenance, preload, compliance, force closure, friction, traction, driven wrap torque, or load capacity.",
+            "It does not establish gravity/up semantics, interval-wide restraint, mechanism selection, or mechanical acceptance."
+          ]
+        }
+      }
     }
   ],
   "next_tests": [
     {
-      "id": "TEST_FUNCTION_FIRST_CONTACT_WRENCH_RANK",
-      "question": "Execute Get-CGBottleContactWrenchRank with live freshness enabled now that BOTTLE_WRAP_AXIS_BOUND is verified. Under an optimistic maintained frictionless point-normal model of the four observed contacts, compute the 6-DOF contact-wrench/constraint matrix rank and nullity, verify that pure rotation about the bound bottle wrap axis is a null mode, and determine whether any additional independent instantaneous mode remains. Five independent normal constraints are required to leave only the intended wrap-axis rotation free. Preserve finite line/surface contact, unilateral contact maintenance, tilt stabilization, friction/traction, preload, interval-wide behavior, mechanism selection, and mechanical acceptance as unresolved unless separately evidenced.",
+      "id": "TEST_FUNCTION_FIRST_LATERAL_CONTACT_MANIFOLD",
+      "question": "Using exact live SOLIDWORKS B-rep geometry for BENCH_BOTTLE_D48_H180-2, FITCHECK_DRIVEN_WRAP_BELT_5x160x93_V25-1, and both FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25 components, characterize each current lateral contact as point, line/generator, or finite patch contact and measure its extent along the bound bottle rotation_wrap_axis. Do not treat one arbitrary IModelDoc2.ClosestDistance point as the entire contact when tangent cylinder/plane or cylinder/cylinder surfaces may coincide along an interval. Then determine whether the ideal rigid frictionless maintained finite-contact geometry adds an independent tilt-restraint constraint missing from the sampled point-normal rank model while preserving rotation about the bound wrap axis. Preserve unilateral contact maintenance, preload/compliance, friction/traction, force capacity, interval-wide behavior, mechanism selection, and mechanical acceptance as unresolved.",
       "resolves_requirement_ids": [
         "BOTTLE_SUPPORT_CONTACT_SET_BOUND"
       ],
