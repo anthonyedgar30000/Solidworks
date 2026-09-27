@@ -17,9 +17,12 @@ from source_sync import sync_once
 
 
 REGISTRY = Path(__file__).with_name("source_registry.v1.json")
+# cab's 04/2026 IXOR+ manual, part 9004290.131. The previously captured
+# file=4444 is the ROXI manual, part 9004202.131, despite sharing a PRISM pin.
+CAB_IXORPLUS_PDF_SHA256 = "6e15cc68c22eec8535ab58381e35ab81e00b1329f83eb1e40ed83ac22253f9f8"
 ALLOWED = {
     "CAB.IXORPLUS.ASSEMBLY_INSTRUCTIONS.202604": (
-        "https://www.cab.de/media/pushfile.cfm?file=4444", "application/pdf", "SUBJECT_OEM_DOCUMENT"),
+        "https://www.cab.de/media/pushfile.cfm?file=4542", "application/pdf", "SUBJECT_OEM_DOCUMENT"),
     "HERMA.152C.PRODUCT_PAGE": (
         "https://www.herma.com/machines/products/labeling-machines/wrap-around-labeler-152c/",
         "text/html", "COMPARATIVE_MECHANISM_OEM"),
@@ -66,6 +69,9 @@ def validate_registry(registry: dict) -> list[dict]:
         url, media, role = ALLOWED[row["source_id"]]
         if (row.get("url"), row.get("expected_media_type"), row.get("source_role")) != (url, media, role):
             raise CaptureBlocked("SOURCE_AUTHORITY_CHANGED")
+        expected_digest = CAB_IXORPLUS_PDF_SHA256 if media == "application/pdf" else None
+        if row.get("expected_sha256") != expected_digest:
+            raise CaptureBlocked("SOURCE_IDENTITY_CHANGED")
         size = row.get("max_bytes")
         if not isinstance(size, int) or isinstance(size, bool) or not (1 <= size <= MAX_BYTES):
             raise CaptureBlocked("SOURCE_SIZE_BOUNDARY_CHANGED")
@@ -91,6 +97,8 @@ def fetch_source(row: dict) -> bytes:
         raise CaptureBlocked("SOURCE_TOO_LARGE")
     if media == "application/pdf" and not raw.startswith(b"%PDF-"):
         raise CaptureBlocked("INVALID_PDF")
+    if media == "application/pdf" and hashlib.sha256(raw).hexdigest() != CAB_IXORPLUS_PDF_SHA256:
+        raise CaptureBlocked("PDF_IDENTITY_CHANGED")
     if media == "text/html" and b"<html" not in raw[:5000].lower():
         raise CaptureBlocked("INVALID_HTML")
     return raw
