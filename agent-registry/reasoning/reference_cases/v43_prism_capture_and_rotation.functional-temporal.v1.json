@@ -1735,9 +1735,7 @@
       "temporal_scope": {
         "coverage": "POINT_ONLY",
         "validity_state": "CURRENT",
-        "state_ids": [
-          "V43_WRAP"
-        ],
+        "state_ids": [],
         "transition_ids": []
       },
       "ambiguity_bucket": "KINEMATIC_STATE_UNRESOLVED",
@@ -1749,7 +1747,8 @@
         ],
         "result": {
           "admitted_observation": "All seven exact slider/link/arm/support-roller targets returned zero incident active-assembly mates and no mate traversal errors at the admitted V43_WRAP point.",
-          "interpretation_boundary": "This is negative evidence against the active assembly itself defining the proposed linkage kinematics. It does not prove a free DOF, intended motion, or mechanical invalidity. Static physical adjacency remains supported; mechanism motion remains KINEMATIC_STATE_UNRESOLVED."
+          "interpretation_boundary": "This is negative evidence against the active assembly itself defining the proposed linkage kinematics. It does not prove a free DOF, intended motion, or mechanical invalidity. Static physical adjacency remains supported; mechanism motion remains KINEMATIC_STATE_UNRESOLVED.",
+          "configuration_exact": "V43_WRAP"
         }
       }
     }
