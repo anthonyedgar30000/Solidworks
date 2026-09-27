@@ -15,6 +15,7 @@ on:
       - "agent-registry/reasoning/functional_temporal.py"
       - "agent-registry/reasoning/reference_cases/*.functional-temporal.v1.json"
       - "agent-registry/reasoning/test_v43_prism_reference.py"
+      - "agent-registry/reasoning/test_function_first_bottle_handling_reference.py"
       - "agent-registry/workers/CadGrounded.SolidWorksWorker/Verify-ClassifyContact-V43-Prism-GuideRails.ps1"
       - ".github/workflows/functional-temporal-references.yml"
 
