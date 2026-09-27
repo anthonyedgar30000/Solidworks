@@ -79,7 +79,8 @@ $requiredImplemented = @(
     'cg.product.contact-wrench-rank',
     'cg.frontier.read',
     'cg.verifier.v43.full-chain-mates',
-    'cg.verifier.function-first.bottle-support-contact'
+    'cg.verifier.function-first.bottle-support-contact',
+    'cg.verifier.function-first.lateral-contact-manifold'
 )
 foreach ($id in $requiredImplemented) {
     $matches = @($catalog | Where-Object { [string]$_.id -ceq $id -and [string]$_.status -ceq 'IMPLEMENTED' })
@@ -134,6 +135,12 @@ Assert-True ([string]$bottleSupportVerifier.status -ceq 'IMPLEMENTED') 'Bottle s
 Assert-True ([string]$bottleSupportVerifier.execution_kind -ceq 'registered_verifier') 'Bottle support/contact verifier execution kind is incorrect.'
 Assert-True ([string]$bottleSupportVerifier.write_authority -ceq 'NONE') 'Bottle support/contact verifier must remain read-only.'
 Assert-True ([string]$bottleSupportVerifier.verifier_path -ceq 'agent-registry/workers/CadGrounded.SolidWorksWorker/Verify-ClassifyContact-FunctionFirst-BottleSupport.ps1') 'Bottle support/contact verifier path is incorrect.'
+
+$lateralManifoldVerifier = Get-CGCapability -Id 'cg.verifier.function-first.lateral-contact-manifold'
+Assert-True ([string]$lateralManifoldVerifier.status -ceq 'IMPLEMENTED') 'Lateral contact manifold verifier must be IMPLEMENTED.'
+Assert-True ([string]$lateralManifoldVerifier.execution_kind -ceq 'registered_verifier') 'Lateral contact manifold verifier execution kind is incorrect.'
+Assert-True ([string]$lateralManifoldVerifier.write_authority -ceq 'NONE') 'Lateral contact manifold verifier must remain read-only.'
+Assert-True ([string]$lateralManifoldVerifier.verifier_path -ceq 'agent-registry/workers/CadGrounded.SolidWorksWorker/Verify-ContactManifold-FunctionFirst-LateralContacts.ps1') 'Lateral contact manifold verifier path is incorrect.'
 
 $constraintMap = Get-CGBottleContactConstraintMap -EvidenceOnly
 Assert-True ([string]$constraintMap.capability_id -ceq 'cg.product.contact-constraint-map') 'Constraint-map capability id is incorrect.'

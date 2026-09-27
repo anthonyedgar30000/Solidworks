@@ -2866,6 +2866,9 @@ internal sealed class SolidWorksSession : IDisposable
                     }
                 }
 
+                var surfaceObservation = ObserveContactFaceSurface(face);
+                var assemblyZExtent = ProbeTrimmedFaceAssemblyZExtent(face, closest);
+
                 rows.Add(new
                 {
                     body_index = bodyIndex,
@@ -2888,6 +2891,8 @@ internal sealed class SolidWorksSession : IDisposable
                     unit_normal_assembly = unitNormal,
                     normal_state = normalState,
                     normal_source = normalSource,
+                    surface_observation = surfaceObservation,
+                    assembly_z_extent_probe = assemblyZExtent,
                     face_area_m2_approx = SafeDouble(() => face.GetArea()),
                     face_identity_note =
                         "body_index/face_index are observation-local indices on a transformed temporary body copy, not persistent CAD face IDs"
@@ -2898,6 +2903,161 @@ internal sealed class SolidWorksSession : IDisposable
         }
 
         return rows.ToArray();
+    }
+
+    private static object ObserveContactFaceSurface(IFace2 face)
+    {
+        ISurface? surface;
+        try
+        {
+            surface = face.GetSurface() as ISurface;
+        }
+        catch
+        {
+            surface = null;
+        }
+
+        if (surface is null)
+        {
+            return new
+            {
+                surface_type = "unresolved",
+                cylinder = (object?)null,
+                source = "IFace2.GetSurface"
+            };
+        }
+
+        if (surface.IsCylinder())
+        {
+            var parameters = ToDoubleArray(surface.CylinderParams);
+            if (parameters is { Length: >= 7 } &&
+                parameters.Take(7).All(double.IsFinite))
+            {
+                var rawAxis = new[]
+                {
+                    parameters[3],
+                    parameters[4],
+                    parameters[5]
+                };
+
+                if (TryNormalizeVector3(rawAxis, out var unitAxis) &&
+                    double.IsFinite(parameters[6]) &&
+                    parameters[6] > 0.0)
+                {
+                    return new
+                    {
+                        surface_type = "cylinder",
+                        cylinder = (object)new
+                        {
+                            axis_point_assembly_m = new[]
+                            {
+                                parameters[0],
+                                parameters[1],
+                                parameters[2]
+                            },
+                            axis_point_assembly_mm = new[]
+                            {
+                                parameters[0] * 1000.0,
+                                parameters[1] * 1000.0,
+                                parameters[2] * 1000.0
+                            },
+                            axis_direction_assembly = unitAxis,
+                            radius_m = parameters[6],
+                            radius_mm = parameters[6] * 1000.0
+                        },
+                        source = "ISurface.CylinderParams_on_transformed_temporary_body"
+                    };
+                }
+            }
+
+            return new
+            {
+                surface_type = "cylinder_parameters_unresolved",
+                cylinder = (object?)null,
+                source = "ISurface.CylinderParams_on_transformed_temporary_body"
+            };
+        }
+
+        if (surface.IsPlane())
+        {
+            return new
+            {
+                surface_type = "plane",
+                cylinder = (object?)null,
+                source = "ISurface.IsPlane_plus_existing_IFace2_normal_observation"
+            };
+        }
+
+        return new
+        {
+            surface_type = "other",
+            cylinder = (object?)null,
+            source = "ISurface_type_not_plane_or_cylinder"
+        };
+    }
+
+    private static object? ProbeTrimmedFaceAssemblyZExtent(
+        IFace2 face,
+        double[] closestPointAssemblyM)
+    {
+        if (closestPointAssemblyM.Length < 3 ||
+            !closestPointAssemblyM.Take(3).All(double.IsFinite))
+            return null;
+
+        const double probeOffsetM = 10.0;
+
+        double[]? low;
+        double[]? high;
+        try
+        {
+            low = ToDoubleArray(
+                face.GetClosestPointOn(
+                    closestPointAssemblyM[0],
+                    closestPointAssemblyM[1],
+                    closestPointAssemblyM[2] - probeOffsetM));
+
+            high = ToDoubleArray(
+                face.GetClosestPointOn(
+                    closestPointAssemblyM[0],
+                    closestPointAssemblyM[1],
+                    closestPointAssemblyM[2] + probeOffsetM));
+        }
+        catch
+        {
+            return null;
+        }
+
+        if (low is null || low.Length < 3 ||
+            high is null || high.Length < 3 ||
+            !low.Take(3).All(double.IsFinite) ||
+            !high.Take(3).All(double.IsFinite))
+            return null;
+
+        var zMinM = Math.Min(low[2], high[2]);
+        var zMaxM = Math.Max(low[2], high[2]);
+
+        return new
+        {
+            probe_axis = "assembly_+Z",
+            probe_offset_each_direction_m = probeOffsetM,
+            low_closest_point_assembly_mm = new[]
+            {
+                low[0] * 1000.0,
+                low[1] * 1000.0,
+                low[2] * 1000.0
+            },
+            high_closest_point_assembly_mm = new[]
+            {
+                high[0] * 1000.0,
+                high[1] * 1000.0,
+                high[2] * 1000.0
+            },
+            z_min_mm = zMinM * 1000.0,
+            z_max_mm = zMaxM * 1000.0,
+            z_extent_mm = (zMaxM - zMinM) * 1000.0,
+            interpretation =
+                "Bounded closest-point probes against the same trimmed transformed-temporary-body face; not an AABB estimate."
+        };
     }
 
     private static bool TryNormalizeVector3(
