@@ -1,0 +1,82 @@
+{
+  "schema_version": "0.1",
+  "view_id": "V43-CAPTURE-001",
+  "source": "SOLIDWORKS_LIVE_STATE",
+  "document_title": "IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE",
+  "document_path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE.SLDASM",
+  "active_configuration": "V43_WRAP",
+  "geometry_state": "CANDIDATE_OPERATING",
+  "mechanical_acceptance_granted": false,
+  "camera": {
+    "id": "WORLD_TOP_CAMERA_A",
+    "orientation_rotation9": [
+      1,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      1
+    ],
+    "translation3_m": [
+      0.18,
+      0.105,
+      -0.6231784034036032
+    ],
+    "scale2": 0.5,
+    "native_raster": [
+      1627,
+      804
+    ],
+    "repository_preview_raster": [
+      800,
+      395
+    ]
+  },
+  "local_capture": {
+    "raw_bmp": "C:\\ChatGPT\\Solidworks\\agent-registry\\remote-queue\\results\\captures\\V43-CAPTURE-001_CAMERA_A.bmp",
+    "preview_png": "C:\\ChatGPT\\Solidworks\\agent-registry\\remote-queue\\results\\captures\\V43-CAPTURE-001_CAMERA_A.png",
+    "preview_png_bytes": 24638
+  },
+  "annotations": [
+    {
+      "id": "C-01",
+      "type": "candidate_region",
+      "meaning": "PRISM capture / reaction region",
+      "state": "CANDIDATE"
+    },
+    {
+      "id": "I-01",
+      "type": "interface_to_inspect",
+      "subject_a": "BENCH_BOTTLE_D48_H180-2",
+      "subject_b": "FITCHECK_DRIVEN_WRAP_BELT_5x160x93_V25-1",
+      "state": "UNRESOLVED_BY_IMAGE"
+    },
+    {
+      "id": "U-01",
+      "type": "unresolved_region",
+      "meaning": "support/link motion, compliance, preload and force path",
+      "state": "UNRESOLVED"
+    },
+    {
+      "id": "R-01",
+      "type": "reference_context",
+      "meaning": "CAB application hardware context",
+      "state": "REFERENCE_ONLY"
+    }
+  ],
+  "question_for_ai": {
+    "id": "Q-01",
+    "question": "Does the visible geometry communicate the intended capture/reaction arrangement while motion, compliance, preload and force-path claims remain explicitly unresolved?",
+    "do_not_infer": [
+      "hidden constraints",
+      "forces",
+      "preload",
+      "sequencing",
+      "mechanical acceptance"
+    ]
+  },
+  "note": "Repository SVG wrappers embed the same deterministic PNG because this connector write path is text-based. The authoritative local raster capture remains the SOLIDWORKS-generated file."
+}
