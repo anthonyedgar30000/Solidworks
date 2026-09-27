@@ -1,35 +1,49 @@
 # CADGrounded — CURRENT PROJECT STATE
 
-**Synchronized across live SOLIDWORKS, GitHub, and Google Drive:** 2026-09-27T23:35:00Z
+**Cross-source reconciliation:** 2026-09-27T23:35Z
 
 ## Authority
 
-- **SOLIDWORKS** is authority for live geometry, active document, configuration, and component state.
-- **GitHub** is authority for versioned source, policy, evidence records, reasoning state, result review, and durable project history.
+- **SOLIDWORKS** is authority for live geometry, active document, configuration, and unsaved/current component state.
+- **GitHub** is authority for versioned source, policy, admitted evidence records, reasoning state, result review, and durable project history.
 - **Google Drive** is mirror / reference / archive / transport.
-- API success, a file name, a candidate label, or a synchronized pointer does **not** grant mechanical acceptance.
+- These sources are synchronized by preserving their different authority roles; they are not forced to report the same document when live CAD has moved.
 
-## Fresh live SOLIDWORKS state
+## Current live SOLIDWORKS state
 
 Source classification: `verified_from_solidworks_api`
 
 Active assembly:
 
-`IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE`
+`IXOR_Benchmark_v27_SPRING_ROLLER_HANDOFF_FIT_CHECK_PORTABLE`
 
 Exact path:
 
-`C:\ChatGPT\Solidworks\IXOR\CAB_IXOR_6130800\IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE.SLDASM`
+`C:\ChatGPT\Solidworks\IXOR\CAB_IXOR_6130800\IXOR_Benchmark_v27_SPRING_ROLLER_HANDOFF_FIT_CHECK_PORTABLE.SLDASM`
 
 Active configuration:
 
-`V43_WRAP`
+`Default`
 
-Observed save flag at sync:
+Observed save flag:
 
-`false`
+`true`
 
-A same-session top-level component reread returned the expected v43 PRISM geometry, including both wrap support rollers, both fixed PRISM guide rails, PRISM arms, links, carrier slider, reaction base, actuator envelope, bottles, conveyor, driven wrap belt, index stops, IXOR, SP100, and support hardware.
+This means the currently active v27 document is dirty/unsaved at the time of reconciliation. GitHub and Drive must **not** be treated as mirrors of those unsaved live geometry changes.
+
+A same-session top-level component reread returned the v27 spring-roller/belt/bottle-handling assembly state. The active top-level inventory included the driven wrap belt, two wrap support rollers, bottles, conveyor, IXOR/SP100/support hardware and carriage hardware. The v43 PRISM component names were not present in this active top-level inventory.
+
+## Cross-source divergence
+
+The live CAD document is currently **v27**, while the current GitHub engineering plan/evidence remains the **v43 / PLAN-0011** investigation state.
+
+This is a legitimate authority split, not something to guess away:
+
+- current live geometry/state → v27, from SOLIDWORKS;
+- current durable engineering investigation/result disposition → v43 PLAN-0011, from GitHub;
+- Google Drive mirrors both facts and the divergence.
+
+Do **not** apply v43 geometry conclusions directly to the active v27 assembly.
 
 ## Current GitHub project state
 
@@ -49,46 +63,44 @@ Current result review:
 
 `R.PLAN-0011.V43_DUAL_PIVOT_GUIDE_RAIL_INTERFERENCE.20260927T232600Z`
 
-Source records at sync:
+Source records:
 
 - `agent-registry/planning/CURRENT_PLAN.json` — blob `92e4de355c9a304f1ab79b316ec5ed90c4dd9182`
 - `agent-registry/reasoning/runtime/v43-dual-pivot-exact-sweep-result-20260927T231617920Z.json` — blob `b47641e91b5673ef44a1bfac239609dab0aee68e`
 - `agent-registry/orchestrator-v1/reviews/PLAN-0011-v43-dual-pivot-interference-review-20260927.json` — blob `5b5802bd47b55c1ecb516175228185c060f7465c`
 
-## Admitted mechanical result
+## Admitted v43 mechanical result
 
-The **exact tested v43 dual-independent-pivot motion path is disproven for the tested geometry**.
+For the **exact tested v43 dual-independent-pivot motion path**:
 
-Fresh deterministic temporary-body B-rep evidence recorded:
+- Roller-1 vs fixed Guide-Rail-1 at `-37.932118385834365°`: positive B-rep intersection `36.87005661597739 mm³`.
+- Roller-2 vs fixed Guide-Rail-2 at `+16.093399159748615°`: positive B-rep intersection `229.78798686025416 mm³`.
+- Boolean error codes were zero.
+- The bounded v43 test did not mutate the live assembly used for that test.
 
-- Roller-1 vs fixed Guide-Rail-1 at `-37.932118385834365°`: positive intersection `36.87005661597739 mm³`.
-- Roller-2 vs fixed Guide-Rail-2 at `+16.093399159748615°`: positive intersection `229.78798686025416 mm³`.
-- Boolean error codes were zero for both observations.
-- The live assembly was not mutated and was reverified after the bounded test.
+GitHub result review therefore records:
 
-This result is scoped narrowly. It **does not** reject every pivoting architecture, every possible pivot location, every re-authored guide layout, or the admitted closed three-contact bottle topology.
-
-GitHub review state:
-
-- `CANDIDATE_V43_PRISM_DUAL_INDEPENDENT_PIVOT_ARMS_V1` → `DISPROVEN / EXHAUSTED` for this exact path.
-- Broader `CANDIDATE_PIVOTING_ROLLER_CARRIER` → `UNRESOLVED / ELIGIBLE`.
+- `CANDIDATE_V43_PRISM_DUAL_INDEPENDENT_PIVOT_ARMS_V1` → `DISPROVEN / EXHAUSTED` for that exact path.
+- broader `CANDIDATE_PIVOTING_ROLLER_CARRIER` → `UNRESOLVED / ELIGIBLE`.
 - `CANDIDATE_V43_PRISM_AS_PROJECT_PROPOSAL` → `WEAKENED / ACTIVE`.
 
-## Next engineering frontier
+This result does not reject every pivot architecture or the closed three-contact topology.
 
-Do not keep densifying the disproven exact dual-pivot trajectory.
+## Current engineering frontier
 
-The current result review points to a **different motion architecture or re-authored pivot/guide geometry**, while preserving the useful closed-state contact evidence as a reference. A translating-carrier or moving-wrap-belt architecture is also an eligible distinct investigation class.
+GitHub's current v43 result review says not to keep densifying the disproven exact dual-pivot trajectory. The next v43 investigation requires a different motion architecture or re-authored pivot/guide geometry; a translating-carrier or moving-wrap-belt class remains eligible.
+
+Before executing any v43-specific next test, **freshly activate/rebind the exact v43 document**. The currently active v27 document does not satisfy a v43 precondition.
 
 ## Mechanical acceptance
 
 **FALSE.**
 
-No synchronized record in this file grants CAD write authority or mechanical acceptance.
+No cross-source synchronization grants CAD write authority or mechanical acceptance.
 
 ## Freshness rule
 
-1. A newer successful live SOLIDWORKS read supersedes the live-state section immediately.
-2. GitHub `CURRENT_PLAN.json` and its linked evidence/review records supersede this project-state summary if they advance.
-3. Google Drive mirrors this summary for retrieval/handoff convenience and is not the authority over GitHub or live SOLIDWORKS.
-4. v42 and earlier reality-sync files remain historical unless a fresh live SOLIDWORKS read returns them again.
+1. A newer successful live SOLIDWORKS read immediately supersedes the live-state section.
+2. GitHub `CURRENT_PLAN.json` and linked evidence/review records supersede the GitHub-state section when they advance.
+3. Drive mirrors this reconciliation but is not authority over live SOLIDWORKS or GitHub.
+4. Never resolve a SOLIDWORKS/GitHub mismatch by guessing; preserve it as explicit live-state/project-state divergence.
