@@ -46,5 +46,6 @@
   ],
   "conclusion": "PLAN-0005 is provenance-complete. At the recorded exact V43_WRAP point, the exact carrier slider is adjacent to both exact Prism links with 0 mm returned minimum distance, contact/coincidence classification, and zero intersection volume. This supports slider-to-link contiguity only. Link-to-arm pairing, linkage DOF, motion, stroke, force/preload, capture/release timing, and mechanical acceptance remain unresolved.",
   "mechanical_acceptance_granted": false,
-  "write_authority": "NONE"
+  "write_authority": "NONE",
+  "revised_plan_id": "PLAN-0006"
 }
