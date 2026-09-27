@@ -1,0 +1,51 @@
+{
+  "record_type": "plan_reconciliation",
+  "schema_version": 1,
+  "record_id": "RECON-0011",
+  "project_id": "CADGROUNDED.IXOR",
+  "reconciled_at_utc": "2026-09-27T07:16:04.3258747Z",
+  "plan_id": "PLAN-0008",
+  "revised_plan_id": "PLAN-0009",
+  "raw_observation_ids": [
+    "E.V43.PRISM.FULL_CHAIN_MATE_BINDING.20260927T071604325Z"
+  ],
+  "actual_actions": [
+    {
+      "action_id": "ACT_V43_PRISM_FULL_CHAIN_MATE_VERIFIER",
+      "write_authority": "NONE",
+      "result_id": "E.V43.PRISM.FULL_CHAIN_MATE_BINDING.20260927T071604325Z",
+      "reason": "The reviewed seven-component V43_WRAP sw.query_mates verifier passed with SHA-bound provenance and reported zero incident mates and zero variation values for every target."
+    },
+    {
+      "action_id": "ACT_BIND_V43_PRISM_FULL_CHAIN_MATE_ARTIFACT_SHA256",
+      "write_authority": "NONE",
+      "result": "COMPLETED",
+      "reason": "Bound verification-summary.json to SHA-256 7b0cf43b26ed63ce2bf3066fc4f4953e223f84f9e079ae60b463f5aa4791a05e."
+    }
+  ],
+  "step_outcomes": [
+    {
+      "step_id": "P0008.1",
+      "outcome": "COMPLETED",
+      "evidence_id": "E.V43.PRISM.FULL_CHAIN_MATE_BINDING.20260927T071604325Z"
+    },
+    {
+      "step_id": "P0008.2",
+      "outcome": "COMPLETED_ZERO_MATES_OBSERVED",
+      "evidence_id": "E.V43.PRISM.FULL_CHAIN_MATE_BINDING.20260927T071604325Z"
+    },
+    {
+      "step_id": "P0008.3",
+      "outcome": "COMPLETED_ADMITTED",
+      "evidence_id": "E.V43.PRISM.FULL_CHAIN_MATE_BINDING.20260927T071604325Z"
+    },
+    {
+      "step_id": "P0008.4",
+      "outcome": "COMPLETED_KINEMATIC_SOURCE_REQUIRED",
+      "evidence_id": "E.V43.PRISM.FULL_CHAIN_MATE_BINDING.20260927T071604325Z"
+    }
+  ],
+  "conclusion": "PLAN-0008 is provenance-complete. The exact physically contiguous seven-component Prism chain has no active-assembly mate/constraint definitions or observed variation values at the recorded V43_WRAP point. Static physical adjacency remains supported, but the active assembly does not establish a modeled kinematic relation. KINEMATIC_STATE_UNRESOLVED is preserved. The next investigation must bind an authoritative or accepted deterministic kinematic source/provenance before any hypothetical motion, endpoint, stroke, force, or mechanical-acceptance claim.",
+  "mechanical_acceptance_granted": false,
+  "write_authority": "NONE"
+}
