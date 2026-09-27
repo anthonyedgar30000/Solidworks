@@ -1,0 +1,223 @@
+{
+  "schema_version": 1,
+  "requirement_model_id": "CADGROUNDED.IXOR.FUNCTION_FIRST_POP_ACCEPTANCE_ENVELOPE.V1",
+  "plan_id": "PLAN-0011",
+  "step_id": "P0011.1",
+  "status": "FROZEN_FOR_POP_SCREENING",
+  "purpose": "Mechanism-independent Proof-of-Principle acceptance envelope for bottle capture, controlled wrap-axis rotation, label-transfer coherence, reaction support, release, and clearance. This envelope constrains candidate tests but does not select a mechanism or grant mechanical acceptance.",
+  "state_binding": {
+    "document_title": "IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE",
+    "document_path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE.SLDASM",
+    "configuration_exact": "V43_WRAP",
+    "live_rebind_required_before_any_new_cad_test_or_write": true,
+    "source_classification": "verified_from_solidworks_api"
+  },
+  "product_binding": {
+    "benchmark_product_name2": "BENCH_BOTTLE_D48_H180-2",
+    "encoded_nominal_identity": "D48_H180",
+    "nominal_diameter_mm": 48,
+    "nominal_height_mm": 180,
+    "dimensional_basis": "Encoded in deterministic benchmark part identity; not independently remeasured by this requirement model.",
+    "allowed_product_variation": "MEASUREMENT_REQUIRED",
+    "bottle_diameter_process_tolerance": "MEASUREMENT_REQUIRED",
+    "incoming_position_variation": "MEASUREMENT_REQUIRED"
+  },
+  "source_requirements": [
+    "CADGROUNDED.IXOR.FUNCTION_FIRST_BOTTLE_DOF.V1",
+    "CADGROUNDED.IXOR.CONTACT_MAINTENANCE.V1"
+  ],
+  "current_pose_reference_evidence": {
+    "evidence_role": "REFERENCE_BASELINE_ONLY",
+    "verified_current_pose_contacts": [
+      {
+        "pair_id": "wrap_belt",
+        "a_name_exact": "BENCH_BOTTLE_D48_H180-2",
+        "b_name_exact": "FITCHECK_DRIVEN_WRAP_BELT_5x160x93_V25-1",
+        "classification": "TANGENT_CYLINDER_PLANE_GENERATOR_LINE",
+        "trimmed_axis_overlap_mm": 93
+      },
+      {
+        "pair_id": "roller_1",
+        "a_name_exact": "BENCH_BOTTLE_D48_H180-2",
+        "b_name_exact": "FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25-1",
+        "classification": "EXTERNAL_TANGENT_PARALLEL_CYLINDER_GENERATOR_LINE",
+        "trimmed_axis_overlap_mm": 93
+      },
+      {
+        "pair_id": "roller_2",
+        "a_name_exact": "BENCH_BOTTLE_D48_H180-2",
+        "b_name_exact": "FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25-2",
+        "classification": "EXTERNAL_TANGENT_PARALLEL_CYLINDER_GENERATOR_LINE",
+        "trimmed_axis_overlap_mm": 93
+      }
+    ],
+    "ideal_maintained_frictionless_finite_line_model": {
+      "rank": 5,
+      "nullity": 1,
+      "wrap_axis_rotation_is_null_mode": true,
+      "interpretation": "Supports the geometry of five restrained rigid-body DOF with wrap-axis rotation left available in the ideal maintained-contact model only."
+    },
+    "limitation": "Current-pose tangency and ideal rank do not establish interval-wide maintained contact, preload, compliance, friction, traction, force capacity, reachable motion, mechanism selection, or mechanical acceptance."
+  },
+  "state_acceptance_envelope": [
+    {
+      "state_id": "INDEXED",
+      "must_hold": [
+        "Exactly one intended bottle is positioned at the application station.",
+        "Bottle remains vertically supported and upright.",
+        "Flow-position departure is restrained or otherwise intentionally bounded.",
+        "Cross-flow position is bounded within an explicit tolerance once that tolerance is sourced."
+      ],
+      "permitted_motion": [
+        "Wrap-axis rotation behavior before capture is architecture-dependent and remains unresolved."
+      ],
+      "failure_observables": [
+        "Bottle leaves the indexed position unintentionally.",
+        "Bottle loses vertical support or upright stability.",
+        "Neighbor product occupies or blocks the required capture envelope."
+      ]
+    },
+    {
+      "state_id": "CAPTURE_AND_ROTATION",
+      "must_hold": [
+        "A named physical owner establishes the required lateral contact set.",
+        "Vertical support remains valid.",
+        "Translation flow and cross-flow are restrained or bounded as required.",
+        "Tilt about both horizontal axes remains stabilized.",
+        "Wrap-axis rotation remains intentionally permitted and controllable."
+      ],
+      "permitted_motion": [
+        "Controlled rotation about the bottle upright wrap axis."
+      ],
+      "failure_observables": [
+        "Required lateral contact is absent or only exists at an isolated static pose.",
+        "Bottle is overconstrained such that wrap-axis rotation is blocked.",
+        "Closure owner, travel, limits, or contact-maintenance law is undefined."
+      ]
+    },
+    {
+      "state_id": "LABEL_TRANSFER_INTERVAL",
+      "must_hold": [
+        "Capture/contact state remains valid through the transfer interval.",
+        "Bottle-to-label-presentation relationship remains coherent.",
+        "Vertical support and tilt stability remain valid.",
+        "Any bottle translation is intentionally restrained or synchronized."
+      ],
+      "permitted_motion": [
+        "Controlled wrap-axis rotation where required by transfer."
+      ],
+      "failure_observables": [
+        "Bottle motion invalidates label presentation geometry.",
+        "Contact state is lost before transfer completes.",
+        "Label-transfer path intersects or is blocked by candidate handling geometry."
+      ]
+    },
+    {
+      "state_id": "WRAP_ACTIVE",
+      "must_hold": [
+        "An equivalent rank-sufficient lateral normal-contact set is maintained.",
+        "Tangential rotation drive is explicitly separated from normal closure/contact maintenance.",
+        "Reaction loads have an explicit path to fixed support.",
+        "Vertical support and tilt stability remain valid."
+      ],
+      "permitted_motion": [
+        "Controlled circumferential rotation about the wrap axis."
+      ],
+      "failure_observables": [
+        "Contact normal set loses rank sufficiency.",
+        "Wrap-axis rotation is unintentionally restrained.",
+        "Required traction or reaction path is undefined.",
+        "Candidate geometry interferes with CAB hardware, neighbors, mounting, or label path."
+      ]
+    },
+    {
+      "state_id": "RELEASE",
+      "must_hold": [
+        "Capture owner intentionally transitions to an open/release condition.",
+        "Bottle retains vertical support and upright guidance.",
+        "Exit path becomes available without uncontrolled lateral escape.",
+        "Neighbor clearance remains valid."
+      ],
+      "permitted_motion": [
+        "Intentional transport toward product exit.",
+        "Residual wrap-axis rotation behavior remains unresolved until sourced or tested."
+      ],
+      "failure_observables": [
+        "Bottle remains trapped after wrap completion.",
+        "Release causes uncontrolled fall, lateral escape, or collision.",
+        "Open geometry blocks the next product or the exit path."
+      ]
+    }
+  ],
+  "cross_state_obligations": [
+    {
+      "id": "OWNER_EXPLICIT",
+      "requirement": "Each POP candidate must name the physical mechanism that owns closure/open/release behavior."
+    },
+    {
+      "id": "MOTION_LAW_EXPLICIT",
+      "requirement": "Open, capture, wrap-maintenance, and release states must be represented by explicit transforms, constrained motion, or another deterministic motion law."
+    },
+    {
+      "id": "CONTACT_MAINTENANCE",
+      "requirement": "Required lateral contact must remain valid through the scoped capture/transfer/wrap interval, not just at one static pose."
+    },
+    {
+      "id": "WRAP_AXIS_PRESERVED",
+      "requirement": "The required bottle wrap-axis rotation must remain intentionally available while other necessary rigid-body motions are restrained."
+    },
+    {
+      "id": "REACTION_PATH",
+      "requirement": "Normal closure and contact reactions must have a defined structural path to fixed mounting/support."
+    },
+    {
+      "id": "ENTRY_EXIT_CLEARANCE",
+      "requirement": "Open/capture/release reachable geometry must preserve bottle entry, bottle exit, neighbor clearance, CAB hardware clearance, and label-transfer path."
+    },
+    {
+      "id": "ROTATION_DRIVE_SEPARATION",
+      "requirement": "Tangential traction/rotation input must be explicitly identified separately from normal-force closure."
+    }
+  ],
+  "deterministic_success_observables": [
+    "Exact candidate component identities and source classifications are bound.",
+    "Representative OPEN, CAPTURE, LABEL_TRANSFER, WRAP, and RELEASE states are defined.",
+    "Whole-body interference/clearance checks pass at each representative state and along any explicitly modeled swept interval.",
+    "Exact B-rep or accepted deterministic evidence supports required contact/tangency at scoped states.",
+    "The restrained/permitted DOF pattern remains consistent with the function-first DOF requirement.",
+    "Reaction support/mounting is geometrically and structurally traceable to fixed support.",
+    "Entry and exit paths remain reachable for the benchmark bottle and neighboring products.",
+    "No unresolved quantity is silently replaced by a guessed value."
+  ],
+  "deterministic_failure_observables": [
+    "Static-pose plausibility is the only support for maintained contact.",
+    "Closure/release owner remains unknown.",
+    "Required contact is lost in a scoped operating state.",
+    "Candidate overconstrains the wrap-axis rotation or leaves an unintended rigid-body escape mode.",
+    "Open or release state blocks product flow.",
+    "Whole-body interference appears with product, CAB hardware, neighboring product, stop, mount, or support.",
+    "Reaction path terminates in floating or unbound geometry.",
+    "Candidate requires an unverified friction, force, stiffness, preload, travel, or tolerance value to pass."
+  ],
+  "measurement_required": [
+    "bottle diameter/process tolerance",
+    "incoming bottle position variation",
+    "closure travel/stroke",
+    "open and closed limits",
+    "preload magnitude",
+    "normal force range",
+    "stiffness/compliance law",
+    "friction coefficient",
+    "traction limit",
+    "actuator type",
+    "actuator speed",
+    "reaction load capacity",
+    "drive speed and acceleration",
+    "label-transfer phase/timing tolerance",
+    "interval-wide reachable clearance margins"
+  ],
+  "candidate_selection_status": "NOT_SELECTED",
+  "v43_prism_status": "CANDIDATE_A_PROJECT_PROPOSAL_FITCHECK_ONLY",
+  "cad_write_authority": "NONE",
+  "mechanical_acceptance_granted": false
+}
