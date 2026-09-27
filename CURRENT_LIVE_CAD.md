@@ -1,52 +1,52 @@
 # CADGrounded — CURRENT LIVE CAD POINTER
 
-**Purpose:** search-first freshness pointer for new chats and handoffs.
+**Purpose:** search-first handoff pointer only.
 
-**Latest successful live verification:** 2026-09-27T23:35Z
+**Reconciled:** 2026-09-27T23:35Z
 
-## Current SOLIDWORKS status
+## Latest successful live SOLIDWORKS read
 
-Bridge: `0.3.0`
+Active document:
+
+`IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE`
+
+Exact path:
+
+`C:\ChatGPT\Solidworks\IXOR\CAB_IXOR_6130800\IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE.SLDASM`
+
+Configuration: `V43_WRAP`
+
+Save flag: `false`
+
+Process ID observed: `22884`
 
 Source classification: `verified_from_solidworks_api`
 
-**Active document: NONE / null**
+## Important: live state changed during synchronization
 
-There is currently no active SOLIDWORKS document bound to the bridge.
+The same sync cycle also successfully observed:
 
-## Last active document observed during this sync
+- v43 / `V43_WRAP` / clean / process `16768`;
+- v27 `SPRING_ROLLER_HANDOFF_FIT_CHECK_PORTABLE` / `Default` / dirty / process `16768`;
+- no active document;
+- then the latest v43 / `V43_WRAP` / clean state on process `22884`.
 
-Earlier in the same synchronization cycle, SOLIDWORKS exposed:
+Therefore **do not use this file as an execution precondition**. Read SOLIDWORKS again immediately before any CAD-dependent test or write.
 
-`IXOR_Benchmark_v27_SPRING_ROLLER_HANDOFF_FIT_CHECK_PORTABLE`
-
-Path:
-
-`C:\ChatGPT\Solidworks\IXOR\CAB_IXOR_6130800\IXOR_Benchmark_v27_SPRING_ROLLER_HANDOFF_FIT_CHECK_PORTABLE.SLDASM`
-
-Configuration: `Default`
-
-Observed save flag: `true`
-
-That v27 state is **not current now**. Because the document was dirty, do not assume its unsaved geometry was persisted.
+The process-ID change is recorded as evidence of session transition only; no cause is inferred.
 
 ## GitHub project-state cross-reference
 
-GitHub `CURRENT_PLAN.json` remains the durable v43 PLAN-0011 investigation state:
+GitHub `CURRENT_PLAN.json` remains the v43 PLAN-0011 investigation:
 
 `ACTIVE_INVESTIGATION_V43_DUAL_PIVOT_PATH_DISPROVEN_NEXT_ARCHITECTURE_REQUIRED`
 
-So at the latest read:
+The exact tested v43 dual-pivot path is `DISPROVEN / EXHAUSTED` for that tested geometry. Broader pivoting architectures remain eligible.
 
-- **live CAD = no active document**
-- **durable project investigation = v43 PLAN-0011**
-
-Before any v43-specific CAD operation, open/activate the exact v43 assembly and perform a fresh live rebind.
-
-Read `CURRENT_PROJECT_STATE.md` for the full synchronized handoff.
+Read `CURRENT_PROJECT_STATE.md` for the synchronized source reconciliation.
 
 ## Mechanical acceptance
 
 **FALSE.**
 
-API success, a stored project plan, or a historical active-document observation does not grant mechanical acceptance.
+A current document title/path/configuration does not by itself prove exact geometric identity with prior evidence and does not grant mechanical acceptance.
