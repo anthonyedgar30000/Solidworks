@@ -158,6 +158,20 @@ function Get-ExactComponent {
     return $rows[0]
 }
 
+
+function Get-OptionalJsonPropertyValue {
+    param(
+        [Parameter(Mandatory=$true)]$Object,
+        [Parameter(Mandatory=$true)][string]$Name
+    )
+
+    $property = $Object.PSObject.Properties[$Name]
+    if ($null -eq $property) {
+        return $null
+    }
+    return $property.Value
+}
+
 function Assert-VectorNear {
     param(
         [Parameter(Mandatory=$true)]$Actual,
@@ -180,17 +194,20 @@ function Multiply-Rotation3RowMajor {
         [Parameter(Mandatory=$true)][double[]]$B
     )
     if ($A.Count -ne 9 -or $B.Count -ne 9) { throw 'Rotation matrices must have 9 entries.' }
-    $C = New-Object double[] 9
-    for ($r=0; $r -lt 3; $r++) {
-        for ($c=0; $c -lt 3; $c++) {
+    $result = [double[]]@(0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0)
+    for ($row=0; $row -lt 3; $row++) {
+        for ($col=0; $col -lt 3; $col++) {
             $sum = 0.0
-            for ($k=0; $k -lt 3; $k++) {
-                $sum += $A[$r*3+$k] * $B[$k*3+$c]
+            for ($inner=0; $inner -lt 3; $inner++) {
+                $ia = [int](($row * 3) + $inner)
+                $ib = [int](($inner * 3) + $col)
+                $sum += [double]$A[$ia] * [double]$B[$ib]
             }
-            $C[$r*3+$c] = $sum
+            $ic = [int](($row * 3) + $col)
+            $result[$ic] = [double]$sum
         }
     }
-    return $C
+    return ,$result
 }
 
 function Get-RotationZRowMajor {
@@ -329,10 +346,10 @@ foreach ($fraction in $SampleFractions) {
                 a_name_exact = $mover
                 b_name_exact = $obstacle
                 classification = [string]$data.classification
-                intersection_body_count = $data.intersection_body_count
-                intersection_volume_mm3 = $data.intersection_volume_mm3
-                minimum_distance_mm = $data.minimum_distance_mm
-                api_distance = [string]$data.api_distance
+                intersection_body_count = Get-OptionalJsonPropertyValue -Object $data -Name 'intersection_body_count'
+                intersection_volume_mm3 = Get-OptionalJsonPropertyValue -Object $data -Name 'intersection_volume_mm3'
+                minimum_distance_mm = Get-OptionalJsonPropertyValue -Object $data -Name 'minimum_distance_mm'
+                api_distance = [string](Get-OptionalJsonPropertyValue -Object $data -Name 'api_distance')
             }
             $pairRows.Add($row)
             if ([string]$data.classification -ceq 'physical_interference') {
@@ -355,10 +372,10 @@ foreach ($fraction in $SampleFractions) {
             a_name_exact = $a
             b_name_exact = $b
             classification = [string]$data.classification
-            intersection_body_count = $data.intersection_body_count
-            intersection_volume_mm3 = $data.intersection_volume_mm3
-            minimum_distance_mm = $data.minimum_distance_mm
-            api_distance = [string]$data.api_distance
+            intersection_body_count = Get-OptionalJsonPropertyValue -Object $data -Name 'intersection_body_count'
+            intersection_volume_mm3 = Get-OptionalJsonPropertyValue -Object $data -Name 'intersection_volume_mm3'
+            minimum_distance_mm = Get-OptionalJsonPropertyValue -Object $data -Name 'minimum_distance_mm'
+            api_distance = [string](Get-OptionalJsonPropertyValue -Object $data -Name 'api_distance')
         }
         $pairRows.Add($row)
         if ([string]$data.classification -ceq 'physical_interference') {
