@@ -133,3 +133,16 @@ A fresh live read immediately before preparation confirmed the active SOLIDWORKS
 This pilot makes **no claim** about V43 kinematics, capture closure, reaction-force path, bottle restraint, operating-state reachability, or mechanical acceptance.
 
 It is a sidecar infrastructure proof using one OEM source artifact.
+
+## Post-pilot topology clarification
+
+The original comparison IDs `AL.ROLLER_MOUNT_BORE_DIAMETER` and `AL.ROLLER_MOUNT_BORE_DEPTH` retain the wording used when the pilot was prepared. They are **historical comparison labels, not current geometry semantics**.
+
+Subsequent bounded Open CASCADE topology refinement against the same exact-hash OEM STEP established that the candidate nominal Ø7 feature is represented by two coaxial trimmed cylindrical patches (`face:160` and `face:161`) with an 8 mm axial extent, not a complete or blind cylindrical bore. The frozen deterministic bundle records 258.492266° of sectional cylindrical coverage, two opposed sampled void regions at a 4 mm probe radius, and a 77.000000000 mm separation from the `face:3` Ø10 reference axis.
+
+Frozen bundle root SHA256:
+
+`dc9cb4cc01a30dfd90ea88997f877d671fdfede0eecb30910b0bf894a6062ac4`
+
+This clarification does **not** independently verify that the partial cylindrical feature is functionally the roller mount, does **not** independently verify that `face:3` is the functional pivot, does **not** create a SolidWorksObservation, and does **not** grant mechanical acceptance. Those semantic identities remain supported but unresolved until bound by authoritative evidence.
+

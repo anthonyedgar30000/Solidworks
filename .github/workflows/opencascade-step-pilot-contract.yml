@@ -6,7 +6,10 @@ on:
       - 'agent-registry/docs/OPENCASCADE_STEP_PILOT_V1.md'
       - 'agent-registry/sidecars/pilots/opencascade-al-carriage-pilot.v1.json'
       - 'agent-registry/sidecars/opencascade/Prepare-OpenCascade-Step-Pilot-V1.ps1'
+      - 'agent-registry/reasoning/runtime/opencascade-al-carriage-topology-refinement-evidence-20260927T0712Z.json'
+      - 'agent-registry/schemas/evidence-record.v1.schema.json'
       - 'agent-registry/tests/Test-OpenCascade-Step-Pilot-Contract.ps1'
+      - 'agent-registry/tests/Test-OpenCascade-AL-Carriage-Topology-Refinement.ps1'
       - '.github/workflows/opencascade-step-pilot-contract.yml'
   push:
     branches:
@@ -15,7 +18,10 @@ on:
       - 'agent-registry/docs/OPENCASCADE_STEP_PILOT_V1.md'
       - 'agent-registry/sidecars/pilots/opencascade-al-carriage-pilot.v1.json'
       - 'agent-registry/sidecars/opencascade/Prepare-OpenCascade-Step-Pilot-V1.ps1'
+      - 'agent-registry/reasoning/runtime/opencascade-al-carriage-topology-refinement-evidence-20260927T0712Z.json'
+      - 'agent-registry/schemas/evidence-record.v1.schema.json'
       - 'agent-registry/tests/Test-OpenCascade-Step-Pilot-Contract.ps1'
+      - 'agent-registry/tests/Test-OpenCascade-AL-Carriage-Topology-Refinement.ps1'
       - '.github/workflows/opencascade-step-pilot-contract.yml'
 
 permissions:
@@ -26,6 +32,18 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Verify Open CASCADE STEP pilot contract
+      - name: Verify Open CASCADE STEP pilot source contract
         shell: pwsh
         run: ./agent-registry/tests/Test-OpenCascade-Step-Pilot-Contract.ps1
+      - name: Verify AL-carriage topology-refinement evidence contract
+        shell: pwsh
+        run: ./agent-registry/tests/Test-OpenCascade-AL-Carriage-Topology-Refinement.ps1
+      - name: Validate topology-refinement EvidenceRecord schema
+        shell: pwsh
+        run: |
+          $recordPath = './agent-registry/reasoning/runtime/opencascade-al-carriage-topology-refinement-evidence-20260927T0712Z.json'
+          $schemaPath = './agent-registry/schemas/evidence-record.v1.schema.json'
+          $json = Get-Content -LiteralPath $recordPath -Raw
+          if (-not ($json | Test-Json -SchemaFile $schemaPath)) {
+            throw 'Open CASCADE topology-refinement EvidenceRecord failed schema validation.'
+          }
