@@ -1,0 +1,384 @@
+{
+  "schema_version": 1,
+  "contract_registry_id": "CADGROUNDED.IXOR.POP_CANDIDATE_CONTRACTS.V1",
+  "plan_id": "PLAN-0011",
+  "step_id": "P0011.2",
+  "status": "DEFINED_NOT_RANKED_NOT_SELECTED",
+  "basis": {
+    "acceptance_envelope_id": "CADGROUNDED.IXOR.FUNCTION_FIRST_POP_ACCEPTANCE_ENVELOPE.V1",
+    "dof_requirement_id": "CADGROUNDED.IXOR.FUNCTION_FIRST_BOTTLE_DOF.V1",
+    "contact_maintenance_requirement_id": "CADGROUNDED.IXOR.CONTACT_MAINTENANCE.V1",
+    "maintenance_candidate_registry_id": "CADGROUNDED.IXOR.MAINTENANCE_CANDIDATES.V1",
+    "mechanism_screen_id": "CADGROUNDED.IXOR.MECHANISM_SCREEN.V1"
+  },
+  "interpretation_boundary": [
+    "These contracts define what each candidate means and what must be bound before POP verification.",
+    "A contract definition is not evidence that the mechanism exists, moves as described, maintains contact, or is mechanically acceptable.",
+    "No candidate is ranked, preferred, selected, or rejected by this registry.",
+    "Unknown dimensions, forces, friction, stiffness, preload, speed, timing, limits, and tolerances remain unresolved or MEASUREMENT_REQUIRED.",
+    "The current v43 PRISM solids remain project/FITCHECK proposal geometry; exact current-pose contact does not promote the mechanism to accepted operating geometry."
+  ],
+  "contracts": [
+    {
+      "candidate_id": "CANDIDATE_TRANSLATING_ROLLER_CARRIER",
+      "architecture_class": "TRANSLATING_ROLLER_CARRIER",
+      "provenance_state": "FUNCTION_FIRST_HYPOTHESIS_ONLY",
+      "definition_state": "CONTRACT_DEFINED",
+      "owner_contract": {
+        "role": "A single carrier or slide owns closure/open/release motion for one or more bottle-support rollers.",
+        "exact_physical_owner": "UNRESOLVED",
+        "owner_binding_requirement": "Before POP CAD creation, exact candidate component identity and fixed/moving support ownership must be declared."
+      },
+      "motion_contract": {
+        "type": "ONE_PRIMARY_TRANSLATIONAL_CLOSURE_DOF",
+        "open_state": "Carrier translated away enough to admit the indexed bottle and preserve neighbor/product-flow clearance.",
+        "capture_state": "Carrier translated toward the bottle until the required rank-sufficient lateral contact set is established under an explicit maintenance law.",
+        "label_transfer_and_wrap_state": "Carrier remains in its bounded capture region while required contact is maintained and bottle wrap-axis rotation remains intentionally available.",
+        "release_state": "Carrier retracts enough to remove capture constraint and restore bottle exit path.",
+        "unresolved": [
+          "translation axis",
+          "stroke",
+          "open coordinate",
+          "capture coordinate",
+          "release coordinate",
+          "velocity profile",
+          "hard/soft limits"
+        ]
+      },
+      "contact_maintenance_contract": {
+        "method_class": "PARENT_KINEMATIC_CLOSURE_PLUS_EXPLICIT_MAINTENANCE_LAW",
+        "acceptable_law_classes": [
+          "bounded position control with sourced product variation",
+          "force-controlled actuation",
+          "spring/compliant preload",
+          "other explicitly modeled unilateral-contact law"
+        ],
+        "current_binding": "UNRESOLVED",
+        "failure_if": "Contact exists only at one static nominal pose or relies on guessed bottle tolerance/preload."
+      },
+      "rotation_contract": {
+        "wrap_axis": "INTENTIONALLY_PRESERVED",
+        "candidate_tangential_drive_source": "FITCHECK_DRIVEN_WRAP_BELT_5x160x93_V25-1",
+        "drive_source_state": "PROJECT_PROPOSAL_NOT_YET_VERIFIED_AS_INTERVAL_WIDE_ROTATION_SOURCE",
+        "separation_rule": "Carrier normal closure must be modeled separately from tangential belt traction/rotation drive."
+      },
+      "reaction_support_contract": {
+        "path": "Bottle normal reaction -> roller(s) -> carrier -> linear guide/bearing -> fixed machine support.",
+        "exact_mounting": "UNRESOLVED",
+        "failure_if": "Reaction path terminates in floating or unbound geometry."
+      },
+      "limits_adjustment_compliance_contract": {
+        "adjustment": "Product-size/position adjustment method must be explicit.",
+        "compliance": "Optional but if used its attachment, preload, force-displacement law, usable travel, and limits must be bound.",
+        "quantitative_state": "MEASUREMENT_REQUIRED"
+      },
+      "required_pop_observations": [
+        "OPEN/CAPTURE/WRAP/RELEASE transforms",
+        "whole-body clearance through translation",
+        "three-contact or equivalent rank-sufficient contact maintenance",
+        "wrap-axis rotation preservation",
+        "reaction path to fixed support",
+        "entry/exit and neighbor clearance"
+      ],
+      "mechanical_acceptance_granted": false
+    },
+    {
+      "candidate_id": "CANDIDATE_PIVOTING_ROLLER_CARRIER",
+      "architecture_class": "PIVOTING_ROLLER_ARM_OR_CARRIER",
+      "provenance_state": "FUNCTION_FIRST_HYPOTHESIS_ONLY",
+      "definition_state": "CONTRACT_DEFINED",
+      "owner_contract": {
+        "role": "A pivoting arm or carrier owns closure/open/release motion for one or more bottle-support rollers.",
+        "exact_physical_owner": "UNRESOLVED",
+        "owner_binding_requirement": "Before POP CAD creation, exact arm/carrier, pivot shaft/bearing, and fixed mount identities must be declared."
+      },
+      "motion_contract": {
+        "type": "ONE_PRIMARY_ROTATIONAL_CLOSURE_DOF",
+        "open_state": "Arm pivoted clear of bottle entry and neighboring product path.",
+        "capture_state": "Arm pivots toward bottle until required contact geometry is established under an explicit maintenance law.",
+        "label_transfer_and_wrap_state": "Arm remains within a bounded angular capture region while maintaining required contacts without obstructing wrap-axis rotation.",
+        "release_state": "Arm pivots away to restore the bottle exit path.",
+        "unresolved": [
+          "pivot axis",
+          "pivot location",
+          "angular travel",
+          "open angle",
+          "capture angle",
+          "release angle",
+          "velocity profile",
+          "stops/limits"
+        ]
+      },
+      "contact_maintenance_contract": {
+        "method_class": "PARENT_PIVOT_CLOSURE_PLUS_EXPLICIT_MAINTENANCE_LAW",
+        "acceptable_law_classes": [
+          "bounded position control with sourced product variation",
+          "torque/force controlled actuation",
+          "spring/compliant preload",
+          "other explicitly modeled unilateral-contact law"
+        ],
+        "current_binding": "UNRESOLVED",
+        "failure_if": "Angular closure reaches only nominal tangent geometry and cannot accommodate variation or maintain contact through the operating interval."
+      },
+      "rotation_contract": {
+        "wrap_axis": "INTENTIONALLY_PRESERVED",
+        "candidate_tangential_drive_source": "FITCHECK_DRIVEN_WRAP_BELT_5x160x93_V25-1",
+        "drive_source_state": "PROJECT_PROPOSAL_NOT_YET_VERIFIED_AS_INTERVAL_WIDE_ROTATION_SOURCE",
+        "separation_rule": "Pivot closure torque/normal force is distinct from tangential bottle-rotation traction."
+      },
+      "reaction_support_contract": {
+        "path": "Bottle normal reaction -> roller(s) -> arm/carrier -> pivot shaft/bearing -> fixed support.",
+        "exact_mounting": "UNRESOLVED",
+        "failure_if": "Pivot support, shaft, bearing, or mount is not tied to fixed load-bearing geometry."
+      },
+      "limits_adjustment_compliance_contract": {
+        "adjustment": "Pivot geometry or support position must provide explicit product-size/position adjustment if required.",
+        "compliance": "If preload/compliance is used, its torque/force-displacement law, travel, attachments, and retention limits must be bound.",
+        "quantitative_state": "MEASUREMENT_REQUIRED"
+      },
+      "required_pop_observations": [
+        "OPEN/CAPTURE/WRAP/RELEASE angles",
+        "swept-volume clearance of arm and rollers",
+        "contact maintenance through angular motion",
+        "wrap-axis rotation preservation",
+        "pivot reaction path to fixed support",
+        "entry/exit and neighbor clearance"
+      ],
+      "mechanical_acceptance_granted": false
+    },
+    {
+      "candidate_id": "CANDIDATE_MOVING_WRAP_BELT_ASSEMBLY",
+      "architecture_class": "MOVING_WRAP_BELT_SUPPORT_ASSEMBLY",
+      "provenance_state": "FUNCTION_FIRST_HYPOTHESIS_ONLY",
+      "definition_state": "CONTRACT_DEFINED",
+      "owner_contract": {
+        "role": "The wrap-belt support assembly owns normal closure/open/release motion while the belt also remains a possible tangential rotation-drive element.",
+        "exact_physical_owner": "UNRESOLVED",
+        "owner_binding_requirement": "Before POP CAD creation, exact belt-support body, guide/pivot, pulleys/rollers, drive, and fixed mounting identities must be declared."
+      },
+      "motion_contract": {
+        "type": "CLOSURE_DOF_UNRESOLVED_TRANSLATION_OR_PIVOT",
+        "open_state": "Belt support displaced clear enough for bottle entry and neighboring-product flow.",
+        "capture_state": "Belt support closes toward bottle against opposing support contacts until required lateral restraint is established.",
+        "label_transfer_and_wrap_state": "Belt support maintains normal contact while tangential belt motion can drive bottle rotation if separately verified.",
+        "release_state": "Belt support moves away or sequences clear enough to restore product exit.",
+        "unresolved": [
+          "closure motion type",
+          "axis or pivot",
+          "travel/range",
+          "open/capture/release state",
+          "belt tension",
+          "support geometry",
+          "limits"
+        ]
+      },
+      "contact_maintenance_contract": {
+        "method_class": "MOVING_BELT_NORMAL_CLOSURE_PLUS_EXPLICIT_MAINTENANCE_LAW",
+        "acceptable_law_classes": [
+          "bounded position control with sourced variation",
+          "force-controlled belt support",
+          "spring/compliant belt support",
+          "other explicitly modeled normal-contact law"
+        ],
+        "current_binding": "UNRESOLVED",
+        "failure_if": "The belt is assumed to supply both traction and adequate normal closure without separately proving each function."
+      },
+      "rotation_contract": {
+        "wrap_axis": "INTENTIONALLY_PRESERVED",
+        "candidate_tangential_drive_source": "DRIVEN_WRAP_BELT_ASSEMBLY",
+        "drive_source_state": "FUNCTIONAL_HYPOTHESIS; BELT_SPEED_TRACTION_AND_TORQUE_UNRESOLVED",
+        "separation_rule": "Normal closure motion/force and tangential belt velocity/traction must be modeled as separate inputs even if physically supplied by one assembly."
+      },
+      "reaction_support_contract": {
+        "path": "Bottle normal/tangential reactions -> belt/support/pulleys -> moving support body -> guide/pivot/mount -> fixed support.",
+        "exact_mounting": "UNRESOLVED",
+        "failure_if": "Belt tension or closure reactions lack a fixed support path."
+      },
+      "limits_adjustment_compliance_contract": {
+        "adjustment": "Support position/tension and product-size accommodation must be explicit.",
+        "compliance": "If belt elasticity or separate preload is credited, its force-displacement behavior must be sourced or measured.",
+        "quantitative_state": "MEASUREMENT_REQUIRED"
+      },
+      "required_pop_observations": [
+        "OPEN/CAPTURE/WRAP/RELEASE support states",
+        "belt-support swept clearance",
+        "maintained lateral contact",
+        "separate normal and tangential functional inputs",
+        "reaction/tension path to fixed support",
+        "entry/exit and label-transfer clearance"
+      ],
+      "mechanical_acceptance_granted": false
+    },
+    {
+      "candidate_id": "CANDIDATE_V43_PRISM_AS_PROJECT_PROPOSAL",
+      "architecture_class": "V43_PRISM_PROJECT_PROPOSAL_FITCHECK_TOPOLOGY",
+      "provenance_state": "PROJECT_FITCHECK_GEOMETRY",
+      "definition_state": "CONTRACT_DEFINED_WITH_MAJOR_UNRESOLVED_BINDINGS",
+      "live_reference_binding": {
+        "document_title": "IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE",
+        "configuration_exact": "V43_WRAP",
+        "current_pose_contact_state": "THREE_LATERAL_CONTACTS_VERIFIED_AT_CURRENT_POSE_ONLY",
+        "exact_members": {
+          "fixed_reference_or_support_geometry": [
+            "FITCHECK_PRISM_REACTION_BASE_70x120x20_V43-1",
+            "FITCHECK_PRISM_GUIDE_RAIL_100x10x10_V43-1",
+            "FITCHECK_PRISM_GUIDE_RAIL_100x10x10_V43-2",
+            "FITCHECK_PRISM_ACTUATOR_ENVELOPE_45x35x35_V43-1"
+          ],
+          "floating_project_fitcheck_geometry": [
+            "FITCHECK_PRISM_CARRIER_SLIDER_15x80x60_V43-1",
+            "FITCHECK_PRISM_LINK_15x10x25_V43-1",
+            "FITCHECK_PRISM_LINK_15x10x25_V43-2",
+            "FITCHECK_PRISM_ARM1_33p0824x10x5_V43-1",
+            "FITCHECK_PRISM_ARM2_18p6806x10x5_V43-1",
+            "FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25-1",
+            "FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25-2"
+          ],
+          "bottle": "BENCH_BOTTLE_D48_H180-2",
+          "wrap_belt": "FITCHECK_DRIVEN_WRAP_BELT_5x160x93_V25-1"
+        },
+        "binding_limit": "Presence, fixed/floating state, and current-pose contact do not establish a mate chain, actuator, closure owner, motion law, compliance owner, or maintained-contact behavior."
+      },
+      "owner_contract": {
+        "role": "Proposed PRISM carrier/link/arm/roller topology is retained as Candidate A for diagnostic POP work.",
+        "proposed_owner_set": [
+          "FITCHECK_PRISM_CARRIER_SLIDER_15x80x60_V43-1",
+          "FITCHECK_PRISM_LINK_15x10x25_V43-1",
+          "FITCHECK_PRISM_LINK_15x10x25_V43-2",
+          "FITCHECK_PRISM_ARM1_33p0824x10x5_V43-1",
+          "FITCHECK_PRISM_ARM2_18p6806x10x5_V43-1"
+        ],
+        "exact_physical_owner": "UNRESOLVED",
+        "evidence_state": "WEAKENED_AS_AUTHORED_MECHANISM; RETAINED_AS_PROJECT_PROPOSAL"
+      },
+      "motion_contract": {
+        "type": "UNBOUND_PROJECT_PROPOSAL",
+        "current_pose": "Capture-like static pose with verified bottle-to-belt and bottle-to-two-roller tangency.",
+        "open_state": "UNDEFINED",
+        "capture_state": "CURRENT_POSE_REFERENCE_ONLY",
+        "label_transfer_and_wrap_state": "UNDEFINED_AS_INTERVAL_WIDE_MOTION",
+        "release_state": "UNDEFINED",
+        "unresolved": [
+          "kinematic owner",
+          "mate chain",
+          "actuator identity",
+          "closure/release path",
+          "travel",
+          "limits",
+          "state transitions"
+        ]
+      },
+      "contact_maintenance_contract": {
+        "method_class": "UNRESOLVED",
+        "current_binding": "CURRENT_POSE_CONTACT_VERIFIED; MAINTENANCE_NOT_ESTABLISHED",
+        "current_pose_baseline": "Bottle 2 has verified tangency to the driven wrap belt and both support rollers with 93 mm trimmed axial overlap for each pair.",
+        "failure_if": "Current pose is treated as proof of maintained capture."
+      },
+      "rotation_contract": {
+        "wrap_axis": "IDEAL_CURRENT_CONTACT_MODEL_PRESERVES_WRAP_AXIS_NULL_MODE",
+        "candidate_tangential_drive_source": "FITCHECK_DRIVEN_WRAP_BELT_5x160x93_V25-1",
+        "drive_source_state": "BELT_IDENTITY_PRESENT; DRIVE_SPEED_TRACTION_TORQUE_AND_INTERVAL_BEHAVIOR_UNRESOLVED",
+        "separation_rule": "Current contact geometry cannot by itself prove that the belt drives bottle rotation or that closure normal force is sufficient."
+      },
+      "reaction_support_contract": {
+        "proposed_fixed_support_set": [
+          "FITCHECK_PRISM_REACTION_BASE_70x120x20_V43-1",
+          "FITCHECK_PRISM_GUIDE_RAIL_100x10x10_V43-1",
+          "FITCHECK_PRISM_GUIDE_RAIL_100x10x10_V43-2"
+        ],
+        "actuator_envelope_note": "FITCHECK_PRISM_ACTUATOR_ENVELOPE_45x35x35_V43-1 is an envelope, not an identified actuator.",
+        "exact_reaction_path": "UNRESOLVED",
+        "failure_if": "Floating links/arms/rollers are assumed to transmit reactions to fixed support without a bound joint/mate/bearing chain."
+      },
+      "limits_adjustment_compliance_contract": {
+        "adjustment": "UNRESOLVED",
+        "compliance": "NO_BOUND_SPRING_OR_COMPLIANCE_OWNER_IN_CURRENT_ASSEMBLY",
+        "actuator": "NO_BOUND_PHYSICAL_ACTUATOR_IN_CURRENT_ASSEMBLY",
+        "quantitative_state": "MEASUREMENT_REQUIRED"
+      },
+      "required_pop_observations": [
+        "define actual closure owner or explicitly re-author topology as a POP hypothesis",
+        "define OPEN/CAPTURE/WRAP/RELEASE state motion",
+        "prove maintained contact through the chosen state path",
+        "bind reaction path into fixed PRISM support geometry",
+        "bind or explicitly add a maintenance/compliance law",
+        "preserve wrap-axis rotation",
+        "verify whole-body clearance through reachable motion"
+      ],
+      "pop_use_state": "ELIGIBLE_AS_DIAGNOSTIC_PROJECT_PROPOSAL_NOT_AS_ESTABLISHED_AUTHORED_MECHANISM",
+      "mechanical_acceptance_granted": false
+    },
+    {
+      "candidate_id": "CANDIDATE_SPRING_OR_COMPLIANT_PRELOAD",
+      "architecture_class": "MAINTENANCE_LAW_AUGMENTATION",
+      "provenance_state": "FUNCTION_FIRST_HYPOTHESIS_ONLY",
+      "definition_state": "CONTRACT_DEFINED_REQUIRES_PARENT_KINEMATIC_ARCHITECTURE",
+      "owner_contract": {
+        "role": "A spring, elastomer, flexure, pneumatic compliance, counterweight, or equivalent element maintains normal contact after a separate parent mechanism establishes capture.",
+        "exact_physical_owner": "UNRESOLVED",
+        "parent_candidate_required": true
+      },
+      "motion_contract": {
+        "type": "COMPLIANCE_SUPERIMPOSED_ON_PARENT_MOTION",
+        "open_state": "Determined by parent mechanism; compliant element must unload or move compatibly.",
+        "capture_state": "Parent closure brings the system into the compliant working range.",
+        "label_transfer_and_wrap_state": "Compliance maintains the required contact set through product/process variation.",
+        "release_state": "Compliance unloads or follows parent opening without trapping the bottle.",
+        "unresolved": [
+          "element type",
+          "working travel",
+          "preload",
+          "rate/force law",
+          "attachment points",
+          "retention limits"
+        ]
+      },
+      "contact_maintenance_contract": {
+        "method_class": "EXPLICIT_FORCE_DISPLACEMENT_OR_EQUIVALENT_COMPLIANCE_LAW",
+        "current_binding": "UNRESOLVED",
+        "failure_if": "Compliance is credited without a sourced/measured force-displacement law and bounded travel."
+      },
+      "rotation_contract": {
+        "wrap_axis": "MUST_NOT_MATERIALLY_OBSTRUCT_REQUIRED_ROTATION",
+        "drive_source_state": "NOT_A_ROTATION_SOURCE_BY_ITSELF",
+        "separation_rule": "Compliance maintains normal contact only unless an additional tangential drive function is explicitly modeled."
+      },
+      "reaction_support_contract": {
+        "path": "Both compliant-element attachment ends and their parent structures must be bound to a closed reaction path.",
+        "exact_mounting": "UNRESOLVED"
+      },
+      "limits_adjustment_compliance_contract": {
+        "adjustment": "Parent mechanism dependent.",
+        "compliance": "PRIMARY_FUNCTION_OF_THIS_AUGMENTATION",
+        "quantitative_state": "MEASUREMENT_REQUIRED"
+      },
+      "required_pop_observations": [
+        "parent mechanism identity",
+        "preload and force-displacement law",
+        "working travel across product variation",
+        "retention/end-stop behavior",
+        "reaction path at both attachments",
+        "release compatibility"
+      ],
+      "mechanical_acceptance_granted": false
+    }
+  ],
+  "cross_candidate_common_unknowns": [
+    "bottle diameter/process tolerance",
+    "incoming bottle position variation",
+    "closure travel/range",
+    "open/capture/release limits",
+    "preload/normal force",
+    "stiffness/compliance law",
+    "friction coefficient",
+    "traction limit",
+    "drive speed/acceleration",
+    "reaction load capacity",
+    "label-transfer timing/phase",
+    "reachable-motion clearance margins"
+  ],
+  "candidate_selection_status": "NOT_SELECTED",
+  "ranking_status": "NOT_PERFORMED",
+  "cad_write_authority": "NONE",
+  "mechanical_acceptance_granted": false
+}
