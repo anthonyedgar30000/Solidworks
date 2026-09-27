@@ -1422,11 +1422,10 @@ function Get-CGBottleFiniteContactRank {
         if ($Point.Count -ne 3 -or $Reaction.Count -ne 3) {
             throw "Finite-contact row '$PairId/$SampleId' requires 3D point and reaction."
         }
-        $arm = @(
-            [double]($Point[0]) - [double]($referencePoint[0]),
-            [double]($Point[1]) - [double]($referencePoint[1]),
-            [double]($Point[2]) - [double]($referencePoint[2])
-        )
+        $armX = [double]($Point[0]) - [double]($referencePoint[0])
+        $armY = [double]($Point[1]) - [double]($referencePoint[1])
+        $armZ = [double]($Point[2]) - [double]($referencePoint[2])
+        $arm = @($armX,$armY,$armZ)
         $moment = Get-Cross3FiniteLocal -A $arm -B $Reaction
         return [pscustomobject][ordered]@{
             pair_id = $PairId
