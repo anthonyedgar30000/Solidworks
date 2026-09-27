@@ -347,6 +347,7 @@ internal static class Dispatcher
         "sw.diagnose_interface_connectors",
         "sw.diagnose_feature_manager_tree",
         "sw.closest_distance_pair",
+        "sw.contact_surface_normals_pair",
         "sw.classify_contact_pair",
         "sw.classify_contact_pair_at_transform",
         "sw.query_mates"
@@ -391,6 +392,16 @@ internal static class Dispatcher
                     payload,
                     "displayed_tree_texts");
             }
+            else if (commandId == "sw.contact_surface_normals_pair")
+            {
+                JsonHelpers.RequireOnlyProperties(
+                    payload,
+                    "document_title_exact",
+                    "document_path_exact",
+                    "active_configuration_exact",
+                    "a_name_exact",
+                    "b_name_exact");
+            }
             else if (commandId == "sw.classify_contact_pair_at_transform")
             {
                 JsonHelpers.RequireOnlyProperties(
@@ -425,6 +436,12 @@ internal static class Dispatcher
                         payload,
                         "displayed_tree_texts")),
                 "sw.closest_distance_pair" => session.ClosestDistancePair(
+                    JsonHelpers.GetRequiredString(payload, "a_name_exact"),
+                    JsonHelpers.GetRequiredString(payload, "b_name_exact")),
+                "sw.contact_surface_normals_pair" => session.ContactSurfaceNormalsPair(
+                    JsonHelpers.GetRequiredString(payload, "document_title_exact"),
+                    JsonHelpers.GetRequiredString(payload, "document_path_exact"),
+                    JsonHelpers.GetRequiredString(payload, "active_configuration_exact"),
                     JsonHelpers.GetRequiredString(payload, "a_name_exact"),
                     JsonHelpers.GetRequiredString(payload, "b_name_exact")),
                 "sw.classify_contact_pair" => session.ClassifyContactPair(
@@ -1805,6 +1822,159 @@ internal sealed class SolidWorksSession : IDisposable
         };
     }
 
+    public object ContactSurfaceNormalsPair(
+        string documentTitleExact,
+        string documentPathExact,
+        string activeConfigurationExact,
+        string aExact,
+        string bExact)
+    {
+        RequireExactActiveDocument(
+            documentTitleExact,
+            documentPathExact,
+            activeConfigurationExact);
+
+        var assembly = RequireAssembly();
+        var components = GetComponents(assembly, topLevelOnly: true);
+
+        var aMatches = components
+            .Where(c => string.Equals(c.Name2, aExact, StringComparison.Ordinal))
+            .ToArray();
+        var bMatches = components
+            .Where(c => string.Equals(c.Name2, bExact, StringComparison.Ordinal))
+            .ToArray();
+
+        if (aMatches.Length != 1 || bMatches.Length != 1)
+        {
+            throw new CadGroundedException(
+                "component_match_not_unique",
+                $"Exact top-level component matching must be unique. " +
+                $"a_matches={aMatches.Length}, b_matches={bMatches.Length}. " +
+                $"a='{aExact}', b='{bExact}'.");
+        }
+
+        var a = aMatches[0];
+        var b = bMatches[0];
+
+        if (string.Equals(a.Name2, b.Name2, StringComparison.Ordinal))
+        {
+            throw new CadGroundedException(
+                "same_component",
+                "Contact-surface normal observation requires two different components.");
+        }
+
+        var aState = a.GetSuppression2();
+        var bState = b.GetSuppression2();
+        if (!IsResolvedComponentState(aState) || !IsResolvedComponentState(bState))
+        {
+            throw new CadGroundedException(
+                "component_not_resolved",
+                $"Contact-surface normal observation requires resolved components. " +
+                $"a_state={aState}, b_state={bState}.");
+        }
+
+        object pointA;
+        object pointB;
+        double distanceM;
+
+        try
+        {
+            distanceM = _doc.ClosestDistance(a, b, out pointA, out pointB);
+        }
+        catch (COMException ex)
+        {
+            throw new CadGroundedException(
+                "closest_distance_com_fault",
+                $"IModelDoc2.ClosestDistance failed for '{a.Name2}' and '{b.Name2}'.",
+                ex);
+        }
+
+        if (distanceM < 0.0)
+        {
+            throw new CadGroundedException(
+                "closest_distance_failed",
+                $"IModelDoc2.ClosestDistance returned {distanceM} for '{a.Name2}' and '{b.Name2}'.");
+        }
+
+        var closestPointAM = ToDoubleArray(pointA);
+        var closestPointBM = ToDoubleArray(pointB);
+        if (closestPointAM is null || closestPointAM.Length < 3 ||
+            closestPointBM is null || closestPointBM.Length < 3)
+        {
+            throw new CadGroundedException(
+                "closest_point_unavailable",
+                "ClosestDistance did not return two usable XYZ closest points.");
+        }
+
+        const double contactToleranceM = 0.000001;
+        object[] faceCandidatesA = Array.Empty<object>();
+        object[] faceCandidatesB = Array.Empty<object>();
+        string faceNormalState;
+
+        if (distanceM <= contactToleranceM)
+        {
+            faceCandidatesA = FindFaceNormalCandidatesAtAssemblyPoint(
+                a,
+                closestPointAM,
+                "A",
+                contactToleranceM);
+            faceCandidatesB = FindFaceNormalCandidatesAtAssemblyPoint(
+                b,
+                closestPointBM,
+                "B",
+                contactToleranceM);
+
+            faceNormalState =
+                faceCandidatesA.Length > 0 && faceCandidatesB.Length > 0
+                    ? "face_normal_candidates_observed"
+                    : "contact_point_face_binding_unresolved";
+        }
+        else
+        {
+            faceNormalState = "not_evaluated_positive_clearance";
+        }
+
+        RequireExactActiveDocument(
+            documentTitleExact,
+            documentPathExact,
+            activeConfigurationExact);
+
+        return new
+        {
+            document = CurrentDocumentIdentity(),
+            precondition = new
+            {
+                document_title_exact = documentTitleExact,
+                document_path_exact = documentPathExact,
+                active_configuration_exact = activeConfigurationExact,
+                matched = true
+            },
+            component_a = ComponentIdentity(a, aState),
+            component_b = ComponentIdentity(b, bState),
+            minimum_distance_m = distanceM,
+            minimum_distance_mm = distanceM * 1000.0,
+            closest_point_a_m = closestPointAM,
+            closest_point_b_m = closestPointBM,
+            closest_point_a_mm = Scale(closestPointAM, 1000.0),
+            closest_point_b_mm = Scale(closestPointBM, 1000.0),
+            contact_tolerance_mm = contactToleranceM * 1000.0,
+            face_normal_state = faceNormalState,
+            face_candidates_a = faceCandidatesA,
+            face_candidates_b = faceCandidatesB,
+            api_distance = "IModelDoc2.ClosestDistance",
+            api_face_projection = "IFace2.GetClosestPointOn on transformed temporary body copies",
+            api_planar_normal = "IFace2.Normal",
+            api_curved_normal = "ISurface.EvaluateAtPoint adjusted by IFace2.FaceInSurfaceSense",
+            interpretation_note =
+                "This command reports candidate face normals at the current-pose closest/contact points only. " +
+                "It does not classify physical interference, support, reaction capacity, friction, preload, or mechanism function. " +
+                "Temporary IBody2 copies are transformed into assembly coordinates; the live assembly is not modified.",
+            model_mutation = false,
+            write_authority = "NONE",
+            evidence = "verified_from_solidworks_api"
+        };
+    }
+
     public object ClassifyContactPair(string aExact, string bExact)
     {
         var assembly = RequireAssembly();
@@ -2543,6 +2713,216 @@ internal sealed class SolidWorksSession : IDisposable
             translation_mm = Scale(translationM, 1000.0),
             scale = transformArray.Length > 12 ? transformArray[12] : (double?)null
         };
+    }
+
+    private static object[] FindFaceNormalCandidatesAtAssemblyPoint(
+        IComponent2 component,
+        double[] assemblyPointM,
+        string label,
+        double faceMatchToleranceM)
+    {
+        var transform = component.Transform2;
+        if (transform is null)
+        {
+            throw new CadGroundedException(
+                "component_transform_unavailable",
+                $"Component-{label} '{component.Name2}' has no Transform2.");
+        }
+
+        var rows = new List<object>();
+        var bodies = GetSolidBodies(component);
+
+        for (var bodyIndex = 0; bodyIndex < bodies.Length; bodyIndex++)
+        {
+            var bodyCopy = bodies[bodyIndex].Copy() as IBody2;
+            if (bodyCopy is null)
+            {
+                throw new CadGroundedException(
+                    "temporary_body_copy_failed",
+                    $"Body2.Copy failed for component-{label} '{component.Name2}', body_index={bodyIndex}.");
+            }
+
+            if (!bodyCopy.ApplyTransform(transform))
+            {
+                throw new CadGroundedException(
+                    "temporary_body_transform_failed",
+                    $"IBody2.ApplyTransform failed for component-{label} '{component.Name2}', body_index={bodyIndex}.");
+            }
+
+            var rawFaces = bodyCopy.GetFaces();
+            if (rawFaces is not Array faceArray)
+                continue;
+
+            var faceIndex = 0;
+            foreach (var rawFace in faceArray)
+            {
+                if (rawFace is not IFace2 face)
+                {
+                    faceIndex++;
+                    continue;
+                }
+
+                double[]? closest = null;
+                try
+                {
+                    closest = ToDoubleArray(
+                        face.GetClosestPointOn(
+                            assemblyPointM[0],
+                            assemblyPointM[1],
+                            assemblyPointM[2]));
+                }
+                catch
+                {
+                    faceIndex++;
+                    continue;
+                }
+
+                if (closest is null || closest.Length < 5)
+                {
+                    faceIndex++;
+                    continue;
+                }
+
+                var dx = closest[0] - assemblyPointM[0];
+                var dy = closest[1] - assemblyPointM[1];
+                var dz = closest[2] - assemblyPointM[2];
+                var residualM = Math.Sqrt(dx * dx + dy * dy + dz * dz);
+
+                if (residualM > faceMatchToleranceM)
+                {
+                    faceIndex++;
+                    continue;
+                }
+
+                var normal = ToDoubleArray(face.Normal);
+                var normalSource = "IFace2.Normal_planar";
+                var normalState = "observed_planar_face_normal";
+
+                if (!TryNormalizeVector3(normal, out var unitNormal))
+                {
+                    ISurface? surface = null;
+                    try
+                    {
+                        surface = face.GetSurface() as ISurface;
+                    }
+                    catch
+                    {
+                        surface = null;
+                    }
+
+                    double[]? evaluated = null;
+                    if (surface is not null)
+                    {
+                        try
+                        {
+                            evaluated = ToDoubleArray(
+                                surface.EvaluateAtPoint(
+                                    closest[0],
+                                    closest[1],
+                                    closest[2]));
+                        }
+                        catch
+                        {
+                            evaluated = null;
+                        }
+                    }
+
+                    double[]? surfaceNormal = null;
+                    if (evaluated is { Length: >= 3 })
+                    {
+                        surfaceNormal = new[]
+                        {
+                            evaluated[0],
+                            evaluated[1],
+                            evaluated[2]
+                        };
+
+                        try
+                        {
+                            if (face.FaceInSurfaceSense())
+                            {
+                                surfaceNormal[0] = -surfaceNormal[0];
+                                surfaceNormal[1] = -surfaceNormal[1];
+                                surfaceNormal[2] = -surfaceNormal[2];
+                            }
+                        }
+                        catch
+                        {
+                            surfaceNormal = null;
+                        }
+                    }
+
+                    if (TryNormalizeVector3(surfaceNormal, out unitNormal))
+                    {
+                        normalSource =
+                            "ISurface.EvaluateAtPoint_adjusted_by_IFace2.FaceInSurfaceSense";
+                        normalState = "observed_surface_normal";
+                    }
+                    else
+                    {
+                        unitNormal = Array.Empty<double>();
+                        normalSource = "unresolved";
+                        normalState = "normal_unresolved";
+                    }
+                }
+
+                rows.Add(new
+                {
+                    body_index = bodyIndex,
+                    face_index = faceIndex,
+                    point_residual_m = residualM,
+                    point_residual_mm = residualM * 1000.0,
+                    closest_point_on_face_m = new[]
+                    {
+                        closest[0],
+                        closest[1],
+                        closest[2]
+                    },
+                    closest_point_on_face_mm = new[]
+                    {
+                        closest[0] * 1000.0,
+                        closest[1] * 1000.0,
+                        closest[2] * 1000.0
+                    },
+                    uv = new[] { closest[3], closest[4] },
+                    unit_normal_assembly = unitNormal,
+                    normal_state = normalState,
+                    normal_source = normalSource,
+                    face_area_m2_approx = SafeDouble(() => face.GetArea()),
+                    face_identity_note =
+                        "body_index/face_index are observation-local indices on a transformed temporary body copy, not persistent CAD face IDs"
+                });
+
+                faceIndex++;
+            }
+        }
+
+        return rows.ToArray();
+    }
+
+    private static bool TryNormalizeVector3(
+        double[]? input,
+        out double[] unit)
+    {
+        unit = Array.Empty<double>();
+        if (input is null || input.Length < 3)
+            return false;
+
+        var magnitude = Math.Sqrt(
+            input[0] * input[0] +
+            input[1] * input[1] +
+            input[2] * input[2]);
+
+        if (!double.IsFinite(magnitude) || magnitude <= 1e-12)
+            return false;
+
+        unit = new[]
+        {
+            input[0] / magnitude,
+            input[1] / magnitude,
+            input[2] / magnitude
+        };
+        return true;
     }
 
     private static IBody2[] GetSolidBodies(IComponent2 component)
