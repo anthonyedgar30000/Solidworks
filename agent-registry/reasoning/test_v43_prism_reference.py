@@ -10,6 +10,7 @@ REFERENCE = HERE / "reference_cases" / "v43_prism_capture_and_rotation.functiona
 GUIDE_VERIFIER = HERE.parent / "workers" / "CadGrounded.SolidWorksWorker" / "Verify-ClassifyContact-V43-Prism-GuideRails.ps1"
 SLIDER_LINK_VERIFIER = HERE.parent / "workers" / "CadGrounded.SolidWorksWorker" / "Verify-ClassifyContact-V43-Prism-SliderLinks.ps1"
 LINK_ARM_VERIFIER = HERE.parent / "workers" / "CadGrounded.SolidWorksWorker" / "Verify-ClassifyContact-V43-Prism-LinkArms.ps1"
+ARM_ROLLER_VERIFIER = HERE.parent / "workers" / "CadGrounded.SolidWorksWorker" / "Verify-ClassifyContact-V43-Prism-ArmRollers.ps1"
 
 def load_case():
     return json.loads(REFERENCE.read_text(encoding="utf-8"))
@@ -26,6 +27,7 @@ class V43PrismRegistrationTests(unittest.TestCase):
         self.assertIn("E.V43.PRISM.LINK1_REACTION_BASE.ARCH_PROJECTION.20260926", evidence_ids)
         self.assertIn("E.V43.PRISM.GUIDE_CONTACT.ARCH_PROJECTION.20260927", evidence_ids)
         self.assertIn("E.V43.PRISM.SLIDER_LINK_CONTACT.ARCH_PROJECTION.20260927", evidence_ids)
+        self.assertIn("E.V43.PRISM.LINK_ARM_CONTACT.ARCH_PROJECTION.20260927", evidence_ids)
         report = evaluate_architecture(case)
         self.assertEqual(report["machine_acceptance_state"], "MECHANICAL_ACCEPTANCE_BLOCKED")
         self.assertFalse(report["mechanical_acceptance_granted"])
@@ -41,18 +43,19 @@ class V43PrismRegistrationTests(unittest.TestCase):
         for hypothesis_id, state in expected.items():
             self.assertEqual(by_id(case["hypotheses"], hypothesis_id)["evidence_state"], state)
 
-    def test_completed_slider_link_test_is_replaced_by_all_link_arm_contact_test(self):
+    def test_completed_link_arm_test_is_replaced_by_all_arm_roller_contact_test(self):
         case = load_case()
         ids = {item["id"] for item in case["next_tests"]}
         self.assertNotIn("TEST_V43_PRISM_KINEMATIC_BINDING", ids)
         self.assertNotIn("TEST_V43_PRISM_GUIDE_CONTACT_TOPOLOGY", ids)
         self.assertNotIn("TEST_V43_PRISM_SLIDER_LINK_CONTACT_TOPOLOGY", ids)
-        test = by_id(case["next_tests"], "TEST_V43_PRISM_LINK_ARM_CONTACT_TOPOLOGY")
+        self.assertNotIn("TEST_V43_PRISM_LINK_ARM_CONTACT_TOPOLOGY", ids)
+        test = by_id(case["next_tests"], "TEST_V43_PRISM_ARM_ROLLER_CONTACT_TOPOLOGY")
         for token in (
-            "FITCHECK_PRISM_LINK_15x10x25_V43-1",
-            "FITCHECK_PRISM_LINK_15x10x25_V43-2",
             "FITCHECK_PRISM_ARM1_33p0824x10x5_V43-1",
             "FITCHECK_PRISM_ARM2_18p6806x10x5_V43-1",
+            "FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25-1",
+            "FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25-2",
             "all four",
         ):
             self.assertIn(token, test["question"])
@@ -102,6 +105,24 @@ class V43PrismRegistrationTests(unittest.TestCase):
             "FITCHECK_PRISM_LINK_15x10x25_V43-2",
             "FITCHECK_PRISM_ARM1_33p0824x10x5_V43-1",
             "FITCHECK_PRISM_ARM2_18p6806x10x5_V43-1",
+            "write_authority -cne 'NONE'",
+            "model_mutation -ne $false",
+            "Get-TargetState",
+            "Get-FileEvidence",
+            "V43_WRAP",
+        ):
+            self.assertIn(token, source)
+        for forbidden in ("sw.set_transform", "sw.insert_component", "AddMate", "CreateMate", "EditRebuild", "ForceRebuild", "SaveAs"):
+            self.assertNotIn(forbidden, source)
+
+    def test_arm_roller_verifier_preserves_bounded_read_only_contract(self):
+        source = ARM_ROLLER_VERIFIER.read_text(encoding="utf-8")
+        for token in (
+            "sw.classify_contact_pair",
+            "FITCHECK_PRISM_ARM1_33p0824x10x5_V43-1",
+            "FITCHECK_PRISM_ARM2_18p6806x10x5_V43-1",
+            "FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25-1",
+            "FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25-2",
             "write_authority -cne 'NONE'",
             "model_mutation -ne $false",
             "Get-TargetState",
