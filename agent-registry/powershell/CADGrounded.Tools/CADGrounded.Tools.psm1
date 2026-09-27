@@ -682,7 +682,9 @@ function Get-CGBottleContactConstraintMap {
         param([double[]]$A)
         $mag = [Math]::Sqrt(([double]$A[0] * [double]$A[0]) + ([double]$A[1] * [double]$A[1]))
         if ($mag -le $Tolerance) { throw 'Cannot normalize near-zero in-plane vector.' }
-        return @(([double]$A[0] / $mag),([double]$A[1] / $mag))
+        $nx = ([double]$A[0]) / ([double]$mag)
+        $ny = ([double]$A[1]) / ([double]$mag)
+        return @($nx,$ny)
     }
 
     function Get-BestOpposedCandidateLocal {
@@ -792,7 +794,10 @@ function Get-CGBottleContactConstraintMap {
         $sumCx += [double]$item.point_xy_mm[0]
         $sumCy += [double]$item.point_xy_mm[1]
     }
-    $commonPoint = @($sumCx / $intersections.Count,$sumCy / $intersections.Count)
+    $intersectionCount = [double]$intersections.Count
+    $commonX = ([double]$sumCx) / $intersectionCount
+    $commonY = ([double]$sumCy) / $intersectionCount
+    $commonPoint = @($commonX,$commonY)
 
     $maxIntersectionSpread = 0.0
     foreach ($item in $intersections) {
@@ -842,7 +847,11 @@ function Get-CGBottleContactConstraintMap {
     $equilibriumResidual = @($null,$null)
     if ($positiveSpan) {
         $minCoefficient = ($coefficients | Measure-Object -Minimum).Minimum
-        $normalizedCoefficients = @($coefficients | ForEach-Object { [double]$_ / [double]$minCoefficient })
+        $normalizedCoefficients = @($coefficients | ForEach-Object {
+            $numerator = [double]$_
+            $denominator = [double]$minCoefficient
+            $numerator / $denominator
+        })
         $sumX = 0.0
         $sumY = 0.0
         for ($i = 0; $i -lt 3; $i++) {
