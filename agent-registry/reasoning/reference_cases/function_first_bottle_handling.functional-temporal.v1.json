@@ -102,9 +102,7 @@
       "evidence_refs": [
         "E.FUNCTION_FIRST.BOTTLE_DOF.20260927T075043247Z"
       ],
-      "depends_on_requirement_ids": [
-        "PRODUCT_POSITION_STABLE"
-      ],
+      "depends_on_requirement_ids": [],
       "scope": {
         "state_ids": [
           "INDEXED",
@@ -1945,86 +1943,6 @@
       "evidence_confidence": 0.95,
       "unresolved_relevance": 1,
       "cost": 1
-    },
-    {
-      "id": "TEST_MECHANISM_CANDIDATE_FAMILY_SET",
-      "question": "Only after the function-first bottle DOF/support/contact requirements are bound, activate and register multiple explicit candidate mechanism families without privileging current geometry: preserved v43 Prism Candidate A, moving driven wrap-belt assembly, translating roller carrier, pivoting roller arm/carrier, moving side-wall or side-belt drive, pinch-belt/multi-roller capture, and any other explicit mechanism whose assumptions and provenance are stated. Do not generate CAD or infer missing kinematics.",
-      "resolves_requirement_ids": [
-        "CAPTURE_KINEMATIC_OWNER"
-      ],
-      "hypothesis_ids": [
-        "H_TRANSLATING_ROLLER_CARRIER_OR_SLIDE",
-        "H_PIVOTING_ROLLER_ARM_OR_CARRIER",
-        "H_MOVING_WRAP_BELT_ASSEMBLY",
-        "H_MOVING_SIDE_WALL_OR_BELT_DRIVE",
-        "H_PINCH_BELT_OR_MULTIROLLER_CAPTURE",
-        "H_CANDIDATE_A_V43_PRISM",
-        "H_OTHER_EXPLICIT_CLOSURE_MECHANISM"
-      ],
-      "discrimination_power": 0.98,
-      "evidence_confidence": 0.9,
-      "unresolved_relevance": 1,
-      "cost": 1
-    },
-    {
-      "id": "TEST_MECHANISM_CANDIDATE_SCREEN",
-      "question": "Screen every activated bottle-handling candidate against the same deterministic obligation matrix: indexed-product compatibility, required bottle DOF/support/restraint, controlled rotation source, wrap contact, CAB label-transfer relationship, reaction-force path, mounting, reachable interference, release/exit, and neighboring-product clearance. Record PASS, FAIL, or UNRESOLVED per obligation and retain negative evidence. Identify candidates eligible for further deterministic CAD prototyping; do not grant mechanical acceptance.",
-      "resolves_requirement_ids": [
-        "CAPTURE_KINEMATIC_OWNER",
-        "BOTTLE_RESTRAINT_THROUGHOUT_CAPTURE",
-        "BOTTLE_ROTATION_SOURCE_BOUND",
-        "WRAP_CONTACT_THROUGHOUT_CAPTURE",
-        "CAPTURE_REACTION_FORCE_PATH",
-        "REACHABLE_MOTION_CLEARANCE",
-        "RELEASE_PATH_CLEAR_ACROSS_REACHABLE_STATES"
-      ],
-      "hypothesis_ids": [
-        "H_TRANSLATING_ROLLER_CARRIER_OR_SLIDE",
-        "H_PIVOTING_ROLLER_ARM_OR_CARRIER",
-        "H_MOVING_WRAP_BELT_ASSEMBLY",
-        "H_MOVING_SIDE_WALL_OR_BELT_DRIVE",
-        "H_PINCH_BELT_OR_MULTIROLLER_CAPTURE",
-        "H_CANDIDATE_A_V43_PRISM",
-        "H_OTHER_EXPLICIT_CLOSURE_MECHANISM"
-      ],
-      "discrimination_power": 0.99,
-      "evidence_confidence": 0.9,
-      "unresolved_relevance": 1,
-      "cost": 2
-    },
-    {
-      "id": "TEST_CAPTURE_RESTRAINT_AND_CONTACT_INTERVAL",
-      "question": "After the capture owner is bound, what interval-wide evidence proves bottle restraint, required contact, and phase ordering throughout CAPTURE_AND_ROTATION, LABEL_TRANSFER_INTERVAL, and WRAP_ACTIVE rather than at one static pose?",
-      "resolves_requirement_ids": [
-        "BOTTLE_RESTRAINT_THROUGHOUT_CAPTURE",
-        "WRAP_CONTACT_THROUGHOUT_CAPTURE",
-        "INV_BOTTLE_RESTRAINT_REMAINS_VALID",
-        "INV_CONTACT_REMAINS_VALID_DURING_WRAP",
-        "INV_CAPTURE_PHASE_ORDER_AND_CONTAINMENT"
-      ],
-      "hypothesis_ids": [
-        "H_CAPTURE_COMPLIANCE_OR_PRELOAD"
-      ],
-      "discrimination_power": 0.95,
-      "evidence_confidence": 0.85,
-      "unresolved_relevance": 1,
-      "cost": 2
-    },
-    {
-      "id": "TEST_REACHABLE_CAPTURE_AND_RELEASE_ENVELOPE",
-      "question": "What bounded reachable motion envelope must be checked for capture and release, and which exact whole-body clearance/interference tests cover it?",
-      "resolves_requirement_ids": [
-        "REACHABLE_MOTION_CLEARANCE",
-        "RELEASE_PATH_CLEAR_ACROSS_REACHABLE_STATES",
-        "INV_CLEARANCE_APPLIES_TO_REACHABLE_MOTION"
-      ],
-      "hypothesis_ids": [
-        "H_CAPTURE_CLOSURE_OWNER"
-      ],
-      "discrimination_power": 0.92,
-      "evidence_confidence": 0.8,
-      "unresolved_relevance": 1,
-      "cost": 3
     }
   ]
 }
