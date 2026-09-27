@@ -166,27 +166,34 @@ function Get-MatrixRank {
     for($col=0;$col -lt $n -and $pivotRow -lt $m;$col++){
         $best=-1; $bestAbs=0.0
         for($r=$pivotRow;$r -lt $m;$r++){
-            $v=[Math]::Abs([double]$a[$r,$col])
+            $cellValue=[double]$a[$r,$col]
+            $v=[Math]::Abs($cellValue)
             if($v -gt $bestAbs){$bestAbs=$v;$best=$r}
         }
         if($best -lt 0 -or $bestAbs -le $Tolerance){continue}
         if($best -ne $pivotRow){
             for($j=0;$j -lt $n;$j++){
-                $tmp=[double]$a[$pivotRow,$j]
-                $a[$pivotRow,$j]=[double]$a[$best,$j]
-                $a[$best,$j]=$tmp
+                $pivotRowValue=[double]$a[$pivotRow,$j]
+                $bestRowValue=[double]$a[$best,$j]
+                $a[$pivotRow,$j]=$bestRowValue
+                $a[$best,$j]=$pivotRowValue
             }
         }
-        $pivot=[double]$a[$pivotRow,$col]
-        for($j=$col;$j -lt $n;$j++){ $a[$pivotRow,$j]=[double]$a[$pivotRow,$j]/$pivot }
+
+        $pivotValue=[double]$a[$pivotRow,$col]
+        for($j=$col;$j -lt $n;$j++){
+            $rowValue=[double]$a[$pivotRow,$j]
+            $a[$pivotRow,$j]=$rowValue/$pivotValue
+        }
+
         for($r=0;$r -lt $m;$r++){
             if($r -eq $pivotRow){continue}
             $factor=[double]$a[$r,$col]
             if([Math]::Abs($factor) -le $Tolerance){continue}
             for($j=$col;$j -lt $n;$j++){
-                $cur=[double]$a[$r,$j]
-                $pv=[double]$a[$pivotRow,$j]
-                $a[$r,$j]=$cur-($factor*$pv)
+                $currentValue=[double]$a[$r,$j]
+                $pivotRowValue=[double]$a[$pivotRow,$j]
+                $a[$r,$j]=$currentValue-($factor*$pivotRowValue)
             }
         }
         $rank++; $pivotRow++
@@ -196,11 +203,19 @@ function Get-MatrixRank {
 
 function New-WrenchRow {
     param([double[]]$PointMm,[double[]]$Reaction,[double[]]$ReferenceMm)
-    $arm=@(
-        [double]$PointMm[0]-[double]$ReferenceMm[0],
-        [double]$PointMm[1]-[double]$ReferenceMm[1],
-        [double]$PointMm[2]-[double]$ReferenceMm[2]
-    )
+
+    $px=[double]$PointMm[0]
+    $py=[double]$PointMm[1]
+    $pz=[double]$PointMm[2]
+    $rx0=[double]$ReferenceMm[0]
+    $ry0=[double]$ReferenceMm[1]
+    $rz0=[double]$ReferenceMm[2]
+
+    $armX=$px-$rx0
+    $armY=$py-$ry0
+    $armZ=$pz-$rz0
+    $arm=@($armX,$armY,$armZ)
+
     $moment=Get-Cross3 -A $arm -B $Reaction
     @(
         [double]$Reaction[0],[double]$Reaction[1],[double]$Reaction[2],
@@ -284,7 +299,16 @@ foreach($pair in $Pairs){
 
         $ap=@($bottleFace.surface_observation.cylinder.axis_point_assembly_mm | ForEach-Object {[double]$_})
         $bp=@($otherCylinder.axis_point_assembly_mm | ForEach-Object {[double]$_})
-        $delta=@([double]$bp[0]-[double]$ap[0],[double]$bp[1]-[double]$ap[1],[double]$bp[2]-[double]$ap[2])
+        $bpx=[double]$bp[0]
+        $bpy=[double]$bp[1]
+        $bpz=[double]$bp[2]
+        $apx=[double]$ap[0]
+        $apy=[double]$ap[1]
+        $apz=[double]$ap[2]
+        $deltaX=$bpx-$apx
+        $deltaY=$bpy-$apy
+        $deltaZ=$bpz-$apz
+        $delta=@($deltaX,$deltaY,$deltaZ)
         $cross=Get-Cross3 -A $delta -B $aAxis
         $axisDistance=Get-Magnitude3 -A $cross
         $radiusSum=[double]$bottleFace.surface_observation.cylinder.radius_mm+[double]$otherCylinder.radius_mm
@@ -297,7 +321,7 @@ foreach($pair in $Pairs){
             cylinder_axis_parallel_dot=[double]$axisDot
             cylinder_axis_distance_mm=[double]$axisDistance
             radius_sum_mm=[double]$radiusSum
-            tangency_residual_mm=[double]$axisDistance-[double]$radiusSum
+            tangency_residual_mm=([double]$axisDistance)-([double]$radiusSum)
             opposed_normal_dot=[double]$other.dot
         }
     }
@@ -331,10 +355,17 @@ $wrapTwist=@(0.0,0.0,0.0,0.0,0.0,1.0)
 $wrapResiduals=@()
 foreach($row in $rows){
     $sum=0.0
-    for($j=0;$j -lt 6;$j++){ $sum += [double]$row[$j]*[double]$wrapTwist[$j] }
+    for($j=0;$j -lt 6;$j++){
+        $rowValue=[double]$row[$j]
+        $twistValue=[double]$wrapTwist[$j]
+        $sum += $rowValue*$twistValue
+    }
     $wrapResiduals += $sum
 }
-$maxWrapResidual=($wrapResiduals | ForEach-Object {[Math]::Abs([double]$_} | Measure-Object -Maximum).Maximum
+$maxWrapResidual=($wrapResiduals | ForEach-Object {
+    $residualValue=[double]$_
+    [Math]::Abs($residualValue)
+} | Measure-Object -Maximum).Maximum
 
 $componentsAfter=Invoke-WorkerJson -Arguments @('components','--all')
 $targetStateAfter=Get-TargetState -ComponentsEnvelope $componentsAfter -TargetComponents $TargetComponents

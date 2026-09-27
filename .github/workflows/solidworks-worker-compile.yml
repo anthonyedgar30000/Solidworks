@@ -78,6 +78,9 @@ jobs:
       - name: Test function-first four-pair contact-normal verifier source contract
         working-directory: agent-registry/workers/CadGrounded.SolidWorksWorker
         run: .\Test-FunctionFirst-BottleContactNormalsVerifierSourceContract.ps1
+      - name: Test function-first lateral contact manifold verifier source contract
+        working-directory: agent-registry/workers/CadGrounded.SolidWorksWorker
+        run: .\Test-FunctionFirst-LateralContactManifoldVerifierSourceContract.ps1
   interface-reasoning:
     name: Interface contract reasoning regressions
     runs-on: ubuntu-latest
