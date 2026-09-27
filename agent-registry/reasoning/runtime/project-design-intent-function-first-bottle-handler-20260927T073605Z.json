@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "record_type": "evidence",
+  "evidence_id": "E.PROJECT.DESIGN_INTENT.FUNCTION_FIRST_BOTTLE_HANDLER.20260927T073605Z",
+  "evidence_type": "human_observation",
+  "evidence_state": "VERIFIED",
+  "source_authority": "HUMAN_OBSERVATION",
+  "source_classification": "verified_user_project_design_intent",
+  "subject": {
+    "subject_type": "project_design_intent",
+    "identity_exact": "CADGROUNDED.IXOR.FUNCTION_FIRST_BOTTLE_HANDLER_ARCHITECTURE"
+  },
+  "provenance": {
+    "recorded_at": "2026-09-27T07:36:05Z",
+    "source_ref": "User project direction in the CAD-Grounded ChatGPT project conversation: do not treat the V43 Prism geometry as mandatory architecture; derive and compare bottle-handling mechanisms from the required labeling functions."
+  },
+  "dependencies": [
+    "E.V43.PRISM.FULL_CHAIN_MATES.20260927T070827844Z"
+  ],
+  "geometry_state": "NOT_APPLICABLE",
+  "mechanical_acceptance_granted": false,
+  "payload": {
+    "observation_kind": "human_project_architecture_direction",
+    "admitted_project_direction": [
+      "Existing V43 Prism fit-check geometry remains preserved as candidate/research evidence.",
+      "The project is not committed to the V43 slider/link/arm mechanism as the required bottle-handling architecture.",
+      "Mechanism selection must start from bottle-labeling functions and verified constraints, then compare multiple deterministic candidate families.",
+      "A new candidate may replace V43 if it better satisfies the same mechanical obligations."
+    ],
+    "explicitly_not_claimed": [
+      "This project-direction record is not evidence that any particular mechanism is mechanically correct.",
+      "It does not grant mechanical acceptance or CAD write authority.",
+      "It does not invalidate prior V43 measurements; those remain bounded evidence about Candidate A."
+    ]
+  }
+}
