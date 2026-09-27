@@ -1,0 +1,41 @@
+{
+  "record_type": "divergence_record",
+  "schema_version": 1,
+  "record_id": "DIV-0003",
+  "project_id": "CADGROUNDED.IXOR",
+  "recorded_at_utc": "2026-09-27T07:30:00Z",
+  "from_plan_id": "PLAN-0009",
+  "classification": "ARCHITECTURE_SCOPE_REPLAN",
+  "trigger": {
+    "basis": "HUMAN_DESIGN_SCOPE_DIRECTIVE",
+    "statement": "Do not treat the current V43 Prism-inspired slider/link/arm/roller chain as the required bottle-handling architecture. Solve the bottle-handling function first and compare mechanism families.",
+    "source": "project conversation",
+    "evidence_status": "PLANNING_INTENT_ONLY_NOT_MECHANICAL_EVIDENCE"
+  },
+  "actual_path": "PLAN-0009 projected an authoritative-source search for the exact seven-component V43 Prism chain. That work remains valid only if the Prism chain survives a function-first architecture comparison; continuing it as the sole path would prematurely constrain the design.",
+  "preserved_evidence": [
+    "E.V43.PRISM.SLIDER_LINK_CONTACT.20260927T060459001Z",
+    "E.V43.PRISM.LINK_ARM_CONTACT.20260927T061831848Z",
+    "E.V43.PRISM.ARM_ROLLER_CONTACT.20260927T063140284Z",
+    "E.V43.PRISM.FULL_CHAIN_MATES.20260927T070827844Z"
+  ],
+  "affected_step_outcomes": [
+    {
+      "step_id": "P0009.1",
+      "disposition": "SUPERSEDED_BY_FUNCTION_FIRST_ARCHITECTURE_SEARCH",
+      "reason": "Exact V43 kinematic source acquisition is no longer the mandatory next step; V43 becomes one candidate mechanism family."
+    },
+    {
+      "step_id": "P0009.2",
+      "disposition": "NOT_EXECUTED_SUPERSEDED",
+      "reason": "Field-by-field binding of the exact V43 joints/actuator/limits is deferred unless V43 remains competitive after architecture screening."
+    },
+    {
+      "step_id": "P0009.3",
+      "disposition": "NOT_EXECUTED_SUPERSEDED",
+      "reason": "No V43-specific hypothetical motion test should be prepared before mechanism-family selection."
+    }
+  ],
+  "successor_plan_id": "PLAN-0010",
+  "mechanical_claim_boundary": "This scope correction changes investigation priority only. It does not invalidate prior V43 observations, prove another mechanism superior, establish operating motion, or grant mechanical acceptance."
+}

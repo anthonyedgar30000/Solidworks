@@ -6,6 +6,7 @@ on:
       - "agent-registry/reasoning/functional_temporal.py"
       - "agent-registry/reasoning/reference_cases/*.functional-temporal.v1.json"
       - "agent-registry/reasoning/test_v43_prism_reference.py"
+      - "agent-registry/reasoning/test_function_first_bottle_handling_reference.py"
       - "agent-registry/workers/CadGrounded.SolidWorksWorker/Verify-ClassifyContact-V43-Prism-GuideRails.ps1"
       - ".github/workflows/functional-temporal-references.yml"
   push:
@@ -14,6 +15,7 @@ on:
       - "agent-registry/reasoning/functional_temporal.py"
       - "agent-registry/reasoning/reference_cases/*.functional-temporal.v1.json"
       - "agent-registry/reasoning/test_v43_prism_reference.py"
+      - "agent-registry/reasoning/test_function_first_bottle_handling_reference.py"
       - "agent-registry/workers/CadGrounded.SolidWorksWorker/Verify-ClassifyContact-V43-Prism-GuideRails.ps1"
       - ".github/workflows/functional-temporal-references.yml"
 
@@ -25,9 +27,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Validate v42 and v43 reference architectures
+      - name: Validate v42, v43 and function-first reference architectures
         working-directory: agent-registry/reasoning
         run: |
           python3 functional_temporal.py reference_cases/v42_capture_and_rotation.functional-temporal.v1.json --summary
           python3 functional_temporal.py reference_cases/v43_prism_capture_and_rotation.functional-temporal.v1.json --summary
+          python3 functional_temporal.py reference_cases/ixor_bottle_handling_function_first_search.functional-temporal.v1.json --summary
           python3 -m unittest -v test_v43_prism_reference.py
+          python3 -m unittest -v test_function_first_bottle_handling_reference.py

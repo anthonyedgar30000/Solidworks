@@ -1,0 +1,47 @@
+{
+  "record_type": "plan_reconciliation",
+  "schema_version": 1,
+  "record_id": "RECON-0012",
+  "project_id": "CADGROUNDED.IXOR",
+  "reconciled_at_utc": "2026-09-27T07:30:00Z",
+  "plan_id": "PLAN-0009",
+  "revised_plan_id": "PLAN-0010",
+  "raw_observation_ids": [],
+  "actual_actions": [
+    {
+      "action_id": "ACT_RECORD_FUNCTION_FIRST_SCOPE_CORRECTION",
+      "write_authority": "NONE",
+      "result": "COMPLETED",
+      "reason": "Project design intent explicitly rejected treating the current V43 Prism-inspired mechanism as mandatory architecture."
+    },
+    {
+      "action_id": "ACT_PRESERVE_V43_AS_CANDIDATE_A",
+      "write_authority": "NONE",
+      "result": "COMPLETED",
+      "reason": "All admitted V43 point-contact and zero-mate observations remain valid within their original scope and are retained as evidence about one candidate mechanism family."
+    },
+    {
+      "action_id": "ACT_DEFER_V43_SPECIFIC_KINEMATIC_SOURCE_SEARCH",
+      "write_authority": "NONE",
+      "result": "DEFERRED_CONDITIONAL",
+      "reason": "Exact V43 joint/actuation source acquisition becomes conditional on V43 surviving the architecture comparison rather than being the sole next step."
+    }
+  ],
+  "step_outcomes": [
+    {
+      "step_id": "P0009.1",
+      "outcome": "SUPERSEDED_BY_FUNCTION_FIRST_ARCHITECTURE_SEARCH"
+    },
+    {
+      "step_id": "P0009.2",
+      "outcome": "NOT_EXECUTED_SUPERSEDED"
+    },
+    {
+      "step_id": "P0009.3",
+      "outcome": "NOT_EXECUTED_SUPERSEDED"
+    }
+  ],
+  "conclusion": "PLAN-0009 is superseded as the active investigation path because it over-bound the design search to the existing V43 Prism chain. V43 remains a legitimate candidate with useful negative and topology evidence, but PLAN-0010 now compares mechanism families against common bottle-handling obligations before any candidate-specific motion model or CAD construction is authorized.",
+  "mechanical_acceptance_granted": false,
+  "write_authority": "NONE"
+}

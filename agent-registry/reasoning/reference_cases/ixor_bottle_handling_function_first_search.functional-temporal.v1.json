@@ -1,0 +1,447 @@
+{
+  "schema_version": 1,
+  "architecture_id": "IXOR_BOTTLE_HANDLING_FUNCTION_FIRST_SEARCH",
+  "machine_goal": {
+    "id": "BOTTLE_HANDLING_ARCHITECTURE_SELECTION",
+    "description": "Identify a mechanically plausible bottle-handling architecture for the CAB IXOR labeling station by testing multiple mechanism families against common functional and temporal obligations without privileging the existing V43 Prism geometry.",
+    "geometry_state": "NOT_APPLICABLE",
+    "mechanical_acceptance_granted": false
+  },
+  "subsystems": [
+    {
+      "id": "FUNCTIONAL_BOTTLE_HANDLING",
+      "parent_id": null,
+      "goal": "Define the bottle-handling behavior that any candidate mechanism must satisfy from free approach through release.",
+      "local_obligation_ids": [
+        "ENTRY_AND_SINGLE_PRODUCT_CONTROL_BOUND",
+        "CAPTURE_AND_RESTRAINT_BOUND",
+        "ROTATION_SOURCE_AND_REACTION_PATH_BOUND",
+        "LABEL_TRANSFER_RELATIONSHIP_BOUND",
+        "RELEASE_AND_NEIGHBOR_CLEARANCE_BOUND",
+        "MOUNTING_AND_SUPPORT_BOUND"
+      ],
+      "provided_interface_ids": [],
+      "consumed_interface_ids": []
+    },
+    {
+      "id": "ARCHITECTURE_SEARCH",
+      "parent_id": null,
+      "goal": "Compare candidate mechanism families using the same obligations and advance only candidates supported by deterministic evidence.",
+      "local_obligation_ids": [
+        "CANDIDATE_FAMILY_COMPARISON_COMPLETE"
+      ],
+      "provided_interface_ids": [],
+      "consumed_interface_ids": []
+    }
+  ],
+  "obligations": [
+    {
+      "id": "ENTRY_AND_SINGLE_PRODUCT_CONTROL_BOUND",
+      "owner_subsystem_id": "FUNCTIONAL_BOTTLE_HANDLING",
+      "description": "A candidate defines how one bottle enters the application station, is indexed without double-feed, and reaches the intended capture position.",
+      "verification_state": "UNRESOLVED",
+      "ambiguity_bucket": "MULTIPLE_PLAUSIBLE_HYPOTHESES",
+      "criticality": 5,
+      "resolution_cost": 1,
+      "expected_authority": [
+        "SOLIDWORKS_LIVE_STATE",
+        "DETERMINISTIC_CALCULATION",
+        "OEM_CAD",
+        "OEM_DOCUMENTATION"
+      ],
+      "evidence_refs": [],
+      "depends_on_requirement_ids": [],
+      "scope": {
+        "state_ids": [
+          "FREE_APPROACH",
+          "INDEXED"
+        ],
+        "transition_ids": [],
+        "required_coverage": "REACHABLE_STATE_SET"
+      }
+    },
+    {
+      "id": "CAPTURE_AND_RESTRAINT_BOUND",
+      "owner_subsystem_id": "FUNCTIONAL_BOTTLE_HANDLING",
+      "description": "A candidate defines how the bottle is captured and restrained throughout the label-application interval rather than at one static pose.",
+      "verification_state": "UNRESOLVED",
+      "ambiguity_bucket": "MULTIPLE_PLAUSIBLE_HYPOTHESES",
+      "criticality": 5,
+      "resolution_cost": 2,
+      "expected_authority": [
+        "SOLIDWORKS_LIVE_STATE",
+        "DETERMINISTIC_CALCULATION",
+        "OEM_CAD",
+        "OEM_DOCUMENTATION"
+      ],
+      "evidence_refs": [],
+      "depends_on_requirement_ids": [
+        "ENTRY_AND_SINGLE_PRODUCT_CONTROL_BOUND"
+      ],
+      "scope": {
+        "state_ids": [
+          "CAPTURE_AND_ROTATION",
+          "LABEL_TRANSFER_INTERVAL"
+        ],
+        "transition_ids": [],
+        "required_coverage": "THROUGHOUT_SCOPE"
+      }
+    },
+    {
+      "id": "ROTATION_SOURCE_AND_REACTION_PATH_BOUND",
+      "owner_subsystem_id": "FUNCTIONAL_BOTTLE_HANDLING",
+      "description": "A candidate identifies what rotates the bottle, what reacts the contact force, how slip/compliance is handled, and where the reaction ultimately mounts.",
+      "verification_state": "UNRESOLVED",
+      "ambiguity_bucket": "MULTIPLE_PLAUSIBLE_HYPOTHESES",
+      "criticality": 5,
+      "resolution_cost": 2,
+      "expected_authority": [
+        "SOLIDWORKS_LIVE_STATE",
+        "DETERMINISTIC_CALCULATION",
+        "OEM_CAD",
+        "OEM_DOCUMENTATION"
+      ],
+      "evidence_refs": [],
+      "depends_on_requirement_ids": [
+        "CAPTURE_AND_RESTRAINT_BOUND"
+      ],
+      "scope": {
+        "state_ids": [
+          "CAPTURE_AND_ROTATION",
+          "LABEL_TRANSFER_INTERVAL"
+        ],
+        "transition_ids": [],
+        "required_coverage": "THROUGHOUT_SCOPE"
+      }
+    },
+    {
+      "id": "LABEL_TRANSFER_RELATIONSHIP_BOUND",
+      "owner_subsystem_id": "FUNCTIONAL_BOTTLE_HANDLING",
+      "description": "A candidate preserves a justified CAB peel/presentation-to-bottle relationship and label-transfer path throughout the required application interval.",
+      "verification_state": "UNRESOLVED",
+      "ambiguity_bucket": "GEOMETRY_UNRESOLVED",
+      "criticality": 5,
+      "resolution_cost": 2,
+      "expected_authority": [
+        "OEM_CAD",
+        "OEM_DOCUMENTATION",
+        "SOLIDWORKS_LIVE_STATE",
+        "DETERMINISTIC_CALCULATION"
+      ],
+      "evidence_refs": [],
+      "depends_on_requirement_ids": [
+        "CAPTURE_AND_RESTRAINT_BOUND",
+        "ROTATION_SOURCE_AND_REACTION_PATH_BOUND"
+      ],
+      "scope": {
+        "state_ids": [
+          "LABEL_TRANSFER_INTERVAL"
+        ],
+        "transition_ids": [],
+        "required_coverage": "THROUGHOUT_SCOPE"
+      }
+    },
+    {
+      "id": "RELEASE_AND_NEIGHBOR_CLEARANCE_BOUND",
+      "owner_subsystem_id": "FUNCTIONAL_BOTTLE_HANDLING",
+      "description": "A candidate defines release and free exit while preserving whole-body clearance from the labeling head, guides, stops, neighboring bottles, and candidate mechanism across reachable states.",
+      "verification_state": "UNRESOLVED",
+      "ambiguity_bucket": "KINEMATIC_STATE_UNRESOLVED",
+      "criticality": 5,
+      "resolution_cost": 3,
+      "expected_authority": [
+        "SOLIDWORKS_LIVE_STATE",
+        "DETERMINISTIC_CALCULATION"
+      ],
+      "evidence_refs": [],
+      "depends_on_requirement_ids": [
+        "LABEL_TRANSFER_RELATIONSHIP_BOUND"
+      ],
+      "scope": {
+        "state_ids": [
+          "RELEASE",
+          "FREE_EXIT"
+        ],
+        "transition_ids": [],
+        "required_coverage": "REACHABLE_STATE_SET"
+      }
+    },
+    {
+      "id": "MOUNTING_AND_SUPPORT_BOUND",
+      "owner_subsystem_id": "FUNCTIONAL_BOTTLE_HANDLING",
+      "description": "A candidate provides a physically supported mounting and reaction path for active and passive bottle-handling elements.",
+      "verification_state": "UNRESOLVED",
+      "ambiguity_bucket": "GEOMETRY_UNRESOLVED",
+      "criticality": 5,
+      "resolution_cost": 2,
+      "expected_authority": [
+        "OEM_CAD",
+        "SOLIDWORKS_LIVE_STATE",
+        "DETERMINISTIC_CALCULATION"
+      ],
+      "evidence_refs": [],
+      "depends_on_requirement_ids": [],
+      "scope": {
+        "state_ids": [
+          "CAPTURE_AND_ROTATION",
+          "LABEL_TRANSFER_INTERVAL"
+        ],
+        "transition_ids": [],
+        "required_coverage": "THROUGHOUT_SCOPE"
+      }
+    },
+    {
+      "id": "CANDIDATE_FAMILY_COMPARISON_COMPLETE",
+      "owner_subsystem_id": "ARCHITECTURE_SEARCH",
+      "description": "Multiple plausible bottle-handling mechanism families have been compared against the same bounded obligations, with unsupported candidates weakened or rejected without promoting visual plausibility to evidence.",
+      "verification_state": "UNRESOLVED",
+      "ambiguity_bucket": "MULTIPLE_PLAUSIBLE_HYPOTHESES",
+      "criticality": 5,
+      "resolution_cost": 1,
+      "expected_authority": [
+        "DETERMINISTIC_CALCULATION"
+      ],
+      "evidence_refs": [],
+      "depends_on_requirement_ids": [
+        "ENTRY_AND_SINGLE_PRODUCT_CONTROL_BOUND",
+        "CAPTURE_AND_RESTRAINT_BOUND",
+        "ROTATION_SOURCE_AND_REACTION_PATH_BOUND",
+        "LABEL_TRANSFER_RELATIONSHIP_BOUND",
+        "RELEASE_AND_NEIGHBOR_CLEARANCE_BOUND",
+        "MOUNTING_AND_SUPPORT_BOUND"
+      ],
+      "scope": {
+        "state_ids": [
+          "FREE_APPROACH",
+          "INDEXED",
+          "CAPTURE_AND_ROTATION",
+          "LABEL_TRANSFER_INTERVAL",
+          "RELEASE",
+          "FREE_EXIT"
+        ],
+        "transition_ids": [],
+        "required_coverage": "POINT_ONLY"
+      }
+    }
+  ],
+  "interfaces": [],
+  "events": [],
+  "states": [
+    {
+      "id": "FREE_APPROACH",
+      "state_type": "MODE",
+      "operating_phase": "FREE_APPROACH",
+      "owner_subsystem_id": "FUNCTIONAL_BOTTLE_HANDLING",
+      "description": "Bottle approaches the station without active capture."
+    },
+    {
+      "id": "INDEXED",
+      "state_type": "MODE",
+      "operating_phase": "CAPTURE_BEGINNING",
+      "owner_subsystem_id": "FUNCTIONAL_BOTTLE_HANDLING",
+      "description": "One bottle is positioned for capture and label application."
+    },
+    {
+      "id": "CAPTURE_AND_ROTATION",
+      "state_type": "MODE",
+      "operating_phase": "CAPTURED",
+      "owner_subsystem_id": "FUNCTIONAL_BOTTLE_HANDLING",
+      "description": "The bottle is restrained and controlled rotation is established."
+    },
+    {
+      "id": "LABEL_TRANSFER_INTERVAL",
+      "state_type": "MODE",
+      "operating_phase": "LABEL_TRANSFER_INTERVAL",
+      "owner_subsystem_id": "FUNCTIONAL_BOTTLE_HANDLING",
+      "description": "Label presentation and transfer occur while required bottle handling remains valid."
+    },
+    {
+      "id": "RELEASE",
+      "state_type": "MODE",
+      "operating_phase": "RELEASE",
+      "owner_subsystem_id": "FUNCTIONAL_BOTTLE_HANDLING",
+      "description": "Bottle restraint is removed or opened sufficiently for discharge."
+    },
+    {
+      "id": "FREE_EXIT",
+      "state_type": "MODE",
+      "operating_phase": "FREE_EXIT",
+      "owner_subsystem_id": "FUNCTIONAL_BOTTLE_HANDLING",
+      "description": "Completed bottle exits without interference or unintended recapture."
+    }
+  ],
+  "transition_guards": [],
+  "transitions": [],
+  "invariants": [],
+  "duration_constraints": [],
+  "temporal_relations": [],
+  "hypotheses": [
+    {
+      "id": "H_ARCH_V43_PRISM_CHAIN",
+      "description": "The existing V43 Prism-inspired slider/link/arm/support-roller chain may satisfy bottle capture and rotation, but the admitted zero-mate result weakens treating it as an assembly-defined mechanism and it is not architecture authority.",
+      "prior": "COMMON",
+      "evidence_state": "WEAKENED",
+      "investigation_state": "ACTIVE",
+      "related_requirement_ids": [
+        "CAPTURE_AND_RESTRAINT_BOUND",
+        "ROTATION_SOURCE_AND_REACTION_PATH_BOUND",
+        "RELEASE_AND_NEIGHBOR_CLEARANCE_BOUND",
+        "MOUNTING_AND_SUPPORT_BOUND"
+      ],
+      "affected_state_ids": [
+        "INDEXED",
+        "CAPTURE_AND_ROTATION",
+        "LABEL_TRANSFER_INTERVAL",
+        "RELEASE"
+      ],
+      "required_evidence": [
+        "A designer-authorized/OEM or accepted deterministic kinematic definition plus interval-wide geometry/contact/reaction/clearance checks. Existing V43 point adjacency and zero-mate evidence alone are insufficient."
+      ]
+    },
+    {
+      "id": "H_ARCH_DRIVEN_WRAP_BELT_PASSIVE_SUPPORTS",
+      "description": "A driven wrap or side belt with passive support rollers and a justified reaction/support path may capture and rotate the bottle with fewer active linkage elements.",
+      "prior": "COMMON",
+      "evidence_state": "UNTESTED",
+      "investigation_state": "ACTIVE",
+      "related_requirement_ids": [
+        "CAPTURE_AND_RESTRAINT_BOUND",
+        "ROTATION_SOURCE_AND_REACTION_PATH_BOUND",
+        "LABEL_TRANSFER_RELATIONSHIP_BOUND",
+        "RELEASE_AND_NEIGHBOR_CLEARANCE_BOUND",
+        "MOUNTING_AND_SUPPORT_BOUND"
+      ],
+      "affected_state_ids": [
+        "INDEXED",
+        "CAPTURE_AND_ROTATION",
+        "LABEL_TRANSFER_INTERVAL",
+        "RELEASE"
+      ],
+      "required_evidence": [
+        "Deterministic candidate geometry defining belt contact, support-roller placement, rotation source, reaction path, capture/release motion or compliance, CAB label-transfer relationship, and reachable-state clearance."
+      ]
+    },
+    {
+      "id": "H_ARCH_TRANSLATING_PRESSURE_WALL",
+      "description": "A translating pressure wall or moving side-belt closure may move into bottle contact, provide a controlled reaction/contact relationship, and contribute to bottle rotation or forward motion during a step-based labeling cycle.",
+      "prior": "COMMON",
+      "evidence_state": "UNTESTED",
+      "investigation_state": "ACTIVE",
+      "related_requirement_ids": [
+        "ENTRY_AND_SINGLE_PRODUCT_CONTROL_BOUND",
+        "CAPTURE_AND_RESTRAINT_BOUND",
+        "ROTATION_SOURCE_AND_REACTION_PATH_BOUND",
+        "LABEL_TRANSFER_RELATIONSHIP_BOUND",
+        "RELEASE_AND_NEIGHBOR_CLEARANCE_BOUND",
+        "MOUNTING_AND_SUPPORT_BOUND"
+      ],
+      "affected_state_ids": [
+        "FREE_APPROACH",
+        "INDEXED",
+        "CAPTURE_AND_ROTATION",
+        "LABEL_TRANSFER_INTERVAL",
+        "RELEASE"
+      ],
+      "required_evidence": [
+        "Deterministic wall/belt travel axis, stroke, velocity relationship, bottle-contact geometry, opposing reaction support, label-presentation timing, hard-stop/index behavior, release path, and mounting support."
+      ]
+    },
+    {
+      "id": "H_ARCH_INDEXED_CRADLE_OR_CLAMP",
+      "description": "An indexed cradle or clamp with a defined rotation source may isolate one bottle during label application and then release it back to conveyor flow.",
+      "prior": "UNCOMMON",
+      "evidence_state": "UNTESTED",
+      "investigation_state": "ELIGIBLE",
+      "related_requirement_ids": [
+        "ENTRY_AND_SINGLE_PRODUCT_CONTROL_BOUND",
+        "CAPTURE_AND_RESTRAINT_BOUND",
+        "ROTATION_SOURCE_AND_REACTION_PATH_BOUND",
+        "LABEL_TRANSFER_RELATIONSHIP_BOUND",
+        "RELEASE_AND_NEIGHBOR_CLEARANCE_BOUND",
+        "MOUNTING_AND_SUPPORT_BOUND"
+      ],
+      "affected_state_ids": [
+        "FREE_APPROACH",
+        "INDEXED",
+        "CAPTURE_AND_ROTATION",
+        "LABEL_TRANSFER_INTERVAL",
+        "RELEASE",
+        "FREE_EXIT"
+      ],
+      "required_evidence": [
+        "Deterministic cradle/clamp geometry, open/close and rotation inputs, bottle seating/restraint, CAB transfer geometry, product entry/exit path, neighbor clearance, and mounting/reaction path."
+      ]
+    }
+  ],
+  "evidence_catalog": [
+    {
+      "schema_version": 1,
+      "record_type": "evidence",
+      "evidence_id": "E.V43.PRISM.FULL_CHAIN_MATES.ARCH_SEARCH_PROJECTION.20260927",
+      "evidence_type": "deterministic_calculation",
+      "evidence_state": "MEASURED_CALCULATED",
+      "source_authority": "DETERMINISTIC_CALCULATION",
+      "source_classification": "bounded_projection_from_admitted_evidence",
+      "mechanical_acceptance_granted": false,
+      "temporal_scope": {
+        "coverage": "POINT_ONLY",
+        "validity_state": "CURRENT",
+        "state_ids": [
+          "CAPTURE_AND_ROTATION"
+        ],
+        "transition_ids": []
+      },
+      "ambiguity_bucket": "KINEMATIC_STATE_UNRESOLVED",
+      "payload": {
+        "method": "bounded_negative_evidence_projection",
+        "inputs": [
+          "E.V43.PRISM.FULL_CHAIN_MATES.20260927T070827844Z"
+        ],
+        "result": {
+          "observation": "All seven exact V43 Prism-chain targets returned zero incident active-assembly mates at the admitted V43_WRAP point.",
+          "planning_use": "This weakens treating V43 as an assembly-defined mandatory mechanism. It does not prove V43 mechanically invalid and does not favor any alternative mechanism family."
+        }
+      }
+    }
+  ],
+  "next_tests": [
+    {
+      "id": "TEST_COMPARE_BOTTLE_HANDLING_FAMILIES",
+      "question": "Using the same function-first requirement matrix, compare the V43 Prism chain, driven wrap belt with passive supports, translating pressure-wall/side-belt closure, and indexed cradle/clamp. Which candidates can be weakened or eliminated from deterministic geometry and known interface constraints before any CAD construction, while preserving unknowns instead of selecting by visual plausibility?",
+      "resolves_requirement_ids": [
+        "CANDIDATE_FAMILY_COMPARISON_COMPLETE"
+      ],
+      "hypothesis_ids": [
+        "H_ARCH_V43_PRISM_CHAIN",
+        "H_ARCH_DRIVEN_WRAP_BELT_PASSIVE_SUPPORTS",
+        "H_ARCH_TRANSLATING_PRESSURE_WALL",
+        "H_ARCH_INDEXED_CRADLE_OR_CLAMP"
+      ],
+      "discrimination_power": 0.99,
+      "evidence_confidence": 0.9,
+      "unresolved_relevance": 1,
+      "cost": 1
+    },
+    {
+      "id": "TEST_DEFINE_MINIMUM_CANDIDATE_STATE_GEOMETRY",
+      "question": "For the candidates that survive the first comparison, what minimum deterministic geometry, motion/compliance assumptions, capture states, label-transfer relationship, reaction path, release states, and whole-body clearance probes are required to discriminate them without granting mechanical acceptance?",
+      "resolves_requirement_ids": [
+        "CAPTURE_AND_RESTRAINT_BOUND",
+        "ROTATION_SOURCE_AND_REACTION_PATH_BOUND",
+        "LABEL_TRANSFER_RELATIONSHIP_BOUND",
+        "RELEASE_AND_NEIGHBOR_CLEARANCE_BOUND",
+        "MOUNTING_AND_SUPPORT_BOUND"
+      ],
+      "hypothesis_ids": [
+        "H_ARCH_V43_PRISM_CHAIN",
+        "H_ARCH_DRIVEN_WRAP_BELT_PASSIVE_SUPPORTS",
+        "H_ARCH_TRANSLATING_PRESSURE_WALL",
+        "H_ARCH_INDEXED_CRADLE_OR_CLAMP"
+      ],
+      "discrimination_power": 0.95,
+      "evidence_confidence": 0.85,
+      "unresolved_relevance": 1,
+      "cost": 2
+    }
+  ]
+}

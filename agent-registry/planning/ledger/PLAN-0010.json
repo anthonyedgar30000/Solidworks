@@ -1,0 +1,86 @@
+{
+  "record_type": "plan",
+  "schema_version": 1,
+  "record_id": "PLAN-0010",
+  "project_id": "CADGROUNDED.IXOR",
+  "created_at_utc": "2026-09-27T07:30:00Z",
+  "parent_plan_id": "PLAN-0009",
+  "caused_by_divergence_ids": [
+    "DIV-0003"
+  ],
+  "status": "ACTIVE",
+  "state_binding": {
+    "source": "PROJECT_SCOPE_WITH_PRIOR_CAD_EVIDENCE",
+    "current_architecture_id": "IXOR_BOTTLE_HANDLING_FUNCTION_FIRST_SEARCH",
+    "cad_reference_role": "V43_PRISM_IS_CANDIDATE_A_ONLY",
+    "document_title_reference": "IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE",
+    "document_path_reference": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE.SLDASM",
+    "configuration_reference": "V43_WRAP",
+    "source_observation_ids": [
+      "E.V43.PRISM.SLIDER_LINK_CONTACT.20260927T060459001Z",
+      "E.V43.PRISM.LINK_ARM_CONTACT.20260927T061831848Z",
+      "E.V43.PRISM.ARM_ROLLER_CONTACT.20260927T063140284Z",
+      "E.V43.PRISM.FULL_CHAIN_MATES.20260927T070827844Z"
+    ],
+    "freshness": "PRIOR V43 POINT EVIDENCE PRESERVED; NO FRESH LIVE CAD STATE CLAIMED; REQUIRE FRESH REBIND BEFORE ANY CAD-SPECIFIC TEST"
+  },
+  "intent": "Select a physically plausible bottle-handling architecture by comparing multiple mechanism families against the same entry, capture, controlled-rotation, reaction-force, label-transfer, release, neighbor-clearance, and mounting obligations around genuine CAB hardware. Do not assume the current V43 Prism chain is the required mechanism.",
+  "projected_steps": [
+    {
+      "step_id": "P0010.1",
+      "title": "Freeze the function-first obligation set and preserve current evidence boundaries without selecting a mechanism",
+      "depends_on": [],
+      "write_authority": "NONE",
+      "expected_outputs": [
+        "common functional requirement matrix for bottle entry, capture, restraint, controlled rotation, reaction path, label transfer, release, clearance and mounting",
+        "explicit separation of verified evidence, deterministic calculations, hypotheses and unresolved fields",
+        "V43 retained as candidate evidence, not architecture authority"
+      ],
+      "status": "PROJECTED"
+    },
+    {
+      "step_id": "P0010.2",
+      "title": "Compare multiple bottle-handling mechanism families against the same bounded requirements",
+      "depends_on": [
+        "P0010.1"
+      ],
+      "write_authority": "NONE",
+      "expected_outputs": [
+        "candidate-family comparison covering V43 Prism chain, driven wrap belt with passive supports, translating pressure-wall or side-belt closure, and indexed cradle/clamp",
+        "explicit unknowns and failure modes for each candidate",
+        "no ranking by visual plausibility alone"
+      ],
+      "status": "PROJECTED"
+    },
+    {
+      "step_id": "P0010.3",
+      "title": "Define the minimum deterministic geometry and state-transition tests needed to discriminate surviving candidates",
+      "depends_on": [
+        "P0010.2"
+      ],
+      "write_authority": "NONE",
+      "expected_outputs": [
+        "candidate-specific geometry/state parameters",
+        "high-information deterministic tests for capture, rotation, reaction, label-transfer timing, release and whole-body clearance",
+        "rejected hypotheses retained"
+      ],
+      "status": "PROJECTED"
+    },
+    {
+      "step_id": "P0010.4",
+      "title": "Select a candidate for deterministic CAD sandbox construction only after the comparison supports it",
+      "depends_on": [
+        "P0010.3"
+      ],
+      "write_authority": "NONE",
+      "expected_outputs": [
+        "candidate-selection rationale tied to evidence and deterministic requirements",
+        "separate bounded CAD write proposal if new geometry is justified",
+        "no CAD mutation under PLAN-0010 itself"
+      ],
+      "status": "PROJECTED"
+    }
+  ],
+  "acceptance_gate": "No mechanism family is mechanically accepted by this plan. A candidate may advance only after deterministic geometry/state checks address entry, capture, bottle restraint, rotation source, reaction-force path, label-transfer relationship, release, neighbor/whole-body clearance, and mounting/support integrity.",
+  "no_write_boundary": "No move, rebuild, save, mate, suppression, insertion, transform assignment, geometry creation, or Remote Queue write is authorized by this plan."
+}
