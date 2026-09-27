@@ -1,0 +1,84 @@
+{
+  "record_type": "plan",
+  "schema_version": 1,
+  "record_id": "PLAN-0010",
+  "project_id": "CADGROUNDED.IXOR",
+  "created_at_utc": "2026-09-27T07:37:29.441Z",
+  "parent_plan_id": "PLAN-0009",
+  "caused_by_divergence_ids": [],
+  "status": "ACTIVE",
+  "state_binding": {
+    "source": "MULTI_SOURCE",
+    "document_title": "IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE",
+    "document_path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE.SLDASM",
+    "configuration_exact": "V43_WRAP",
+    "configuration_state": "CURRENT_CANDIDATE_SCENE_ONLY; NOT_REQUIRED_ARCHITECTURE; REQUIRE_FRESH_REBIND_BEFORE_LIVE_CAD_OBSERVATION",
+    "source_observation_ids": [
+      "E.V43.PRISM.SLIDER_LINK_CONTACT.20260927T060459001Z",
+      "E.V43.PRISM.LINK_ARM_CONTACT.20260927T061831848Z",
+      "E.V43.PRISM.ARM_ROLLER_CONTACT.20260927T063140284Z",
+      "E.V43.PRISM.FULL_CHAIN_MATES.20260927T070827844Z"
+    ],
+    "freshness": "V43 evidence preserved as bounded candidate-geometry evidence; active design scope is function-first bottle handling."
+  },
+  "intent": "Define the bottle-handling requirements independently of any specific current mechanism: required support/restraint, intentionally permitted bottle rotation, indexing/capture/wrap/release state relationships, required contacts, and reaction needs. Use those requirements to compare and eliminate mechanism families before deterministic candidate geometry is selected or built.",
+  "projected_steps": [
+    {
+      "step_id": "P0010.1",
+      "title": "Bind non-negotiable product and machine context for the D48 upright bottle at the label-application station",
+      "depends_on": [],
+      "write_authority": "NONE",
+      "expected_outputs": [
+        "fresh exact bottle/conveyor/CAB/current-contact identities when live CAD reads are needed",
+        "source classification for each bound geometric constraint",
+        "explicit unknowns preserved"
+      ],
+      "status": "PROJECTED"
+    },
+    {
+      "step_id": "P0010.2",
+      "title": "Derive state-by-state required bottle DOF, support, restraint, and intentionally permitted wrap rotation without assuming the Prism architecture",
+      "depends_on": [
+        "P0010.1"
+      ],
+      "write_authority": "NONE",
+      "expected_outputs": [
+        "required translational restraint/support by state",
+        "required rotational restraint/permitted rotation by state",
+        "tip/lean and escape modes requiring control",
+        "unknown requirements explicitly marked"
+      ],
+      "status": "PROJECTED"
+    },
+    {
+      "step_id": "P0010.3",
+      "title": "Bind the minimum required bottle contact/support set and distinguish required functional contacts from incidental current-pose contacts",
+      "depends_on": [
+        "P0010.2"
+      ],
+      "write_authority": "NONE",
+      "expected_outputs": [
+        "minimum required contact/support roles",
+        "current deterministic contacts mapped to roles where justified",
+        "missing contact roles preserved as geometry/design requirements"
+      ],
+      "status": "PROJECTED"
+    },
+    {
+      "step_id": "P0010.4",
+      "title": "Re-activate and compare mechanism-family hypotheses only after bottle requirements are bound",
+      "depends_on": [
+        "P0010.3"
+      ],
+      "write_authority": "NONE",
+      "expected_outputs": [
+        "candidate mechanism families evaluated against common requirements",
+        "deterministic elimination reasons",
+        "next geometry test selected by diagnostic value"
+      ],
+      "status": "PROJECTED"
+    }
+  ],
+  "acceptance_gate": "No mechanism family is selected merely because it resembles the current v43 geometry. Bottle-handling requirements must be bound first. Static fit-check contact, visual plausibility, or AI reasoning cannot establish restraint, motion, force path, label-transfer coherence, or mechanical acceptance.",
+  "no_write_boundary": "No SOLIDWORKS move, transform, rebuild, save, mate creation, suppression change, component insertion, or Remote Queue write is authorized by this plan."
+}
