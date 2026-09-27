@@ -68,6 +68,10 @@ class SourceCaptureTests(unittest.TestCase):
         self.registry["sources"][0]["source_role"] = "SUBJECT_OEM_DOCUMENT_WITH_CAD_AUTHORITY"
         with self.assertRaisesRegex(CaptureBlocked, "SOURCE_AUTHORITY_CHANGED"):
             validate_registry(self.registry)
+        self.registry["sources"][0]["source_role"] = "SUBJECT_OEM_DOCUMENT"
+        self.registry["sources"][0]["expected_content_disposition_filename"] = "wrong-product.pdf"
+        with self.assertRaisesRegex(CaptureBlocked, "SOURCE_AUTHORITY_CHANGED"):
+            validate_registry(self.registry)
 
     def test_record_tamper_is_blocked_without_rewrite(self):
         result = self.capture()
@@ -117,6 +121,36 @@ class SourceCaptureTests(unittest.TestCase):
         snippets = candidate_snippets(HTML, ["roller prism", "counterpressure plate", "absent term"])
         self.assertEqual([s["marker"] for s in snippets], ["roller prism", "counterpressure plate"])
         self.assertIn("sets the product", snippets[0]["source_text_window"])
+
+    @patch("source_capture.urlopen")
+    def test_fetch_rejects_pdf_identity_mismatch(self, urlopen):
+        row = self.registry["sources"][0]
+
+        class Response:
+            def __init__(self, filename):
+                self.url = row["url"]
+                self.headers = {
+                    "Content-Type": "application/pdf",
+                    "Content-Disposition": f'attachment; filename="{filename}"',
+                }
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *args):
+                pass
+
+            def geturl(self):
+                return self.url
+
+            def read(self, limit):
+                return b"%PDF-1.7\nfixture"
+
+        urlopen.return_value = Response("9004202_132_MA_ROXI_en_2604.pdf")
+        with self.assertRaisesRegex(CaptureBlocked, "SOURCE_IDENTITY_MISMATCH"):
+            fetch_source(row)
+        urlopen.return_value = Response("MA_Etikettenspender_IXOR_Plus_en.pdf")
+        self.assertTrue(fetch_source(row).startswith(b"%PDF-"))
 
     @patch("source_capture.urlopen")
     def test_fetch_rejects_redirect_and_media_change(self, urlopen):
