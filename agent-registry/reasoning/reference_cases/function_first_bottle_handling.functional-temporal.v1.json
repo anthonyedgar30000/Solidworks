@@ -132,8 +132,8 @@
         "DETERMINISTIC_CALCULATION"
       ],
       "evidence_refs": [
-        "E.FUNCTION_FIRST.BOTTLE_CYLINDER_AXIS.20260927T090058895Z",
-        "E.FUNCTION_FIRST.BOTTLE_WRAP_AXIS_BINDING.20260927T090058895Z"
+        "E.FUNCTION_FIRST.BOTTLE_CYLINDER_AXIS.20260927T091941345Z",
+        "E.FUNCTION_FIRST.BOTTLE_WRAP_AXIS_BINDING.20260927T091941345Z"
       ],
       "depends_on_requirement_ids": [
         "BOTTLE_REQUIRED_DOF_BOUND"
@@ -2844,6 +2844,227 @@
             "The result does not establish that the real finite line/surface contact manifold has the same rank as the sampled point-normal model.",
             "It does not establish unilateral contact maintenance, preload, compliance, force closure, friction, traction, driven wrap torque, or load capacity.",
             "It does not establish gravity/up semantics, interval-wide restraint, mechanism selection, or mechanical acceptance."
+          ]
+        }
+      }
+    },
+    {
+      "schema_version": 1,
+      "record_type": "evidence",
+      "evidence_id": "E.FUNCTION_FIRST.BOTTLE_CYLINDER_AXIS.20260927T091941345Z",
+      "evidence_type": "solidworks_observation",
+      "evidence_state": "VERIFIED",
+      "source_authority": "SOLIDWORKS_LIVE_STATE",
+      "source_classification": "verified_from_solidworks_api",
+      "subject": {
+        "subject_type": "exact_bottle_cylindrical_axis_observation",
+        "identity_exact": "BENCH_BOTTLE_D48_H180-2",
+        "document_title_exact": "IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE",
+        "document_path_exact": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE.SLDASM"
+      },
+      "provenance": {
+        "recorded_at": "2026-09-27T09:19:41.3455912Z",
+        "source_ref": "Fresh read-only live SOLIDWORKS B-rep inspection of BENCH_BOTTLE_D48_H180-2 via sw_execute_code; source program hash recorded in sha256.",
+        "sha256": "907054c577798ca0f54f1d1b78a92ef41b3574afa6ca54636fb47e8a03d4f9ca",
+        "tool_path": "CADGrounded SOLIDWORKS sw_execute_code -> IComponent2.GetBodies3 -> IBody2.Copy/ApplyTransform -> ISurface.CylinderParams"
+      },
+      "dependencies": [],
+      "geometry_state": "CANDIDATE_OPERATING",
+      "temporal_scope": {
+        "coverage": "POINT_ONLY",
+        "validity_state": "CURRENT",
+        "state_ids": [],
+        "transition_ids": []
+      },
+      "mechanical_acceptance_granted": false,
+      "payload": {
+        "observation_kind": "exact_bottle_cylindrical_axis_observation",
+        "document": {
+          "title": "IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE",
+          "path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE.SLDASM",
+          "active_configuration": "V43_WRAP",
+          "save_flag": false
+        },
+        "component": {
+          "name2": "BENCH_BOTTLE_D48_H180-2",
+          "path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\BENCH_BOTTLE_D48_H180.SLDPRT",
+          "referenced_configuration": "Default",
+          "fixed_component": false,
+          "suppressed": false,
+          "transform_array": [
+            0,
+            1,
+            0,
+            -1,
+            0,
+            0,
+            0,
+            0,
+            1,
+            -0.15342061528267112,
+            -0.214,
+            0.95,
+            1,
+            0,
+            0,
+            0
+          ]
+        },
+        "solid_body_count": 4,
+        "cylindrical_face_count": 3,
+        "cylinders": [
+          {
+            "observation_local_body_index": 3,
+            "observation_local_face_index": 2,
+            "radius_mm": 24,
+            "diameter_mm": 48,
+            "axis_point_assembly_mm": [
+              -153.42061528267112,
+              -214,
+              950
+            ],
+            "axis_direction_assembly": [
+              0,
+              0,
+              1
+            ],
+            "face_area_mm2": 21111.502632123393
+          },
+          {
+            "observation_local_body_index": 2,
+            "observation_local_face_index": 2,
+            "radius_mm": 16,
+            "diameter_mm": 32,
+            "axis_point_assembly_mm": [
+              -153.42061528267112,
+              -214,
+              1111.9999999999998
+            ],
+            "axis_direction_assembly": [
+              0,
+              0,
+              1
+            ],
+            "face_area_mm2": 1809.5573684677224
+          },
+          {
+            "observation_local_body_index": 0,
+            "observation_local_face_index": 2,
+            "radius_mm": 14,
+            "diameter_mm": 28,
+            "axis_point_assembly_mm": [
+              -153.42061528267112,
+              -214,
+              1105
+            ],
+            "axis_direction_assembly": [
+              0,
+              0,
+              1
+            ],
+            "face_area_mm2": 615.7521601035902
+          }
+        ],
+        "identity_scope_note": "body/face indices are observation-local on transformed temporary body copies and are not persistent CAD face identities",
+        "model_mutation": false,
+        "write_authority": "NONE",
+        "post_readback": {
+          "active_document_unchanged": true,
+          "bottle_transform_unchanged": true
+        },
+        "admitted_claims": [
+          "The exact bottle component contains a main cylindrical face of radius 24 mm (diameter 48 mm).",
+          "The main D48 cylinder axis is assembly direction [0,0,1] through XY [-153.42061528267112,-214] mm.",
+          "The observed D32 and D28 cylindrical bottle features are coaxial with the same assembly axis.",
+          "The inspection used transformed temporary body copies only; model_mutation=false and write_authority=NONE.",
+          "A subsequent live readback preserved the same active document and exact bottle component transform/state."
+        ],
+        "explicitly_not_claimed": [
+          "assembly +Z gravity/up semantics",
+          "rotation drive source, speed, torque, friction, or traction",
+          "tilt restraint, preload, interval-wide contact, mechanism selection, or mechanical acceptance"
+        ]
+      }
+    },
+    {
+      "schema_version": 1,
+      "record_type": "evidence",
+      "evidence_id": "E.FUNCTION_FIRST.BOTTLE_WRAP_AXIS_BINDING.20260927T091941345Z",
+      "evidence_type": "deterministic_calculation",
+      "evidence_state": "MEASURED_CALCULATED",
+      "source_authority": "DETERMINISTIC_CALCULATION",
+      "source_classification": "measured_calculated_from_admitted_solidworks_observation",
+      "subject": {
+        "subject_type": "function_first_wrap_axis_binding",
+        "identity_exact": "BENCH_BOTTLE_D48_H180-2 longitudinal/cylindrical axis ↔ derived common-axis candidate ↔ rotation_wrap_axis",
+        "document_title_exact": "IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE",
+        "document_path_exact": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE.SLDASM"
+      },
+      "provenance": {
+        "recorded_at": "2026-09-27T09:19:41.3455912Z",
+        "source_ref": "Deterministic axis-line comparison using E.FUNCTION_FIRST.BOTTLE_CYLINDER_AXIS.20260927T091941345Z, E.FUNCTION_FIRST.BOTTLE_CONTACT_CONSTRAINT.20260927T084903368Z, and E.FUNCTION_FIRST.BOTTLE_DOF.20260927T075043247Z.",
+        "tool_path": "CADGrounded deterministic axis-line coincidence calculation"
+      },
+      "dependencies": [
+        "E.FUNCTION_FIRST.BOTTLE_CYLINDER_AXIS.20260927T091941345Z",
+        "E.FUNCTION_FIRST.BOTTLE_CONTACT_CONSTRAINT.20260927T084903368Z",
+        "E.FUNCTION_FIRST.BOTTLE_DOF.20260927T075043247Z"
+      ],
+      "geometry_state": "CANDIDATE_OPERATING",
+      "temporal_scope": {
+        "coverage": "POINT_ONLY",
+        "validity_state": "CURRENT",
+        "state_ids": [],
+        "transition_ids": []
+      },
+      "mechanical_acceptance_granted": false,
+      "payload": {
+        "method": "Compare the fresh exact live B-rep D48 bottle cylinder axis against the admitted contact-constraint common-axis candidate, then bind the coincident geometric line to the function-first definition of rotation_wrap_axis as bottle longitudinal-axis rotation for circumferential wrapping.",
+        "inputs": [
+          "E.FUNCTION_FIRST.BOTTLE_CYLINDER_AXIS.20260927T091941345Z",
+          "E.FUNCTION_FIRST.BOTTLE_CONTACT_CONSTRAINT.20260927T084903368Z",
+          "E.FUNCTION_FIRST.BOTTLE_DOF.20260927T075043247Z"
+        ],
+        "result": {
+          "bottle_main_cylinder": {
+            "radius_mm": 24,
+            "axis_point_xy_mm": [
+              -153.42061528267112,
+              -214
+            ],
+            "axis_direction_assembly": [
+              0,
+              0,
+              1
+            ]
+          },
+          "derived_common_axis": {
+            "point_xy_mm": [
+              -153.42061528267115,
+              -214
+            ],
+            "direction_assembly": [
+              0,
+              0,
+              1
+            ]
+          },
+          "comparison": {
+            "xy_offset_mm": 2.842170943040401e-14,
+            "direction_dot": 1,
+            "direction_parallel": true,
+            "line_coincident_within_1e_9_mm": true
+          },
+          "functional_axis_definition": "rotation_wrap_axis = bottle upright longitudinal-axis rotation used for circumferential labeling/wrapping",
+          "admitted_claims": [
+            "The derived contact common-axis candidate is coincident with the exact live main D48 bottle cylindrical axis to numerical precision.",
+            "The common/bottle axis direction is assembly [0,0,1].",
+            "That exact bottle longitudinal/cylindrical axis is the geometric axis referenced by the function-first rotation_wrap_axis requirement."
+          ],
+          "explicitly_not_claimed": [
+            "assembly +Z is gravity/up",
+            "the current belt or rollers are the required final mechanism",
+            "rotation source, frictional traction, speed, torque, preload, tilt restraint, interval-wide contact, or mechanical acceptance"
           ]
         }
       }
