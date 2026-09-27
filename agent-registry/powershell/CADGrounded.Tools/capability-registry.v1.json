@@ -563,8 +563,7 @@
     },
     {
       "id": "cg.mechanism.candidates",
-      "future_command": "Get-CGMechanismCandidates",
-      "status": "PLANNED",
+      "status": "IMPLEMENTED",
       "category": "architecture_selection",
       "engineering_question": "Which explicit bottle-handling mechanism families are currently eligible for investigation after product requirements are bound, with assumptions and provenance stated?",
       "required_primitives": [
@@ -573,7 +572,22 @@
         "cg.requirements.rotation",
         "hypothesis registry"
       ],
-      "write_authority": "NONE"
+      "write_authority": "NONE",
+      "command": "Get-CGMechanismCandidates",
+      "execution_kind": "deterministic_candidate_registry",
+      "primitive": "cg.requirements.contact-maintenance + function-first hypothesis registry",
+      "remote_queue_authorized": false,
+      "establishes": [
+        "explicit eligible mechanism-family registry",
+        "candidate assumptions, required bindings and unresolved inputs",
+        "dormant/excluded candidate state without mechanism selection"
+      ],
+      "does_not_establish": [
+        "candidate ranking or selection",
+        "candidate geometry or quantitative design values",
+        "interval-wide feasibility",
+        "mechanical acceptance"
+      ]
     },
     {
       "id": "cg.mechanism.screen",
