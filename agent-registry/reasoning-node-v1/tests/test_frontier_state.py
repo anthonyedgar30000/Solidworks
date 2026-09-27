@@ -19,6 +19,11 @@ class FrontierStateTests(unittest.TestCase):
     def setUp(self):
         self.snapshot = load_current_frontier(REPO_ROOT)
 
+    def synthetic_snapshot(self):
+        snapshot = copy.deepcopy(self.snapshot)
+        snapshot["current_diagnostic"] = None
+        return snapshot
+
     def test_current_function_first_frontier_is_common_open(self):
         state = evaluate_frontier_state(self.snapshot)
 
@@ -36,7 +41,23 @@ class FrontierStateTests(unittest.TestCase):
         )
         self.assertEqual(
             state["next_action_mode"],
-            "RUN_DECLARED_COMMON_TESTS",
+            "REBIND_LIVE_CAD_BEFORE_DIAGNOSTIC",
+        )
+        self.assertEqual(
+            state["current_diagnostic_test_id"],
+            "TEST_POP_V43_PRISM_DUAL_PIVOT_EXACT_HYPOTHETICAL_SWEEP",
+        )
+        self.assertEqual(
+            state["current_diagnostic_state"],
+            "BLOCKED_FRESH_CAD_REBIND_REQUIRED",
+        )
+        self.assertEqual(
+            state["current_diagnostic_mechanical_effect"],
+            "NO_HYPOTHESIS_STATE_CHANGE",
+        )
+        self.assertEqual(
+            state["current_diagnostic_ambiguity_buckets"],
+            ["STALE_STATE", "CAD_READ_REQUIRED"],
         )
         self.assertFalse(state["uncommon_review_eligible"])
         self.assertFalse(state["novel_review_eligible"])
@@ -69,7 +90,7 @@ class FrontierStateTests(unittest.TestCase):
         )
 
     def test_dormant_common_blocks_widening_after_open_common_exhausts(self):
-        snapshot = copy.deepcopy(self.snapshot)
+        snapshot = self.synthetic_snapshot()
 
         for hypothesis_id in COMMON_MECHANISM_SEQUENCE_IDS:
             item = snapshot["hypotheses"][hypothesis_id]
@@ -103,7 +124,7 @@ class FrontierStateTests(unittest.TestCase):
         self.assertFalse(state["novel_review_eligible"])
 
     def test_supported_common_blocks_widening_even_when_investigation_is_exhausted(self):
-        snapshot = copy.deepcopy(self.snapshot)
+        snapshot = self.synthetic_snapshot()
 
         for hypothesis_id in COMMON_MECHANISM_SEQUENCE_IDS:
             snapshot["hypotheses"][hypothesis_id][
@@ -138,7 +159,7 @@ class FrontierStateTests(unittest.TestCase):
         self.assertFalse(state["novel_review_eligible"])
 
     def test_uncommon_review_becomes_eligible_only_after_common_exhaustion(self):
-        snapshot = copy.deepcopy(self.snapshot)
+        snapshot = self.synthetic_snapshot()
 
         for hypothesis_id in COMMON_MECHANISM_SEQUENCE_IDS:
             snapshot["hypotheses"][hypothesis_id][
@@ -186,7 +207,7 @@ class FrontierStateTests(unittest.TestCase):
         )
 
     def test_supported_uncommon_blocks_rare_widening(self):
-        snapshot = copy.deepcopy(self.snapshot)
+        snapshot = self.synthetic_snapshot()
 
         for hypothesis_id in (
             *COMMON_MECHANISM_SEQUENCE_IDS,
@@ -222,7 +243,7 @@ class FrontierStateTests(unittest.TestCase):
         )
 
     def test_rare_review_becomes_eligible_after_common_and_uncommon_exhaustion(self):
-        snapshot = copy.deepcopy(self.snapshot)
+        snapshot = self.synthetic_snapshot()
 
         for hypothesis_id in (
             *COMMON_MECHANISM_SEQUENCE_IDS,
@@ -265,6 +286,9 @@ class FrontierStateTests(unittest.TestCase):
         rendered = render_frontier_state(state)
 
         self.assertIn("COMMON_FRONTIER_OPEN", rendered)
+        self.assertIn("REBIND_LIVE_CAD_BEFORE_DIAGNOSTIC", rendered)
+        self.assertIn("BLOCKED_FRESH_CAD_REBIND_REQUIRED", rendered)
+        self.assertIn("NO_HYPOTHESIS_STATE_CHANGE", rendered)
         self.assertIn(
             "TEST_FUNCTION_FIRST_POP_ACCEPTANCE_ENVELOPE",
             rendered,

@@ -30,6 +30,7 @@ from frontier_state import (
     evaluate_frontier_state,
     render_frontier_state,
 )
+from diagnostic_binding import DiagnosticBindingError
 
 
 BASE_DIR = Path(r"C:\CADGrounded\reasoning-node")
@@ -53,7 +54,7 @@ REPO_ROOT = Path(
 
 app = FastAPI(
     title="CADGrounded Reasoning Node",
-    version="0.8.0",
+    version="0.9.0",
 )
 
 
@@ -490,7 +491,7 @@ def healthz():
 
     return {
         "status": "ok",
-        "version": "0.8.0",
+        "version": "0.9.0",
         "node_id": NODE_ID,
         "role": "bounded_reasoning_node",
         "ollama": ollama,
@@ -507,6 +508,7 @@ def healthz():
         },
         "frontier_binding_policy": "fail_closed",
         "frontier_state_policy": "deterministic_read_only",
+        "diagnostic_binding_policy": "deterministic_read_only_fail_closed",
         "frontier_repository_root": str(REPO_ROOT),
         "frontier_status": frontier_status,
         "frontier_snapshot": frontier_meta,
@@ -520,7 +522,11 @@ def frontierz():
     try:
         frontier = load_current_frontier(REPO_ROOT)
         state = evaluate_frontier_state(frontier)
-    except (FrontierBindingError, FrontierStateError) as exc:
+    except (
+        FrontierBindingError,
+        FrontierStateError,
+        DiagnosticBindingError,
+    ) as exc:
         raise HTTPException(
             status_code=422,
             detail={
@@ -539,7 +545,7 @@ def frontierz():
 
     return {
         "status": "ok",
-        "version": "0.8.0",
+        "version": "0.9.0",
         "frontier_snapshot": frontier_snapshot_metadata(frontier),
         "frontier_state": state,
         "authority": {
