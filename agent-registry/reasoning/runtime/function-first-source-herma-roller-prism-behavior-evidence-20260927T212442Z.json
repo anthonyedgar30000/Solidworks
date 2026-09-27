@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "record_type": "evidence",
+  "evidence_id": "E.FUNCTION_FIRST.HERMA_152C.ROLLER_PRISM_BEHAVIOR.20260927T212442Z",
+  "evidence_type": "oem_evidence",
+  "evidence_state": "VERIFIED",
+  "source_authority": "OEM_DOCUMENTATION",
+  "source_classification": "comparative_mechanism_oem_publisher_reference",
+  "subject": {
+    "subject_type": "comparative_roller_prism_behavior",
+    "identity_exact": "HERMA wrap-around labeling technology page, 152C P roller-prism description"
+  },
+  "provenance": {
+    "recorded_at": "2026-09-27T21:06:44Z",
+    "source_ref": "HERMA.WRAP_TECHNOLOGY.PAGE; https://www.herma.com/machines/types-of-labeling/wrap-around-labeling/; reviewed in agent-registry/orchestrator-v1/reviews/PLAN-0010-source-review-20260927.json",
+    "sha256": "d7bff055ec38bda0ba2692162f832c1078b1973fb6a7b58ca874e2c03d44381d",
+    "tool_path": "bounded source capture -> publisher-source review -> EvidenceRecord admission"
+  },
+  "dependencies": [
+    "E.FUNCTION_FIRST.MECHANISM_SCREEN.20260927T153026706Z"
+  ],
+  "geometry_state": "NOT_APPLICABLE",
+  "temporal_scope": {
+    "coverage": "POINT_ONLY",
+    "validity_state": "CURRENT",
+    "state_ids": [],
+    "transition_ids": []
+  },
+  "ambiguity_bucket": "OEM_SOURCE_REQUIRED",
+  "mechanical_acceptance_granted": false,
+  "payload": {
+    "artifact_identity": "HERMA wrap-around labeling technology page; captured raw SHA256 d7bff055ec38bda0ba2692162f832c1078b1973fb6a7b58ca874e2c03d44381d",
+    "captured_visible_text_sha256": "34415c4139b192a3d4f628f1cf9eaf22ec932fb32b97008afdc87fb152b75daa",
+    "locator": "HERMA manages to meet these requirements with its wraparound labeling systems",
+    "publisher_statement_paraphrase": "HERMA states that its 152C P roller prism rotates and fixes a product at the moment of labeling.",
+    "admitted_claims": [
+      "A separate OEM documents a roller-prism mechanism pattern that both rotates and fixes the product during labeling."
+    ],
+    "explicitly_not_claimed": [
+      "The source does not define the v43 capture owner, closure/release motion, preload, limits, reaction path, or reachable-state geometry.",
+      "The HERMA behavior is comparative precedent only and does not establish applicability to CAB IXOR+ or v43.",
+      "No candidate mechanism is selected and no project geometry or mechanical acceptance is established."
+    ],
+    "source_review_id": "R.PLAN-0010.SOURCE_IDENTITY_AND_REFERENCE.20260927T210644Z",
+    "selection_status": "NOT_SELECTED"
+  }
+}
