@@ -167,7 +167,9 @@
         "E.FUNCTION_FIRST.BOTTLE_CONTACT_NORMAL_MAP.20260927T082707281Z",
         "E.FUNCTION_FIRST.BOTTLE_CONTACT_CONSTRAINT.20260927T084903368Z",
         "E.FUNCTION_FIRST.BOTTLE_WRAP_AXIS_BINDING.20260927T090058895Z",
-        "E.FUNCTION_FIRST.BOTTLE_CONTACT_WRENCH_RANK.20260927T091125291Z"
+        "E.FUNCTION_FIRST.BOTTLE_CONTACT_WRENCH_RANK.20260927T091125291Z",
+        "E.FUNCTION_FIRST.BOTTLE_LATERAL_CONTACT_MANIFOLD.20260927T100903861Z",
+        "E.FUNCTION_FIRST.BOTTLE_FINITE_LINE_RESTRAINT_RANK.20260927T100903861Z"
       ],
       "depends_on_requirement_ids": [
         "BOTTLE_REQUIRED_DOF_BOUND"
@@ -292,7 +294,9 @@
         "DETERMINISTIC_CALCULATION"
       ],
       "evidence_refs": [
-        "E.V43.PRISM.LIVE_STATE.20260926T200826594Z"
+        "E.V43.PRISM.LIVE_STATE.20260926T200826594Z",
+        "E.FUNCTION_FIRST.BOTTLE_LATERAL_CONTACT_MANIFOLD.20260927T100903861Z",
+        "E.FUNCTION_FIRST.BOTTLE_FINITE_LINE_RESTRAINT_RANK.20260927T100903861Z"
       ],
       "depends_on_requirement_ids": [
         "CAPTURE_KINEMATIC_OWNER"
@@ -1249,7 +1253,7 @@
         "WRAP_ACTIVE"
       ],
       "required_evidence": [
-        "The exact bottle wrap axis is bound and the live-fresh four-contact maintained frictionless sampled point-normal model has rank 4/nullity 2: wrap-axis rotation is one null mode and one additional coupled instantaneous mode remains. Characterize the exact finite B-rep contact manifolds and their axial extents before concluding that tilt/full restraint is missing or supplied. Preload/compliance, unilateral contact maintenance, friction/traction, interval-wide behavior, reaction capacity, and mechanism selection remain unresolved."
+        "The registered live manifold verifier establishes three 93 mm lateral generator-line contacts at the current V43_WRAP pose, and the ideal rigid maintained frictionless finite-line model has rank 5/nullity 1 with bound wrap-axis rotation as the sole null mode. Before promoting this into real support/restraint, establish how the unilateral belt/roller contacts are maintained through CAPTURE_AND_ROTATION, LABEL_TRANSFER_INTERVAL, and WRAP_ACTIVE, including compliant/preloaded ownership, usable travel/range, retention, reaction path, and any authoritative force/preload information. Friction/traction, force capacity, interval-wide behavior, mechanism selection, and mechanical acceptance remain unresolved."
       ]
     },
     {
@@ -1290,7 +1294,7 @@
         "WRAP_ACTIVE"
       ],
       "required_evidence": [
-        "An OEM source or no-mutation native feature read identifying the compliant element, its preload or force range, travel, retention, and reaction path at the FITCHECK capture station."
+        "Identify the exact component, mechanism, OEM/design source, mate/constraint source, or accepted deterministic mechanism definition that maintains the belt/roller lateral contact set against bottle variation and operating motion. Bind its compliant or preload behavior, travel/range, retention, and reaction path; preserve force/preload magnitude as UNKNOWN unless an authoritative source or accepted deterministic derivation supplies it."
       ]
     },
     {
@@ -3068,20 +3072,204 @@
           ]
         }
       }
+    },
+    {
+      "schema_version": 1,
+      "record_type": "evidence",
+      "evidence_id": "E.FUNCTION_FIRST.BOTTLE_LATERAL_CONTACT_MANIFOLD.20260927T100903861Z",
+      "evidence_type": "solidworks_observation",
+      "evidence_state": "VERIFIED",
+      "source_authority": "SOLIDWORKS_LIVE_STATE",
+      "source_classification": "verified_from_solidworks_api",
+      "subject": {
+        "subject_type": "function_first_bottle_lateral_contact_manifold_observation",
+        "identity_exact": "BENCH_BOTTLE_D48_H180-2 vs FITCHECK_DRIVEN_WRAP_BELT_5x160x93_V25-1 and FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25-1/-2",
+        "document_title_exact": "IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE",
+        "document_path_exact": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE.SLDASM"
+      },
+      "provenance": {
+        "recorded_at": "2026-09-27T10:09:03.8610302Z",
+        "source_ref": "C:\\ChatGPT\\CADGrounded-verifier-runs\\lateral-contact-manifold-pr82-fd7e5e10\\agent-registry\\workers\\CadGrounded.SolidWorksWorker\\verification-output\\function-first-lateral-contact-manifold\\verification-summary.json",
+        "sha256": "85c9cc3f36ead0058e3ada16e4fb1b7873c65862dea66fae26afe8db747491dd",
+        "tool_path": "cg.verifier.function-first.lateral-contact-manifold / Verify-ContactManifold-FunctionFirst-LateralContacts.ps1 at PR #82 head fd7e5e10ccecca8923558f72655dab0af4365a4d, merged to main as c60a9b3661c5a31bbfaad0804c29f2ef1d654731"
+      },
+      "dependencies": [
+        "E.FUNCTION_FIRST.BOTTLE_CONTACT_WRENCH_RANK.20260927T091125291Z",
+        "E.FUNCTION_FIRST.BOTTLE_WRAP_AXIS_BINDING.20260927T091941345Z",
+        "PLAN-0010"
+      ],
+      "geometry_state": "CANDIDATE_OPERATING",
+      "temporal_scope": {
+        "coverage": "POINT_ONLY",
+        "validity_state": "CURRENT",
+        "state_ids": [],
+        "transition_ids": []
+      },
+      "ambiguity_bucket": "KINEMATIC_STATE_UNRESOLVED",
+      "mechanical_acceptance_granted": false,
+      "payload": {
+        "observation_kind": "exact_current_pose_lateral_contact_manifold_registered_verifier",
+        "document": {
+          "title": "IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE",
+          "path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE.SLDASM",
+          "active_configuration_exact": "V43_WRAP"
+        },
+        "worker_version": "0.4.5",
+        "write_authority": "NONE",
+        "remote_queue_authorized": false,
+        "assembly_file_sha256_before": "dcd53467d2693283bb6617bdde1d4da8c19790615385e307671690ddce84b32a",
+        "assembly_file_sha256_after": "dcd53467d2693283bb6617bdde1d4da8c19790615385e307671690ddce84b32a",
+        "lateral_contact_manifolds": [
+          {
+            "pair_id": "wrap_belt",
+            "component_b": "FITCHECK_DRIVEN_WRAP_BELT_5x160x93_V25-1",
+            "classification": "TANGENT_CYLINDER_PLANE_GENERATOR_LINE",
+            "trimmed_axis_overlap": {
+              "z_min_mm": 995,
+              "z_max_mm": 1088,
+              "length_mm": 93
+            }
+          },
+          {
+            "pair_id": "roller_1",
+            "component_b": "FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25-1",
+            "classification": "EXTERNAL_TANGENT_PARALLEL_CYLINDER_GENERATOR_LINE",
+            "trimmed_axis_overlap": {
+              "z_min_mm": 995,
+              "z_max_mm": 1088,
+              "length_mm": 93
+            },
+            "analytic_tangency": {
+              "bottle_radius_mm": 24,
+              "counterpart_radius_mm": 15,
+              "cylinder_axis_distance_mm": 39.00000000000001,
+              "radius_sum_mm": 39,
+              "tangency_residual_mm": 7.105427357601002e-15
+            }
+          },
+          {
+            "pair_id": "roller_2",
+            "component_b": "FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25-2",
+            "classification": "EXTERNAL_TANGENT_PARALLEL_CYLINDER_GENERATOR_LINE",
+            "trimmed_axis_overlap": {
+              "z_min_mm": 995,
+              "z_max_mm": 1088,
+              "length_mm": 93
+            },
+            "analytic_tangency": {
+              "bottle_radius_mm": 24,
+              "counterpart_radius_mm": 15,
+              "cylinder_axis_distance_mm": 39.00000000058775,
+              "radius_sum_mm": 39,
+              "tangency_residual_mm": 5.877467401660397e-10
+            }
+          }
+        ],
+        "admitted_claims": [
+          "At the recorded V43_WRAP pose, bottle-to-driven-wrap-belt contact is a tangent cylinder/plane generator-line contact over assembly Z 995..1088 mm.",
+          "At the same pose, bottle-to-support-roller-1 and bottle-to-support-roller-2 are external tangent parallel-cylinder generator-line contacts over assembly Z 995..1088 mm.",
+          "Each observed lateral contact therefore has 93 mm trimmed axial overlap along the bound bottle wrap-axis direction at this pose rather than being represented only by one ClosestDistance sample.",
+          "The registered verifier preserved document state, target-component state, and assembly-file SHA256 before/after execution."
+        ],
+        "explicitly_not_claimed": [
+          "Observed generator-line geometry does not establish that unilateral contacts remain engaged without preload or compliance.",
+          "This observation does not establish friction, traction, driven wrap torque, force capacity, pressure, stiffness, or reaction-path adequacy.",
+          "This POINT_ONLY observation does not establish interval-wide restraint or reachable motion.",
+          "It does not require the current V43 belt or rollers in the final mechanism and does not grant mechanical acceptance."
+        ]
+      }
+    },
+    {
+      "schema_version": 1,
+      "record_type": "evidence",
+      "evidence_id": "E.FUNCTION_FIRST.BOTTLE_FINITE_LINE_RESTRAINT_RANK.20260927T100903861Z",
+      "evidence_type": "deterministic_calculation",
+      "evidence_state": "MEASURED_CALCULATED",
+      "source_authority": "DETERMINISTIC_CALCULATION",
+      "source_classification": "measured_calculated_from_verified_solidworks_contact_manifold",
+      "subject": {
+        "subject_type": "function_first_bottle_ideal_maintained_finite_line_restraint_rank",
+        "identity_exact": "BENCH_BOTTLE_D48_H180-2 ideal rigid maintained frictionless model using conveyor support normal plus three verified 93 mm lateral generator-line contacts",
+        "document_title_exact": "IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE",
+        "document_path_exact": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE.SLDASM"
+      },
+      "provenance": {
+        "recorded_at": "2026-09-27T10:09:03.8610302Z",
+        "source_ref": "C:\\ChatGPT\\CADGrounded-verifier-runs\\lateral-contact-manifold-pr82-fd7e5e10\\agent-registry\\workers\\CadGrounded.SolidWorksWorker\\verification-output\\function-first-lateral-contact-manifold\\verification-summary.json",
+        "sha256": "85c9cc3f36ead0058e3ada16e4fb1b7873c65862dea66fae26afe8db747491dd",
+        "tool_path": "Ideal finite-line rank calculation inside cg.verifier.function-first.lateral-contact-manifold at PR #82 head fd7e5e10ccecca8923558f72655dab0af4365a4d"
+      },
+      "dependencies": [
+        "E.FUNCTION_FIRST.BOTTLE_LATERAL_CONTACT_MANIFOLD.20260927T100903861Z",
+        "E.FUNCTION_FIRST.BOTTLE_WRAP_AXIS_BINDING.20260927T091941345Z",
+        "E.FUNCTION_FIRST.BOTTLE_DOF.20260927T075043247Z"
+      ],
+      "geometry_state": "CANDIDATE_OPERATING",
+      "temporal_scope": {
+        "coverage": "POINT_ONLY",
+        "validity_state": "CURRENT",
+        "state_ids": [],
+        "transition_ids": []
+      },
+      "ambiguity_bucket": "KINEMATIC_STATE_UNRESOLVED",
+      "mechanical_acceptance_granted": false,
+      "payload": {
+        "method": "6-DOF contact constraint rank calculation using the conveyor support-normal row plus two axially separated normal-constraint samples at each verified 93 mm lateral generator-line contact; ideal rigid maintained frictionless contact model",
+        "inputs": [
+          "E.FUNCTION_FIRST.BOTTLE_LATERAL_CONTACT_MANIFOLD.20260927T100903861Z",
+          "E.FUNCTION_FIRST.BOTTLE_WRAP_AXIS_BINDING.20260927T091941345Z",
+          "conveyor support-normal contact from admitted current-pose evidence"
+        ],
+        "result": {
+          "coordinate_order": [
+            "vx",
+            "vy",
+            "vz",
+            "omega_x",
+            "omega_y",
+            "omega_z"
+          ],
+          "matrix_rank": 5,
+          "nullity": 1,
+          "bound_wrap_axis_assembly": [
+            0,
+            0,
+            1
+          ],
+          "wrap_axis_rotation_max_abs_residual": 2.6645352591003757e-14,
+          "wrap_axis_rotation_is_null_mode": true,
+          "five_dof_restraint_excluding_wrap_rotation": "SUPPORTED_BY_IDEAL_FINITE_LINE_NORMAL_MODEL"
+        },
+        "interpretation": [
+          "The finite axial extent of the three verified lateral generator-line contacts adds the independent rotational constraints absent from the earlier sampled point-normal model.",
+          "Within the ideal rigid maintained frictionless current-pose model, exactly one instantaneous null mode remains: rotation about the bound bottle wrap axis.",
+          "This is a geometric constraint result, not proof that the real unilateral contacts are maintained."
+        ],
+        "explicitly_not_claimed": [
+          "The rank result does not establish real tilt restraint unless the lateral contacts are maintained by adequate preload/compliance over the required operating interval.",
+          "It does not establish friction, traction, driven wrap torque, force/load capacity, pressure, stiffness, or reaction-path adequacy.",
+          "It does not establish interval-wide capture, label-transfer, wrap, release, or reachable-state behavior.",
+          "It does not select a mechanism or grant mechanical acceptance."
+        ]
+      }
     }
   ],
   "next_tests": [
     {
-      "id": "TEST_FUNCTION_FIRST_LATERAL_CONTACT_MANIFOLD",
-      "question": "Execute registered verifier cg.verifier.function-first.lateral-contact-manifold against the exact live V43_WRAP assembly. Using exact transformed-temporary-body SOLIDWORKS B-rep geometry for BENCH_BOTTLE_D48_H180-2, FITCHECK_DRIVEN_WRAP_BELT_5x160x93_V25-1, and both FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25 components, characterize each current lateral contact as point, line/generator, or finite patch contact and measure its trimmed extent along the bound bottle rotation_wrap_axis. Do not treat one arbitrary IModelDoc2.ClosestDistance point as the entire contact when tangent cylinder/plane or cylinder/cylinder surfaces may coincide along an interval. Then determine whether the ideal rigid frictionless maintained finite-contact geometry adds an independent tilt-restraint constraint missing from the sampled point-normal rank model while preserving rotation about the bound wrap axis. Preserve unilateral contact maintenance, preload/compliance, friction/traction, force capacity, interval-wide behavior, mechanism selection, and mechanical acceptance as unresolved.",
+      "id": "TEST_FUNCTION_FIRST_CONTACT_MAINTENANCE_PRELOAD_SOURCE",
+      "question": "The current-pose B-rep manifold is now sufficient geometrically in an ideal maintained frictionless model: three 93 mm lateral generator-line contacts plus conveyor support give rank 5/nullity 1 while preserving the bound rotation_wrap_axis. Determine what authoritative mechanism/source actually maintains those unilateral lateral contacts through CAPTURE_AND_ROTATION, LABEL_TRANSFER_INTERVAL, and WRAP_ACTIVE. First bind exact candidate component identities and designer/OEM or accepted deterministic provenance for any spring, pneumatic element, translating/pivoting carrier, compliant belt support, guide, or other closure owner; then establish usable travel/range, contact-retention behavior, and reaction path. Do not infer preload, force, stiffness, friction/traction, or interval-wide maintenance from the static V43 pose. Do not select a mechanism or grant mechanical acceptance until the maintenance source is evidenced.",
       "resolves_requirement_ids": [
-        "BOTTLE_SUPPORT_CONTACT_SET_BOUND"
+        "BOTTLE_SUPPORT_CONTACT_SET_BOUND",
+        "BOTTLE_RESTRAINT_THROUGHOUT_CAPTURE",
+        "WRAP_CONTACT_THROUGHOUT_CAPTURE",
+        "CAPTURE_REACTION_FORCE_PATH"
       ],
       "hypothesis_ids": [
-        "H_FUNCTION_FIRST_CONTACT_SET"
+        "H_FUNCTION_FIRST_CONTACT_SET",
+        "H_CAPTURE_COMPLIANCE_OR_PRELOAD"
       ],
       "discrimination_power": 1,
-      "evidence_confidence": 0.98,
+      "evidence_confidence": 0.99,
       "unresolved_relevance": 1,
       "cost": 1
     }
