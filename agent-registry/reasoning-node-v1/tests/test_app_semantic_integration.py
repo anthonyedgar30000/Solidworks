@@ -1,10 +1,14 @@
 ﻿import json
 import unittest
+from pathlib import Path
 from unittest.mock import patch
 
 from fastapi import HTTPException
 
 import app
+
+
+REPO_ROOT = Path(__file__).resolve().parents[3]
 
 
 EVIDENCE = """
@@ -78,11 +82,18 @@ class FakeOllamaResponse:
 
 class SemanticIntegrationTests(unittest.TestCase):
 
+    def setUp(self):
+        self._original_repo_root = app.REPO_ROOT
+        app.REPO_ROOT = REPO_ROOT
+
+    def tearDown(self):
+        app.REPO_ROOT = self._original_repo_root
+
     def test_frontierz_projects_current_state_without_mutation(self):
         result = app.frontierz()
 
         self.assertEqual(result["status"], "ok")
-        self.assertEqual(result["version"], "0.8.0")
+        self.assertEqual(result["version"], "0.9.0")
         self.assertEqual(
             result["frontier_snapshot"]["current_plan_id"],
             "PLAN-0011",
@@ -101,7 +112,23 @@ class SemanticIntegrationTests(unittest.TestCase):
         )
         self.assertEqual(
             result["frontier_state"]["next_action_mode"],
-            "RUN_DECLARED_COMMON_TESTS",
+            "REBIND_LIVE_CAD_BEFORE_DIAGNOSTIC",
+        )
+        self.assertEqual(
+            result["frontier_state"]["current_diagnostic_test_id"],
+            "TEST_POP_V43_PRISM_DUAL_PIVOT_EXACT_HYPOTHETICAL_SWEEP",
+        )
+        self.assertEqual(
+            result["frontier_state"]["current_diagnostic_state"],
+            "BLOCKED_FRESH_CAD_REBIND_REQUIRED",
+        )
+        self.assertEqual(
+            result["frontier_state"]["current_diagnostic_mechanical_effect"],
+            "NO_HYPOTHESIS_STATE_CHANGE",
+        )
+        self.assertEqual(
+            result["frontier_snapshot"]["current_diagnostic"]["attempt_id"],
+            "ATTEMPT.PLAN-0011.V43_DUAL_PIVOT_EXACT_SWEEP.20260927T222600Z",
         )
         self.assertEqual(
             result["frontier_state"]["uncommon_frontier_state"],
@@ -418,6 +445,18 @@ class SemanticIntegrationTests(unittest.TestCase):
         )
         self.assertIn(
             "widening_state: BLOCKED_BY_COMMON_OPEN",
+            prompt,
+        )
+        self.assertIn(
+            "next_action_mode: REBIND_LIVE_CAD_BEFORE_DIAGNOSTIC",
+            prompt,
+        )
+        self.assertIn(
+            "current_diagnostic_test_id: TEST_POP_V43_PRISM_DUAL_PIVOT_EXACT_HYPOTHETICAL_SWEEP",
+            prompt,
+        )
+        self.assertIn(
+            "current_diagnostic_mechanical_effect: NO_HYPOTHESIS_STATE_CHANGE",
             prompt,
         )
         self.assertIn(

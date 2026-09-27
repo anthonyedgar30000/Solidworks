@@ -7,6 +7,10 @@ from pathlib import Path
 from typing import Any, Mapping
 
 from frontier_state import evaluate_frontier_state
+from diagnostic_binding import (
+    bind_current_diagnostic,
+    diagnostic_snapshot_metadata,
+)
 
 
 CURRENT_PLAN_RELATIVE = Path("agent-registry/planning/CURRENT_PLAN.json")
@@ -118,6 +122,8 @@ def load_current_frontier(repo_root: Path) -> dict[str, Any]:
         )
         index[hypothesis_id] = hypothesis
 
+    current_diagnostic = bind_current_diagnostic(repo_root, plan)
+
     next_tests = frontier.get("next_tests") or []
     _require(
         isinstance(next_tests, list),
@@ -157,6 +163,7 @@ def load_current_frontier(repo_root: Path) -> dict[str, Any]:
         "frontier_sha256": frontier_sha256,
         "hypotheses": index,
         "next_tests": next_test_index,
+        "current_diagnostic": current_diagnostic,
     }
 
 
@@ -418,4 +425,7 @@ def frontier_snapshot_metadata(
         "frontier_sha256": snapshot["frontier_sha256"],
         "hypothesis_count": len(snapshot["hypotheses"]),
         "next_test_count": len(snapshot.get("next_tests") or {}),
+        "current_diagnostic": diagnostic_snapshot_metadata(
+            snapshot.get("current_diagnostic")
+        ),
     }

@@ -193,7 +193,16 @@ def evaluate_frontier_state(
         set(uncommon_open),
     )
 
-    if common_open and declared_next_tests:
+    current_diagnostic = snapshot.get("current_diagnostic")
+    diagnostic_next_action = (
+        current_diagnostic.get("next_action_mode")
+        if isinstance(current_diagnostic, Mapping)
+        else None
+    )
+
+    if diagnostic_next_action:
+        next_action_mode = diagnostic_next_action
+    elif common_open and declared_next_tests:
         next_action_mode = "RUN_DECLARED_COMMON_TESTS"
     elif common_open:
         next_action_mode = "COMMON_TEST_REQUIRED"
@@ -234,6 +243,36 @@ def evaluate_frontier_state(
         "search_exhaustion_state": search_exhaustion_state,
         "widening_state": widening_state,
         "next_action_mode": next_action_mode,
+        "current_diagnostic_test_id": (
+            current_diagnostic.get("test_id")
+            if isinstance(current_diagnostic, Mapping)
+            else None
+        ),
+        "current_diagnostic_state": (
+            current_diagnostic.get("diagnostic_state")
+            if isinstance(current_diagnostic, Mapping)
+            else None
+        ),
+        "current_diagnostic_attempt_id": (
+            current_diagnostic.get("attempt_id")
+            if isinstance(current_diagnostic, Mapping)
+            else None
+        ),
+        "current_diagnostic_mechanical_effect": (
+            current_diagnostic.get("mechanical_effect")
+            if isinstance(current_diagnostic, Mapping)
+            else None
+        ),
+        "current_diagnostic_ambiguity_buckets": (
+            list(current_diagnostic.get("ambiguity_buckets") or [])
+            if isinstance(current_diagnostic, Mapping)
+            else []
+        ),
+        "current_diagnostic_resume_condition": (
+            current_diagnostic.get("resume_condition")
+            if isinstance(current_diagnostic, Mapping)
+            else None
+        ),
         "common_open_ids": sorted(common_open),
         "common_supported_ids": sorted(common_supported),
         "common_dormant_ids": sorted(common_dormant),
@@ -275,6 +314,13 @@ def render_frontier_state(
         f"uncommon_search_exhaustion_state: {state['uncommon_search_exhaustion_state']}",
         f"widening_state: {state['widening_state']}",
         f"next_action_mode: {state['next_action_mode']}",
+        f"current_diagnostic_test_id: {state['current_diagnostic_test_id']}",
+        f"current_diagnostic_state: {state['current_diagnostic_state']}",
+        f"current_diagnostic_attempt_id: {state['current_diagnostic_attempt_id']}",
+        f"current_diagnostic_mechanical_effect: {state['current_diagnostic_mechanical_effect']}",
+        "current_diagnostic_ambiguity_buckets: "
+        + ",".join(state["current_diagnostic_ambiguity_buckets"]),
+        f"current_diagnostic_resume_condition: {state['current_diagnostic_resume_condition']}",
         "common_open_ids: "
         + ",".join(state["common_open_ids"]),
         "common_supported_ids: "
@@ -300,6 +346,8 @@ def render_frontier_state(
         "",
         "FRONTIER STATE CONTRACT:",
         "- This is a deterministic projection of versioned project state.",
+        "- A bound current-plan diagnostic takes precedence over generic frontier test selection.",
+        "- A blocked CAD read/rebind attempt is not negative mechanical evidence and does not weaken a hypothesis.",
         "- It does not change any hypothesis evidence or investigation state.",
         "- COMMON ACTIVE/ELIGIBLE mechanism explanations block widening.",
         "- A SUPPORTED COMMON mechanism also blocks widening; support is not failure or exhaustion.",
