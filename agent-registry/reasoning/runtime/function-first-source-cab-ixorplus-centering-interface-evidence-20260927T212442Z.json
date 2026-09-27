@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "record_type": "evidence",
+  "evidence_id": "E.FUNCTION_FIRST.CAB_IXORPLUS.CENTERING_INTERFACE.20260927T212442Z",
+  "evidence_type": "oem_evidence",
+  "evidence_state": "VERIFIED",
+  "source_authority": "OEM_DOCUMENTATION",
+  "source_classification": "subject_oem_document_reviewed_source",
+  "subject": {
+    "subject_type": "ixorplus_product_centering_interface_semantics",
+    "identity_exact": "cab IXOR+ assembly instructions, part 9004290.131, edition 04/2026, section 9.3 START table 9"
+  },
+  "provenance": {
+    "recorded_at": "2026-09-27T21:06:44Z",
+    "source_ref": "CAB.IXORPLUS.ASSEMBLY_INSTRUCTIONS.202604; https://www.cab.de/media/pushfile.cfm?file=4542; reviewed in agent-registry/orchestrator-v1/reviews/PLAN-0010-source-review-20260927.json",
+    "sha256": "6e15cc68c22eec8535ab58381e35ab81e00b1329f83eb1e40ed83ac22253f9f8",
+    "tool_path": "bounded source capture -> publisher-source review -> EvidenceRecord admission"
+  },
+  "dependencies": [
+    "E.FUNCTION_FIRST.MECHANISM_SCREEN.20260927T153026706Z"
+  ],
+  "geometry_state": "NOT_APPLICABLE",
+  "temporal_scope": {
+    "coverage": "POINT_ONLY",
+    "validity_state": "CURRENT",
+    "state_ids": [],
+    "transition_ids": []
+  },
+  "ambiguity_bucket": "OEM_SOURCE_REQUIRED",
+  "mechanical_acceptance_granted": false,
+  "payload": {
+    "artifact_identity": "cab IXOR+ assembly instructions 9004290.131, 04/2026, SHA256 6e15cc68c22eec8535ab58381e35ab81e00b1329f83eb1e40ed83ac22253f9f8",
+    "locator": "Physical PDF page 58, section 9.3 START, table 9",
+    "publisher_statement_paraphrase": "The START interface lists PRISM input pin 2 to start product centering, gives a roller prism as an example, and lists labeling START separately at input pin 4.",
+    "admitted_claims": [
+      "IXOR+ exposes a distinct PRISM input for starting product centering and gives roller prism as an example.",
+      "IXOR+ exposes labeling START separately from the product-centering PRISM input."
+    ],
+    "explicitly_not_claimed": [
+      "The documentation does not identify the physical product-centering owner in the v43 assembly.",
+      "The documentation does not define the centering mechanism actuator, travel, limits, preload, reaction path, release motion, or rotation drive.",
+      "No candidate mechanism is selected and no project geometry or mechanical acceptance is established."
+    ],
+    "source_review_id": "R.PLAN-0010.SOURCE_IDENTITY_AND_REFERENCE.20260927T210644Z",
+    "selection_status": "NOT_SELECTED"
+  }
+}
