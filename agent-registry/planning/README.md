@@ -175,3 +175,38 @@ review. Keep captured bundles out of version control.
 
 Focused regression: `python -m unittest -v test_source_freshness_otlp.py`
 from `agent-registry/planning`.
+
+### Local OTLP receiver
+
+`telemetry/compose.yaml` starts a pinned OpenTelemetry Collector with only an
+OTLP/HTTP logs receiver. The host port is bound to `127.0.0.1:4318`. The logs
+pipeline writes OTLP JSON to a Docker named volume using a file exporter with
+1 MB rotation, three days of retention, and three backup files. It does not
+configure traces, metrics, remote exporters, or a schedule.
+
+From the repository root, with Docker Compose available:
+
+```sh
+docker compose -f agent-registry/planning/telemetry/compose.yaml up -d
+python agent-registry/planning/source_freshness_send.py --bundle /path/to/captured-bundle.json
+docker compose -f agent-registry/planning/telemetry/compose.yaml cp collector:/data/freshness.json /tmp/cadgrounded-freshness.json
+docker compose -f agent-registry/planning/telemetry/compose.yaml down
+```
+
+Use a captured, read-only response bundle at the pinned current-plan commit.
+The sender performs the same normalization and comparison as the existing
+bundle CLI, serializes only the bounded event, and sends it by HTTP POST to
+`127.0.0.1:4318/v1/logs` with a three-second timeout. An existing freshness
+report can be sent without `--bundle`. `--port` changes the local port only,
+for a receiver bound on another loopback port. A collector error, partial
+success, or unavailable receiver exits with an error. HTTP 200 means the
+receiver accepted the request; inspect the exported file to confirm storage.
+The separate report retains source provenance. Keep bundles and exported logs
+outside version control; the Docker volume survives `down` unless removed
+explicitly. The collector accepts any local client on that port, so run this
+lane only in a trusted local environment. No collector is run by the sender.
+
+Focused regression: `python -m unittest -v test_source_freshness_send.py`
+from `agent-registry/planning`. It exercises an in-process loopback receiver;
+it does not establish that a Docker Collector is running or that a file has
+been exported.
