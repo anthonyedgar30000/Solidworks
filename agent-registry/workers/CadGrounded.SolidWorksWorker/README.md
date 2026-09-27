@@ -12,6 +12,7 @@ There is no generic code-execution command and no CAD write command.
 - `sw.diagnose_interface_connectors` (local-only; not Remote Queue authorized)
 - `sw.diagnose_feature_manager_tree` (local-only; not Remote Queue authorized)
 - `sw.closest_distance_pair`
+- `sw.contact_surface_normals_pair` (native-only current-pose face-normal candidate; not Remote Queue authorized)
 - `sw.classify_contact_pair` (native-only unless separately authorized by a transport policy)
 - `sw.classify_contact_pair_at_transform` (native-only hypothetical fit check; never assigns `Component2.Transform2`)
 - `sw.query_mates`
@@ -61,6 +62,12 @@ This command isolates:
 `IModelDoc2.ClosestDistance(Object, Object, ref Object, ref Object)`
 
 It deliberately does not call the assembly interference detector. Distance alone is not treated as proof of physical interference. A zero metric distance can represent contact or overlap.
+
+## `sw.contact_surface_normals_pair`
+
+This native-only read requires exact active document title, path, configuration, and two exact top-level component identities. It first uses `IModelDoc2.ClosestDistance`. Only when the pair is within the 1 µm contact/coincidence tolerance does it copy each component's solid bodies, transform the temporary copies into assembly coordinates, bind candidate faces to the API closest/contact point with `IFace2.GetClosestPointOn`, and observe unit normals with `IFace2.Normal` for planar faces or `ISurface.EvaluateAtPoint` plus `IFace2.FaceInSurfaceSense` for non-planar faces.
+
+The returned body/face indices are observation-local indices on temporary copies, not persistent CAD face IDs. The command does not classify physical interference and does not establish support, reaction capacity, friction, preload, force, mechanism function, or mechanical acceptance. Pair it with `sw.classify_contact_pair` when zero-interference contact evidence is required. It never assigns `Component2.Transform2` and has `write_authority: NONE`.
 
 ## `sw.classify_contact_pair`
 
