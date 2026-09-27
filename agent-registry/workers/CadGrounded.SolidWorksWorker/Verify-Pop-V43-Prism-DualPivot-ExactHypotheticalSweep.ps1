@@ -274,7 +274,7 @@ function Invoke-PairAtTransforms {
     if ([string]$env.command_id -cne 'sw.classify_contact_pair_at_transform') { throw 'Unexpected command id.' }
     if ([string]$env.source_classification -cne 'verified_from_solidworks_api') { throw 'Unexpected source classification.' }
     if ($env.data.model_mutation -ne $false -or [string]$env.data.write_authority -cne 'NONE') {
-        throw "No-mutation/write-authority violation for '$A' ↔ '$B'."
+        throw "No-mutation/write-authority violation for '$A' <-> '$B'."
     }
     return $env.data
 }
