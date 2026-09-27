@@ -1,0 +1,106 @@
+{
+  "record_type": "plan",
+  "schema_version": 1,
+  "record_id": "PLAN-0010",
+  "project_id": "CADGROUNDED.IXOR",
+  "created_at_utc": "2026-09-27T07:36:05Z",
+  "parent_plan_id": "PLAN-0009",
+  "caused_by_divergence_ids": [],
+  "status": "ACTIVE",
+  "state_binding": {
+    "source": "SOLIDWORKS",
+    "document_title": "IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE",
+    "document_path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE.SLDASM",
+    "configuration_exact": "V43_WRAP",
+    "configuration_state": "LIVE_REFERENCE_CANDIDATE_A_ONLY; REQUIRE_FRESH_REBIND_FOR_ANY_LIVE_CAD_TEST",
+    "source_observation_ids": [
+      "E.V43.PRISM.FULL_CHAIN_MATES.20260927T070827844Z",
+      "E.PROJECT.DESIGN_INTENT.FUNCTION_FIRST_BOTTLE_HANDLER.20260927T073605Z"
+    ],
+    "freshness": "V43 remains a current live reference assembly but is no longer the required mechanism architecture."
+  },
+  "intent": "Define the mechanism-independent functional and geometric requirements of the industrial bottle-labeling station, register multiple plausible bottle capture/rotation mechanism families, and screen those candidates against the same deterministic obligations before selecting any architecture for new CAD development.",
+  "projected_steps": [
+    {
+      "step_id": "P0010.1",
+      "title": "Freeze the mechanism-independent authoritative constraint baseline",
+      "depends_on": [],
+      "write_authority": "NONE",
+      "expected_outputs": [
+        "CAB IXOR+ source geometry and label-presentation constraints",
+        "D48 x H180 product geometry and relevant product-flow envelope",
+        "conveyor travel/entry/exit relationship",
+        "known hard-stop/indexing geometry and existing validated clearances",
+        "explicit UNKNOWN fields where peel, transfer, support, neighbor, or mounting constraints are not yet sufficiently bound"
+      ],
+      "status": "PROJECTED"
+    },
+    {
+      "step_id": "P0010.2",
+      "title": "Bind the functional bottle-handling obligation set independent of mechanism",
+      "depends_on": [
+        "P0010.1"
+      ],
+      "write_authority": "NONE",
+      "expected_outputs": [
+        "ENTRY -> INDEX -> CAPTURE -> ROTATE -> LABEL_TRANSFER -> WRAP -> RELEASE -> EXIT functional chain",
+        "support/restraint obligations",
+        "rotation-source obligation",
+        "reaction-force-path obligation",
+        "label-transfer relationship obligation",
+        "entry/release/neighbor-clearance obligations",
+        "mounting/support integrity obligation"
+      ],
+      "status": "PROJECTED"
+    },
+    {
+      "step_id": "P0010.3",
+      "title": "Register a diverse bounded candidate mechanism family set",
+      "depends_on": [
+        "P0010.2"
+      ],
+      "write_authority": "NONE",
+      "expected_outputs": [
+        "Candidate A: preserved V43 Prism fit-check arrangement",
+        "moving driven wrap-belt assembly against support rollers",
+        "translating support-roller carrier",
+        "pivoting support-roller arm/carrier",
+        "moving side-wall or side-belt drive that advances/rotates the bottle",
+        "pinch-belt or multi-roller wrap architecture",
+        "other explicit mechanism only when its assumptions and provenance are stated"
+      ],
+      "status": "PROJECTED"
+    },
+    {
+      "step_id": "P0010.4",
+      "title": "Screen every candidate against the same deterministic requirement matrix",
+      "depends_on": [
+        "P0010.3"
+      ],
+      "write_authority": "NONE",
+      "expected_outputs": [
+        "per-candidate PASS/FAIL/UNRESOLVED by functional obligation",
+        "required source evidence and missing primitives per candidate",
+        "disproved assumptions retained as negative evidence",
+        "no candidate selected by aesthetics or current CAD convenience"
+      ],
+      "status": "PROJECTED"
+    },
+    {
+      "step_id": "P0010.5",
+      "title": "Select the next candidate eligible for deterministic CAD prototyping or identify the next high-value discriminating test",
+      "depends_on": [
+        "P0010.4"
+      ],
+      "write_authority": "NONE",
+      "expected_outputs": [
+        "candidate eligibility decision grounded in obligation coverage",
+        "bounded geometry/modeling contract for a future write-authorized plan, or",
+        "explicit unresolved state and next diagnostic test when no candidate is sufficiently justified"
+      ],
+      "status": "PROJECTED"
+    }
+  ],
+  "acceptance_gate": "PLAN-0010 selects an investigation/prototyping candidate only. It cannot grant mechanical acceptance. No candidate is accepted until operating-state restraint, rotation, label transfer, reaction path, mounting, reachable-motion clearance, release, and product-flow obligations are verified across their required temporal scope.",
+  "no_write_boundary": "No SOLIDWORKS move, transform, rebuild, save, mate creation, suppression change, component insertion, or geometry creation is authorized by PLAN-0010."
+}
