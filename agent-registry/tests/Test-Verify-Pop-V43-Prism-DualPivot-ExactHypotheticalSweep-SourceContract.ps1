@@ -27,7 +27,13 @@ $required = @(
     'mechanical_acceptance_granted = $false',
     'Get-FileEvidence',
     'Get-TargetState',
-    'SampleFractions = @(0.0, 0.25, 0.50, 0.75, 1.0)'
+    'SampleFractions = @(0.0, 0.25, 0.50, 0.75, 1.0)',
+    '$sampleRows = [System.Collections.Generic.List[object]]::new()',
+    '$pairRows = [System.Collections.Generic.List[object]]::new()',
+    'pair_results = $pairRows.ToArray()',
+    'physical_interferences = $interferenceRows.ToArray()',
+    'indeterminate_results = $indeterminateRows.ToArray()',
+    'samples = $sampleRows.ToArray()'
 )
 
 foreach ($needle in $required) {
@@ -49,7 +55,8 @@ $prohibitedPatterns = @(
     'Save3\s*\(',
     'SaveAs\s*\(',
     'SaveDoc',
-    'SaveSilent'
+    'SaveSilent',
+    'New-Object\\s+System\\.Collections\\.Generic\\.List\\[object\\]'
 )
 
 foreach ($pattern in $prohibitedPatterns) {
