@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "record_type": "evidence",
+  "evidence_id": "E.FUNCTION_FIRST.BOTTLE_FINITE_LINE_RESTRAINT_RANK.20260927T100903861Z",
+  "evidence_type": "deterministic_calculation",
+  "evidence_state": "MEASURED_CALCULATED",
+  "source_authority": "DETERMINISTIC_CALCULATION",
+  "source_classification": "measured_calculated_from_verified_solidworks_contact_manifold",
+  "subject": {
+    "subject_type": "function_first_bottle_ideal_maintained_finite_line_restraint_rank",
+    "identity_exact": "BENCH_BOTTLE_D48_H180-2 ideal rigid maintained frictionless model using conveyor support normal plus three verified 93 mm lateral generator-line contacts",
+    "document_title_exact": "IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE",
+    "document_path_exact": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE.SLDASM"
+  },
+  "provenance": {
+    "recorded_at": "2026-09-27T10:09:03.8610302Z",
+    "source_ref": "C:\\ChatGPT\\CADGrounded-verifier-runs\\lateral-contact-manifold-pr82-fd7e5e10\\agent-registry\\workers\\CadGrounded.SolidWorksWorker\\verification-output\\function-first-lateral-contact-manifold\\verification-summary.json",
+    "sha256": "85c9cc3f36ead0058e3ada16e4fb1b7873c65862dea66fae26afe8db747491dd",
+    "tool_path": "Ideal finite-line rank calculation inside cg.verifier.function-first.lateral-contact-manifold at PR #82 head fd7e5e10ccecca8923558f72655dab0af4365a4d"
+  },
+  "dependencies": [
+    "E.FUNCTION_FIRST.BOTTLE_LATERAL_CONTACT_MANIFOLD.20260927T100903861Z",
+    "E.FUNCTION_FIRST.BOTTLE_WRAP_AXIS_BINDING.20260927T091941345Z",
+    "E.FUNCTION_FIRST.BOTTLE_DOF.20260927T075043247Z"
+  ],
+  "geometry_state": "CANDIDATE_OPERATING",
+  "temporal_scope": {
+    "coverage": "POINT_ONLY",
+    "validity_state": "CURRENT",
+    "state_ids": [],
+    "transition_ids": []
+  },
+  "ambiguity_bucket": "KINEMATIC_STATE_UNRESOLVED",
+  "mechanical_acceptance_granted": false,
+  "payload": {
+    "method": "6-DOF contact constraint rank calculation using the conveyor support-normal row plus two axially separated normal-constraint samples at each verified 93 mm lateral generator-line contact; ideal rigid maintained frictionless contact model",
+    "inputs": [
+      "E.FUNCTION_FIRST.BOTTLE_LATERAL_CONTACT_MANIFOLD.20260927T100903861Z",
+      "E.FUNCTION_FIRST.BOTTLE_WRAP_AXIS_BINDING.20260927T091941345Z",
+      "conveyor support-normal contact from admitted current-pose evidence"
+    ],
+    "result": {
+      "coordinate_order": [
+        "vx",
+        "vy",
+        "vz",
+        "omega_x",
+        "omega_y",
+        "omega_z"
+      ],
+      "matrix_rank": 5,
+      "nullity": 1,
+      "bound_wrap_axis_assembly": [
+        0,
+        0,
+        1
+      ],
+      "wrap_axis_rotation_max_abs_residual": 2.6645352591003757e-14,
+      "wrap_axis_rotation_is_null_mode": true,
+      "five_dof_restraint_excluding_wrap_rotation": "SUPPORTED_BY_IDEAL_FINITE_LINE_NORMAL_MODEL"
+    },
+    "interpretation": [
+      "The finite axial extent of the three verified lateral generator-line contacts adds the independent rotational constraints absent from the earlier sampled point-normal model.",
+      "Within the ideal rigid maintained frictionless current-pose model, exactly one instantaneous null mode remains: rotation about the bound bottle wrap axis.",
+      "This is a geometric constraint result, not proof that the real unilateral contacts are maintained."
+    ],
+    "explicitly_not_claimed": [
+      "The rank result does not establish real tilt restraint unless the lateral contacts are maintained by adequate preload/compliance over the required operating interval.",
+      "It does not establish friction, traction, driven wrap torque, force/load capacity, pressure, stiffness, or reaction-path adequacy.",
+      "It does not establish interval-wide capture, label-transfer, wrap, release, or reachable-state behavior.",
+      "It does not select a mechanism or grant mechanical acceptance."
+    ]
+  }
+}
