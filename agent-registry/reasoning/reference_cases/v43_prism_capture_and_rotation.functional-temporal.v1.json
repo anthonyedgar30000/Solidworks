@@ -169,7 +169,8 @@
         "E.V43.PRISM.MATE_BINDING.ARCH_PROJECTION.20260926",
         "E.V43.PRISM.GUIDE_CONTACT.ARCH_PROJECTION.20260927",
         "E.V43.PRISM.SLIDER_LINK_CONTACT.ARCH_PROJECTION.20260927",
-        "E.V43.PRISM.LINK_ARM_CONTACT.ARCH_PROJECTION.20260927"
+        "E.V43.PRISM.LINK_ARM_CONTACT.ARCH_PROJECTION.20260927",
+        "E.V43.PRISM.ARM_ROLLER_CONTACT.ARCH_PROJECTION.20260927"
       ],
       "depends_on_requirement_ids": [],
       "scope": {
@@ -410,7 +411,8 @@
         "E.V43.PRISM.MATE_BINDING.ARCH_PROJECTION.20260926",
         "E.V43.PRISM.GUIDE_CONTACT.ARCH_PROJECTION.20260927",
         "E.V43.PRISM.SLIDER_LINK_CONTACT.ARCH_PROJECTION.20260927",
-        "E.V43.PRISM.LINK_ARM_CONTACT.ARCH_PROJECTION.20260927"
+        "E.V43.PRISM.LINK_ARM_CONTACT.ARCH_PROJECTION.20260927",
+        "E.V43.PRISM.ARM_ROLLER_CONTACT.ARCH_PROJECTION.20260927"
       ],
       "depends_on_requirement_ids": [
         "CAPTURE_KINEMATIC_OWNER"
@@ -1475,7 +1477,7 @@
         "CAPTURE_AND_ROTATION"
       ],
       "required_evidence": [
-        "Exact current-pose contact topology for both Prism arms against both named support rollers, testing all four combinations (FITCHECK_PRISM_ARM1_33p0824x10x5_V43-1↔FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25-1, FITCHECK_PRISM_ARM1_33p0824x10x5_V43-1↔FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25-2, FITCHECK_PRISM_ARM2_18p6806x10x5_V43-1↔FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25-1, FITCHECK_PRISM_ARM2_18p6806x10x5_V43-1↔FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25-2) so roller pairing is not inferred from numbering. Only after physical contiguity from slider→links→arms→rollers is supported should a no-mutation motion or endpoint observation be considered."
+        "Fresh exact active-assembly mate/constraint observation for FITCHECK_PRISM_CARRIER_SLIDER_15x80x60_V43-1, both Prism links, both Prism arms, and both named support rollers. The current-pose physical adjacency chain is supported, but motion remains unresolved unless constraints/variation evidence or an independently justified deterministic motion model establishes a candidate DOF."
       ]
     },
     {
@@ -1681,6 +1683,38 @@
           "interpretation_boundary": "This supports the same-number link-to-arm current-pose adjacency pattern and excludes crossed current-pose adjacency at 50 mm. It does not establish joint type, allowed DOF, motion, stroke, actuator ownership, force/preload, arm-to-roller continuity, interval behavior, or mechanical acceptance."
         }
       }
+    },
+    {
+      "schema_version": 1,
+      "record_type": "evidence",
+      "evidence_id": "E.V43.PRISM.ARM_ROLLER_CONTACT.ARCH_PROJECTION.20260927",
+      "evidence_type": "deterministic_calculation",
+      "evidence_state": "MEASURED_CALCULATED",
+      "source_authority": "DETERMINISTIC_CALCULATION",
+      "source_classification": "bounded_projection_from_admitted_evidence",
+      "mechanical_acceptance_granted": false,
+      "dependencies": [
+        "E.V43.PRISM.ARM_ROLLER_CONTACT.20260927T063140284Z"
+      ],
+      "geometry_state": "CANDIDATE_OPERATING",
+      "temporal_scope": {
+        "coverage": "POINT_ONLY",
+        "validity_state": "CURRENT",
+        "state_ids": [],
+        "transition_ids": []
+      },
+      "ambiguity_bucket": "KINEMATIC_STATE_UNRESOLVED",
+      "payload": {
+        "method": "bounded_evidence_projection",
+        "inputs": [
+          "agent-registry/reasoning/runtime/v43-prism-arm-roller-contact-evidence-20260927T063140284Z.json",
+          "sha256:cc416e64d1faceaf98edd794b99ee0224f8e2b96b9bbd2e995791c99a17095ce"
+        ],
+        "result": {
+          "admitted_observation": "At the recorded V43_WRAP point, Arm-1↔Roller-1 and Arm-2↔Roller-2 each returned 0 mm contact/coincidence with zero intersection volume; crossed arm-roller pairs returned 40.00000000000001 mm and 41.854292187489904 mm clearance.",
+          "interpretation_boundary": "Combined with admitted slider-link and link-arm observations, this supports a complete current-pose physical adjacency chain along two branches from slider to rollers. It does not establish a mechanism, bearing function, DOF, motion direction, stroke, actuator ownership, force/preload, interval behavior, or mechanical acceptance."
+        }
+      }
     }
   ],
   "next_tests": [
@@ -1817,8 +1851,8 @@
       "cost": 2
     },
     {
-      "id": "TEST_V43_PRISM_ARM_ROLLER_CONTACT_TOPOLOGY",
-      "question": "After a fresh exact V43_WRAP state rebind, classify current-pose B-rep contact for all four Prism arm↔support-roller combinations: FITCHECK_PRISM_ARM1_33p0824x10x5_V43-1↔FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25-1, FITCHECK_PRISM_ARM1_33p0824x10x5_V43-1↔FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25-2, FITCHECK_PRISM_ARM2_18p6806x10x5_V43-1↔FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25-1, and FITCHECK_PRISM_ARM2_18p6806x10x5_V43-1↔FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25-2. Which exact adjacency pattern, if any, continues the proposed closure chain without assuming that matching suffixes imply mechanical pairing? This point test does not establish joint type, bearing/roller function, allowed motion, stroke, force, preload, reachable envelope, timing, or mechanical acceptance.",
+      "id": "TEST_V43_PRISM_FULL_CHAIN_MATE_BINDING",
+      "question": "After a fresh exact V43_WRAP state rebind, query active-assembly mate/constraint evidence for FITCHECK_PRISM_CARRIER_SLIDER_15x80x60_V43-1, both Prism links, both Prism arms, and both named support rollers. Do any exact mates, suppression states, or variation values establish an assembly-modeled kinematic relation for the now physically contiguous point-topology chain, or does the chain remain CAD-unconstrained and therefore KINEMATIC_STATE_UNRESOLVED? No motion law, stroke, or DOF may be inferred from contact adjacency alone.",
       "resolves_requirement_ids": [
         "PRISM_KINEMATIC_CHAIN_BOUND",
         "CAPTURE_KINEMATIC_OWNER"
@@ -1827,7 +1861,7 @@
         "H_V43_PRISM_LINKS_AND_ARMS_TRANSFER_CLOSURE"
       ],
       "discrimination_power": 0.99,
-      "evidence_confidence": 0.9,
+      "evidence_confidence": 0.95,
       "unresolved_relevance": 1,
       "cost": 1
     }
