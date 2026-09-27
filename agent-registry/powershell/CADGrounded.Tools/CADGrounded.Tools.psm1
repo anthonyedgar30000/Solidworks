@@ -97,10 +97,11 @@ function Get-CGDocumentState {
 function Assert-CGReadOnlyEnvelope {
     param([Parameter(Mandatory=$true)]$Envelope)
 
-    if ([string]$Envelope.data.write_authority -cne 'NONE') {
+    $propertyNames = @($Envelope.data.PSObject.Properties.Name)
+    if ($propertyNames -contains 'write_authority' -and [string]$Envelope.data.write_authority -cne 'NONE') {
         throw "Worker command '$($Envelope.command_id)' did not report write_authority NONE."
     }
-    if ($Envelope.data.PSObject.Properties.Name -contains 'model_mutation' -and $Envelope.data.model_mutation -ne $false) {
+    if ($propertyNames -contains 'model_mutation' -and $Envelope.data.model_mutation -ne $false) {
         throw "Worker command '$($Envelope.command_id)' reported model_mutation other than false."
     }
 }
