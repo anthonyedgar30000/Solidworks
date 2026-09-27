@@ -166,7 +166,8 @@
       ],
       "evidence_refs": [
         "E.V43.PRISM.LIVE_STATE.20260926T200826594Z",
-        "E.V43.PRISM.MATE_BINDING.ARCH_PROJECTION.20260926"
+        "E.V43.PRISM.MATE_BINDING.ARCH_PROJECTION.20260926",
+        "E.V43.PRISM.GUIDE_CONTACT.ARCH_PROJECTION.20260927"
       ],
       "depends_on_requirement_ids": [],
       "scope": {
@@ -404,7 +405,8 @@
       ],
       "evidence_refs": [
         "E.V43.PRISM.LIVE_STATE.20260926T200826594Z",
-        "E.V43.PRISM.MATE_BINDING.ARCH_PROJECTION.20260926"
+        "E.V43.PRISM.MATE_BINDING.ARCH_PROJECTION.20260926",
+        "E.V43.PRISM.GUIDE_CONTACT.ARCH_PROJECTION.20260927"
       ],
       "depends_on_requirement_ids": [
         "CAPTURE_KINEMATIC_OWNER"
@@ -1424,7 +1426,7 @@
       "id": "H_V43_PRISM_GUIDED_SLIDER",
       "description": "The two fixed Prism guide rails and floating carrier slider may represent the primary guided closure degree of freedom.",
       "prior": "COMMON",
-      "evidence_state": "WEAKENED",
+      "evidence_state": "SUPPORTED",
       "investigation_state": "ACTIVE",
       "related_requirement_ids": [
         "PRISM_KINEMATIC_CHAIN_BOUND"
@@ -1434,7 +1436,7 @@
         "CAPTURE_AND_ROTATION"
       ],
       "required_evidence": [
-        "Exact current-pose B-rep/contact classification for FITCHECK_PRISM_CARRIER_SLIDER_15x80x60_V43-1 against both fixed guide rails, followed by bounded motion/endpoint evidence if physical guidance remains plausible. Zero incident active-assembly mates on the slider is already admitted and does not by itself disprove geometric guidance."
+        "Bilateral exact current-pose slider-to-guide-rail adjacency is admitted for V43_WRAP. Bounded motion/endpoint evidence is still required before any prismatic degree-of-freedom, permitted motion direction, or stroke claim."
       ]
     },
     {
@@ -1469,7 +1471,7 @@
         "CAPTURE_AND_ROTATION"
       ],
       "required_evidence": [
-        "Exact current-pose topology/contact chain from slider through both links/arms to the named support rollers, followed by a no-mutation motion or endpoint observation if the chain is physically contiguous. Zero incident active-assembly mates on Link-1 and Arm-1 is already admitted."
+        "Exact current-pose contact topology from the carrier slider to both Prism links, then from links through both arms to the named support rollers. Only after physical contiguity is supported should a no-mutation motion or endpoint observation be considered. Zero incident active-assembly mates on Link-1 and Arm-1 remains admitted."
       ]
     },
     {
@@ -1577,6 +1579,38 @@
         "result": {
           "admitted_observation": "At the recorded V43_WRAP point, exact Link-1 to reaction-base minimum distance was 1.2499999999999734 mm and classification was clearance.",
           "interpretation_boundary": "This excludes direct contact for that exact pair at that pose only; it does not exclude a wider reaction path through rails, slider, actuator, arms, fasteners, other components, or other reachable states."
+        }
+      }
+    },
+    {
+      "schema_version": 1,
+      "record_type": "evidence",
+      "evidence_id": "E.V43.PRISM.GUIDE_CONTACT.ARCH_PROJECTION.20260927",
+      "evidence_type": "deterministic_calculation",
+      "evidence_state": "MEASURED_CALCULATED",
+      "source_authority": "DETERMINISTIC_CALCULATION",
+      "source_classification": "bounded_projection_from_admitted_evidence",
+      "mechanical_acceptance_granted": false,
+      "dependencies": [
+        "E.V43.PRISM.GUIDE_CONTACT.20260927T001914327Z"
+      ],
+      "geometry_state": "CANDIDATE_OPERATING",
+      "temporal_scope": {
+        "coverage": "POINT_ONLY",
+        "validity_state": "CURRENT",
+        "state_ids": [],
+        "transition_ids": []
+      },
+      "ambiguity_bucket": "KINEMATIC_STATE_UNRESOLVED",
+      "payload": {
+        "method": "bounded_evidence_projection",
+        "inputs": [
+          "agent-registry/reasoning/runtime/v43-prism-guide-contact-evidence-20260927T001914327Z.json",
+          "sha256:813b983c5f07b6c03220bc21d68065ca39887d253b7c475a550543687cc2ffed"
+        ],
+        "result": {
+          "admitted_observation": "At the recorded V43_WRAP point, the exact carrier slider was within contact/coincidence tolerance of both fixed guide rails. Each pair returned minimum_distance_mm=2.7755575615628914e-14, zero intersection bodies, and zero intersection volume.",
+          "interpretation_boundary": "This supports bilateral physical adjacency consistent with a guided-slider interface at that exact pose only. It does not establish a prismatic joint, allowed DOF, motion direction, stroke, preload, force, reachable motion, timing, or mechanical acceptance."
         }
       }
     }
@@ -1715,14 +1749,14 @@
       "cost": 2
     },
     {
-      "id": "TEST_V43_PRISM_GUIDE_CONTACT_TOPOLOGY",
-      "question": "After a fresh exact V43_WRAP state rebind, classify current-pose B-rep contact for FITCHECK_PRISM_CARRIER_SLIDER_15x80x60_V43-1 against FITCHECK_PRISM_GUIDE_RAIL_100x10x10_V43-1 and FITCHECK_PRISM_GUIDE_RAIL_100x10x10_V43-2. Do the exact pairs establish physical adjacency consistent with a guided slider, or positive clearance/interference that weakens that hypothesis? This point test does not establish allowed motion, stroke, force, preload, reachable envelope, or mechanical acceptance.",
+      "id": "TEST_V43_PRISM_SLIDER_LINK_CONTACT_TOPOLOGY",
+      "question": "After a fresh exact V43_WRAP state rebind, classify current-pose B-rep contact for FITCHECK_PRISM_CARRIER_SLIDER_15x80x60_V43-1 against FITCHECK_PRISM_LINK_15x10x25_V43-1 and FITCHECK_PRISM_LINK_15x10x25_V43-2. Do the exact pairs establish physical adjacency continuing the proposed closure chain from the guided slider, or positive clearance/interference that weakens the linkage-transfer hypothesis? This point test does not establish joint type, allowed motion, stroke, force, preload, reachable envelope, or mechanical acceptance.",
       "resolves_requirement_ids": [
         "PRISM_KINEMATIC_CHAIN_BOUND",
         "CAPTURE_KINEMATIC_OWNER"
       ],
       "hypothesis_ids": [
-        "H_V43_PRISM_GUIDED_SLIDER"
+        "H_V43_PRISM_LINKS_AND_ARMS_TRANSFER_CLOSURE"
       ],
       "discrimination_power": 0.98,
       "evidence_confidence": 0.9,
@@ -1730,4 +1764,4 @@
       "cost": 1
     }
   ]
-}
+}\n
