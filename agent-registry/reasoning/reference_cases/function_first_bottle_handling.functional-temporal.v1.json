@@ -123,7 +123,7 @@
       "owner_subsystem_id": "CAPTURE_AND_ROTATION",
       "description": "The minimum required support and restraint contact set for the bottle is defined independently of any specific Prism, roller-carrier, belt-wall, or other mechanism architecture.",
       "verification_state": "UNRESOLVED",
-      "ambiguity_bucket": "GEOMETRY_UNRESOLVED",
+      "ambiguity_bucket": "KINEMATIC_STATE_UNRESOLVED",
       "criticality": 5,
       "resolution_cost": 1,
       "expected_authority": [
@@ -134,7 +134,8 @@
       "evidence_refs": [
         "E.FUNCTION_FIRST.BOTTLE_CONTACT_SET.20260927T081157483Z",
         "E.FUNCTION_FIRST.BOTTLE_CONVEYOR_NORMALS.20260927T081632302Z",
-        "E.FUNCTION_FIRST.BOTTLE_CONTACT_NORMAL_MAP.20260927T082707281Z"
+        "E.FUNCTION_FIRST.BOTTLE_CONTACT_NORMAL_MAP.20260927T082707281Z",
+        "E.FUNCTION_FIRST.BOTTLE_CONTACT_CONSTRAINT.20260927T084903368Z"
       ],
       "depends_on_requirement_ids": [
         "BOTTLE_REQUIRED_DOF_BOUND"
@@ -1213,7 +1214,7 @@
         "WRAP_ACTIVE"
       ],
       "required_evidence": [
-        "Four-pair current-pose contact-normal map is admitted. Deterministically project the observed contact points/normals into mechanism-neutral normal-closure and moment properties, while preserving tilt, friction/traction, preload, and interval-wide behavior as unresolved."
+        "Current-pose deterministic constraint projection is admitted: the three lateral normal lines are concurrent, their compressive directions positively close assembly-XY translation in the frictionless normal model, and normal reactions do not resist rotation about the derived common-axis candidate. Bind that common axis to the exact bottle longitudinal/functional wrap axis and separately resolve vertical/gravity semantics before assigning functional support/restraint roles. Interval-wide contact maintenance, tilt, preload, friction/traction, reaction capacity, and mechanism selection remain unresolved."
       ]
     },
     {
@@ -2328,16 +2329,17 @@
   ],
   "next_tests": [
     {
-      "id": "TEST_FUNCTION_FIRST_CONTACT_CONSTRAINT_PROJECTION",
-      "question": "Execute Get-CGBottleContactConstraintMap against the admitted four-pair contact-normal evidence. Require a current live assembly/configuration and file-hash match by default. Determine whether the three lateral compressive normal directions positively close assembly-XY translation, whether their normal lines are concurrent, whether normal reactions generate moment about the derived common-axis candidate, and how the opposed assembly-Z contact direction relates geometrically. Do not claim gravity/up semantics, tilt restraint, frictional drive torque, interval-wide validity, mechanism selection, or mechanical acceptance.",
+      "id": "TEST_FUNCTION_FIRST_BOTTLE_COMMON_AXIS_BINDING",
+      "question": "Bind the deterministic common-axis candidate at assembly direction [0,0,1] and XY center [-153.42061528267115,-214] mm to the exact BENCH_BOTTLE_D48_H180-2 longitudinal/cylindrical axis using authoritative live SOLIDWORKS B-rep or accepted deterministic source geometry. Then determine whether that geometric axis can be bound to the functional rotation_wrap_axis requirement. Separately seek authoritative support for assembly-Z vertical/gravity semantics; do not infer gravity from viewport orientation or the word upright. If the wrap-axis binding is established, project the current-pose assembly-XY normal closure onto the required lateral translational DOFs while preserving tilt restraint, friction/traction, preload/contact maintenance, interval-wide validity, mechanism selection, and mechanical acceptance as unresolved.",
       "resolves_requirement_ids": [
-        "BOTTLE_SUPPORT_CONTACT_SET_BOUND"
+        "BOTTLE_SUPPORT_CONTACT_SET_BOUND",
+        "BOTTLE_ROTATION_SOURCE_BOUND"
       ],
       "hypothesis_ids": [
         "H_FUNCTION_FIRST_CONTACT_SET"
       ],
       "discrimination_power": 0.99,
-      "evidence_confidence": 0.97,
+      "evidence_confidence": 0.98,
       "unresolved_relevance": 1,
       "cost": 1
     }
