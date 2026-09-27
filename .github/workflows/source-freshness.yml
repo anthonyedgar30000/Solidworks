@@ -5,6 +5,8 @@ on:
     paths:
       - "agent-registry/planning/source_freshness.py"
       - "agent-registry/planning/test_source_freshness.py"
+      - "agent-registry/planning/source_freshness_bundle.py"
+      - "agent-registry/planning/test_source_freshness_bundle.py"
       - "agent-registry/planning/README.md"
       - ".github/workflows/source-freshness.yml"
   push:
@@ -13,6 +15,8 @@ on:
     paths:
       - "agent-registry/planning/source_freshness.py"
       - "agent-registry/planning/test_source_freshness.py"
+      - "agent-registry/planning/source_freshness_bundle.py"
+      - "agent-registry/planning/test_source_freshness_bundle.py"
       - ".github/workflows/source-freshness.yml"
 
 jobs:
@@ -25,4 +29,4 @@ jobs:
           python-version: "3.12"
       - name: Verify source-freshness classifications
         working-directory: agent-registry/planning
-        run: python -m unittest -v test_source_freshness.py
+        run: python -m unittest -v test_source_freshness.py test_source_freshness_bundle.py
