@@ -53,6 +53,7 @@ $expectedCommands = @(
     'Get-CGMateBinding',
     'Get-CGRequiredBottleDOF',
     'Get-CGBottleContactConstraintMap',
+    'Get-CGBottleContactWrenchRank',
     'Get-CGCurrentPlan',
     'Get-CGInvestigationFrontier',
     'Invoke-CGRegisteredVerifier'
@@ -75,6 +76,7 @@ $requiredImplemented = @(
     'cg.mates.bind',
     'cg.product.required-dof',
     'cg.product.contact-constraint-map',
+    'cg.product.contact-wrench-rank',
     'cg.frontier.read',
     'cg.verifier.v43.full-chain-mates',
     'cg.verifier.function-first.bottle-support-contact'
@@ -144,6 +146,15 @@ Assert-True ([double]$constraintMap.data.normal_reaction_moment_about_common_axi
 Assert-True ([string]$constraintMap.data.functional_projection.tilt_restraint -ceq 'UNRESOLVED') 'Constraint map must preserve unresolved tilt restraint.'
 Assert-True ([string]$constraintMap.data.functional_projection.frictional_wrap_torque -ceq 'UNRESOLVED') 'Constraint map must preserve unresolved frictional wrap torque.'
 Assert-True ($constraintMap.mechanical_acceptance_granted -eq $false) 'Constraint map must not grant mechanical acceptance.'
+
+$wrenchRank = Get-CGBottleContactWrenchRank -EvidenceOnly
+Assert-True ([string]$wrenchRank.capability_id -ceq 'cg.product.contact-wrench-rank') 'Wrench-rank capability id is incorrect.'
+Assert-True ([int]$wrenchRank.data.matrix_rank -eq 4) 'Expected four independent maintained point-normal constraints.'
+Assert-True ([int]$wrenchRank.data.nullity -eq 2) 'Expected two instantaneous null modes in the four-point normal model.'
+Assert-True ($wrenchRank.data.wrap_axis_rotation_test.is_null_mode -eq $true) 'Pure common-axis rotation should be a null mode.'
+Assert-True ([int]$wrenchRank.data.restraint_projection.additional_independent_null_modes_beyond_common_axis_rotation -eq 1) 'Expected one additional independent null mode beyond common-axis rotation.'
+Assert-True ([string]$wrenchRank.data.restraint_projection.five_dof_restraint_excluding_common_axis_rotation -ceq 'NOT_SUPPORTED_BY_CURRENT_FOUR_POINT_NORMAL_MODEL') 'Four-point normal model must not claim five-DOF restraint.'
+Assert-True ($wrenchRank.mechanical_acceptance_granted -eq $false) 'Wrench-rank calculation must not grant mechanical acceptance.'
 
 $currentPlan = Get-CGCurrentPlan
 Assert-True (-not [string]::IsNullOrWhiteSpace([string]$currentPlan.current_plan_id)) 'CURRENT_PLAN has no current_plan_id.'
