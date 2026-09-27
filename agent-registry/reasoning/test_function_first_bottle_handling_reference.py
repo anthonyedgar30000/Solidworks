@@ -143,7 +143,7 @@ class FunctionFirstBottleHandlingTests(unittest.TestCase):
         test = by_id(case["next_tests"], "TEST_FUNCTION_FIRST_LATERAL_CONTACT_MANIFOLD")
         for token in (
             "point, line/generator, or finite patch contact",
-            "measure its extent along the bound bottle rotation_wrap_axis",
+            "measure its trimmed extent along the bound bottle rotation_wrap_axis",
             "ClosestDistance point",
             "adds an independent tilt-restraint constraint",
             "preserving rotation about the bound wrap axis",
