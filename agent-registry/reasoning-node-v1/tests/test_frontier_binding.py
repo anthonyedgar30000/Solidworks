@@ -35,7 +35,7 @@ class CurrentFrontierLoadTests(unittest.TestCase):
     def test_binds_exact_current_plan_architecture(self):
         metadata = frontier_snapshot_metadata(self.snapshot)
 
-        self.assertEqual(metadata["current_plan_id"], "PLAN-0010")
+        self.assertEqual(metadata["current_plan_id"], "PLAN-0011")
         self.assertEqual(
             metadata["current_architecture_id"],
             "IXOR_FUNCTION_FIRST_BOTTLE_HANDLING_REFERENCE",
