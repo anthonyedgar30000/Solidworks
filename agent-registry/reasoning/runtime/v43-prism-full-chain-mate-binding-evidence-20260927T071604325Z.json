@@ -1,0 +1,142 @@
+{
+  "schema_version": 1,
+  "record_type": "evidence",
+  "evidence_id": "E.V43.PRISM.FULL_CHAIN_MATE_BINDING.20260927T071604325Z",
+  "evidence_type": "solidworks_observation",
+  "evidence_state": "VERIFIED",
+  "source_authority": "SOLIDWORKS_LIVE_STATE",
+  "source_classification": "verified_from_solidworks_api",
+  "subject": {
+    "subject_type": "v43_prism_full_chain_active_assembly_mate_binding",
+    "identity_exact": "FITCHECK_PRISM_CARRIER_SLIDER_15x80x60_V43-1; FITCHECK_PRISM_LINK_15x10x25_V43-1; FITCHECK_PRISM_LINK_15x10x25_V43-2; FITCHECK_PRISM_ARM1_33p0824x10x5_V43-1; FITCHECK_PRISM_ARM2_18p6806x10x5_V43-1; FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25-1; FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25-2",
+    "document_title_exact": "IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE",
+    "document_path_exact": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE.SLDASM"
+  },
+  "provenance": {
+    "recorded_at": "2026-09-27T07:16:04.3258747Z",
+    "source_ref": "Windows-host verification artifact: C:\\ChatGPT\\Solidworks-main\\agent-registry\\workers\\CadGrounded.SolidWorksWorker\\verification-output\\query-mates-v43-prism-full-chain\\verification-summary.json",
+    "sha256": "7b0cf43b26ed63ce2bf3066fc4f4953e223f84f9e079ae60b463f5aa4791a05e",
+    "tool_path": "Verify-QueryMates-V43-Prism-FullChain.ps1; CadGrounded.SolidWorksWorker sw.query_mates"
+  },
+  "dependencies": [
+    "E.V43.PRISM.ARM_ROLLER_CONTACT.20260927T063140284Z",
+    "PLAN-0008"
+  ],
+  "geometry_state": "CANDIDATE_OPERATING",
+  "temporal_scope": {
+    "coverage": "POINT_ONLY",
+    "validity_state": "CURRENT",
+    "state_ids": [],
+    "transition_ids": []
+  },
+  "ambiguity_bucket": "KINEMATIC_STATE_UNRESOLVED",
+  "mechanical_acceptance_granted": false,
+  "payload": {
+    "observation_kind": "exact_active_assembly_full_chain_mate_binding_observation",
+    "document": {
+      "title": "IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE",
+      "path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE.SLDASM",
+      "active_configuration_exact": "V43_WRAP",
+      "configuration_binding": "PREASSERTED_AND_OBSERVED"
+    },
+    "executed_at_utc": "2026-09-27T07:16:04.3258747Z",
+    "worker_version": "0.4.4",
+    "write_authority": "NONE",
+    "remote_queue_authorized": false,
+    "document_save_flag_after": false,
+    "assembly_file_sha256_after": "dcd53467d2693283bb6617bdde1d4da8c19790615385e307671690ddce84b32a",
+    "verifier_result": "PASS",
+    "target_observations": [
+      {
+        "name2": "FITCHECK_PRISM_CARRIER_SLIDER_15x80x60_V43-1",
+        "fixed_component": false,
+        "is_top_level": true,
+        "referenced_configuration": "Default",
+        "incident_mate_count": 0,
+        "mate_variation_values_observed": 0,
+        "parent_chain": [],
+        "parentage_errors": [],
+        "traversal_errors": []
+      },
+      {
+        "name2": "FITCHECK_PRISM_LINK_15x10x25_V43-1",
+        "fixed_component": false,
+        "is_top_level": true,
+        "referenced_configuration": "Default",
+        "incident_mate_count": 0,
+        "mate_variation_values_observed": 0,
+        "parent_chain": [],
+        "parentage_errors": [],
+        "traversal_errors": []
+      },
+      {
+        "name2": "FITCHECK_PRISM_LINK_15x10x25_V43-2",
+        "fixed_component": false,
+        "is_top_level": true,
+        "referenced_configuration": "Default",
+        "incident_mate_count": 0,
+        "mate_variation_values_observed": 0,
+        "parent_chain": [],
+        "parentage_errors": [],
+        "traversal_errors": []
+      },
+      {
+        "name2": "FITCHECK_PRISM_ARM1_33p0824x10x5_V43-1",
+        "fixed_component": false,
+        "is_top_level": true,
+        "referenced_configuration": "Default",
+        "incident_mate_count": 0,
+        "mate_variation_values_observed": 0,
+        "parent_chain": [],
+        "parentage_errors": [],
+        "traversal_errors": []
+      },
+      {
+        "name2": "FITCHECK_PRISM_ARM2_18p6806x10x5_V43-1",
+        "fixed_component": false,
+        "is_top_level": true,
+        "referenced_configuration": "Default",
+        "incident_mate_count": 0,
+        "mate_variation_values_observed": 0,
+        "parent_chain": [],
+        "parentage_errors": [],
+        "traversal_errors": []
+      },
+      {
+        "name2": "FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25-1",
+        "fixed_component": false,
+        "is_top_level": true,
+        "referenced_configuration": "Default",
+        "incident_mate_count": 0,
+        "mate_variation_values_observed": 0,
+        "parent_chain": [],
+        "parentage_errors": [],
+        "traversal_errors": []
+      },
+      {
+        "name2": "FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25-2",
+        "fixed_component": false,
+        "is_top_level": true,
+        "referenced_configuration": "Default",
+        "incident_mate_count": 0,
+        "mate_variation_values_observed": 0,
+        "parent_chain": [],
+        "parentage_errors": [],
+        "traversal_errors": []
+      }
+    ],
+    "admitted_claims": [
+      "All seven exact named current-chain components returned zero incident active-assembly mates.",
+      "All seven exact named components returned zero observed mate variation values.",
+      "No mate traversal errors or parentage errors were reported for the seven target observations.",
+      "The seven targets are top-level and floating at the recorded V43_WRAP point.",
+      "The active assembly therefore provides no mate/constraint evidence establishing an assembly-modeled kinematic relation for the physically contiguous slider-link-arm-roller chain at this recorded point."
+    ],
+    "explicitly_not_claimed": [
+      "Zero mates does not prove a physically free degree of freedom or intended motion direction.",
+      "Zero mates does not prove that the fit-check geometry is mechanically invalid.",
+      "No stroke, endpoint, actuator ownership, preload, force, stiffness, reaction capacity, reachable-state behavior, capture/release sequence, or mechanical acceptance is established.",
+      "No hypothetical motion law is admitted from static contact topology."
+    ]
+  }
+}
