@@ -40,6 +40,7 @@ foreach ($required in @(
     'TANGENT_CYLINDER_PLANE_GENERATOR_LINE',
     'EXTERNAL_TANGENT_PARALLEL_CYLINDER_GENERATOR_LINE',
     'five_dof_restraint_excluding_wrap_rotation',
+    ',([double[]]$_)',
     "write_authority='NONE'",
     'mechanical_acceptance_granted=$false'
 )) {
