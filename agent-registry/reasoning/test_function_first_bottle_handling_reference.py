@@ -80,10 +80,9 @@ class FunctionFirstBottleHandlingTests(unittest.TestCase):
         dof_hypothesis = by_id(case["hypotheses"], "H_FUNCTION_FIRST_REQUIRED_DOF")
         self.assertEqual(dof_hypothesis["evidence_state"], "SUPPORTED")
         self.assertEqual(dof_hypothesis["investigation_state"], "EXHAUSTED")
-        self.assertEqual(
-            by_id(case["hypotheses"], "H_FUNCTION_FIRST_CONTACT_SET")["investigation_state"],
-            "ACTIVE",
-        )
+        contact_hypothesis = by_id(case["hypotheses"], "H_FUNCTION_FIRST_CONTACT_SET")
+        self.assertEqual(contact_hypothesis["evidence_state"], "SUPPORTED")
+        self.assertEqual(contact_hypothesis["investigation_state"], "ACTIVE")
         for item_id in (
             "H_CAPTURE_CLOSURE_OWNER",
             "H_TRANSLATING_ROLLER_CARRIER_OR_SLIDE",
@@ -102,19 +101,32 @@ class FunctionFirstBottleHandlingTests(unittest.TestCase):
         self.assertEqual(candidate_a["evidence_state"], "WEAKENED")
         self.assertIn("zero-mate", candidate_a["description"])
 
-    def test_active_frontier_routes_to_registered_current_contact_verifier(self):
+    def test_active_frontier_routes_to_four_pair_contact_normal_verifier(self):
         case = load_case()
         ids = [item["id"] for item in case["next_tests"]]
-        self.assertEqual(ids, ["TEST_FUNCTION_FIRST_CURRENT_CONTACT_SET"])
-        test = by_id(case["next_tests"], "TEST_FUNCTION_FIRST_CURRENT_CONTACT_SET")
+        self.assertEqual(ids, ["TEST_FUNCTION_FIRST_TOUCHING_PAIR_NORMAL_MAP"])
+        test = by_id(case["next_tests"], "TEST_FUNCTION_FIRST_TOUCHING_PAIR_NORMAL_MAP")
         for token in (
-            "cg.verifier.function-first.bottle-support-contact",
-            "exact bounded six-pair candidate set",
-            "Do not infer that an observed contact is functionally required",
-            "surface-normal",
-            "BOTTLE_SUPPORT_CONTACT_SET_BOUND as UNRESOLVED",
+            "cg.verifier.function-first.bottle-contact-normals",
+            "four exact bottle pairs",
+            "candidate B-rep face normals",
+            "Do not convert normals into support/restraint semantics",
+            "verified bottle DOF requirement model",
         ):
             self.assertIn(token, test["question"])
+
+        support = by_id(case["obligations"], "BOTTLE_SUPPORT_CONTACT_SET_BOUND")
+        self.assertIn("E.FUNCTION_FIRST.BOTTLE_CONTACT_SET.20260927T081157483Z", support["evidence_refs"])
+        self.assertIn("E.FUNCTION_FIRST.BOTTLE_CONVEYOR_NORMALS.20260927T081632302Z", support["evidence_refs"])
+        self.assertEqual(support["verification_state"], "UNRESOLVED")
+
+        for evidence_id in (
+            "E.FUNCTION_FIRST.BOTTLE_CONTACT_SET.20260927T081157483Z",
+            "E.FUNCTION_FIRST.BOTTLE_CONVEYOR_NORMALS.20260927T081632302Z",
+        ):
+            evidence = by_id(case["evidence_catalog"], evidence_id, field="evidence_id")
+            self.assertEqual(evidence["evidence_state"], "VERIFIED")
+            self.assertFalse(evidence["mechanical_acceptance_granted"])
 
         for item_id in (
             "H_TRANSLATING_ROLLER_CARRIER_OR_SLIDE",
