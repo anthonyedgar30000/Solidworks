@@ -1,3 +1,4 @@
+import copy
 import unittest
 from pathlib import Path
 
@@ -37,10 +38,15 @@ class CurrentFrontierLoadTests(unittest.TestCase):
 
         self.assertEqual(metadata["current_plan_id"], "PLAN-0010")
         self.assertEqual(
+            metadata["current_evidence_id"],
+            "E.FUNCTION_FIRST.MECHANISM_SCREEN.20260927T153026706Z",
+        )
+        self.assertEqual(
             metadata["current_architecture_id"],
             "IXOR_FUNCTION_FIRST_BOTTLE_HANDLING_REFERENCE",
         )
         self.assertEqual(metadata["hypothesis_count"], 15)
+        self.assertEqual(metadata["next_test_count"], 1)
         self.assertEqual(
             metadata["frontier_sha256"],
             "9f5fdbe87ae5b9e652fd0d7bda0c18ee8c3fb6ab39e178b7684e8d1c325aa033",
@@ -164,6 +170,74 @@ class FrontierBindingTests(unittest.TestCase):
         self.assertNotIn(
             "H_FUNCTION_FIRST_CONTACT_SET",
             binding["escalation_blockers"],
+        )
+
+    def test_novel_sequence_control_is_held_by_dormant_common_after_open_common_exhausts(self):
+        snapshot = copy.deepcopy(self.snapshot)
+        for hypothesis_id in (
+            "H_CAPTURE_CLOSURE_OWNER",
+            "H_CAPTURE_COMPLIANCE_OR_PRELOAD",
+            "H_TRANSLATING_ROLLER_CARRIER_OR_SLIDE",
+            "H_PIVOTING_ROLLER_ARM_OR_CARRIER",
+            "H_MOVING_WRAP_BELT_ASSEMBLY",
+            "H_SPRING_OR_COMPLIANT_PRELOAD_MECHANISM",
+        ):
+            snapshot["hypotheses"][hypothesis_id][
+                "investigation_state"
+            ] = "EXHAUSTED"
+
+        binding = bind_hypotheses(
+            payload(hypothesis(
+                "Hypothesis: sensor timing may control bottle release sequencing.",
+                "SEQUENCE_CONTROL",
+            )),
+            snapshot,
+        )[0]
+
+        self.assertEqual(
+            binding["binding_disposition"],
+            "NOVEL_HELD_COMMON_FRONTIER_DORMANT",
+        )
+        self.assertEqual(
+            binding["escalation_blockers"],
+            ["H_MOVING_SIDE_WALL_OR_BELT_DRIVE"],
+        )
+
+    def test_novel_sequence_control_is_held_by_supported_common(self):
+        snapshot = copy.deepcopy(self.snapshot)
+        for hypothesis_id in (
+            "H_CAPTURE_CLOSURE_OWNER",
+            "H_CAPTURE_COMPLIANCE_OR_PRELOAD",
+            "H_TRANSLATING_ROLLER_CARRIER_OR_SLIDE",
+            "H_PIVOTING_ROLLER_ARM_OR_CARRIER",
+            "H_MOVING_WRAP_BELT_ASSEMBLY",
+            "H_SPRING_OR_COMPLIANT_PRELOAD_MECHANISM",
+            "H_MOVING_SIDE_WALL_OR_BELT_DRIVE",
+        ):
+            snapshot["hypotheses"][hypothesis_id][
+                "investigation_state"
+            ] = "EXHAUSTED"
+
+        supported_id = "H_MOVING_WRAP_BELT_ASSEMBLY"
+        snapshot["hypotheses"][supported_id][
+            "evidence_state"
+        ] = "SUPPORTED"
+
+        binding = bind_hypotheses(
+            payload(hypothesis(
+                "Hypothesis: sensor timing may control bottle release sequencing.",
+                "SEQUENCE_CONTROL",
+            )),
+            snapshot,
+        )[0]
+
+        self.assertEqual(
+            binding["binding_disposition"],
+            "NOVEL_HELD_COMMON_FRONTIER_SUPPORTED",
+        )
+        self.assertEqual(
+            binding["escalation_blockers"],
+            [supported_id],
         )
 
     def test_static_fit_sufficiency_is_suppressed_from_disproven_memory(self):
