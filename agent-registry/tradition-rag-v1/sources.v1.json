@@ -297,6 +297,52 @@
       "storage_mode": "BOUNDED_DISCOVERY_AND_EXCERPT",
       "notes": "Official Stack Exchange API PLC practitioner Q&A; preserves author/link/license; hypothesis/test prompts only.",
       "content_license": "per_item_from_api"
+    },
+    {
+      "source_id": "AUTH.ON.PSR.SAFEGUARDING",
+      "title": "Ontario — Pre-start review guidance: safeguarding of machinery",
+      "url": "https://www.ontario.ca/document/guideline-pre-start-health-and-safety-reviews/item-2-safeguarding-machinery",
+      "lane": "AUTHORITATIVE",
+      "authority_class": "GOVERNMENT_REGULATORY_GUIDANCE",
+      "traditions": [
+        "MACHINE_SAFETY",
+        "MACHINE_DESIGN",
+        "PACKAGING_MACHINE_BUILDING",
+        "INDUSTRIAL_MANUFACTURING_ENGINEERING"
+      ],
+      "storage_mode": "METADATA_AND_PUBLIC_SUMMARY",
+      "notes": "Ontario government guidance tying safeguarding review to Industrial Establishments Regulation machine-guarding provisions."
+    },
+    {
+      "source_id": "AUTH.CCOHS.CONVEYOR_SAFETY",
+      "title": "CCOHS — Conveyors: Safety",
+      "url": "https://www.ccohs.ca/oshanswers/safety_haz/conveyor_safety.html",
+      "lane": "AUTHORITATIVE",
+      "authority_class": "NATIONAL_OHS_GUIDANCE",
+      "traditions": [
+        "MACHINE_SAFETY",
+        "CONVEYOR_MATERIAL_HANDLING",
+        "PACKAGING_MACHINE_BUILDING",
+        "MILLWRIGHT"
+      ],
+      "storage_mode": "METADATA_AND_PUBLIC_SUMMARY",
+      "notes": "Canadian occupational-health-and-safety guidance on conveyor hazards, guarding, pinch points and lockout."
+    },
+    {
+      "source_id": "AUTH.CCOHS.LOCKOUT",
+      "title": "CCOHS — Lockout/Tag out",
+      "url": "https://www.ccohs.ca/oshanswers/hsprograms/lockout.html",
+      "lane": "AUTHORITATIVE",
+      "authority_class": "NATIONAL_OHS_GUIDANCE",
+      "traditions": [
+        "MACHINE_SAFETY",
+        "MILLWRIGHT",
+        "INDUSTRIAL_ELECTRICAL",
+        "CONTROLS_AUTOMATION",
+        "RELIABILITY_MAINTENANCE"
+      ],
+      "storage_mode": "METADATA_AND_PUBLIC_SUMMARY",
+      "notes": "Canadian occupational-health-and-safety guidance on hazardous-energy isolation, verification and return to service."
     }
   ]
 }
