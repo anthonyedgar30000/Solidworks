@@ -130,3 +130,137 @@ It does not directly feed:
 - write authority.
 
 For PLAN-0011, a useful role is reviewing the mechanism-independent POP acceptance envelope from multiple traditions before candidate geometry is promoted.
+
+## Corpus ingestion v1
+
+`ingestion.py` adds a bounded network-ingestion layer in front of retrieval.
+
+The control path is:
+
+    registered source identity
+      -> storage / copyright policy
+      -> exact-URL fetch
+      -> redirect-domain check
+      -> content-type / access-challenge gate
+      -> raw response SHA-256
+      -> normalized text SHA-256
+      -> immutable source-record revision
+      -> exact-content duplicate annotation
+      -> freshness state
+      -> bounded chunk projection
+      -> tradition/lane index rebuild
+
+Network ingestion is reference capture only. A successful fetch does not create an engineering EvidenceRecord and cannot change mechanical acceptance.
+
+### Network restrictions
+
+The v1 fetcher:
+- requests only explicitly registered URLs;
+- never crawls links recursively;
+- permits HTTPS only;
+- enforces a hard response-size bound;
+- preserves TLS certificate verification;
+- rejects redirects outside the registered domain family;
+- rejects access/challenge/captcha pages even when they return HTTP 200;
+- records HTTP failures and rate-limit metadata without bypassing them;
+- pauses between automatic requests;
+- does not fetch bodies for `METADATA_ONLY_UNLESS_USER_LICENSED` sources.
+
+Public Atom/RSS feeds may be used where the publisher exposes them. They remain in the source's existing authority lane.
+
+### Runtime revision store
+
+Runtime source observations remain outside Git:
+
+    C:\CADGrounded\tradition-rag-data\
+      checks\
+      latest\
+      source-records\
+      texts\
+      active_chunks.jsonl
+      projection-status.json
+      collections\
+
+Raw response bytes are hashed but not retained by network ingestion. Bounded normalized text is content-addressed by SHA-256.
+
+Every network chunk returned by retrieval includes:
+- source record ID;
+- observation timestamp;
+- raw response SHA-256;
+- normalized document SHA-256;
+- content-group SHA-256;
+- duplicate-group metadata;
+- storage mode;
+- chunk ordinal and chunk hash.
+
+### Commands
+
+Show planned source policy:
+
+    python ingestion.py plan
+
+Inspect freshness and last-attempt state:
+
+    python ingestion.py status
+
+Fetch one exact registered source:
+
+    python ingestion.py ingest --source AUTH.REDSEAL.MILLWRIGHT
+
+Refresh only sources whose lane freshness window has expired:
+
+    python ingestion.py ingest --all-safe
+
+Force a reviewed full refresh of body-eligible sources:
+
+    python ingestion.py ingest --all-safe --force
+
+Build the current retrieval projection from the latest immutable source revisions:
+
+    python ingestion.py project
+
+Then rebuild the deterministic retrieval indices:
+
+    python tradition_rag.py bootstrap
+
+### Seed/live interaction
+
+A source keeps its curated seed card until a successful live source record exists.
+
+Once a source has active live chunks, its seed card is omitted from rebuilt indices. This prevents the same source from gaining artificial retrieval weight through both its seed summary and live corpus.
+
+If a live source later becomes temporarily unavailable, the last successfully captured immutable revision remains the active retrieval source until explicitly superseded or removed.
+
+### Duplicate handling
+
+Exact normalized-document duplicates are grouped by hash.
+
+Duplicate copies do not gain authority through repetition. The canonical duplicate record is chosen deterministically by lane priority and source identity, while every source keeps its own provenance record. Retrieval suppresses repeated identical chunk groups so copied material does not act like independent corroboration.
+
+### Freshness
+
+Default lane refresh windows are:
+- AUTHORITATIVE: 30 days;
+- PROFESSIONAL_PRACTICE: 30 days;
+- FIELD_CHATTER: 7 days.
+
+Automatic `--all-safe` refreshes respect the most recent check, including blocked/failed observations, so inaccessible sources are not hammered repeatedly. An explicit single-source fetch remains an operator-directed probe.
+
+### Source recovery notes
+
+The NUC uses Python's verified default TLS context augmented with the Windows ROOT/CA certificate stores when available. This preserves certificate verification while aligning Python with the host trust store; it does **not** disable TLS validation.
+
+That recovered:
+- Sandvik Coromant Metal Cutting Technology as PROFESSIONAL_PRACTICE;
+- SMRP Exchange recent discussions as FIELD_CHATTER.
+
+For browser-protected forums:
+- Eng-Tips remains challenge-blocked;
+- PLCtalk and Control.com remain direct-fetch blocked;
+- their registered identities and seed cards remain available, but the fetcher does not impersonate a browser or bypass challenges.
+
+Additional live chatter is supplied through official machine-readable interfaces:
+- Stack Exchange API mechanical-engineering questions;
+- Stack Exchange API PLC questions.
+
+Stack Exchange captures preserve question author, link, tags, last-activity time, and the per-item content license in normalized text.

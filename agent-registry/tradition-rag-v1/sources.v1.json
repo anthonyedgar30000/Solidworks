@@ -5,7 +5,7 @@
   "sources": [
     {
       "source_id": "AUTH.REDSEAL.MILLWRIGHT",
-      "title": "Red Seal — Industrial Mechanic (Millwright)",
+      "title": "Red Seal â€” Industrial Mechanic (Millwright)",
       "url": "https://red-seal.ca/eng/trades/indust-mech-mill.shtml",
       "lane": "AUTHORITATIVE",
       "authority_class": "TRADE_STANDARD",
@@ -21,7 +21,7 @@
     },
     {
       "source_id": "AUTH.STO.MILLWRIGHT",
-      "title": "Skilled Trades Ontario — Industrial Mechanic Millwright",
+      "title": "Skilled Trades Ontario â€” Industrial Mechanic Millwright",
       "url": "https://www.skilledtradesontario.ca/trade-information/industrial-mechanic-millwright/",
       "lane": "AUTHORITATIVE",
       "authority_class": "REGULATED_TRADE_BODY",
@@ -36,7 +36,7 @@
     },
     {
       "source_id": "AUTH.ISO.12100",
-      "title": "ISO 12100:2010 — Safety of machinery",
+      "title": "ISO 12100:2010 â€” Safety of machinery",
       "url": "https://www.iso.org/standard/51528.html",
       "lane": "AUTHORITATIVE",
       "authority_class": "CONSENSUS_STANDARD_BODY",
@@ -51,7 +51,7 @@
     },
     {
       "source_id": "AUTH.PMMI.B155",
-      "title": "PMMI — Standards and Regulations / ANSI-PMMI B155.1",
+      "title": "PMMI â€” Standards and Regulations / ANSI-PMMI B155.1",
       "url": "https://www.pmmi.org/resources/standards-and-regulations",
       "lane": "AUTHORITATIVE",
       "authority_class": "INDUSTRY_STANDARD_BODY",
@@ -66,7 +66,7 @@
     },
     {
       "source_id": "AUTH.ISA.STANDARDS",
-      "title": "ISA — Standards for Automation",
+      "title": "ISA â€” Standards for Automation",
       "url": "https://www.isa.org/standards-and-publications/isa-standards",
       "lane": "AUTHORITATIVE",
       "authority_class": "CONSENSUS_STANDARD_BODY",
@@ -80,7 +80,7 @@
     },
     {
       "source_id": "AUTH.ISA.5",
-      "title": "ISA-5 Series — Instrumentation and Control",
+      "title": "ISA-5 Series â€” Instrumentation and Control",
       "url": "https://www.isa.org/standards-and-publications/isa-standards/isa-5-standard",
       "lane": "AUTHORITATIVE",
       "authority_class": "CONSENSUS_STANDARD_BODY",
@@ -93,7 +93,7 @@
     },
     {
       "source_id": "AUTH.CEMA.ANSI",
-      "title": "CEMA — ANSI Standards",
+      "title": "CEMA â€” ANSI Standards",
       "url": "https://cemanet.org/ansi-standards/",
       "lane": "AUTHORITATIVE",
       "authority_class": "INDUSTRY_STANDARD_BODY",
@@ -106,7 +106,7 @@
     },
     {
       "source_id": "AUTH.NFPA.79",
-      "title": "NFPA 79 — Electrical Standard for Industrial Machinery",
+      "title": "NFPA 79 â€” Electrical Standard for Industrial Machinery",
       "url": "https://www.nfpa.org/es/product/id/p0079code",
       "lane": "AUTHORITATIVE",
       "authority_class": "CONSENSUS_STANDARD_BODY",
@@ -120,7 +120,7 @@
     },
     {
       "source_id": "AUTH.AWS.D1",
-      "title": "AWS — Welding Codes and Standards",
+      "title": "AWS â€” Welding Codes and Standards",
       "url": "https://www.aws.org/Standards-and-Publications/Codes-and-Standards/",
       "lane": "AUTHORITATIVE",
       "authority_class": "CONSENSUS_STANDARD_BODY",
@@ -133,7 +133,7 @@
     },
     {
       "source_id": "AUTH.SMRP.BOK",
-      "title": "SMRP — Maintenance & Reliability Body of Knowledge",
+      "title": "SMRP â€” Maintenance & Reliability Body of Knowledge",
       "url": "https://smrp.org/learning-resources/smrp-library/body-of-knowledge/",
       "lane": "AUTHORITATIVE",
       "authority_class": "PROFESSIONAL_BODY",
@@ -147,7 +147,7 @@
     },
     {
       "source_id": "PRO.FESTO.PNEUMATICS",
-      "title": "Festo — Basic Pneumatics / training path",
+      "title": "Festo â€” Basic Pneumatics / training path",
       "url": "https://www.festo.com/za/en/e/solutions/customised-solutions/training-and-consulting/our-range-of-courses/pn101-basic-pneumatics-id_1531307",
       "lane": "PROFESSIONAL_PRACTICE",
       "authority_class": "OEM_TRAINING",
@@ -162,7 +162,7 @@
     },
     {
       "source_id": "PRO.SANDVIK.METALCUTTING",
-      "title": "Sandvik Coromant — Metal Cutting Technology",
+      "title": "Sandvik Coromant â€” Metal Cutting Technology",
       "url": "https://videos.sandvik.coromant.com/metal-cutting-technology-e-learning",
       "lane": "PROFESSIONAL_PRACTICE",
       "authority_class": "OEM_TRAINING",
@@ -176,7 +176,7 @@
     },
     {
       "source_id": "CHAT.ENGTIPS.MECH",
-      "title": "Eng-Tips — Mechanical engineering general discussion",
+      "title": "Eng-Tips â€” Mechanical engineering general discussion",
       "url": "https://www.eng-tips.com/forums/mechanical-engineering-general-discussion.404/",
       "lane": "FIELD_CHATTER",
       "authority_class": "PROFESSIONAL_FORUM",
@@ -192,7 +192,7 @@
     },
     {
       "source_id": "CHAT.ENGTIPS.MFG",
-      "title": "Eng-Tips — Industrial / Manufacturing Engineers",
+      "title": "Eng-Tips â€” Industrial / Manufacturing Engineers",
       "url": "https://www.eng-tips.com/categories/industrial-manufacturing-engineers.10013/",
       "lane": "FIELD_CHATTER",
       "authority_class": "PROFESSIONAL_FORUM",
@@ -207,7 +207,7 @@
     },
     {
       "source_id": "CHAT.PLCTALK",
-      "title": "PLCtalk — Interactive Q&A",
+      "title": "PLCtalk â€” Interactive Q&A",
       "url": "https://www.plctalk.net/forums/",
       "lane": "FIELD_CHATTER",
       "authority_class": "TRADE_FORUM",
@@ -222,7 +222,7 @@
     },
     {
       "source_id": "CHAT.CONTROLCOM",
-      "title": "Control.com — Automation & Control Engineering Forum",
+      "title": "Control.com â€” Automation & Control Engineering Forum",
       "url": "https://control.com/forums/",
       "lane": "FIELD_CHATTER",
       "authority_class": "PROFESSIONAL_FORUM",
@@ -239,8 +239,8 @@
     },
     {
       "source_id": "CHAT.SMRP.EXCHANGE",
-      "title": "SMRP Exchange — practitioner community",
-      "url": "https://exchange.smrp.org/",
+      "title": "SMRP Exchange â€” practitioner community",
+      "url": "https://exchange.smrp.org/browse/allrecentposts",
       "lane": "FIELD_CHATTER",
       "authority_class": "PROFESSIONAL_COMMUNITY",
       "traditions": [
@@ -254,7 +254,7 @@
     {
       "source_id": "CHAT.REDDIT.MACHINISTS",
       "title": "Reddit r/Machinists",
-      "url": "https://www.reddit.com/r/Machinists/",
+      "url": "https://www.reddit.com/r/Machinists/.rss",
       "lane": "FIELD_CHATTER",
       "authority_class": "OPEN_COMMUNITY",
       "traditions": [
@@ -263,6 +263,40 @@
       ],
       "storage_mode": "BOUNDED_DISCOVERY_AND_EXCERPT",
       "notes": "Open community chatter; lowest authority, hypothesis-only."
+    },
+    {
+      "source_id": "CHAT.STACKEXCHANGE.ENGINEERING.MECHANICAL",
+      "title": "Stack Exchange API — mechanical-engineering questions",
+      "url": "https://api.stackexchange.com/2.3/questions?site=engineering&tagged=mechanical-engineering&order=desc&sort=activity&pagesize=20&filter=withbody",
+      "lane": "FIELD_CHATTER",
+      "authority_class": "PUBLIC_QA_COMMUNITY",
+      "traditions": [
+        "MACHINE_DESIGN",
+        "MACHINING_TOOLMAKING",
+        "FABRICATION_WELDING_SHEET_METAL",
+        "FLUID_POWER",
+        "CONVEYOR_MATERIAL_HANDLING",
+        "INDUSTRIAL_MANUFACTURING_ENGINEERING"
+      ],
+      "storage_mode": "BOUNDED_DISCOVERY_AND_EXCERPT",
+      "notes": "Official Stack Exchange API practitioner Q&A; preserves author/link/license; hypothesis/test prompts only.",
+      "content_license": "per_item_from_api"
+    },
+    {
+      "source_id": "CHAT.STACKEXCHANGE.ELECTRONICS.PLC",
+      "title": "Stack Exchange API — PLC questions",
+      "url": "https://api.stackexchange.com/2.3/questions?site=electronics&tagged=plc&order=desc&sort=activity&pagesize=20&filter=withbody",
+      "lane": "FIELD_CHATTER",
+      "authority_class": "PUBLIC_QA_COMMUNITY",
+      "traditions": [
+        "CONTROLS_AUTOMATION",
+        "INDUSTRIAL_ELECTRICAL",
+        "INSTRUMENTATION_MECHATRONICS",
+        "PACKAGING_MACHINE_BUILDING"
+      ],
+      "storage_mode": "BOUNDED_DISCOVERY_AND_EXCERPT",
+      "notes": "Official Stack Exchange API PLC practitioner Q&A; preserves author/link/license; hypothesis/test prompts only.",
+      "content_license": "per_item_from_api"
     }
   ]
 }

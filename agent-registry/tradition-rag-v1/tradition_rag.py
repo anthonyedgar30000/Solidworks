@@ -52,6 +52,23 @@ def open_db(path: Path) -> sqlite3.Connection:
         )
         """
     )
+    con.execute(
+        """
+        CREATE TABLE IF NOT EXISTS chunk_provenance(
+          chunk_id TEXT PRIMARY KEY,
+          source_record_id TEXT,
+          observed_at_utc TEXT,
+          raw_sha256 TEXT,
+          normalized_document_sha256 TEXT,
+          content_group_sha256 TEXT,
+          duplicate_group_size INTEGER,
+          duplicate_of_source_record_id TEXT,
+          chunk_kind TEXT,
+          storage_mode TEXT,
+          chunk_ordinal INTEGER
+        )
+        """
+    )
     return con
 
 
@@ -63,10 +80,73 @@ def load_cards(cards_path: Path) -> list[dict]:
     return cards
 
 
+def load_runtime_chunks(data_root: Path) -> list[dict]:
+    path = data_root / "active_chunks.jsonl"
+    if not path.exists():
+        return []
+    chunks = []
+    for line in path.read_text(encoding="utf-8-sig").splitlines():
+        if line.strip():
+            chunks.append(json.loads(line))
+    return chunks
+
+
+def insert_chunk(
+    con: sqlite3.Connection,
+    *,
+    chunk_id: str,
+    source_id: str,
+    source_lane: str,
+    authority_class: str,
+    title: str,
+    body: str,
+    source_uri: str,
+    content_sha256: str,
+    provenance: dict,
+) -> None:
+    con.execute(
+        """
+        INSERT INTO chunks_fts(
+          chunk_id, source_id, source_lane, authority_class,
+          title, body, source_uri, content_sha256
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        """,
+        (
+            chunk_id, source_id, source_lane, authority_class,
+            title, body, source_uri, content_sha256,
+        ),
+    )
+    con.execute(
+        """
+        INSERT OR REPLACE INTO chunk_provenance(
+          chunk_id, source_record_id, observed_at_utc, raw_sha256,
+          normalized_document_sha256, content_group_sha256,
+          duplicate_group_size, duplicate_of_source_record_id,
+          chunk_kind, storage_mode, chunk_ordinal
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """,
+        (
+            chunk_id,
+            provenance.get("source_record_id"),
+            provenance.get("observed_at_utc"),
+            provenance.get("raw_sha256"),
+            provenance.get("normalized_document_sha256"),
+            provenance.get("content_group_sha256"),
+            provenance.get("duplicate_group_size", 1),
+            provenance.get("duplicate_of_source_record_id"),
+            provenance.get("chunk_kind", "SEED_CARD"),
+            provenance.get("storage_mode"),
+            provenance.get("chunk_ordinal", 0),
+        ),
+    )
+
+
 def bootstrap(repo_dir: Path, data_root: Path) -> dict:
     policy = read_json(repo_dir / "traditions.v1.json")
     registry = read_json(repo_dir / "sources.v1.json")
     cards = load_cards(repo_dir / "seed" / "source_cards.v1.jsonl")
+    runtime_chunks = load_runtime_chunks(data_root)
+    live_source_ids = {chunk["source_id"] for chunk in runtime_chunks}
     source_by_id = {s["source_id"]: s for s in registry["sources"]}
     counts = {}
 
@@ -74,38 +154,72 @@ def bootstrap(repo_dir: Path, data_root: Path) -> dict:
         tid = tradition["tradition_id"]
         con = open_db(db_path(data_root, tid))
         con.execute("DELETE FROM chunks_fts")
+        con.execute("DELETE FROM chunk_provenance")
         inserted = 0
+        seed_inserted = 0
+        live_inserted = 0
         lane_counts = {lane: 0 for lane in LANES}
+
         for card in cards:
             source = source_by_id[card["source_id"]]
+            if source["source_id"] in live_source_ids:
+                continue
             if tid not in source["traditions"]:
                 continue
             body = card["summary"]
             content_sha = sha256_text(body)
             chunk_id = f'{card["card_id"]}:{tid}'
-            con.execute(
-                """
-                INSERT INTO chunks_fts(
-                  chunk_id, source_id, source_lane, authority_class,
-                  title, body, source_uri, content_sha256
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-                """,
-                (
-                    chunk_id,
-                    source["source_id"],
-                    source["lane"],
-                    source["authority_class"],
-                    source["title"],
-                    body,
-                    source["url"],
-                    content_sha,
-                ),
+            insert_chunk(
+                con,
+                chunk_id=chunk_id,
+                source_id=source["source_id"],
+                source_lane=source["lane"],
+                authority_class=source["authority_class"],
+                title=source["title"],
+                body=body,
+                source_uri=source["url"],
+                content_sha256=content_sha,
+                provenance={
+                    "observed_at_utc": card.get("observed_at_utc"),
+                    "normalized_document_sha256": content_sha,
+                    "content_group_sha256": content_sha,
+                    "duplicate_group_size": 1,
+                    "chunk_kind": "SEED_CARD",
+                    "storage_mode": source["storage_mode"],
+                    "chunk_ordinal": 0,
+                },
             )
             inserted += 1
+            seed_inserted += 1
             lane_counts[source["lane"]] += 1
+
+        for chunk in runtime_chunks:
+            if tid not in chunk["traditions"]:
+                continue
+            insert_chunk(
+                con,
+                chunk_id=chunk["chunk_id"],
+                source_id=chunk["source_id"],
+                source_lane=chunk["source_lane"],
+                authority_class=chunk["authority_class"],
+                title=chunk["title"],
+                body=chunk["body"],
+                source_uri=chunk["source_uri"],
+                content_sha256=chunk["chunk_sha256"],
+                provenance=chunk,
+            )
+            inserted += 1
+            live_inserted += 1
+            lane_counts[chunk["source_lane"]] += 1
+
         con.commit()
         con.close()
-        counts[tid] = {"chunks": inserted, "lanes": lane_counts}
+        counts[tid] = {
+            "chunks": inserted,
+            "seed_chunks": seed_inserted,
+            "live_chunks": live_inserted,
+            "lanes": lane_counts,
+        }
 
     manifest = {
         "service_id": "CADGROUNDED.TRADITION_RAG.V1",
@@ -136,25 +250,54 @@ def retrieve_lane(
     limit: int,
 ) -> list[dict]:
     expr = fts_expression(question)
+    candidate_limit = max(limit * 5, limit)
     rows = con.execute(
         """
         SELECT
-          chunk_id, source_id, source_lane, authority_class,
-          title, body, source_uri, content_sha256,
+          chunks_fts.chunk_id,
+          chunks_fts.source_id,
+          chunks_fts.source_lane,
+          chunks_fts.authority_class,
+          chunks_fts.title,
+          chunks_fts.body,
+          chunks_fts.source_uri,
+          chunks_fts.content_sha256,
+          chunk_provenance.source_record_id,
+          chunk_provenance.observed_at_utc,
+          chunk_provenance.raw_sha256,
+          chunk_provenance.normalized_document_sha256,
+          chunk_provenance.content_group_sha256,
+          chunk_provenance.duplicate_group_size,
+          chunk_provenance.duplicate_of_source_record_id,
+          chunk_provenance.chunk_kind,
+          chunk_provenance.storage_mode,
+          chunk_provenance.chunk_ordinal,
           bm25(chunks_fts) AS bm25_score
         FROM chunks_fts
-        WHERE chunks_fts MATCH ? AND source_lane = ?
+        LEFT JOIN chunk_provenance
+          ON chunk_provenance.chunk_id = chunks_fts.chunk_id
+        WHERE chunks_fts MATCH ? AND chunks_fts.source_lane = ?
         ORDER BY bm25_score
         LIMIT ?
         """,
-        (expr, lane, limit),
+        (expr, lane, candidate_limit),
     ).fetchall()
     result = []
+    seen_content = set()
     for row in rows:
         item = dict(row)
+        group_key = (
+            item.get("content_group_sha256") or item["content_sha256"],
+            item.get("chunk_ordinal") or 0,
+        )
+        if group_key in seen_content:
+            continue
+        seen_content.add(group_key)
         item["retrieval_score"] = -float(item.pop("bm25_score"))
         item["permitted_effect"] = LANE_EFFECT[lane]
         result.append(item)
+        if len(result) >= limit:
+            break
     return result
 
 
