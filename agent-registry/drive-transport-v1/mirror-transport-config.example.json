@@ -7,7 +7,8 @@
   "allowed_commands": [
     "sw.status",
     "sw.query_components",
-    "sw.closest_distance_pair"
+    "sw.closest_distance_pair",
+    "sw.capture_view"
   ],
   "retire_mirror_request_after_verified_result": true
 }

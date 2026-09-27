@@ -1,6 +1,9 @@
 using System.Globalization;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
+using System.Security.Cryptography;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SolidWorks.Interop.sldworks;
@@ -10,7 +13,7 @@ namespace CadGrounded.SolidWorksWorker;
 
 internal static class Program
 {
-    internal const string Version = "0.4.4";
+    internal const string Version = "0.4.5";
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         WriteIndented = true,
@@ -350,6 +353,7 @@ internal static class Dispatcher
         "sw.contact_surface_normals_pair",
         "sw.classify_contact_pair",
         "sw.classify_contact_pair_at_transform",
+        "sw.capture_view",
         "sw.query_mates"
     };
 
@@ -414,6 +418,12 @@ internal static class Dispatcher
                     "a_candidate_transform",
                     "b_candidate_transform");
             }
+            else if (commandId == "sw.capture_view")
+            {
+                JsonHelpers.RequireOnlyProperties(payload,
+                    "document_title_exact", "document_path_exact", "active_configuration_exact",
+                    "capture_id", "orientation_rotation9", "translation3_m", "scale2");
+            }
 
             object data = commandId switch
             {
@@ -455,6 +465,14 @@ internal static class Dispatcher
                     JsonHelpers.GetRequiredString(payload, "b_name_exact"),
                     JsonHelpers.GetOptionalCandidateTransform(payload, "a_candidate_transform"),
                     JsonHelpers.GetOptionalCandidateTransform(payload, "b_candidate_transform")),
+                "sw.capture_view" => session.CaptureView(
+                    JsonHelpers.GetRequiredString(payload, "document_title_exact"),
+                    JsonHelpers.GetRequiredString(payload, "document_path_exact"),
+                    JsonHelpers.GetRequiredString(payload, "active_configuration_exact"),
+                    JsonHelpers.GetRequiredString(payload, "capture_id"),
+                    JsonHelpers.GetOptionalFiniteDoubleArray(payload, "orientation_rotation9", 9),
+                    JsonHelpers.GetOptionalFiniteDoubleArray(payload, "translation3_m", 3),
+                    JsonHelpers.GetOptionalFiniteDouble(payload, "scale2")),
                 "sw.query_mates" => session.QueryMates(
                     JsonHelpers.GetRequiredString(payload, "component_name_exact")),
                 _ => throw new InvalidOperationException("Unreachable command dispatch.")
@@ -573,6 +591,135 @@ internal sealed class SolidWorksSession : IDisposable
                 save_flag = Safe(() => (object)_doc.GetSaveFlag())
             }
         };
+    }
+
+    public object CaptureView(
+        string expectedTitle, string expectedPath, string expectedConfiguration,
+        string captureId, double[]? rotation9, double[]? translation3M, double? scale2)
+    {
+        RequireAssembly();
+        var before = _doc.ConfigurationManager.ActiveConfiguration?.Name;
+        if (!string.Equals(_doc.GetTitle(), expectedTitle, StringComparison.Ordinal) ||
+            !string.Equals(_doc.GetPathName(), expectedPath, StringComparison.OrdinalIgnoreCase) ||
+            !string.Equals(before, expectedConfiguration, StringComparison.Ordinal))
+            throw new CadGroundedException("document_precondition_failed", "Exact active document/path/configuration mismatch.");
+        if (captureId.Length > 128 ||
+            !System.Text.RegularExpressions.Regex.IsMatch(captureId, "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"))
+            throw new ArgumentException("capture_id must be a safe job ID.");
+        if (scale2 is not null && (scale2 <= 0 || scale2 > 1e9))
+            throw new ArgumentException("scale2 must be positive and bounded.");
+
+        var root = Environment.GetEnvironmentVariable("CADGROUNDED_CAPTURE_ROOT");
+        if (string.IsNullOrWhiteSpace(root) || !Path.IsPathFullyQualified(root) ||
+            !Directory.Exists(root) ||
+            (File.GetAttributes(root) & FileAttributes.ReparsePoint) != 0)
+            throw new CadGroundedException("capture_root_unavailable", "A local, existing capture root is required.");
+        var output = Path.Combine(root, captureId + ".png");
+        if (File.Exists(output))
+            throw new CadGroundedException("capture_collision", "A capture with this job ID already exists.");
+        var bitmapPath = Path.Combine(root, captureId + "." + Guid.NewGuid().ToString("N") + ".bmp");
+
+        var view = _doc.ActiveView as IModelView ?? throw new CadGroundedException(
+            "view_unavailable", "No active model view is available for capture.");
+        var originalOrientation = view.Orientation3;
+        var originalTranslation = view.Translation3;
+        var originalScale = view.Scale2;
+        var originalSaveFlag = _doc.GetSaveFlag();
+        if (originalOrientation is null || originalTranslation is null)
+            throw new CadGroundedException("view_unavailable", "The current camera state is incomplete.");
+
+        var captured = false;
+        object? result = null;
+        try
+        {
+            if (rotation9 is not null)
+                view.Orientation3 = CreateCandidateTransform(
+                    new CandidateTransform(rotation9, new double[3]), "capture camera orientation");
+            if (translation3M is not null)
+            {
+                var vector = _app.IGetMathUtility()?.CreateVector(translation3M) as MathVector;
+                view.Translation3 = vector ?? throw new CadGroundedException(
+                    "camera_translation_failed", "Could not construct the requested camera translation.");
+            }
+            if (scale2 is not null)
+                view.Scale2 = scale2.Value;
+
+            _doc.GraphicsRedraw2();
+            var observedOrientation = RequireMathTransformArray(view.Orientation3, "capture view orientation");
+            var observedTranslation = ToDoubleArray(view.Translation3.ArrayData);
+            var observedScale = view.Scale2;
+            if (observedTranslation is null || observedTranslation.Length < 3)
+                throw new CadGroundedException("view_unavailable", "Camera translation could not be read back.");
+
+            // SaveBMP exports the rendered viewport, not the SLDASM. Convert the
+            // temporary BMP to PNG and never call a document save operation.
+            if (!_doc.SaveBMP(bitmapPath, 0, 0))
+                throw new CadGroundedException("capture_failed", "SOLIDWORKS SaveBMP failed.");
+            using (var bitmap = new Bitmap(bitmapPath))
+            {
+                bitmap.Save(output, ImageFormat.Png);
+                var imageBytes = new FileInfo(output).Length;
+                if (imageBytes <= 0 || imageBytes > 41943040)
+                    throw new CadGroundedException("capture_size_invalid", "PNG is empty or exceeds the 40 MiB transport cap.");
+                result = new
+                {
+                    document = new { title = expectedTitle, path = expectedPath, active_configuration = before },
+                    capture_id = captureId,
+                    image_file_name = captureId + ".png",
+                    image_width = bitmap.Width,
+                    image_height = bitmap.Height,
+                    image_bytes = imageBytes,
+                    image_sha256 = Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(output))).ToLowerInvariant(),
+                    captured_utc = DateTimeOffset.UtcNow.ToString("o"),
+                    camera = new
+                    {
+                        orientation16 = observedOrientation,
+                        translation3_m = observedTranslation.Take(3).ToArray(),
+                        scale2 = observedScale
+                    },
+                    view_state_restored = true,
+                    model_mutation = false,
+                    write_authority = "NONE",
+                    mechanical_acceptance_granted = false
+                };
+            }
+            captured = true;
+        }
+        finally
+        {
+            try
+            {
+                view.Orientation3 = originalOrientation;
+                view.Translation3 = originalTranslation;
+                view.Scale2 = originalScale;
+                _doc.GraphicsRedraw2();
+                if (_doc.GetSaveFlag() != originalSaveFlag ||
+                    !string.Equals(_doc.ConfigurationManager.ActiveConfiguration?.Name, before, StringComparison.Ordinal))
+                    throw new CadGroundedException("model_state_changed", "The active model state changed during capture.");
+                var restored = RequireMathTransformArray(view.Orientation3, "restored camera");
+                var original = RequireMathTransformArray(originalOrientation, "original camera");
+                var restoredTranslation = ToDoubleArray(view.Translation3.ArrayData);
+                var originalTranslationArray = ToDoubleArray(originalTranslation.ArrayData);
+                if (restored.Take(13).Where((v, i) => Math.Abs(v - original[i]) > 1e-8).Any() ||
+                    restoredTranslation is null || originalTranslationArray is null ||
+                    restoredTranslation.Length < 3 || originalTranslationArray.Length < 3 ||
+                    restoredTranslation.Take(3).Where((v, i) => Math.Abs(v - originalTranslationArray[i]) > 1e-8).Any() ||
+                    Math.Abs(view.Scale2 - originalScale) > 1e-8)
+                    throw new CadGroundedException("view_restore_failed", "The original camera could not be verified after capture.");
+            }
+            catch
+            {
+                captured = false;
+                throw;
+            }
+            finally
+            {
+                if (File.Exists(bitmapPath)) File.Delete(bitmapPath);
+                if (!captured && File.Exists(output)) File.Delete(output);
+            }
+        }
+
+        return result!;
     }
 
     public object QueryComponents(bool topLevelOnly)
@@ -3328,6 +3475,21 @@ internal static class JsonHelpers
         return new CandidateTransform(
             GetRequiredFiniteDoubleArray(value, "rotation9", 9, $"payload.{name}"),
             GetRequiredFiniteDoubleArray(value, "translation_mm", 3, $"payload.{name}"));
+    }
+
+    public static double[]? GetOptionalFiniteDoubleArray(JsonElement payload, string name, int length)
+    {
+        if (!payload.TryGetProperty(name, out var value)) return null;
+        return GetRequiredFiniteDoubleArray(payload, name, length, "payload");
+    }
+
+    public static double? GetOptionalFiniteDouble(JsonElement payload, string name)
+    {
+        if (!payload.TryGetProperty(name, out var value)) return null;
+        if (value.ValueKind != JsonValueKind.Number || !value.TryGetDouble(out var number) ||
+            !double.IsFinite(number))
+            throw new ArgumentException($"payload.{name} must be a finite number.");
+        return number;
     }
 
     private static double[] GetRequiredFiniteDoubleArray(

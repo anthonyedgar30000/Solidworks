@@ -10,7 +10,8 @@ It is deliberately **not** a CAD controller. It cannot call SOLIDWORKS, execute 
 - `Invoke-CADRemoteQueue.ps1` remains local request-validation/execution authority.
 - GitHub remains version/history authority.
 - Google Drive remains transport only.
-- These transport agents only move validated JSON request/result artifacts.
+- These transport agents move validated JSON request/result artifacts and
+  hash-verified PNGs for completed `sw.capture_view` jobs.
 
 Canonical local queue root:
 

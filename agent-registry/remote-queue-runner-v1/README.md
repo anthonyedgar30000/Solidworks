@@ -11,11 +11,30 @@ queue never executes downloaded `.ps1`, `.bat`, `.cmd`, or `.exe` files.
 - `sw.status`
 - `sw.query_components`
 - `sw.closest_distance_pair`
+- `sw.capture_view`
 
-These are the commands currently implemented by the native C# worker. v1 does
+These commands have explicit validation in the native C# worker. v1 does
 not expose the experimental PowerShell B-rep/topology probes. Port those into
 the native worker as separately reviewed read-only commands before adding them
 to this queue.
+
+## View capture
+
+`sw.capture_view` requires exact title and path preconditions and the exact
+active configuration in the payload. The example
+`examples/capture-view-v42.job.json` captures the current camera after those
+placeholders are filled. To request another angle, provide an optional rigid
+`orientation_rotation9` (SOLIDWORKS row-major MathTransform rotation), optional
+`translation3_m` (the raw ModelView translation vector), and/or optional
+positive `scale2`. The worker validates and reads back the requested camera,
+exports `<job_id>.png`, and restores the prior orientation, translation, and
+scale. It does not move components or save the assembly.
+
+The local result is `results/<job_id>.result.json` with a sibling image under
+`results/captures/<job_id>.png`. The result records exact document identity,
+captured camera values, image dimensions, and SHA-256. The mirror transport
+verifies and publishes the image before the result JSON. Treat the capture as
+visual evidence only; it conveys no geometry or mechanical acceptance claim.
 
 ## Trust boundary
 

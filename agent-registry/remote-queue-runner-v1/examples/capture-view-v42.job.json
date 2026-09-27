@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "job_id": "v42-capture-001",
+  "command_id": "sw.capture_view",
+  "write_authority": "NONE",
+  "source": "manual_cadgrounded_capture",
+  "preconditions": {
+    "document_title_exact": "REPLACE_WITH_EXACT_ACTIVE_TITLE",
+    "document_path_exact": "C:\\REPLACE_WITH_EXACT_ACTIVE_PATH.sldasm"
+  },
+  "payload": {
+    "active_configuration_exact": "REPLACE_WITH_EXACT_ACTIVE_CONFIGURATION"
+  }
+}

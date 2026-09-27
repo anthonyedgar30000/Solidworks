@@ -15,6 +15,7 @@ There is no generic code-execution command and no CAD write command.
 - `sw.contact_surface_normals_pair` (native-only current-pose face-normal candidate; not Remote Queue authorized)
 - `sw.classify_contact_pair` (native-only unless separately authorized by a transport policy)
 - `sw.classify_contact_pair_at_transform` (native-only hypothetical fit check; never assigns `Component2.Transform2`)
+- `sw.capture_view` (bounded viewport pose and PNG evidence; restores the camera)
 - `sw.query_mates`
 
 `sw.query_interface_contract` requires exact requested coordinate-system feature

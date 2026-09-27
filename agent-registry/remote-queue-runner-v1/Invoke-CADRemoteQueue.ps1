@@ -178,6 +178,37 @@ function Assert-Job {
             }
         }
 
+        'sw.capture_view' {
+            if ($preconditionNames -notcontains 'document_path_exact') {
+                throw 'capture requires preconditions.document_path_exact.'
+            }
+            Assert-AllowedProperties $payload @('active_configuration_exact','orientation_rotation9','translation3_m','scale2') 'payload'
+            if (-not (Test-ExactString (Require-Property $payload 'active_configuration_exact' 'payload') 512)) {
+                throw 'payload.active_configuration_exact is invalid.'
+            }
+            foreach ($spec in @(@('orientation_rotation9',9),@('translation3_m',3))) {
+                $name = [string]$spec[0]
+                if ((Get-PropertyNames $payload) -contains $name) {
+                    $values = @($payload.$name)
+                    if ($values.Count -ne [int]$spec[1]) { throw "payload.$name has invalid length." }
+                    foreach ($value in $values) {
+                        if ($value -isnot [ValueType] -or [double]::IsNaN([double]$value) -or
+                            [double]::IsInfinity([double]$value)) {
+                            throw "payload.$name must contain finite numbers."
+                        }
+                    }
+                }
+            }
+            if ((Get-PropertyNames $payload) -contains 'scale2') {
+                $value = $payload.scale2
+                if ($value -isnot [ValueType] -or [double]::IsNaN([double]$value) -or
+                    [double]::IsInfinity([double]$value) -or
+                    [double]$value -le 0 -or [double]$value -gt 1e9) {
+                    throw 'payload.scale2 must be positive and bounded.'
+                }
+            }
+        }
+
         default {
             throw "No local validator exists for '$commandId'."
         }
@@ -314,6 +345,8 @@ foreach ($name in @(
     [void](New-Item -ItemType Directory -Force -Path $path)
     $dirs[$name] = $path
 }
+$captureDir = Join-Path $dirs['results'] 'captures'
+[void](New-Item -ItemType Directory -Force -Path $captureDir)
 
 $mutex = New-Object System.Threading.Mutex($false, [string]$config.poll_lock_name)
 $hasMutex = $false
@@ -405,12 +438,32 @@ try {
 
             Test-DocumentPreconditions $job $statusRun.Envelope
 
+            $workerPayload = $job.payload
+            if ($job.command_id -ceq 'sw.capture_view') {
+                $workerPayload | Add-Member -NotePropertyName 'capture_id' -NotePropertyValue $jobId
+                $workerPayload | Add-Member -NotePropertyName 'document_title_exact' -NotePropertyValue $job.preconditions.document_title_exact
+                $workerPayload | Add-Member -NotePropertyName 'document_path_exact' -NotePropertyValue $job.preconditions.document_path_exact
+                $env:CADGROUNDED_CAPTURE_ROOT = $captureDir
+            }
             $request = [ordered]@{
                 command_id = [string]$job.command_id
-                payload = $job.payload
+                payload = $workerPayload
             }
 
-            $workerRun = Invoke-WorkerJson $workerExe $request $workerOut $workerErr
+            try {
+                $workerRun = Invoke-WorkerJson $workerExe $request $workerOut $workerErr
+            } finally {
+                Remove-Item Env:CADGROUNDED_CAPTURE_ROOT -ErrorAction SilentlyContinue
+            }
+            if ($job.command_id -ceq 'sw.capture_view' -and [bool]$workerRun.Envelope.ok) {
+                $image = Join-Path $captureDir "$jobId.png"
+                if ([string]$workerRun.Envelope.data.image_file_name -cne "$jobId.png" -or
+                    -not (Test-Path -LiteralPath $image -PathType Leaf) -or
+                    (Get-FileHash -LiteralPath $image -Algorithm SHA256).Hash.ToLowerInvariant() -cne
+                    [string]$workerRun.Envelope.data.image_sha256) {
+                    throw 'Capture image is missing or does not match the worker SHA-256.'
+                }
+            }
             $finished = [DateTimeOffset]::UtcNow.ToString('o')
 
             if ([bool]$workerRun.Envelope.ok) {

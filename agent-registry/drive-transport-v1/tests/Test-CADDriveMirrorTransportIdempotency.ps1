@@ -111,7 +111,39 @@ try {
     Assert-True ($preverifiedPublishCount -eq 0) "Preverified result was unnecessarily republished $preverifiedPublishCount time(s)."
     Assert-True (-not (Test-Path -LiteralPath $mirrorRequest2)) 'Preverified result did not allow matching request retirement.'
 
-    Write-Output 'PASS: mirror result publication is idempotent and verified-result request retirement is preserved.'
+    # Scenario 3: a capture result cannot be published until its matching PNG
+    # exists and passes SHA-256. A subsequent run publishes the image first.
+    $job3 = 'capture-image-gate'
+    $request3Name = $job3 + '.job.json'
+    $result3Name = $job3 + '.result.json'
+    $imageName = $job3 + '.png'
+    $localCaptures = Join-Path (Join-Path $localRoot 'results') 'captures'
+    [void](New-Item -ItemType Directory -Force -Path $localCaptures)
+    $localImage = Join-Path $localCaptures $imageName
+    [IO.File]::WriteAllBytes($localImage, [byte[]](137,80,78,71,13,10,26,10,1,2,3))
+    $imageHash = (Get-FileHash -LiteralPath $localImage -Algorithm SHA256).Hash.ToLowerInvariant()
+    Write-JsonUtf8NoBom -Path (Join-Path (Join-Path $localRoot 'results') $result3Name) -Value ([ordered]@{
+        job_id = $job3
+        runner_write_authority = 'NONE'
+        state = 'completed'
+        request_file_name = $request3Name
+        worker_response = [ordered]@{
+            command_id = 'sw.capture_view'
+            data = [ordered]@{ image_file_name = $imageName; image_sha256 = $imageHash }
+        }
+    })
+    [IO.File]::WriteAllBytes($localImage, [byte[]](1,2,3))
+    & $transport -ConfigPath $configPath | Out-Null
+    $mirrorResult3 = Join-Path (Join-Path $mirrorRoot 'results') $result3Name
+    Assert-True (-not (Test-Path -LiteralPath $mirrorResult3)) 'Hash-mismatched capture result was published.'
+    [IO.File]::WriteAllBytes($localImage, [byte[]](137,80,78,71,13,10,26,10,1,2,3))
+    & $transport -ConfigPath $configPath | Out-Null
+    $mirrorImage3 = Join-Path (Join-Path (Join-Path $mirrorRoot 'results') 'captures') $imageName
+    Assert-True (Test-Path -LiteralPath $mirrorImage3 -PathType Leaf) 'Verified capture image was not published.'
+    Assert-True (Test-Path -LiteralPath $mirrorResult3 -PathType Leaf) 'Capture result was not published after its image.'
+    Assert-True ((Get-FileHash -LiteralPath $mirrorImage3 -Algorithm SHA256).Hash.ToLowerInvariant() -ceq $imageHash) 'Mirrored image hash mismatch.'
+
+    Write-Output 'PASS: idempotent JSON publication, verified capture image gate, and request retirement.'
 }
 finally {
     if (Test-Path -LiteralPath $testRoot) {
