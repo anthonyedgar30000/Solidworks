@@ -1,0 +1,41 @@
+{
+  "record_type": "plan_reconciliation",
+  "schema_version": 1,
+  "record_id": "RECON-0015",
+  "project_id": "CADGROUNDED.IXOR",
+  "reconciled_at_utc": "2026-09-27T22:13:10Z",
+  "plan_id": "PLAN-0011",
+  "revised_plan_id": "PLAN-0011",
+  "raw_observation_ids": [],
+  "actual_actions": [
+    {
+      "action_id": "ACT_DERIVE_V43_POP_OPEN_ENVELOPE",
+      "write_authority": "NONE",
+      "result": "COMMON_TRANSLATION_REJECTED_INDEPENDENT_PIVOT_VARIANT_SURVIVES_ANALYTIC_SCREEN",
+      "reason": "Fresh v43 transforms plus admitted exact closed-state contact and Link-1/reaction-base clearance were projected into the frozen PLAN-0011 POP envelope. A common rigid -X translation needs at least 23.002972612 mm roller retreat but encounters the admitted 1.25 mm Link-1/reaction-base gap. An independent two-pivot arm variant can reach zero-margin and a hypothetical 2 mm screening open corridor in the ideal planar model without requiring the same common translation."
+    },
+    {
+      "action_id": "ACT_PRESERVE_PIVOT_VARIANT_AS_HYPOTHETICAL",
+      "write_authority": "NONE",
+      "result": "NO_MECHANISM_PROMOTION",
+      "reason": "The candidate pivot axes are derived POP hypotheses only. Existing zero-mate evidence remains authoritative against treating the current assembly as already defining these joints."
+    },
+    {
+      "action_id": "ACT_DEFINE_NEXT_EXACT_NO_MUTATION_SWEEP",
+      "write_authority": "NONE",
+      "result": "READ_ONLY_TEST_REQUIRED",
+      "reason": "Approximate envelope screening exposes a roughly 2 mm Z separation near index-stop geometry and no whole-body exact swept-state evidence yet exists. The variant cannot progress to CAD creation or mechanical acceptance until a temporary-body exact sweep is executed and read back."
+    }
+  ],
+  "step_outcomes": [
+    {
+      "step_id": "P0011.4",
+      "outcome": "PARTIAL_PREFLIGHT_COMPLETE_EXACT_WHOLE_BODY_HYPOTHETICAL_SWEEP_REQUIRED",
+      "evidence_id": "E.FUNCTION_FIRST.MECHANISM_REFERENCE_SOURCE_BOUNDARY.20260927T212442Z",
+      "artifact": "agent-registry/reasoning/candidates/v43-prism-dual-pivot-pop-preflight.v1.json"
+    }
+  ],
+  "conclusion": "Candidate A's admitted closed three-contact topology remains useful. The current v43 geometry does not support a common rigid translating opening interpretation, but an explicitly re-authored two-independent-pivot POP variant survives an ideal planar motion screen. That variant remains hypothetical because no pivot joints, actuator, compliance law, reaction bearing path, or exact whole-body swept clearance has been verified. PLAN-0011 stays at P0011.4 for a read-only exact hypothetical sweep; no SOLIDWORKS write is authorized.",
+  "mechanical_acceptance_granted": false,
+  "write_authority": "NONE"
+}
