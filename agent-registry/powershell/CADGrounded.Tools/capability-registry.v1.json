@@ -233,6 +233,32 @@
       ]
     },
     {
+      "id": "cg.verifier.function-first.lateral-contact-manifold",
+      "command": "Invoke-CGRegisteredVerifier",
+      "status": "IMPLEMENTED",
+      "category": "product_handling",
+      "engineering_question": "For the three exact current lateral bottle contacts, what are the analytic trimmed B-rep contact manifolds and does an ideal maintained frictionless finite-line model add the missing independent restraint while preserving bottle wrap rotation?",
+      "execution_kind": "registered_verifier",
+      "verifier_path": "agent-registry/workers/CadGrounded.SolidWorksWorker/Verify-ContactManifold-FunctionFirst-LateralContacts.ps1",
+      "write_authority": "NONE",
+      "remote_queue_authorized": false,
+      "establishes": [
+        "exact current-pose analytic surface type at each lateral contact",
+        "trimmed contact-face assembly-Z extent from bounded closest-point probes on transformed temporary B-rep faces",
+        "cylinder-plane or parallel-cylinder generator-line tangency where supported",
+        "ideal finite-line normal-constraint rank/nullity",
+        "pre/post no-mutation evidence"
+      ],
+      "does_not_establish": [
+        "unilateral contact maintenance, preload, compliance, deformation, or force capacity",
+        "friction/traction or driven wrap torque",
+        "gravity/up semantics",
+        "interval-wide restraint or reachable motion",
+        "mechanism selection",
+        "mechanical acceptance"
+      ]
+    },
+    {
       "id": "cg.contact.surface-normal",
       "future_command": "Get-CGContactSurfaceNormalEvidence",
       "status": "PLANNED",
