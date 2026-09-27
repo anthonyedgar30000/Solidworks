@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "record_type": "bounded_source_search_exhaustion_review",
+  "review_id": "R.PLAN-0010.CAPTURE_OWNER_SOURCE_SEARCH_EXHAUSTION.20260927T214822Z",
+  "plan_id": "PLAN-0010",
+  "reviewed_at_utc": "2026-09-27T21:48:22Z",
+  "review_state": "ACCESSIBLE_SOURCE_PATH_EXHAUSTED_NOT_GLOBAL_NONEXISTENCE",
+  "purpose": "Close the currently accessible project/OEM integration-source search for a project-specific bottle-centering owner without inferring that no unpublished/private source exists, and define the boundary for transition into explicit mechanism engineering / proof-of-principle.",
+  "search_surfaces": [
+    {
+      "surface": "SOLIDWORKS_LIVE_STATE",
+      "scope": "Fresh nested sw_query_components(top_level_only=false) on active v43 assembly; 64 components inspected with targeted name/path search for PRISM, roller, belt, carrier, slider, actuator, spring, cylinder, pneumatic, wrap, centering and guide terms.",
+      "result": "Relevant closure-like geometry is project FITCHECK geometry. No non-FITCHECK project/OEM component was identified as the bottle-centering closure owner. FITCHECK_PRISM_ACTUATOR_ENVELOPE remains an envelope, not an identified actuator.",
+      "limitation": "Component inventory and naming cannot prove that no mechanism exists in features, unpublished configurations, external assemblies, or unavailable integration sources."
+    },
+    {
+      "surface": "GOOGLE_DRIVE_PROJECT_REFERENCE",
+      "scope": "Bounded searches for product centering, roller prism, centering prism, IXOR prism, Aesus, labeler prism and integration bottle centering.",
+      "result": "Accessible matches resolve primarily to CAB IXOR+/ROXI manuals/catalog material; no project-specific integrator drawing, BOM, or centering assembly source was found.",
+      "limitation": "Drive search is best-effort retrieval, not proof that no unindexed, inaccessible, differently named, or external document exists."
+    },
+    {
+      "surface": "GITHUB_PROJECT_STATE",
+      "scope": "Current PLAN-0010 source review, function-first frontier, v43 Prism functional-temporal reference and reconciliation history.",
+      "result": "Project state consistently preserves CAPTURE_KINEMATIC_OWNER as unresolved; v43 Prism is candidate/FITCHECK geometry and comparative publisher references do not bind ownership.",
+      "limitation": "GitHub contains versioned project knowledge only; absence of an external source from the repository is not evidence that such a source does not exist."
+    },
+    {
+      "surface": "CAB_OFFICIAL_PUBLIC_DOCUMENTATION",
+      "scope": "Current IXOR+ 04/2026 assembly instructions plus current IXOR+ public product/accessory/download surfaces.",
+      "result": "IXOR+ documentation exposes PRISM as input pin 2 for starting product centering, with roller prism as an example. The public IXOR+ accessory surface documents demand units, carriages, wipe-down rollers/brushes, mounting rods, sensors and stands but does not identify a roller-prism product-handling mechanism or its actuator/mounting.",
+      "limitation": "Public CAB documentation does not establish the complete universe of customer-specific or partner integration hardware."
+    }
+  ],
+  "authoritative_source_findings": [
+    {
+      "source_id": "CAB.IXORPLUS.ASSEMBLY_INSTRUCTIONS.202604",
+      "source_authority": "OEM_DOCUMENTATION",
+      "url": "https://www.cab.de/media/pushfile.cfm?file=4542",
+      "bounded_claim": "The START interface separates PRISM IN 'Start product centering (e.g. roller prism)' from START IN 'Start labeling'.",
+      "does_not_establish": [
+        "physical centering owner",
+        "actuator identity",
+        "closure or release travel",
+        "limits",
+        "preload/compliance",
+        "reaction-force path",
+        "bottle rotation drive",
+        "v43 mounting"
+      ]
+    },
+    {
+      "source_id": "CAB.IXORPLUS.PUBLIC_PRODUCT_ACCESSORY_SURFACE.20260927",
+      "source_authority": "OEM_DOCUMENTATION",
+      "url": "https://www.cab.de/en/marking/print-apply/ixorplus/",
+      "bounded_claim": "The current public IXOR+ product/accessory page describes the labeling head and listed accessories but does not identify a roller-prism product-handling mechanism.",
+      "does_not_establish": [
+        "that CAB never supplies or integrates a roller prism",
+        "that no private/customer-specific centering assembly exists"
+      ]
+    }
+  ],
+  "comparative_pattern_references": [
+    {
+      "source_id": "HERMA.211.ROLLER_PRISM",
+      "source_role": "COMPARATIVE_OEM_PATTERN_ONLY",
+      "url": "https://www.herma.at/maschinen/produkte/halbautomatische-etikettiermaschinen/rundum-etikettierer-211/",
+      "bounded_paraphrase": "HERMA describes a roller-prism station in which the product is positioned by a stop, rotated by a rotation unit, and labeled by a pivoting peel edge/pressure roller; a separate HERMA 500 base unit drives the roller prism.",
+      "relevance": "Shows that a roller prism can be a distinct driven product-handling subsystem rather than a passive property of the label dispenser.",
+      "project_authority": "NONE"
+    },
+    {
+      "source_id": "HERMA.152C.ROLLER_PRISM",
+      "source_role": "COMPARATIVE_OEM_PATTERN_ONLY",
+      "url": "https://www.herma.us/machines/types-of-labeling/wrap-around-labeling/",
+      "bounded_paraphrase": "HERMA describes its roller prism as rotating and fixing the product during labeling.",
+      "relevance": "Supports the functional class of a combined restraint/rotation subsystem.",
+      "project_authority": "NONE"
+    },
+    {
+      "source_id": "AESUS.PRISM_ROLLER_SYSTEM",
+      "source_role": "COMPARATIVE_VENDOR_PATTERN_ONLY",
+      "url": "https://aesus.com/labelers/labelers-wrap/",
+      "bounded_paraphrase": "Aesus describes twin adjustable rollers pressing a container against a wrap belt for alignment/support.",
+      "relevance": "Supports a common roller-plus-wrap-belt capture architecture class.",
+      "project_authority": "NONE"
+    }
+  ],
+  "exhaustion_conclusion": {
+    "state": "ACCESSIBLE_AUTHORITATIVE_INTEGRATION_SOURCE_SEARCH_EXHAUSTED",
+    "unresolved_fact": "CAPTURE_KINEMATIC_OWNER",
+    "preserved_bucket": "OEM_SOURCE_REQUIRED",
+    "interpretation": "No accessible authoritative source currently binds the project-specific physical centering owner. This does not convert the unknown into a negative fact and does not reject any candidate family.",
+    "reopen_conditions": [
+      "new OEM/integrator CAD or drawing",
+      "project BOM or assembly documentation tied to the actual machine",
+      "CAB/partner response naming the product-centering assembly",
+      "other authoritative source with exact owner/mounting/kinematic binding"
+    ]
+  },
+  "transition_authorization_scope": "Project-state planning only. No SOLIDWORKS geometry creation, movement, mating, save, or other CAD mutation is authorized.",
+  "cad_write_authority": "NONE",
+  "mechanical_acceptance_granted": false
+}
