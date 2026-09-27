@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "record_type": "evidence",
+  "evidence_id": "E.FUNCTION_FIRST.BOTTLE_WRAP_AXIS_BINDING.20260927T090433245Z",
+  "evidence_type": "deterministic_calculation",
+  "evidence_state": "MEASURED_CALCULATED",
+  "source_authority": "DETERMINISTIC_CALCULATION",
+  "source_classification": "measured_calculated_from_live_brep_and_admitted_function_first_evidence",
+  "subject": {
+    "subject_type": "function_first_bottle_wrap_axis_binding",
+    "identity_exact": "BENCH_BOTTLE_D48_H180-2 cylindrical longitudinal axis ↔ admitted contact common-axis candidate ↔ functional rotation_wrap_axis",
+    "document_title_exact": "IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE",
+    "document_path_exact": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE.SLDASM"
+  },
+  "provenance": {
+    "recorded_at": "2026-09-27T09:04:33.2451086Z",
+    "source_ref": "Deterministic comparison of E.FUNCTION_FIRST.BOTTLE_AXIS.20260927T090433245Z, E.FUNCTION_FIRST.BOTTLE_CONTACT_CONSTRAINT.20260927T084903368Z, and E.FUNCTION_FIRST.BOTTLE_DOF.20260927T075043247Z",
+    "tool_path": "bounded line coincidence and functional-axis projection"
+  },
+  "dependencies": [
+    "E.FUNCTION_FIRST.BOTTLE_AXIS.20260927T090433245Z",
+    "E.FUNCTION_FIRST.BOTTLE_CONTACT_CONSTRAINT.20260927T084903368Z",
+    "E.FUNCTION_FIRST.BOTTLE_DOF.20260927T075043247Z"
+  ],
+  "geometry_state": "CANDIDATE_OPERATING",
+  "temporal_scope": {
+    "coverage": "POINT_ONLY",
+    "validity_state": "CURRENT",
+    "state_ids": [],
+    "transition_ids": []
+  },
+  "ambiguity_bucket": "KINEMATIC_STATE_UNRESOLVED",
+  "mechanical_acceptance_granted": false,
+  "payload": {
+    "method": "Compare the live B-rep D48 main-body cylinder axis to the admitted three-contact common-axis candidate, then apply the admitted functional definition that rotation_wrap_axis is rotation about the bottle upright longitudinal axis.",
+    "inputs": [
+      "Live main D48 bottle cylinder axis point [-153.42061528267112,-214,950] mm and direction [0,0,1]",
+      "Admitted contact common-axis candidate XY [-153.42061528267115,-214] mm and direction [0,0,1]",
+      "Functional definition: rotation_wrap_axis = rotation about the bottle's upright longitudinal axis used for circumferential label wrapping"
+    ],
+    "result": {
+      "axis_line_xy_offset_mm": 2.842170943040401e-14,
+      "axis_direction_dot": 1,
+      "axis_coincidence_state": "SUPPORTED_WITHIN_NUMERICAL_PRECISION",
+      "bound_geometric_axis": {
+        "point_on_axis_mm": [
+          -153.42061528267112,
+          -214,
+          950
+        ],
+        "direction_assembly": [
+          0,
+          0,
+          1
+        ],
+        "sign_semantics": "UNDIRECTED_AXIS; positive/negative rotational sense unresolved"
+      },
+      "functional_projection": {
+        "rotation_wrap_axis_cad_binding": "BOUND_TO_BOTTLE_LONGITUDINAL_AXIS_AT_CURRENT_POSE",
+        "rotation_wrap_axis_assembly_line": "XY [-153.42061528267112,-214] mm, direction parallel to assembly Z",
+        "assembly_xy_lateral_normal_closure_relation": "The admitted belt + two roller frictionless normal closure acts in the plane perpendicular to the bound wrap axis and does not create normal-reaction moment about that axis at the recorded pose.",
+        "translation_vertical_axis_relation": "The observed bottle/conveyor contact normal is parallel to the same assembly-Z axis, so vertical relative-to-support-plane translation can be geometrically mapped to the conveyor-normal/bottle-axis direction; gravity sign remains unresolved."
+      },
+      "unresolved": [
+        "gravity/up vector or sign in the assembly frame",
+        "bottle rotational sense, drive source, speed, acceleration, phase, and traction sufficiency",
+        "tilt stabilization",
+        "preload/compliance and maintenance of lateral contacts",
+        "contact-manifold extent over the lateral surfaces",
+        "interval-wide behavior across indexing, capture, transfer, wrap, and release",
+        "mechanism selection and mechanical acceptance"
+      ]
+    }
+  }
+}
