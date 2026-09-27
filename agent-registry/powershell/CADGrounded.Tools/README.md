@@ -98,6 +98,19 @@ Get-CGMateBinding -Name2 @(
 ) -ExpectedConfiguration V43_WRAP
 ```
 
+
+### Get-CGBottleContactConstraintMap
+
+Projects admitted bottle contact-point and face-normal evidence into a mechanism-neutral first-order constraint map. It calculates lateral normal-line concurrence, positive compressive normal closure in assembly XY, and normal-force moment about the derived common-axis candidate.
+
+By default it also requires the currently active assembly/configuration and assembly-file SHA-256 to match the admitted observation. Use `-EvidenceOnly` only for deterministic replay/CI of the admitted snapshot.
+
+```powershell
+Get-CGBottleContactConstraintMap -AsJson
+```
+
+This command deliberately does **not** establish gravity/up semantics, tilt restraint, frictional drive torque, preload, interval-wide contact, mechanism selection, or mechanical acceptance.
+
 ### Get-CGCurrentPlan / Get-CGInvestigationFrontier
 
 Reads the durable GitHub project-state files from the checked-out repository.
