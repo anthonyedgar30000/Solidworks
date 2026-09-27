@@ -73,6 +73,17 @@ Test-CGContactPair `
   -ExpectedConfiguration V43_WRAP
 ```
 
+
+### Get-CGCurrentBottleContacts
+
+Observes the exact current-pose relation between the benchmark bottle and an explicit bounded list of candidate components by composing the reviewed pair-contact primitive. It intentionally does **not** promote contact into functional support/restraint without directional evidence.
+
+```powershell
+Get-CGCurrentBottleContacts -AsJson
+```
+
+Defaults currently observe the bottle against the conveyor, driven wrap belt, both support rollers, and both index-stop fingers. Override `-CandidateName2` with exact `Component2.Name2` values when a different bounded set is justified. Pair contact observations can later be combined with the separately governed surface-normal capability once that candidate is independently host-verified and promoted.
+
 ### Test-CGTopologyChain
 
 Composes exact adjacent pair contact checks over an explicitly ordered chain. It does not infer that numbering or proximity implies mechanical pairing.
