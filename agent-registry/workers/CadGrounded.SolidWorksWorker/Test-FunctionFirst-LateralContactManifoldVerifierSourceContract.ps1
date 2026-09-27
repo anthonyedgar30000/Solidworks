@@ -38,6 +38,7 @@ foreach ($required in @(
     'EXTERNAL_TANGENT_PARALLEL_CYLINDER_GENERATOR_LINE',
     'five_dof_restraint_excluding_wrap_rotation',
     "write_authority='NONE'",
+        "$ExpectedWorkerVersion = '0.4.5'",
     'mechanical_acceptance_granted=$false'
 )) {
     Assert-True ($source.Contains($required)) "Verifier source is missing required token '$required'."
