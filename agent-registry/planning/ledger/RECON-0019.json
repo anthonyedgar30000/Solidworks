@@ -1,0 +1,43 @@
+{
+  "record_type": "plan_reconciliation",
+  "schema_version": 1,
+  "record_id": "RECON-0019",
+  "project_id": "CADGROUNDED.IXOR",
+  "reconciled_at_utc": "2026-09-27T23:26:00Z",
+  "plan_id": "PLAN-0011",
+  "revised_plan_id": "PLAN-0011",
+  "raw_observation_ids": [
+    "E.V43.PRISM.DUAL_PIVOT_GUIDE_RAIL_INTERFERENCE.20260927T231617920Z"
+  ],
+  "review_id": "R.PLAN-0011.V43_DUAL_PIVOT_GUIDE_RAIL_INTERFERENCE.20260927T232600Z",
+  "actual_actions": [
+    {
+      "action_id": "ACT_REVIEW_DUAL_PIVOT_INTERFERENCE_RESULT",
+      "write_authority": "NONE",
+      "result": "EXACT_TESTED_PATH_DISPROVEN",
+      "reason": "Positive exact B-rep intersections with both corresponding fixed guide rails invalidate the tested dual-pivot motion path."
+    },
+    {
+      "action_id": "ACT_BOUND_NEGATIVE_EVIDENCE_SCOPE",
+      "write_authority": "NONE",
+      "result": "BROADER_PIVOTING_CLASS_REMAINS_OPEN",
+      "reason": "The evidence applies to the exact tested pivots/path/current rail geometry only and does not generalize to all pivoting architectures."
+    },
+    {
+      "action_id": "ACT_STOP_LOW_VALUE_RESAMPLING",
+      "write_authority": "NONE",
+      "result": "FRONTIER_ADVANCED",
+      "reason": "Further densification of the same failed motion path has low diagnostic value after decisive positive interference; investigation should change architecture or geometry assumptions instead."
+    }
+  ],
+  "step_outcomes": [
+    {
+      "step_id": "P0011.4",
+      "outcome": "TESTED_DUAL_PIVOT_PATH_DISPROVEN; CANDIDATE_A_REMAINS_WEAKENED_ACTIVE; NEXT_ARCHITECTURE_TEST_REQUIRED",
+      "evidence_id": "E.V43.PRISM.DUAL_PIVOT_GUIDE_RAIL_INTERFERENCE.20260927T231617920Z"
+    }
+  ],
+  "conclusion": "The exact v43 dual-independent-pivot POP path is disproven by verified guide-rail B-rep interference. Candidate A's closed contact topology remains useful, but this particular opening law is exhausted. Broader pivoting, translating-carrier, and moving-wrap-belt architecture classes remain unresolved. PLAN-0011 stays in mechanism engineering with the next test required to change the candidate motion architecture rather than resample the failed path.",
+  "mechanical_acceptance_granted": false,
+  "write_authority": "NONE"
+}
