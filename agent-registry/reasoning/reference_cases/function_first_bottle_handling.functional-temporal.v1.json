@@ -270,7 +270,8 @@
         "E.FUNCTION_FIRST.CAB_IXORPLUS.CENTERING_INTERFACE.20260927T212442Z",
         "E.FUNCTION_FIRST.HERMA_152C.WRAP_CONFIGURATION.20260927T212442Z",
         "E.FUNCTION_FIRST.HERMA_152C.ROLLER_PRISM_BEHAVIOR.20260927T212442Z",
-        "E.FUNCTION_FIRST.MECHANISM_REFERENCE_SOURCE_BOUNDARY.20260927T212442Z"
+        "E.FUNCTION_FIRST.MECHANISM_REFERENCE_SOURCE_BOUNDARY.20260927T212442Z",
+        "E.FUNCTION_FIRST.PROJECT_SPECIFIC_CAPTURE_OWNER_LIVE_PROBE.20260927T213948Z"
       ],
       "depends_on_requirement_ids": [
         "BOTTLE_REQUIRED_DOF_BOUND",
@@ -3838,12 +3839,128 @@
           ]
         }
       }
+    },
+    {
+      "schema_version": 1,
+      "record_type": "evidence",
+      "evidence_id": "E.FUNCTION_FIRST.PROJECT_SPECIFIC_CAPTURE_OWNER_LIVE_PROBE.20260927T213948Z",
+      "evidence_type": "solidworks_observation",
+      "evidence_state": "VERIFIED",
+      "source_authority": "SOLIDWORKS_LIVE_STATE",
+      "source_classification": "verified_from_solidworks_api",
+      "subject": {
+        "subject_type": "function_first_project_specific_capture_owner_binding_probe",
+        "identity_exact": "BENCH_BOTTLE_D48_H180-2; FITCHECK_DRIVEN_WRAP_BELT_5x160x93_V25-1; FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25-1/-2; FITCHECK_PRISM_REACTION_BASE_70x120x20_V43-1; FITCHECK_PRISM_GUIDE_RAIL_100x10x10_V43-1/-2; FITCHECK_PRISM_CARRIER_SLIDER_15x80x60_V43-1; FITCHECK_PRISM_ACTUATOR_ENVELOPE_45x35x35_V43-1; FITCHECK_PRISM_LINK_15x10x25_V43-1/-2; FITCHECK_PRISM_ARM1_33p0824x10x5_V43-1; FITCHECK_PRISM_ARM2_18p6806x10x5_V43-1; FITCHECK_INDEX_STOP_FINGER_54p25x6x20_V37-1/-2; 6130648 AL and 6130649 AR carriage references",
+        "document_title_exact": "IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE",
+        "document_path_exact": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE.SLDASM"
+      },
+      "provenance": {
+        "recorded_at": "2026-09-27T21:39:48Z",
+        "source_ref": "Fresh live SOLIDWORKS reads: sw_status; sw_query_components(top_level_only=true); read-only mate probe source SHA256 8b3612e248e267b3f98b9495c94d92d79fc8c193547a901f8ebc3aac270d4f8c; read-only broad top-level scan source SHA256 091bd7982fc6c73d1660e46865896d331d40e3643a962f9d78cb5a0e2a0233e6; read-only full nested inventory scan source SHA256 22e9a48c091d1d23a2b76376c8631cc11ec9acf075a0008edc5ea01ec0249f9a.",
+        "tool_path": "sw_status -> sw_query_components -> sw_execute_code(read-only mate probe) -> sw_execute_code(read-only top-level scan) -> sw_execute_code(read-only full nested scan)"
+      },
+      "dependencies": [
+        "E.FUNCTION_FIRST.CONTACT_MAINTENANCE_SOURCE_PROBE.20260927T150842223Z",
+        "E.FUNCTION_FIRST.MECHANISM_REFERENCE_SOURCE_BOUNDARY.20260927T212442Z",
+        "PLAN-0010"
+      ],
+      "geometry_state": "CANDIDATE_OPERATING",
+      "temporal_scope": {
+        "coverage": "POINT_ONLY",
+        "validity_state": "CURRENT",
+        "state_ids": [],
+        "transition_ids": []
+      },
+      "ambiguity_bucket": "OEM_SOURCE_REQUIRED",
+      "mechanical_acceptance_granted": false,
+      "payload": {
+        "observation_kind": "project_specific_capture_owner_binding_probe",
+        "document": {
+          "title": "IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE",
+          "path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE.SLDASM",
+          "active_configuration_exact": "V43_WRAP"
+        },
+        "full_component_inventory_count": 64,
+        "top_level_component_count": 58,
+        "zero_incident_mate_targets": [
+          "BENCH_BOTTLE_D48_H180-2",
+          "FITCHECK_DRIVEN_WRAP_BELT_5x160x93_V25-1",
+          "FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25-1",
+          "FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25-2",
+          "FITCHECK_PRISM_REACTION_BASE_70x120x20_V43-1",
+          "FITCHECK_PRISM_GUIDE_RAIL_100x10x10_V43-1",
+          "FITCHECK_PRISM_GUIDE_RAIL_100x10x10_V43-2",
+          "FITCHECK_PRISM_CARRIER_SLIDER_15x80x60_V43-1",
+          "FITCHECK_PRISM_ACTUATOR_ENVELOPE_45x35x35_V43-1",
+          "FITCHECK_PRISM_LINK_15x10x25_V43-1",
+          "FITCHECK_PRISM_LINK_15x10x25_V43-2",
+          "FITCHECK_PRISM_ARM1_33p0824x10x5_V43-1",
+          "FITCHECK_PRISM_ARM2_18p6806x10x5_V43-1",
+          "FITCHECK_INDEX_STOP_FINGER_54p25x6x20_V37-1",
+          "FITCHECK_INDEX_STOP_FINGER_54p25x6x20_V37-2"
+        ],
+        "nested_name_scan": {
+          "spring_or_spring_synonym_matches": [],
+          "pneumatic_or_cylinder_matches": [],
+          "actuator_matches": [
+            "FITCHECK_PRISM_ACTUATOR_ENVELOPE_45x35x35_V43-1"
+          ],
+          "carriage_matches": [
+            "6130648_01_Carriage_Schlitten_AL_NATIVE_PORTABLE_V22-1",
+            "6130649_01_Carriage_Schlitten_AR_NATIVE_PORTABLE_V20-1"
+          ],
+          "note": "The floor-stand virtual component Name2 strings inherit the parent assembly title containing PRISM and are not interpreted as prism mechanism identity."
+        },
+        "carriage_reference_state": [
+          {
+            "name2": "6130648_01_Carriage_Schlitten_AL_NATIVE_PORTABLE_V22-1",
+            "incident_active_assembly_mate_count": 0,
+            "translation_mm": [
+              650,
+              500,
+              1500
+            ]
+          },
+          {
+            "name2": "6130649_01_Carriage_Schlitten_AR_NATIVE_PORTABLE_V20-1",
+            "incident_active_assembly_mate_count": 0,
+            "translation_mm": [
+              500,
+              500,
+              1500
+            ]
+          }
+        ],
+        "related_reference_transform": {
+          "name2": "6130460_03_AR60_NATIVE_PORTABLE_V18-2",
+          "translation_mm": [
+            484.7308852396768,
+            527.8630980015928,
+            1512.441354942933
+          ],
+          "note": "Transform recorded by fresh sw_query_components; no ownership or contact relationship is inferred from presence."
+        },
+        "admitted_claims": [
+          "The active document is IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE in configuration V43_WRAP with 64 components in the full nested inventory at the recorded point.",
+          "Each of the fifteen exact bottle-handling fit-check targets listed in zero_incident_mate_targets has zero incident active-assembly mates at the recorded point.",
+          "The full nested component-name scan found no spring/feder name match and no pneumatic/cylinder/zylinder name match; the only actuator-name match is FITCHECK_PRISM_ACTUATOR_ENVELOPE_45x35x35_V43-1, which has zero incident active-assembly mates.",
+          "The exact AL and AR carriage references are present but have zero incident active-assembly mates and are parked at the recorded transforms rather than being bound into the bottle-handling fit-check chain.",
+          "The current active V43_WRAP assembly therefore does not bind a project-specific physical capture owner, closure/release mate chain, actuator, spring/compliance owner, or motion law for the bottle-handling contact set."
+        ],
+        "explicitly_not_claimed": [
+          "The absence of a bound owner in the active assembly does not prove that no project-specific integrator drawing, PLC sequence, external mechanism, or OEM application specification exists elsewhere.",
+          "Name-based absence does not prove that an unnamed or external spring, cylinder, actuator, or compliant element cannot exist.",
+          "This observation does not rank or select a translating carrier, pivoting carrier, moving belt, compliant-preload architecture, or the retained V43 Prism candidate.",
+          "This observation does not establish stroke, limits, preload, force, stiffness, friction, traction, reaction capacity, release behavior, reachable-state clearance, interval-wide contact maintenance, or mechanical acceptance."
+        ],
+        "selection_status": "NOT_SELECTED"
+      }
     }
   ],
   "next_tests": [
     {
-      "id": "TEST_FUNCTION_FIRST_PROJECT_SPECIFIC_CAPTURE_OWNER_BINDING",
-      "question": "Acquire and bind authoritative project-specific evidence for the actual bottle-handling owner in v43. Search project/OEM CAD and integration documentation first, then accepted deterministic specifications. Require exact owner/component identity and mounting plus closure and release motion, limits, contact-maintenance method, rotation input, and reaction support. If a source names an owner, bind it to fresh live SOLIDWORKS identity before any candidate geometry is created or moved. Preserve the admitted CAB IXOR+ interface evidence and HERMA references as mechanism-pattern precedent only; do not transfer comparative hardware into v43, do not infer hidden actuators/springs, and do not rank or select a candidate until project-specific ownership is established.",
+      "id": "TEST_FUNCTION_FIRST_CAPTURE_OWNER_SOURCE_ESCALATION",
+      "question": "Fresh live V43_WRAP inspection found no active-assembly mate chain binding the bottle, driven wrap belt, support rollers, Prism fit-check parts, actuator envelope, or index stops into a project-specific capture mechanism; the full 64-component nested inventory also exposed no named spring/feder or pneumatic/cylinder/zylinder owner. Escalate to project-specific integration/OEM application evidence such as a machine-build drawing or BOM, PLC/I/O or sequence specification, roller-prism or centering-module drawing, integrator mechanical drawing, or an accepted deterministic/human project specification that names the exact physical owner and mounting plus closure and release motion, limits, contact-maintenance method, rotation input, and reaction support. If an owner is named, bind it back to fresh live SOLIDWORKS identity if present. If the owner is intentionally external or not modeled, require that fact explicitly before creating or moving candidate geometry. Preserve admitted CAB IXOR+ and HERMA material as interface/mechanism-pattern precedent only; do not infer hidden actuators or springs and do not rank or select a candidate.",
       "resolves_requirement_ids": [
         "CAPTURE_KINEMATIC_OWNER",
         "BOTTLE_RESTRAINT_THROUGHOUT_CAPTURE",
@@ -3859,7 +3976,7 @@
         "H_SPRING_OR_COMPLIANT_PRELOAD_MECHANISM"
       ],
       "discrimination_power": 1,
-      "evidence_confidence": 0.98,
+      "evidence_confidence": 0.99,
       "unresolved_relevance": 1,
       "cost": 2
     }
