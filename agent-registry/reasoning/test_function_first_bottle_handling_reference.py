@@ -151,7 +151,7 @@ class FunctionFirstBottleHandlingTests(unittest.TestCase):
             "otherwise UNRESOLVED",
             "MAINTENANCE_LAW_AUGMENTATION",
             "Do not rank, score, prefer, select",
-            "do not create/move CAD geometry",
+            "Do not rank, score, prefer, select, or create/move CAD geometry",
         ):
             self.assertIn(token, test["question"])
 
