@@ -1341,6 +1341,76 @@ function Get-CGBottleContactWrenchRank {
     Write-CGOutput -Value $result -AsJson:$AsJson
 }
 
+function Get-CGContactMaintenanceRequirements {
+    [CmdletBinding()]
+    param([switch]$AsJson)
+
+    $requirementsPath = Join-Path $script:RepositoryRoot 'agent-registry\reasoning\requirements\function-first-contact-maintenance.v1.json'
+    $sourceEvidencePath = Join-Path $script:RepositoryRoot 'agent-registry\reasoning\runtime\function-first-contact-maintenance-source-probe-20260927T150842223Z.json'
+
+    if (-not (Test-Path -LiteralPath $requirementsPath -PathType Leaf)) {
+        throw "Contact-maintenance requirement model not found: $requirementsPath"
+    }
+    if (-not (Test-Path -LiteralPath $sourceEvidencePath -PathType Leaf)) {
+        throw "Contact-maintenance source-probe evidence not found: $sourceEvidencePath"
+    }
+
+    $requirements = Get-Content -LiteralPath $requirementsPath -Raw | ConvertFrom-Json
+    $sourceEvidence = Get-Content -LiteralPath $sourceEvidencePath -Raw | ConvertFrom-Json
+
+    if ([string]$requirements.requirement_model_id -cne 'CADGROUNDED.IXOR.CONTACT_MAINTENANCE.V1') {
+        throw "Unexpected contact-maintenance requirement model id '$($requirements.requirement_model_id)'."
+    }
+    if ([string]$sourceEvidence.evidence_id -cne 'E.FUNCTION_FIRST.CONTACT_MAINTENANCE_SOURCE_PROBE.20260927T150842223Z') {
+        throw "Unexpected contact-maintenance source-probe evidence id '$($sourceEvidence.evidence_id)'."
+    }
+    if ([string]$sourceEvidence.evidence_state -cne 'VERIFIED' -or
+        [string]$sourceEvidence.source_authority -cne 'SOLIDWORKS_LIVE_STATE') {
+        throw 'Contact-maintenance source-probe evidence is not an admitted verified SOLIDWORKS observation.'
+    }
+
+    $data = [ordered]@{
+        requirement_model_id = [string]$requirements.requirement_model_id
+        basis_evidence_ids = @($requirements.basis_evidence_ids)
+        scope_states = @($requirements.scope_states)
+        transition_scope = @($requirements.transition_scope)
+        requirements = @($requirements.requirements)
+        unresolved_quantities = @($requirements.unresolved_quantities)
+        candidate_selection_status = [string]$requirements.candidate_selection_status
+        candidate_family_status = $requirements.candidate_family_status
+        source_probe = [ordered]@{
+            evidence_id = [string]$sourceEvidence.evidence_id
+            validity_state = [string]$sourceEvidence.temporal_scope.validity_state
+            component_inventory_count = [int]$sourceEvidence.payload.component_inventory_count
+            explicit_name_classification = $sourceEvidence.payload.explicit_name_classification
+            tested_targets = @($sourceEvidence.payload.targets | ForEach-Object {
+                [ordered]@{
+                    name2 = [string]$_.name2
+                    fixed_component = $_.fixed_component
+                    suppressed = $_.suppressed
+                    incident_active_assembly_mate_count = [int]$_.incident_active_assembly_mate_count
+                }
+            })
+        }
+    }
+
+    $result = New-CGEnvelope -CapabilityId 'cg.requirements.contact-maintenance' -Result 'PASS' -Data $data -SourceAuthority 'DETERMINISTIC_CALCULATION' -SourceClassification 'function_first_contact_maintenance_requirement_projection_v1' -AmbiguityBucket 'OEM_SOURCE_REQUIRED' -Establishes @(
+        'mechanism-neutral contact-maintenance requirements derived from admitted bottle DOF and finite-contact evidence',
+        'current V43 fit-check assembly does not bind an exact active-assembly mate chain or explicitly named spring/pneumatic maintenance element among the tested closure candidates',
+        'candidate mechanism families remain eligibility classes rather than selected architecture',
+        'quantitative force/travel/stiffness/friction values remain explicitly UNKNOWN'
+    ) -DoesNotEstablish @(
+        'which candidate mechanism family should be selected',
+        'closure travel or stroke',
+        'preload, force, pressure, stiffness, compliance magnitude, or friction',
+        'interval-wide contact maintenance',
+        'reaction load capacity',
+        'mechanical acceptance'
+    )
+
+    Write-CGOutput -Value $result -AsJson:$AsJson
+}
+
 function Get-CGCurrentPlan {
     [CmdletBinding()]
     param([switch]$AsJson)
@@ -1455,6 +1525,7 @@ Export-ModuleMember -Function @(
     'Get-CGRequiredBottleDOF',
     'Get-CGBottleContactConstraintMap',
     'Get-CGBottleContactWrenchRank',
+    'Get-CGContactMaintenanceRequirements',
     'Get-CGCurrentPlan',
     'Get-CGInvestigationFrontier',
     'Invoke-CGRegisteredVerifier'
