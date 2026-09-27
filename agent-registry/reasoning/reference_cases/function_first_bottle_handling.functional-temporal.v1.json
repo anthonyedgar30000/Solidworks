@@ -134,7 +134,8 @@
       "evidence_refs": [
         "E.FUNCTION_FIRST.BOTTLE_CONTACT_SET.20260927T081157483Z",
         "E.FUNCTION_FIRST.BOTTLE_CONVEYOR_NORMALS.20260927T081632302Z",
-        "E.FUNCTION_FIRST.BOTTLE_CONTACT_NORMAL_MAP.20260927T082707281Z"
+        "E.FUNCTION_FIRST.BOTTLE_CONTACT_NORMAL_MAP.20260927T082707281Z",
+        "E.FUNCTION_FIRST.BOTTLE_CONTACT_CONSTRAINT_MAP.20260927T085204547Z"
       ],
       "depends_on_requirement_ids": [
         "BOTTLE_REQUIRED_DOF_BOUND"
@@ -1213,7 +1214,7 @@
         "WRAP_ACTIVE"
       ],
       "required_evidence": [
-        "Four-pair current-pose contact-normal map is admitted. Deterministically project the observed contact points/normals into mechanism-neutral normal-closure and moment properties, while preserving tilt, friction/traction, preload, and interval-wide behavior as unresolved."
+        "Current-pose normal closure and common-axis moment projection are admitted. Determine the rank/nullity of the full 6-DOF maintained frictionless point-normal constraint matrix. If fewer than five independent constraints exist while common-axis rotation remains free, preserve tilt/full-restraint as unresolved and investigate the missing constraint class rather than selecting a mechanism."
       ]
     },
     {
@@ -2324,19 +2325,143 @@
           "It does not establish friction, traction, force, preload, stiffness, pressure, reaction capacity, mechanism selection, or mechanical acceptance."
         ]
       }
+    },
+    {
+      "schema_version": 1,
+      "record_type": "evidence",
+      "evidence_id": "E.FUNCTION_FIRST.BOTTLE_CONTACT_CONSTRAINT_MAP.20260927T085204547Z",
+      "evidence_type": "deterministic_calculation",
+      "evidence_state": "MEASURED_CALCULATED",
+      "source_authority": "DETERMINISTIC_CALCULATION",
+      "source_classification": "measured_calculated_from_admitted_solidworks_observation",
+      "subject": {
+        "subject_type": "function_first_bottle_current_pose_contact_constraint_projection",
+        "identity_exact": "BENCH_BOTTLE_D48_H180-2; three lateral radial contacts + conveyor contact; V43_WRAP"
+      },
+      "provenance": {
+        "recorded_at": "2026-09-27T08:52:04.5472751Z",
+        "source_ref": "User-supplied PowerShell transcript of Get-CGBottleContactConstraintMap -AsJson",
+        "transcript_sha256": "383569eedbba1e20e75290bf3b6b45b88cf8892d371fc6dafa438a1a6c9e513a",
+        "input_evidence_id": "E.FUNCTION_FIRST.BOTTLE_CONTACT_NORMAL_MAP.20260927T082707281Z",
+        "input_evidence_file_sha256": "17921005e8974c921f83cf9c69092a759f4e910d1b30360d78511a1e60797b00",
+        "tool_path": "CADGrounded.Tools/Get-CGBottleContactConstraintMap"
+      },
+      "dependencies": [
+        "E.FUNCTION_FIRST.BOTTLE_CONTACT_NORMAL_MAP.20260927T082707281Z",
+        "E.FUNCTION_FIRST.BOTTLE_DOF.20260927T075043247Z",
+        "PLAN-0010"
+      ],
+      "geometry_state": "CANDIDATE_OPERATING",
+      "temporal_scope": {
+        "coverage": "POINT_ONLY",
+        "validity_state": "CURRENT",
+        "state_ids": [],
+        "transition_ids": []
+      },
+      "ambiguity_bucket": "KINEMATIC_STATE_UNRESOLVED",
+      "mechanical_acceptance_granted": false,
+      "payload": {
+        "freshness": {
+          "mode": "LIVE_ASSEMBLY_FILE_MATCH_REQUIRED",
+          "live_match": true,
+          "observed_file_sha256": "dcd53467d2693283bb6617bdde1d4da8c19790615385e307671690ddce84b32a",
+          "expected_file_sha256": "dcd53467d2693283bb6617bdde1d4da8c19790615385e307671690ddce84b32a"
+        },
+        "common_axis_candidate": {
+          "point_xy_mm": [
+            -153.42061528267115,
+            -214
+          ],
+          "direction_assembly": [
+            0,
+            0,
+            1
+          ],
+          "max_pairwise_intersection_spread_mm": 2.842170943040401e-14,
+          "max_normal_line_residual_mm": 1.7763568394002505e-14
+        },
+        "radial_geometry": {
+          "radii_mm": [
+            24.00000000000003,
+            23.999999999999975,
+            23.99999999999997
+          ],
+          "radius_spread_mm": 5.684341886080802e-14
+        },
+        "lateral_normal_closure": {
+          "state": "SUPPORTED_CURRENT_POSE_FRICTIONLESS_NORMAL_MODEL",
+          "positive_span": true,
+          "normalized_positive_equilibrium_coefficients": [
+            1.5449110240089492,
+            1,
+            1.4557874348977298
+          ],
+          "equilibrium_residual_xy": [
+            2.220446049250313e-16,
+            0
+          ]
+        },
+        "normal_reaction_moment_about_common_axis": {
+          "max_abs_torque_per_unit_reaction_mm": 1.7763568394002505e-14,
+          "state": "APPROX_ZERO_CURRENT_POSE"
+        },
+        "non_lateral_contact": {
+          "pair_id": "conveyor",
+          "bottle_normal_assembly": [
+            0,
+            0,
+            -1
+          ],
+          "selected_opposing_normal_assembly": [
+            0,
+            0,
+            1
+          ],
+          "contact_point_mm": [
+            -153.42061528267112,
+            -214,
+            950
+          ]
+        },
+        "functional_projection": {
+          "assembly_xy_translation": "NORMAL_CLOSURE_SUPPORTED_CURRENT_POSE",
+          "rotation_about_common_axis": "NOT_RESTRAINED_BY_FRICTIONLESS_NORMAL_REACTIONS_CURRENT_POSE",
+          "assembly_z_contact_direction": "OPPOSED_NORMAL_CONTACT_OBSERVED",
+          "tilt_restraint": "UNRESOLVED",
+          "frictional_wrap_torque": "UNRESOLVED",
+          "preload_and_contact_maintenance": "UNRESOLVED",
+          "interval_wide_validity": "UNRESOLVED_POINT_POSE_ONLY"
+        },
+        "admitted_claims": [
+          "The three selected lateral bottle-side normal lines are concurrent at the recorded pose.",
+          "The three compressive lateral normal directions positively span assembly XY at the recorded pose.",
+          "Frictionless normal reactions about the derived common-axis candidate have approximately zero moment at the recorded pose.",
+          "An opposed assembly-Z contact-normal pair is observed at the bottle/conveyor contact.",
+          "The live assembly file hash matched the admitted contact-normal observation when the calculation ran."
+        ],
+        "explicitly_not_claimed": [
+          "authoritative functional wrap-axis binding",
+          "gravity/up semantics or vertical load capacity",
+          "tilt restraint or full six-DOF restraint rank",
+          "friction, traction, preload, force, pressure, compliance, stiffness, or reaction capacity",
+          "interval-wide contact maintenance or reachable motion",
+          "that any current V43 component is required in the final mechanism",
+          "mechanism selection or mechanical acceptance"
+        ]
+      }
     }
   ],
   "next_tests": [
     {
-      "id": "TEST_FUNCTION_FIRST_CONTACT_CONSTRAINT_PROJECTION",
-      "question": "Execute Get-CGBottleContactConstraintMap against the admitted four-pair contact-normal evidence. Require a current live assembly/configuration and file-hash match by default. Determine whether the three lateral compressive normal directions positively close assembly-XY translation, whether their normal lines are concurrent, whether normal reactions generate moment about the derived common-axis candidate, and how the opposed assembly-Z contact direction relates geometrically. Do not claim gravity/up semantics, tilt restraint, frictional drive torque, interval-wide validity, mechanism selection, or mechanical acceptance.",
+      "id": "TEST_FUNCTION_FIRST_CONTACT_WRENCH_RANK",
+      "question": "Execute Get-CGBottleContactWrenchRank with live freshness enabled. Under an optimistic maintained frictionless point-normal model of the four observed contacts, compute the 6-DOF contact-wrench/constraint matrix rank and nullity, test whether pure common-axis rotation is a null mode, and determine whether any additional independent instantaneous mode remains. Five independent constraints are required to leave only one free twist. Do not treat finite line/surface contact, friction, preload, unilateral contact maintenance, or interval-wide behavior as established.",
       "resolves_requirement_ids": [
         "BOTTLE_SUPPORT_CONTACT_SET_BOUND"
       ],
       "hypothesis_ids": [
         "H_FUNCTION_FIRST_CONTACT_SET"
       ],
-      "discrimination_power": 0.99,
+      "discrimination_power": 1,
       "evidence_confidence": 0.97,
       "unresolved_relevance": 1,
       "cost": 1
