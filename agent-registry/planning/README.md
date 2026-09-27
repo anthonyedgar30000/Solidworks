@@ -122,15 +122,17 @@ read-only connector calls. A response bundle has `schema_version: 1` and:
 - `solidworks`: `observed_at`, `tool: cadgrounded_solidworks_sw_status`,
   `response` from the status connector;
 - `github`: `observed_at`, `repository_full_name`, exact 40-character
-  `commit_sha`, runtime EvidenceRecord `path`, and `response` from the GitHub
-  file fetch pinned to that commit;
+  `commit_sha`, runtime EvidenceRecord `path`, its `response`, and
+  `current_plan_response` from `agent-registry/planning/CURRENT_PLAN.json`;
+  fetch both files at that same pinned commit;
 - `google_drive`: `observed_at`, exact canonical `document_id`, and `response`
   from the Google Docs text read, including `revisionId` and paragraphs.
 
 Run `python agent-registry/planning/source_freshness_bundle.py bundle.json`.
 The normalizer verifies the Git blob SHA against its content, checks that the
 EvidenceRecord is a bounded `VERIFIED` SolidWorks observation, checks exact
-subject/payload document binding, binds the live title to its assembly path,
+subject/payload document binding, requires its `evidence_id` to match
+`CURRENT_PLAN.current_evidence_id`, binds the live title to its assembly path,
 and reads the single checkpoint in the canonical document's `Freshness rule`
 paragraph. A missing or ambiguous statement fails explicitly. It then invokes
 the existing point-in-time comparator. It never fetches, changes, or admits
@@ -140,4 +142,36 @@ origin. Keep response bundles outside version control when they contain local
 paths or sensitive source details.
 
 Focused regression: `python -m unittest -v test_source_freshness_bundle.py`
+from `agent-registry/planning`.
+
+### OpenTelemetry event projection
+
+`source_freshness_otlp.py` serializes the point-in-time observation as one
+OTLP/JSON `ExportLogsServiceRequest`. It accepts either an existing report or
+`--bundle` followed by a captured response bundle:
+
+```text
+python agent-registry/planning/source_freshness_otlp.py report.json
+python agent-registry/planning/source_freshness_otlp.py --bundle bundle.json
+```
+
+The fixed `LogRecord.eventName` is `cadgrounded.source_freshness.checked`.
+The resource identifies `cadgrounded-freshness-monitor`. Attributes include
+only the status for each source, checkpoint generation numbers, point-in-time
+scope, caller-supplied verification state, and the false acceptance flag.
+Source paths, titles, refs, document IDs, record content, prompts, and model
+data are excluded. A stale, conflicting, or unknown state has WARN severity;
+checkpoint-name alignment has INFO severity. No trace ID is invented.
+
+This is a serialization step only: it makes no OTLP network request, does not
+run a collector, and does not reclassify the input as trusted. It uses a custom
+`cadgrounded.*` event definition because a source checkpoint comparison is not
+a GenAI model operation. The event shape follows the OpenTelemetry
+[LogRecord/EventName model](https://opentelemetry.io/docs/specs/otel/logs/data-model/),
+[OTLP JSON encoding](https://opentelemetry.io/docs/specs/otlp/), and
+[event naming guidance](https://opentelemetry.io/docs/specs/semconv/general/events/).
+The separate source-freshness report retains detailed provenance for local
+review. Keep captured bundles out of version control.
+
+Focused regression: `python -m unittest -v test_source_freshness_otlp.py`
 from `agent-registry/planning`.
