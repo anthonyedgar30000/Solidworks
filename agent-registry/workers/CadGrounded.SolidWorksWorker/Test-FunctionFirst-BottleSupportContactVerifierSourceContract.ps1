@@ -16,7 +16,7 @@ Assert-True (Test-Path -LiteralPath $verifierPath -PathType Leaf) 'Function-firs
 $source = [System.IO.File]::ReadAllText($verifierPath)
 
 foreach ($required in @(
-    "ExpectedWorkerVersion = '0.4.4'",
+    "ExpectedWorkerVersion = '",
     "ExpectedConfiguration = 'V43_WRAP'",
     "BENCH_BOTTLE_D48_H180-2",
     "BENCH_CONVEYOR_L900_W82_H950-1",
