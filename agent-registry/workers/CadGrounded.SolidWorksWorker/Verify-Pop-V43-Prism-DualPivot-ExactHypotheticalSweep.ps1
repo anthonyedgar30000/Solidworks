@@ -250,6 +250,20 @@ function Get-MoverTransformMap {
     return $map
 }
 
+
+function Get-OptionalJsonPropertyValue {
+    param(
+        [Parameter(Mandatory=$true)]$Object,
+        [Parameter(Mandatory=$true)][string]$Name
+    )
+
+    $property = $Object.PSObject.Properties[$Name]
+    if ($null -eq $property) {
+        return $null
+    }
+    return $property.Value
+}
+
 function Invoke-PairAtTransforms {
     param(
         [Parameter(Mandatory=$true)][string]$A,
@@ -322,6 +336,10 @@ foreach ($fraction in $SampleFractions) {
     foreach ($mover in $MoverNames) {
         foreach ($obstacle in $StaticObstacleNames) {
             $data = Invoke-PairAtTransforms -A $mover -B $obstacle -ATransform $transformMap[$mover] -BTransform $null
+            $intersectionBodyCount = Get-OptionalJsonPropertyValue -Object $data -Name 'intersection_body_count'
+            $intersectionVolumeMm3 = Get-OptionalJsonPropertyValue -Object $data -Name 'intersection_volume_mm3'
+            $minimumDistanceMm = Get-OptionalJsonPropertyValue -Object $data -Name 'minimum_distance_mm'
+            $apiDistance = Get-OptionalJsonPropertyValue -Object $data -Name 'api_distance'
             $row = [ordered]@{
                 sample_fraction = [double]$fraction
                 angle_branch1_deg = $angle1
@@ -329,10 +347,15 @@ foreach ($fraction in $SampleFractions) {
                 a_name_exact = $mover
                 b_name_exact = $obstacle
                 classification = [string]$data.classification
-                intersection_body_count = $data.intersection_body_count
-                intersection_volume_mm3 = $data.intersection_volume_mm3
-                minimum_distance_mm = $data.minimum_distance_mm
-                api_distance = [string]$data.api_distance
+                intersection_body_count = $intersectionBodyCount
+                intersection_volume_mm3 = $intersectionVolumeMm3
+                minimum_distance_mm = $minimumDistanceMm
+                api_distance = [string]$apiDistance
+                response_property_names = @($data.PSObject.Properties.Name)
+            }
+            if ([string]$data.classification -ceq 'physical_interference' -and $null -eq $intersectionVolumeMm3) {
+                $row['evidence_limitation'] = 'PHYSICAL_INTERFERENCE_CLASSIFICATION_WITHOUT_INTERSECTION_VOLUME_PROPERTY'
+                $indeterminateRows.Add($row)
             }
             $pairRows.Add($row)
             if ([string]$data.classification -ceq 'physical_interference') {
@@ -348,6 +371,10 @@ foreach ($fraction in $SampleFractions) {
         $a = [string]$pair[0]
         $b = [string]$pair[1]
         $data = Invoke-PairAtTransforms -A $a -B $b -ATransform $transformMap[$a] -BTransform $transformMap[$b]
+        $intersectionBodyCount = Get-OptionalJsonPropertyValue -Object $data -Name 'intersection_body_count'
+        $intersectionVolumeMm3 = Get-OptionalJsonPropertyValue -Object $data -Name 'intersection_volume_mm3'
+        $minimumDistanceMm = Get-OptionalJsonPropertyValue -Object $data -Name 'minimum_distance_mm'
+        $apiDistance = Get-OptionalJsonPropertyValue -Object $data -Name 'api_distance'
         $row = [ordered]@{
             sample_fraction = [double]$fraction
             angle_branch1_deg = $angle1
@@ -355,10 +382,15 @@ foreach ($fraction in $SampleFractions) {
             a_name_exact = $a
             b_name_exact = $b
             classification = [string]$data.classification
-            intersection_body_count = $data.intersection_body_count
-            intersection_volume_mm3 = $data.intersection_volume_mm3
-            minimum_distance_mm = $data.minimum_distance_mm
-            api_distance = [string]$data.api_distance
+            intersection_body_count = $intersectionBodyCount
+            intersection_volume_mm3 = $intersectionVolumeMm3
+            minimum_distance_mm = $minimumDistanceMm
+            api_distance = [string]$apiDistance
+            response_property_names = @($data.PSObject.Properties.Name)
+        }
+        if ([string]$data.classification -ceq 'physical_interference' -and $null -eq $intersectionVolumeMm3) {
+            $row['evidence_limitation'] = 'PHYSICAL_INTERFERENCE_CLASSIFICATION_WITHOUT_INTERSECTION_VOLUME_PROPERTY'
+            $indeterminateRows.Add($row)
         }
         $pairRows.Add($row)
         if ([string]$data.classification -ceq 'physical_interference') {
