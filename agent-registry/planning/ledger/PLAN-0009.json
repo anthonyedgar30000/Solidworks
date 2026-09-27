@@ -1,0 +1,81 @@
+{
+  "record_type": "plan",
+  "schema_version": 1,
+  "record_id": "PLAN-0009",
+  "project_id": "CADGROUNDED.IXOR",
+  "created_at_utc": "2026-09-27T07:16:04.3258747Z",
+  "parent_plan_id": "PLAN-0008",
+  "caused_by_divergence_ids": [],
+  "status": "ACTIVE",
+  "state_binding": {
+    "source": "SOLIDWORKS",
+    "document_title": "IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE",
+    "document_path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE.SLDASM",
+    "configuration_exact": "V43_WRAP",
+    "configuration_state": "REQUIRE_FRESH_PREEXECUTION_REBIND",
+    "source_observation_ids": [
+      "E.V43.PRISM.ARM_ROLLER_CONTACT.20260927T063140284Z",
+      "E.V43.PRISM.FULL_CHAIN_MATE_BINDING.20260927T071604325Z"
+    ],
+    "freshness": "POINT_TOPOLOGY_CHAIN_ADMITTED_AND_ACTIVE_ASSEMBLY_ZERO_MATE_RESULT_ADMITTED; FRESH LIVE REBIND REQUIRED BEFORE FURTHER CAD OBSERVATION"
+  },
+  "intent": "Bind the provenance and authority of the v43 Prism fit-check mechanism geometry and identify the first justified kinematic source before evaluating motion. Determine whether slider axis, link/arm pivots, roller retention, actuator attachment, stroke, or endpoints are inherited from OEM/source evidence or must be explicitly designed as deterministic candidate geometry.",
+  "projected_steps": [
+    {
+      "step_id": "P0009.1",
+      "title": "Freshly rebind exact v43 document/configuration and the Prism slider, links, arms, rollers, guides, reaction base, and actuator-envelope component identities/source paths",
+      "depends_on": [],
+      "write_authority": "NONE",
+      "expected_outputs": [
+        "fresh exact live component/source-path bindings",
+        "fixed/floating/suppression state",
+        "no mutation"
+      ],
+      "status": "PROJECTED"
+    },
+    {
+      "step_id": "P0009.2",
+      "title": "Bind creation/source provenance for each FITCHECK_PRISM mechanism component and support roller used by the candidate chain",
+      "depends_on": [
+        "P0009.1"
+      ],
+      "write_authority": "NONE",
+      "expected_outputs": [
+        "OEM-derived vs deterministic-project vs unresolved source classification",
+        "generator/script/commit/sidecar or source CAD identity when available",
+        "explicit SOURCE_REQUIRED/INSUFFICIENT_EVIDENCE where provenance is absent"
+      ],
+      "status": "PROJECTED"
+    },
+    {
+      "step_id": "P0009.3",
+      "title": "Seek authoritative kinematic definition for slider guidance, link/arm pivot relations, roller retention, actuator attachment, stroke, and endpoints",
+      "depends_on": [
+        "P0009.2"
+      ],
+      "write_authority": "NONE",
+      "expected_outputs": [
+        "OEM CAD/manual evidence or accepted deterministic derivation inputs",
+        "explicit negative evidence if no authoritative motion definition exists",
+        "no guessed linkage law"
+      ],
+      "status": "PROJECTED"
+    },
+    {
+      "step_id": "P0009.4",
+      "title": "Decide whether a bounded deterministic kinematic candidate is justified",
+      "depends_on": [
+        "P0009.3"
+      ],
+      "write_authority": "NONE",
+      "expected_outputs": [
+        "candidate motion-model contract only if source evidence justifies it",
+        "otherwise KINEMATIC_STATE_UNRESOLVED/OEM_SOURCE_REQUIRED preserved",
+        "next diagnostic test selected by information value"
+      ],
+      "status": "PROJECTED"
+    }
+  ],
+  "acceptance_gate": "Static contact topology plus zero active-assembly mates cannot establish mechanism DOF, motion direction, pivot locations, roller retention, actuator ownership, stroke, endpoints, force/preload, reachable motion, or mechanical acceptance. A kinematic candidate requires authoritative source evidence or an explicitly accepted deterministic design derivation.",
+  "no_write_boundary": "No move, transform, rebuild, save, mate creation, suppression change, component insertion, or Remote Queue write is authorized by this plan."
+}
