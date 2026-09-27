@@ -26,6 +26,11 @@ class FunctionFirstBottleHandlingTests(unittest.TestCase):
         self.assertIn("BOTTLE_REQUIRED_DOF_BOUND", indexes["obligations"])
         self.assertIn("BOTTLE_SUPPORT_CONTACT_SET_BOUND", indexes["obligations"])
         self.assertIn("BOTTLE_ROTATION_SOURCE_BOUND", indexes["obligations"])
+        dof = by_id(case["obligations"], "BOTTLE_REQUIRED_DOF_BOUND")
+        self.assertEqual(dof["verification_state"], "VERIFIED")
+        self.assertIn("E.FUNCTION_FIRST.BOTTLE_DOF.20260927T075043247Z", dof["evidence_refs"])
+        self.assertEqual(by_id(case["obligations"], "BOTTLE_SUPPORT_CONTACT_SET_BOUND")["verification_state"], "UNRESOLVED")
+        self.assertEqual(by_id(case["obligations"], "BOTTLE_ROTATION_SOURCE_BOUND")["verification_state"], "UNRESOLVED")
         self.assertEqual(report["machine_acceptance_state"], "MECHANICAL_ACCEPTANCE_BLOCKED")
         self.assertFalse(report["mechanical_acceptance_granted"])
 
@@ -49,43 +54,36 @@ class FunctionFirstBottleHandlingTests(unittest.TestCase):
         ):
             self.assertNotIn(test_id, next_test_ids)
 
-    def test_bottle_requirements_are_bound_before_mechanism_selection(self):
+    def test_dof_is_verified_but_contact_and_rotation_source_remain_unresolved(self):
         case = load_case()
-        obligation_ids = {item["id"] for item in case["obligations"]}
-        self.assertIn("BOTTLE_REQUIRED_DOF_BOUND", obligation_ids)
-        self.assertIn("BOTTLE_SUPPORT_CONTACT_SET_BOUND", obligation_ids)
-        self.assertIn("BOTTLE_ROTATION_SOURCE_BOUND", obligation_ids)
-
+        dof = by_id(case["obligations"], "BOTTLE_REQUIRED_DOF_BOUND")
+        support = by_id(case["obligations"], "BOTTLE_SUPPORT_CONTACT_SET_BOUND")
         rotation = by_id(case["obligations"], "BOTTLE_ROTATION_SOURCE_BOUND")
+
+        self.assertEqual(dof["verification_state"], "VERIFIED")
+        self.assertIn("E.FUNCTION_FIRST.BOTTLE_DOF.20260927T075043247Z", dof["evidence_refs"])
+        self.assertEqual(support["verification_state"], "UNRESOLVED")
+        self.assertEqual(rotation["verification_state"], "UNRESOLVED")
         self.assertIn("drive source", rotation["description"])
-        self.assertIn("DETERMINISTIC_CALCULATION", rotation["expected_authority"])
         self.assertEqual(
             rotation["depends_on_requirement_ids"],
             ["BOTTLE_REQUIRED_DOF_BOUND", "BOTTLE_SUPPORT_CONTACT_SET_BOUND"],
         )
 
-        test = by_id(case["next_tests"], "TEST_FUNCTION_FIRST_BOTTLE_SUPPORT_RESTRAINT_DOF")
-        self.assertEqual(
-            test["hypothesis_ids"],
-            ["H_FUNCTION_FIRST_REQUIRED_DOF", "H_FUNCTION_FIRST_CONTACT_SET"],
+        evidence = by_id(
+            case["evidence_catalog"],
+            "E.FUNCTION_FIRST.BOTTLE_DOF.20260927T075043247Z",
+            field="evidence_id",
         )
-        self.assertIn("BOTTLE_ROTATION_SOURCE_BOUND", test["resolves_requirement_ids"])
-        for token in (
-            "Before selecting any capture mechanism",
-            "D48 upright bottle",
-            "rotation must remain intentionally available",
-            "functional rotation-source relationship",
-            "distinguish current-pose contacts from required functional contacts",
-            "must not assume the v43 Prism",
-        ):
-            self.assertIn(token, test["question"])
+        self.assertEqual(evidence["evidence_type"], "deterministic_calculation")
+        self.assertEqual(evidence["evidence_state"], "MEASURED_CALCULATED")
+        self.assertFalse(evidence["mechanical_acceptance_granted"])
 
     def test_function_first_hypotheses_active_and_mechanism_families_dormant(self):
         case = load_case()
-        self.assertEqual(
-            by_id(case["hypotheses"], "H_FUNCTION_FIRST_REQUIRED_DOF")["investigation_state"],
-            "ACTIVE",
-        )
+        dof_hypothesis = by_id(case["hypotheses"], "H_FUNCTION_FIRST_REQUIRED_DOF")
+        self.assertEqual(dof_hypothesis["evidence_state"], "SUPPORTED")
+        self.assertEqual(dof_hypothesis["investigation_state"], "EXHAUSTED")
         self.assertEqual(
             by_id(case["hypotheses"], "H_FUNCTION_FIRST_CONTACT_SET")["investigation_state"],
             "ACTIVE",
@@ -114,11 +112,20 @@ class FunctionFirstBottleHandlingTests(unittest.TestCase):
         self.assertEqual(
             ids[:3],
             [
-                "TEST_FUNCTION_FIRST_BOTTLE_SUPPORT_RESTRAINT_DOF",
+                "TEST_FUNCTION_FIRST_CURRENT_CONTACT_SET",
                 "TEST_MECHANISM_CANDIDATE_FAMILY_SET",
                 "TEST_MECHANISM_CANDIDATE_SCREEN",
             ],
         )
+
+        contact_set = by_id(case["next_tests"], "TEST_FUNCTION_FIRST_CURRENT_CONTACT_SET")
+        for token in (
+            "BOTTLE_REQUIRED_DOF_BOUND now verified",
+            "current contact observations only",
+            "support/normal",
+            "BOTTLE_SUPPORT_CONTACT_SET_BOUND as UNRESOLVED",
+        ):
+            self.assertIn(token, contact_set["question"])
 
         candidate_set = by_id(case["next_tests"], "TEST_MECHANISM_CANDIDATE_FAMILY_SET")
         screen = by_id(case["next_tests"], "TEST_MECHANISM_CANDIDATE_SCREEN")
