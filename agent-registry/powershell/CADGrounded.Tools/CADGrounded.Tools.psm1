@@ -535,6 +535,82 @@ function Get-CGMateBinding {
     Write-CGOutput -Value $result -AsJson:$AsJson
 }
 
+function Get-CGRequiredBottleDOF {
+    [CmdletBinding()]
+    param(
+        [string]$BottleName2 = 'BENCH_BOTTLE_D48_H180-2',
+        [string]$ConveyorName2 = 'BENCH_CONVEYOR_L900_W82_H950-1',
+        [string]$ExpectedDocumentTitle = 'IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE',
+        [string]$ExpectedDocumentPath = 'C:\ChatGPT\Solidworks\IXOR\CAB_IXOR_6130800\IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE.SLDASM',
+        [string]$ExpectedConfiguration = 'V43_WRAP',
+        [switch]$AsJson
+    )
+
+    $requirementsPath = Join-Path $script:RepositoryRoot 'agent-registry\reasoning\requirements\function-first-bottle-dof.v1.json'
+    if (-not (Test-Path -LiteralPath $requirementsPath -PathType Leaf)) {
+        throw "Function-first bottle DOF requirements file not found: $requirementsPath"
+    }
+    $requirements = Get-Content -LiteralPath $requirementsPath -Raw | ConvertFrom-Json
+
+    $status = Invoke-CGWorkerCli -Arguments @('status')
+    Assert-CGReadOnlyEnvelope -Envelope $status
+    Assert-CGExpectedState -StatusEnvelope $status -ExpectedDocumentTitle $ExpectedDocumentTitle -ExpectedDocumentPath $ExpectedDocumentPath -ExpectedConfiguration $ExpectedConfiguration
+
+    $components = Invoke-CGWorkerCli -Arguments @('components','--all')
+    Assert-CGReadOnlyEnvelope -Envelope $components
+    $bottle = Get-CGExactComponentFromEnvelope -ComponentsEnvelope $components -Name2 $BottleName2
+    $conveyor = Get-CGExactComponentFromEnvelope -ComponentsEnvelope $components -Name2 $ConveyorName2
+
+    if ([bool]$bottle.suppressed) { throw "Bottle component '$BottleName2' is suppressed." }
+    if ([bool]$conveyor.suppressed) { throw "Conveyor component '$ConveyorName2' is suppressed." }
+
+    $result = [pscustomobject][ordered]@{
+        schema_version = 1
+        capability_id = 'cg.product.required-dof'
+        result = 'PASS'
+        observed_at_utc = [DateTime]::UtcNow.ToString('o')
+        source_authority = 'DETERMINISTIC_CALCULATION'
+        source_classification = 'function_first_requirement_derivation_v1'
+        live_binding = [ordered]@{
+            document = Get-CGDocumentState -StatusEnvelope $status
+            bottle = [ordered]@{
+                name2 = [string]$bottle.name2
+                path = [string]$bottle.path
+                fixed_component = $bottle.fixed_component
+                fixed = $bottle.fixed
+                suppressed = $bottle.suppressed
+                rotation9 = @($bottle.rotation9)
+                translation_mm = @($bottle.translation_mm)
+            }
+            conveyor = [ordered]@{
+                name2 = [string]$conveyor.name2
+                path = [string]$conveyor.path
+                fixed_component = $conveyor.fixed_component
+                fixed = $conveyor.fixed
+                suppressed = $conveyor.suppressed
+                rotation9 = @($conveyor.rotation9)
+                translation_mm = @($conveyor.translation_mm)
+            }
+        }
+        requirement_model_id = [string]$requirements.requirement_model_id
+        functional_axes = $requirements.functional_axes
+        state_requirements = @($requirements.state_requirements)
+        cross_state_invariants = @($requirements.cross_state_invariants)
+        establishes = @(
+            'mechanism-neutral required or intentionally permitted bottle rigid-body DOF behavior by scoped operating state',
+            'fresh exact live identity binding for the benchmark bottle and conveyor at this read',
+            'explicit unresolved DOF choices where the functional requirement does not force a mechanism behavior'
+        )
+        does_not_establish = @($requirements.explicitly_not_established)
+        ambiguity_bucket = 'MEASUREMENT_REQUIRED'
+        mechanical_acceptance_granted = $false
+        model_mutation = $false
+        write_authority = 'NONE'
+    }
+
+    Write-CGOutput -Value $result -AsJson:$AsJson
+}
+
 function Get-CGCurrentPlan {
     [CmdletBinding()]
     param([switch]$AsJson)
@@ -646,6 +722,7 @@ Export-ModuleMember -Function @(
     'Test-CGContactPair',
     'Test-CGTopologyChain',
     'Get-CGMateBinding',
+    'Get-CGRequiredBottleDOF',
     'Get-CGCurrentPlan',
     'Get-CGInvestigationFrontier',
     'Invoke-CGRegisteredVerifier'
