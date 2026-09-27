@@ -20,6 +20,7 @@ REGISTRY = Path(__file__).with_name("source_registry.v1.json")
 # cab's 04/2026 IXOR+ manual, part 9004290.131. The previously captured
 # file=4444 is the ROXI manual, part 9004202.131, despite sharing a PRISM pin.
 CAB_IXORPLUS_PDF_SHA256 = "6e15cc68c22eec8535ab58381e35ab81e00b1329f83eb1e40ed83ac22253f9f8"
+CAB_IXORPLUS_CONTENT_DISPOSITION_FILENAME = "MA_Etikettenspender_IXOR_Plus_en.pdf"
 ALLOWED = {
     "CAB.IXORPLUS.ASSEMBLY_INSTRUCTIONS.202604": (
         "https://www.cab.de/media/pushfile.cfm?file=4542", "application/pdf", "SUBJECT_OEM_DOCUMENT"),
@@ -72,6 +73,9 @@ def validate_registry(registry: dict) -> list[dict]:
         expected_digest = CAB_IXORPLUS_PDF_SHA256 if media == "application/pdf" else None
         if row.get("expected_sha256") != expected_digest:
             raise CaptureBlocked("SOURCE_IDENTITY_CHANGED")
+        expected_filename = CAB_IXORPLUS_CONTENT_DISPOSITION_FILENAME if media == "application/pdf" else None
+        if row.get("expected_content_disposition_filename") != expected_filename:
+            raise CaptureBlocked("SOURCE_IDENTITY_CHANGED")
         size = row.get("max_bytes")
         if not isinstance(size, int) or isinstance(size, bool) or not (1 <= size <= MAX_BYTES):
             raise CaptureBlocked("SOURCE_SIZE_BOUNDARY_CHANGED")
@@ -92,6 +96,13 @@ def fetch_source(row: dict) -> bytes:
         media = response.headers.get("Content-Type", "").split(";", 1)[0].strip().lower()
         if media != row["expected_media_type"]:
             raise CaptureBlocked("SOURCE_MEDIA_CHANGED")
+        expected_filename = row.get("expected_content_disposition_filename")
+        if expected_filename:
+            disposition = response.headers.get("Content-Disposition", "")
+            match = re.search(r'filename="?([^";]+)"?', disposition, re.IGNORECASE)
+            observed_filename = match.group(1).strip() if match else None
+            if observed_filename != expected_filename:
+                raise CaptureBlocked("SOURCE_IDENTITY_MISMATCH")
         raw = response.read(row["max_bytes"] + 1)
     if len(raw) > row["max_bytes"]:
         raise CaptureBlocked("SOURCE_TOO_LARGE")
@@ -186,6 +197,7 @@ def capture_one(row: dict, state_dir: Path, fetch=fetch_source) -> dict:
         "content_fingerprint_kind": "NORMALIZED_VISIBLE_HTML_TEXT" if is_html else "EXACT_PDF_BYTES",
         "raw_byte_count": len(raw),
         "expected_media_type": row["expected_media_type"],
+        "expected_content_disposition_filename": row.get("expected_content_disposition_filename"),
         "candidate_snippets": candidate_snippets(raw, row["markers"]) if is_html else [],
         "text_extraction_state": "MARKER_WINDOWS_ONLY" if is_html else "NOT_PERFORMED",
         "evidence_state": "UNADMITTED",

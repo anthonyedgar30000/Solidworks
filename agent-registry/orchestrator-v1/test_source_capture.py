@@ -4,8 +4,10 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from source_capture import (ALLOWED, CaptureBlocked, REGISTRY, capture_all,
-                            candidate_snippets, fetch_source, validate_registry)
+from source_capture import (ALLOWED, CAB_IXORPLUS_CONTENT_DISPOSITION_FILENAME,
+                            CAB_IXORPLUS_PDF_SHA256, CaptureBlocked, REGISTRY,
+                            capture_all, candidate_snippets, fetch_source,
+                            validate_registry)
 
 
 HTML = b"<html><body><p>A roller prism sets the product to be labeled in rotation.</p><p>Wrap-around belt and counterpressure plate.</p></body></html>"
@@ -75,6 +77,10 @@ class SourceCaptureTests(unittest.TestCase):
         with self.assertRaisesRegex(CaptureBlocked, "SOURCE_IDENTITY_CHANGED"):
             validate_registry(self.registry)
         cab["expected_sha256"] = ALLOWED[cab["source_id"]][0]  # A URL cannot stand in for a digest.
+        with self.assertRaisesRegex(CaptureBlocked, "SOURCE_IDENTITY_CHANGED"):
+            validate_registry(self.registry)
+        cab["expected_sha256"] = CAB_IXORPLUS_PDF_SHA256
+        cab["expected_content_disposition_filename"] = "wrong-product.pdf"
         with self.assertRaisesRegex(CaptureBlocked, "SOURCE_IDENTITY_CHANGED"):
             validate_registry(self.registry)
 
@@ -155,11 +161,40 @@ class SourceCaptureTests(unittest.TestCase):
             fetch_source(row)
 
     @patch("source_capture.urlopen")
+    def test_fetch_rejects_pdf_filename_identity_mismatch(self, urlopen):
+        cab = self.registry["sources"][0]
+
+        class Response:
+            headers = {
+                "Content-Type": "application/pdf",
+                "Content-Disposition": 'attachment; filename="9004202_132_MA_ROXI_en_2604.pdf"',
+            }
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *args):
+                pass
+
+            def geturl(self):
+                return cab["url"]
+
+            def read(self, limit):
+                return b"%PDF-1.7\nwrong-product"
+
+        urlopen.return_value = Response()
+        with self.assertRaisesRegex(CaptureBlocked, "SOURCE_IDENTITY_MISMATCH"):
+            fetch_source(cab)
+
+    @patch("source_capture.urlopen")
     def test_fetch_rejects_other_pdf_even_from_correct_url(self, urlopen):
         cab = self.registry["sources"][0]
 
         class Response:
-            headers = {"Content-Type": "application/pdf"}
+            headers = {
+                "Content-Type": "application/pdf",
+                "Content-Disposition": f'attachment; filename="{CAB_IXORPLUS_CONTENT_DISPOSITION_FILENAME}"',
+            }
 
             def __enter__(self):
                 return self
