@@ -65,6 +65,16 @@ class SourceFreshnessSendTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "port"):
             send(compare(snapshot()), 0)
 
+    def test_accepts_empty_partial_success_but_rejects_warning(self):
+        Receiver.response_body = b'{"partialSuccess":{}}'
+        try:
+            send(compare(snapshot()), self.receiver.server_port)
+            Receiver.response_body = b'{"partialSuccess":{"rejectedLogRecords":0,"errorMessage":"warning"}}'
+            with self.assertRaisesRegex(ValueError, "partial success"):
+                send(compare(snapshot()), self.receiver.server_port)
+        finally:
+            Receiver.response_body = b"{}"
+
 
 if __name__ == "__main__":
     unittest.main()

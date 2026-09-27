@@ -40,7 +40,16 @@ def send(report: dict, port: int = 4318) -> None:
             result = json.loads(response_body)
         except (UnicodeDecodeError, json.JSONDecodeError) as exc:
             raise ValueError("collector response is not JSON") from exc
-        if not isinstance(result, dict) or result.get("partialSuccess") is not None:
+        if not isinstance(result, dict):
+            raise ValueError("collector response is invalid")
+        partial = result.get("partialSuccess")
+        # Some Collector responses encode an empty partialSuccess object even
+        # when no records are rejected. Reject any count, message, or unknown
+        # field that would make this response ambiguous.
+        if partial is not None and (not isinstance(partial, dict) or
+                set(partial) - {"rejectedLogRecords", "errorMessage"} or
+                partial.get("rejectedLogRecords", 0) not in (0, "0") or
+                partial.get("errorMessage", "") != ""):
             raise ValueError("collector response reports partial success or is invalid")
 
 
