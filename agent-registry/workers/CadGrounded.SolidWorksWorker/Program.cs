@@ -609,7 +609,7 @@ internal sealed class SolidWorksSession : IDisposable
         if (scale2 is not null && (scale2 <= 0 || scale2 > 1e9))
             throw new ArgumentException("scale2 must be positive and bounded.");
 
-        var root = Environment.GetEnvironmentVariable("CADGROUNDED_CAPTURE_ROOT");
+        var root = System.Environment.GetEnvironmentVariable("CADGROUNDED_CAPTURE_ROOT");
         if (string.IsNullOrWhiteSpace(root) || !Path.IsPathFullyQualified(root) ||
             !Directory.Exists(root) ||
             (File.GetAttributes(root) & FileAttributes.ReparsePoint) != 0)
