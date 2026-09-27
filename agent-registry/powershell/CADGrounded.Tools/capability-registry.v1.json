@@ -208,6 +208,31 @@
       ]
     },
     {
+      "id": "cg.verifier.function-first.bottle-contact-normals",
+      "command": "Invoke-CGRegisteredVerifier",
+      "status": "IMPLEMENTED",
+      "category": "product_handling",
+      "engineering_question": "For the four exact bottle pairs already observed touching at the current pose, what B-rep candidate face normals are returned without mutating the assembly?",
+      "execution_kind": "registered_verifier",
+      "verifier_path": "agent-registry/workers/CadGrounded.SolidWorksWorker/Verify-ContactSurfaceNormals-FunctionFirst-BottleContacts.ps1",
+      "write_authority": "NONE",
+      "remote_queue_authorized": false,
+      "establishes": [
+        "exact current-pose four-pair identity/contact revalidation",
+        "candidate B-rep face normals at API closest/contact points",
+        "whole-run pre/post no-mutation evidence"
+      ],
+      "does_not_establish": [
+        "functional support/restraint ownership or sufficiency",
+        "gravity/up-axis semantics",
+        "restraint rank",
+        "friction/traction/force/preload/reaction capacity",
+        "interval-wide behavior",
+        "mechanism selection",
+        "mechanical acceptance"
+      ]
+    },
+    {
       "id": "cg.contact.surface-normal",
       "future_command": "Get-CGContactSurfaceNormalEvidence",
       "status": "PLANNED",
