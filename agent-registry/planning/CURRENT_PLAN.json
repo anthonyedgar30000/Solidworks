@@ -5,9 +5,9 @@
   "previous_plan_id": "PLAN-0009",
   "latest_divergence_id": "DIV-0002",
   "latest_reconciliation_id": "RECON-0012",
-  "updated_at_utc": "2026-09-27T15:19:27.324Z",
-  "status": "ACTIVE_INVESTIGATION_FUNCTION_FIRST_MECHANISM_SCREEN_CONTRACT_PROJECTED",
+  "updated_at_utc": "2026-09-27T15:30:26.706Z",
+  "status": "ACTIVE_INVESTIGATION_FUNCTION_FIRST_MECHANISM_REFERENCE_SOURCE_ACQUISITION_PROJECTED",
   "authority_note": "GitHub project-state pointer only. SOLIDWORKS remains the authority for live geometry and active document state.",
-  "current_evidence_id": "E.FUNCTION_FIRST.MAINTENANCE_CANDIDATE_REGISTRY.20260927T151927324Z",
+  "current_evidence_id": "E.FUNCTION_FIRST.MECHANISM_SCREEN.20260927T153026706Z",
   "current_architecture_id": "IXOR_FUNCTION_FIRST_BOTTLE_HANDLING_REFERENCE"
 }
