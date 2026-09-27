@@ -1,0 +1,50 @@
+{
+  "record_type": "plan_reconciliation",
+  "schema_version": 1,
+  "record_id": "RECON-0008",
+  "project_id": "CADGROUNDED.IXOR",
+  "reconciled_at_utc": "2026-09-27T06:04:59.0019476Z",
+  "plan_id": "PLAN-0005",
+  "raw_observation_ids": [
+    "E.V43.PRISM.SLIDER_LINK_CONTACT.20260927T060459001Z"
+  ],
+  "actual_actions": [
+    {
+      "action_id": "ACT_V43_PRISM_SLIDER_LINK_CONTACT_VERIFIER",
+      "write_authority": "NONE",
+      "result_id": "E.V43.PRISM.SLIDER_LINK_CONTACT.20260927T060459001Z",
+      "reason": "The exact V43_WRAP slider-to-both-links verifier passed with exact pair results, SHA-bound artifact provenance, and no-mutation comparison."
+    },
+    {
+      "action_id": "ACT_BIND_V43_PRISM_SLIDER_LINK_ARTIFACT_SHA256",
+      "write_authority": "NONE",
+      "result": "COMPLETED",
+      "reason": "Bound verification-summary.json to SHA-256 94ab0df30cdc8d7a37cd046db8f2b57e024134c653e9155705b72228cee23505."
+    }
+  ],
+  "step_outcomes": [
+    {
+      "step_id": "P0005.1",
+      "outcome": "COMPLETED",
+      "evidence_id": "E.V43.PRISM.SLIDER_LINK_CONTACT.20260927T060459001Z"
+    },
+    {
+      "step_id": "P0005.2",
+      "outcome": "COMPLETED",
+      "evidence_id": "E.V43.PRISM.SLIDER_LINK_CONTACT.20260927T060459001Z"
+    },
+    {
+      "step_id": "P0005.3",
+      "outcome": "COMPLETED_ADMITTED",
+      "evidence_id": "E.V43.PRISM.SLIDER_LINK_CONTACT.20260927T060459001Z"
+    },
+    {
+      "step_id": "P0005.4",
+      "outcome": "COMPLETED_REPLANNED",
+      "evidence_id": "E.V43.PRISM.SLIDER_LINK_CONTACT.20260927T060459001Z"
+    }
+  ],
+  "conclusion": "PLAN-0005 is provenance-complete. At the recorded exact V43_WRAP point, the exact carrier slider is adjacent to both exact Prism links with 0 mm returned minimum distance, contact/coincidence classification, and zero intersection volume. This supports slider-to-link contiguity only. Link-to-arm pairing, linkage DOF, motion, stroke, force/preload, capture/release timing, and mechanical acceptance remain unresolved.",
+  "mechanical_acceptance_granted": false,
+  "write_authority": "NONE"
+}
