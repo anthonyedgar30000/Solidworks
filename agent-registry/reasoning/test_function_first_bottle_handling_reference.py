@@ -101,57 +101,71 @@ class FunctionFirstBottleHandlingTests(unittest.TestCase):
         self.assertEqual(candidate_a["evidence_state"], "WEAKENED")
         self.assertIn("zero-mate", candidate_a["description"])
 
-    def test_wrench_rank_is_admitted_and_frontier_routes_to_contact_manifold(self):
+    def test_finite_line_rank_is_admitted_and_frontier_routes_to_contact_maintenance(self):
         case = load_case()
 
         wrap_axis = by_id(case["obligations"], "BOTTLE_WRAP_AXIS_BOUND")
         self.assertEqual(wrap_axis["verification_state"], "VERIFIED")
-        self.assertIn("E.FUNCTION_FIRST.BOTTLE_CYLINDER_AXIS.20260927T091941345Z", wrap_axis["evidence_refs"])
-        self.assertIn("E.FUNCTION_FIRST.BOTTLE_WRAP_AXIS_BINDING.20260927T091941345Z", wrap_axis["evidence_refs"])
 
-        wrench = by_id(
+        manifold = by_id(
             case["evidence_catalog"],
-            "E.FUNCTION_FIRST.BOTTLE_CONTACT_WRENCH_RANK.20260927T091125291Z",
+            "E.FUNCTION_FIRST.BOTTLE_LATERAL_CONTACT_MANIFOLD.20260927T100903861Z",
             field="evidence_id",
         )
-        self.assertEqual(wrench["evidence_type"], "deterministic_calculation")
-        self.assertEqual(wrench["evidence_state"], "MEASURED_CALCULATED")
-        self.assertEqual(wrench["source_authority"], "DETERMINISTIC_CALCULATION")
-        self.assertEqual(wrench["payload"]["result"]["matrix_rank"], 4)
-        self.assertEqual(wrench["payload"]["result"]["nullity"], 2)
-        self.assertTrue(wrench["payload"]["result"]["wrap_axis_rotation_test"]["is_null_mode"])
+        self.assertEqual(manifold["evidence_type"], "solidworks_observation")
+        self.assertEqual(manifold["evidence_state"], "VERIFIED")
+        self.assertEqual(manifold["source_authority"], "SOLIDWORKS_LIVE_STATE")
         self.assertEqual(
-            wrench["payload"]["result"]["restraint_projection"]["additional_independent_null_modes_beyond_wrap_axis_rotation"],
-            1,
+            [item["trimmed_axis_overlap"]["length_mm"] for item in manifold["payload"]["lateral_contact_manifolds"]],
+            [93, 93, 93],
         )
+        self.assertFalse(manifold["mechanical_acceptance_granted"])
+
+        finite_rank = by_id(
+            case["evidence_catalog"],
+            "E.FUNCTION_FIRST.BOTTLE_FINITE_LINE_RESTRAINT_RANK.20260927T100903861Z",
+            field="evidence_id",
+        )
+        self.assertEqual(finite_rank["evidence_type"], "deterministic_calculation")
+        self.assertEqual(finite_rank["evidence_state"], "MEASURED_CALCULATED")
+        self.assertEqual(finite_rank["payload"]["result"]["matrix_rank"], 5)
+        self.assertEqual(finite_rank["payload"]["result"]["nullity"], 1)
+        self.assertTrue(finite_rank["payload"]["result"]["wrap_axis_rotation_is_null_mode"])
         self.assertEqual(
-            wrench["payload"]["result"]["restraint_projection"]["five_dof_restraint_excluding_wrap_axis_rotation"],
-            "NOT_SUPPORTED_BY_CURRENT_FOUR_POINT_NORMAL_MODEL",
+            finite_rank["payload"]["result"]["five_dof_restraint_excluding_wrap_rotation"],
+            "SUPPORTED_BY_IDEAL_FINITE_LINE_NORMAL_MODEL",
         )
-        self.assertFalse(wrench["mechanical_acceptance_granted"])
+        self.assertFalse(finite_rank["mechanical_acceptance_granted"])
 
         support = by_id(case["obligations"], "BOTTLE_SUPPORT_CONTACT_SET_BOUND")
-        self.assertIn("E.FUNCTION_FIRST.BOTTLE_CONTACT_WRENCH_RANK.20260927T091125291Z", support["evidence_refs"])
+        self.assertIn(manifold["evidence_id"], support["evidence_refs"])
+        self.assertIn(finite_rank["evidence_id"], support["evidence_refs"])
         self.assertEqual(support["verification_state"], "UNRESOLVED")
 
-        rotation = by_id(case["obligations"], "BOTTLE_ROTATION_SOURCE_BOUND")
-        self.assertEqual(rotation["verification_state"], "UNRESOLVED")
-        self.assertIn("BOTTLE_WRAP_AXIS_BOUND", rotation["depends_on_requirement_ids"])
+        restraint = by_id(case["obligations"], "BOTTLE_RESTRAINT_THROUGHOUT_CAPTURE")
+        self.assertIn(finite_rank["evidence_id"], restraint["evidence_refs"])
+        self.assertEqual(restraint["verification_state"], "UNRESOLVED")
 
         ids = [item["id"] for item in case["next_tests"]]
-        self.assertEqual(ids, ["TEST_FUNCTION_FIRST_LATERAL_CONTACT_MANIFOLD"])
-        test = by_id(case["next_tests"], "TEST_FUNCTION_FIRST_LATERAL_CONTACT_MANIFOLD")
+        self.assertEqual(ids, ["TEST_FUNCTION_FIRST_CONTACT_MAINTENANCE_PRELOAD_SOURCE"])
+        test = by_id(case["next_tests"], "TEST_FUNCTION_FIRST_CONTACT_MAINTENANCE_PRELOAD_SOURCE")
         for token in (
-            "point, line/generator, or finite patch contact",
-            "measure its trimmed extent along the bound bottle rotation_wrap_axis",
-            "ClosestDistance point",
-            "adds an independent tilt-restraint constraint",
-            "preserving rotation about the bound wrap axis",
-            "preload/compliance",
-            "interval-wide behavior",
+            "93 mm lateral generator-line contacts",
+            "rank 5/nullity 1",
+            "maintains those unilateral lateral contacts",
+            "CAPTURE_AND_ROTATION",
+            "LABEL_TRANSFER_INTERVAL",
+            "WRAP_ACTIVE",
+            "usable travel/range",
+            "reaction path",
+            "Do not infer preload",
+            "Do not select a mechanism",
         ):
             self.assertIn(token, test["question"])
-        self.assertEqual(test["resolves_requirement_ids"], ["BOTTLE_SUPPORT_CONTACT_SET_BOUND"])
+
+        preload = by_id(case["hypotheses"], "H_CAPTURE_COMPLIANCE_OR_PRELOAD")
+        self.assertEqual(preload["evidence_state"], "UNRESOLVED")
+        self.assertEqual(preload["investigation_state"], "ACTIVE")
 
     def test_static_fit_remains_disproven_as_operating_proof(self):
         case = load_case()
