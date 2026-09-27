@@ -30,6 +30,8 @@ python agent-registry/orchestrator-v1/source_sync.py --state-dir /path/to/durabl
 
 The IXOR+ PDF is the cab 04/2026 manual, part 9004290.131, served from `file=4542` and pinned to its reviewed SHA-256. The earlier `file=4444` URL served cab's **ROXI** 04/2026 manual, part 9004202.131. That historical raw blob and candidate record remain immutable, but are misidentified as IXOR+ and must not be used as IXOR+ evidence. The corrected URL and byte pin reject an unexpected manual or later PDF revision until its identity is reviewed and the registry is updated.
 
+`reviews/PLAN-0010-source-review-20260927.json` records the correction and source-located publisher statements, along with the exact PLAN-0010 mechanism screens they leave unresolved. It is an unadmitted review for source acquisition, not a CAD or engineering-evidence promotion.
+
 ```bash
 python agent-registry/orchestrator-v1/source_capture.py --state-dir /path/to/durable/local/state
 ```
