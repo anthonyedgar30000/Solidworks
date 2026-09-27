@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "record_type": "evidence",
+  "evidence_id": "E.FUNCTION_FIRST.MECHANISM_REFERENCE_SOURCE_BOUNDARY.20260927T212442Z",
+  "evidence_type": "deterministic_calculation",
+  "evidence_state": "MEASURED_CALCULATED",
+  "source_authority": "DETERMINISTIC_CALCULATION",
+  "source_classification": "function_first_reference_source_boundary_projection_v1",
+  "subject": {
+    "subject_type": "function_first_reference_source_boundary_projection",
+    "identity_exact": "PLAN-0010 admitted CAB IXOR+ and HERMA mechanism-reference evidence"
+  },
+  "provenance": {
+    "recorded_at": "2026-09-27T21:24:42Z",
+    "source_ref": "Bounded projection from R.PLAN-0010.SOURCE_IDENTITY_AND_REFERENCE.20260927T210644Z and three admitted publisher EvidenceRecords.",
+    "tool_path": "CADGrounded deterministic source-boundary projection"
+  },
+  "dependencies": [
+    "E.FUNCTION_FIRST.MECHANISM_SCREEN.20260927T153026706Z",
+    "E.FUNCTION_FIRST.CAB_IXORPLUS.CENTERING_INTERFACE.20260927T212442Z",
+    "E.FUNCTION_FIRST.HERMA_152C.WRAP_CONFIGURATION.20260927T212442Z",
+    "E.FUNCTION_FIRST.HERMA_152C.ROLLER_PRISM_BEHAVIOR.20260927T212442Z"
+  ],
+  "geometry_state": "NOT_APPLICABLE",
+  "temporal_scope": {
+    "coverage": "POINT_ONLY",
+    "validity_state": "CURRENT",
+    "state_ids": [],
+    "transition_ids": []
+  },
+  "ambiguity_bucket": "OEM_SOURCE_REQUIRED",
+  "mechanical_acceptance_granted": false,
+  "payload": {
+    "method": "Project the admitted publisher statements against the nonranking PLAN-0010 mechanism-screen obligations without transferring comparative-OEM behavior into v43 project geometry.",
+    "inputs": [
+      "E.FUNCTION_FIRST.MECHANISM_SCREEN.20260927T153026706Z",
+      "E.FUNCTION_FIRST.CAB_IXORPLUS.CENTERING_INTERFACE.20260927T212442Z",
+      "E.FUNCTION_FIRST.HERMA_152C.WRAP_CONFIGURATION.20260927T212442Z",
+      "E.FUNCTION_FIRST.HERMA_152C.ROLLER_PRISM_BEHAVIOR.20260927T212442Z"
+    ],
+    "result": {
+      "source_acquisition_status": "REFERENCE_PATTERNS_ADMITTED_PROJECT_SPECIFIC_OWNER_UNRESOLVED",
+      "selection_status": "NOT_SELECTED",
+      "source_supported_patterns": [
+        "IXOR+ treats product centering and labeling start as distinct interface functions and names roller prism as an example of product centering.",
+        "HERMA 152C documents a wrap-belt plus counterpressure-plate configuration and an optional roller-prism plus wrap-roller configuration.",
+        "HERMA documents a roller-prism pattern that rotates and fixes the product during labeling."
+      ],
+      "engineering_evidence_layer_status": "UNRESOLVED_FOR_EVERY_CANDIDATE",
+      "unresolved_screen_ids": [
+        "CONTACT_MAINTENANCE_OWNER_BOUND",
+        "OPEN_CAPTURE_RELEASE_MOTION_BOUND",
+        "CONTACT_MAINTENANCE_LAW_BOUND",
+        "BOTTLE_CONTACT_INTERVAL_PROVEN",
+        "WRAP_AXIS_PRESERVATION_PROVEN",
+        "REACTION_PATH_BOUND",
+        "RELEASE_BEHAVIOR_PROVEN",
+        "TANGENTIAL_DRIVE_SEPARATION_BOUND",
+        "QUANTITATIVE_INPUTS_BOUND",
+        "LIMITS_AND_INTERFERENCE_PROVEN"
+      ],
+      "next_required_evidence": "Project-specific/OEM source or accepted deterministic specification naming the actual bottle-handling owner and mounting in v43, with closure and release motion, limits, contact maintenance, rotation input, and reaction support; only then test reachable geometry and interval-wide contact.",
+      "explicitly_not_claimed": [
+        "No publisher reference identifies the actual v43 bottle-handling owner.",
+        "Comparative HERMA mechanisms are not transferred into CAB/v43 as geometry or design intent.",
+        "No force, travel, stiffness, friction, timing, reaction-capacity, or reachable-state feasibility is established.",
+        "No candidate is ranked, preferred, or selected.",
+        "Mechanical acceptance remains false."
+      ]
+    }
+  }
+}
