@@ -1485,6 +1485,205 @@ function Get-CGMechanismCandidates {
     Write-CGOutput -Value $result -AsJson:$AsJson
 }
 
+function Test-CGMechanismCandidate {
+    [CmdletBinding(DefaultParameterSetName='One')]
+    param(
+        [Parameter(Mandatory=$true,ParameterSetName='One')]
+        [string]$CandidateId,
+
+        [Parameter(Mandatory=$true,ParameterSetName='All')]
+        [switch]$All,
+
+        [switch]$AsJson
+    )
+
+    $candidateEnvelope = Get-CGMechanismCandidates
+    if ([string]$candidateEnvelope.result -cne 'PASS') {
+        throw 'Mechanism candidate registry did not PASS.'
+    }
+    if ([string]$candidateEnvelope.data.selection_status -cne 'NOT_SELECTED') {
+        throw 'Mechanism candidate registry has an unexpected selection state.'
+    }
+
+    $screenPath = Join-Path $script:RepositoryRoot 'agent-registry\reasoning\candidates\function-first-mechanism-screen.v1.json'
+    if (-not (Test-Path -LiteralPath $screenPath -PathType Leaf)) {
+        throw "Mechanism screen contract not found: $screenPath"
+    }
+
+    $screen = Get-Content -LiteralPath $screenPath -Raw | ConvertFrom-Json
+    if ([string]$screen.screen_model_id -cne 'CADGROUNDED.IXOR.MECHANISM_SCREEN.V1') {
+        throw "Unexpected mechanism screen model id '$($screen.screen_model_id)'."
+    }
+    if ([string]$screen.basis_candidate_registry_id -cne [string]$candidateEnvelope.data.registry_id) {
+        throw 'Mechanism screen contract candidate-registry binding does not match current registry.'
+    }
+    if ([string]$screen.basis_requirement_model_id -cne [string]$candidateEnvelope.data.basis_requirement_model_id) {
+        throw 'Mechanism screen contract requirement-model binding does not match current registry.'
+    }
+
+    $allowedStatuses = @($screen.allowed_statuses | ForEach-Object { [string]$_ })
+    foreach ($requiredStatus in @('PASS','FAIL','UNRESOLVED')) {
+        if ($allowedStatuses -notcontains $requiredStatus) {
+            throw "Mechanism screen contract is missing required status '$requiredStatus'."
+        }
+    }
+
+    $forbiddenNames = @('rank','ranking','score','winner','preferred_candidate','selected_candidate','overall_pass_fail_verdict')
+    $screenText = Get-Content -LiteralPath $screenPath -Raw
+    foreach ($forbidden in $forbiddenNames) {
+        if ($screenText -match ('"' + [regex]::Escape($forbidden) + '"\s*:')) {
+            throw "Mechanism screen contract contains prohibited output property '$forbidden'."
+        }
+    }
+
+    $registered = @($candidateEnvelope.data.candidates)
+    $targets = @()
+    if ($PSCmdlet.ParameterSetName -ceq 'All') {
+        $targets = $registered
+    } else {
+        $matches = @($registered | Where-Object { [string]$_.candidate_id -ceq $CandidateId })
+        if ($matches.Count -ne 1) {
+            throw "Candidate id must resolve uniquely among eligible registry entries. Id='$CandidateId' Matches=$($matches.Count)."
+        }
+        $targets = @($matches[0])
+    }
+
+    function New-CGScreenResultRowLocal {
+        param(
+            [Parameter(Mandatory=$true)]$ScreenDefinition,
+            [Parameter(Mandatory=$true)][ValidateSet('PASS','FAIL','UNRESOLVED')][string]$Status,
+            [Parameter(Mandatory=$true)][string]$Basis,
+            [string[]]$EvidenceRefs = @()
+        )
+
+        [pscustomobject][ordered]@{
+            screen_id = [string]$ScreenDefinition.id
+            layer = [string]$ScreenDefinition.layer
+            question = [string]$ScreenDefinition.question
+            status = $Status
+            basis = $Basis
+            evidence_refs = @($EvidenceRefs)
+        }
+    }
+
+    function Invoke-CGCandidateScreenLocal {
+        param([Parameter(Mandatory=$true)]$Candidate)
+
+        $rows = @()
+        foreach ($definition in @($screen.screens)) {
+            $id = [string]$definition.id
+            switch ($id) {
+                'CANDIDATE_REGISTERED' {
+                    $rows += New-CGScreenResultRowLocal -ScreenDefinition $definition -Status 'PASS' -Basis 'Exact unique candidate registry entry is present.' -EvidenceRefs @($candidateEnvelope.data.basis_evidence_ids)
+                }
+                'ELIGIBILITY_STATE' {
+                    if ([string]$Candidate.eligibility_state -ceq 'ELIGIBLE') {
+                        $rows += New-CGScreenResultRowLocal -ScreenDefinition $definition -Status 'PASS' -Basis 'Candidate registry explicitly marks this family ELIGIBLE.' -EvidenceRefs @($candidateEnvelope.data.basis_evidence_ids)
+                    } else {
+                        $rows += New-CGScreenResultRowLocal -ScreenDefinition $definition -Status 'FAIL' -Basis "Candidate registry state is '$($Candidate.eligibility_state)', not ELIGIBLE."
+                    }
+                }
+                'PROVENANCE_STATED' {
+                    if ([string]$Candidate.provenance_state -ceq 'FUNCTION_FIRST_HYPOTHESIS_ONLY') {
+                        $rows += New-CGScreenResultRowLocal -ScreenDefinition $definition -Status 'PASS' -Basis 'Candidate provenance is explicitly bounded to FUNCTION_FIRST_HYPOTHESIS_ONLY.'
+                    } else {
+                        $rows += New-CGScreenResultRowLocal -ScreenDefinition $definition -Status 'UNRESOLVED' -Basis "Candidate provenance state '$($Candidate.provenance_state)' does not satisfy the current screen contract."
+                    }
+                }
+                'STANDALONE_KINEMATIC_ARCHITECTURE_CLASS' {
+                    if ([string]$Candidate.completeness_class -ceq 'KINEMATIC_ARCHITECTURE') {
+                        $rows += New-CGScreenResultRowLocal -ScreenDefinition $definition -Status 'PASS' -Basis 'Candidate definition explicitly classifies this family as KINEMATIC_ARCHITECTURE. This is definition completeness only.'
+                    } elseif ([string]$Candidate.completeness_class -ceq 'MAINTENANCE_LAW_AUGMENTATION') {
+                        $rows += New-CGScreenResultRowLocal -ScreenDefinition $definition -Status 'FAIL' -Basis 'Candidate definition explicitly classifies this family as MAINTENANCE_LAW_AUGMENTATION, so it is not a standalone entry/capture/release architecture.'
+                    } else {
+                        $rows += New-CGScreenResultRowLocal -ScreenDefinition $definition -Status 'UNRESOLVED' -Basis "Candidate completeness class '$($Candidate.completeness_class)' is not recognized by the current screen contract."
+                    }
+                }
+                'CONTACT_MAINTENANCE_OWNER_BOUND' {
+                    $rows += New-CGScreenResultRowLocal -ScreenDefinition $definition -Status 'UNRESOLVED' -Basis 'Registry defines the required owner binding but does not bind an exact physical or accepted deterministic owner for this candidate.'
+                }
+                'OPEN_CAPTURE_RELEASE_MOTION_BOUND' {
+                    $rows += New-CGScreenResultRowLocal -ScreenDefinition $definition -Status 'UNRESOLVED' -Basis 'Registry states required motion/limits but supplies no candidate-specific axis/pivot, travel/range, open/capture/release positions, or limits.'
+                }
+                'CONTACT_MAINTENANCE_LAW_BOUND' {
+                    $rows += New-CGScreenResultRowLocal -ScreenDefinition $definition -Status 'UNRESOLVED' -Basis 'Registry states the required maintenance-law class but supplies no candidate-specific force/position/compliance law.'
+                }
+                'BOTTLE_CONTACT_INTERVAL_PROVEN' {
+                    $rows += New-CGScreenResultRowLocal -ScreenDefinition $definition -Status 'UNRESOLVED' -Basis 'No candidate-specific interval-wide contact observation or deterministic reachable-state proof has been admitted.'
+                }
+                'WRAP_AXIS_PRESERVATION_PROVEN' {
+                    $rows += New-CGScreenResultRowLocal -ScreenDefinition $definition -Status 'UNRESOLVED' -Basis 'Bottle wrap axis is already bound globally, but no candidate-specific geometry proves preservation of that axis during maintained contact.'
+                }
+                'REACTION_PATH_BOUND' {
+                    $rows += New-CGScreenResultRowLocal -ScreenDefinition $definition -Status 'UNRESOLVED' -Basis 'Registry states the required reaction-path endpoint but no candidate-specific structural path to fixed support is bound.'
+                }
+                'RELEASE_BEHAVIOR_PROVEN' {
+                    $rows += New-CGScreenResultRowLocal -ScreenDefinition $definition -Status 'UNRESOLVED' -Basis 'Registry states required release behavior but no candidate-specific release motion or downstream clearance is proved.'
+                }
+                'TANGENTIAL_DRIVE_SEPARATION_BOUND' {
+                    $rows += New-CGScreenResultRowLocal -ScreenDefinition $definition -Status 'UNRESOLVED' -Basis 'Normal closure and tangential drive are requirement-level concepts; no candidate-specific rotation source/traction binding is admitted.'
+                }
+                'QUANTITATIVE_INPUTS_BOUND' {
+                    $unresolved = @($Candidate.required_bindings.unresolved_quantitative_inputs)
+                    if ($unresolved.Count -gt 0) {
+                        $rows += New-CGScreenResultRowLocal -ScreenDefinition $definition -Status 'UNRESOLVED' -Basis ('Candidate registry explicitly preserves unresolved quantitative inputs: ' + ($unresolved -join '; '))
+                    } else {
+                        $rows += New-CGScreenResultRowLocal -ScreenDefinition $definition -Status 'UNRESOLVED' -Basis 'No authoritative quantitative-input evidence is bound by the current registry.'
+                    }
+                }
+                'LIMITS_AND_INTERFERENCE_PROVEN' {
+                    $rows += New-CGScreenResultRowLocal -ScreenDefinition $definition -Status 'UNRESOLVED' -Basis 'No candidate-specific reachable-state sweep or equivalent entry/transfer/wrap/release interference evidence exists.'
+                }
+                default {
+                    throw "Unsupported mechanism screen id '$id'."
+                }
+            }
+        }
+
+        [pscustomobject][ordered]@{
+            candidate_id = [string]$Candidate.candidate_id
+            hypothesis_id = [string]$Candidate.hypothesis_id
+            family = [string]$Candidate.family
+            eligibility_state = [string]$Candidate.eligibility_state
+            completeness_class = [string]$Candidate.completeness_class
+            provenance_state = [string]$Candidate.provenance_state
+            screen_model_id = [string]$screen.screen_model_id
+            screen_rows = @($rows)
+            unresolved_quantitative_inputs = @($Candidate.required_bindings.unresolved_quantitative_inputs)
+            selection_effect = 'NONE'
+            interpretation_boundary = @(
+                'Definition-layer PASS does not establish physical geometry, motion, force, or feasibility.',
+                'Engineering-evidence UNRESOLVED remains unresolved even when candidate requirement text describes what must eventually be supplied.',
+                'A standalone-architecture FAIL for an augmentation class does not prohibit pairing that augmentation with a separately defined parent architecture.',
+                'This screen is non-ranking and cannot select a candidate.'
+            )
+        }
+    }
+
+    $screened = @($targets | ForEach-Object { Invoke-CGCandidateScreenLocal -Candidate $_ })
+
+    $data = [ordered]@{
+        screen_model_id = [string]$screen.screen_model_id
+        candidate_registry_id = [string]$candidateEnvelope.data.registry_id
+        selection_status = 'NOT_SELECTED'
+        screened_candidates = $screened
+        prohibited_outputs = @($screen.prohibited_outputs)
+    }
+
+    $result = New-CGEnvelope -CapabilityId 'cg.mechanism.screen' -Result 'PASS' -Data $data -SourceAuthority 'DETERMINISTIC_CALCULATION' -SourceClassification 'function_first_mechanism_screen_v1' -AmbiguityBucket 'MULTIPLE_PLAUSIBLE_HYPOTHESES' -Establishes @(
+        'bounded PASS/FAIL/UNRESOLVED screening of candidate definition and current evidence sufficiency against the common mechanism screen contract',
+        'explicit distinction between definition completeness and physical engineering evidence',
+        'maintenance-law augmentation is not a standalone kinematic architecture',
+        'candidate selection remains NOT_SELECTED'
+    ) -DoesNotEstablish @(
+        'candidate ranking, score, winner, preference, or selection',
+        'candidate-specific geometry, motion, force, preload, stiffness, friction, timing, reaction capacity, or interval-wide feasibility',
+        'mechanical acceptance'
+    )
+
+    Write-CGOutput -Value $result -AsJson:$AsJson
+}
+
 function Get-CGCurrentPlan {
     [CmdletBinding()]
     param([switch]$AsJson)
@@ -1601,6 +1800,7 @@ Export-ModuleMember -Function @(
     'Get-CGBottleContactWrenchRank',
     'Get-CGContactMaintenanceRequirements',
     'Get-CGMechanismCandidates',
+    'Test-CGMechanismCandidate',
     'Get-CGCurrentPlan',
     'Get-CGInvestigationFrontier',
     'Invoke-CGRegisteredVerifier'
