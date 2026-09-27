@@ -1,6 +1,6 @@
 ﻿from datetime import datetime, timezone
 from pathlib import Path
-from typing import Literal
+from typing import Any, Literal
 import hashlib
 import json
 import uuid
@@ -18,6 +18,13 @@ from semantic_policy import (
     supported_hypothesis_anchor_pairs,
     validate_semantic_admission,
 )
+from frontier_binding import (
+    FrontierBindingError,
+    bind_hypotheses,
+    frontier_snapshot_metadata,
+    load_current_frontier,
+    render_frontier_catalog,
+)
 
 
 BASE_DIR = Path(r"C:\CADGrounded\reasoning-node")
@@ -31,11 +38,17 @@ with NODE_CONFIG.open("r", encoding="utf-8") as f:
 NODE_ID = config["node_id"]
 OLLAMA_ENDPOINT = config["ollama"]["endpoint"]
 MODEL = config["ollama"]["initial_model"]
+REPO_ROOT = Path(
+    config.get(
+        "repository_root",
+        r"C:\CADGrounded\Solidworks",
+    )
+)
 
 
 app = FastAPI(
     title="CADGrounded Reasoning Node",
-    version="0.6.0",
+    version="0.7.0",
 )
 
 
@@ -153,6 +166,10 @@ class ReasonResponse(BaseModel):
     semantic_admitted: Literal[True] = True
     semantic_repair_attempted: bool = False
     semantic_repair_count: int = Field(default=0, ge=0, le=1)
+    frontier_binding_applied: bool = False
+    frontier_admitted: bool | None = None
+    frontier_snapshot: dict[str, Any] | None = None
+    frontier_bindings: list[dict[str, Any]] = Field(default_factory=list)
 
     result: AdvisoryPayload
 
@@ -345,7 +362,13 @@ def semantic_repair_prompt(
     request: ReasonRequest,
     original_raw: str,
     violations: list[str],
+    frontier_catalog_text: str = "",
 ) -> str:
+    frontier_section = (
+        "\n" + frontier_catalog_text + "\n"
+        if frontier_catalog_text
+        else ""
+    )
     return f"""
 {SYSTEM_BOUNDARY}
 
@@ -362,7 +385,7 @@ SUPPLIED EVIDENCE:
 
 DETERMINISTIC GROUNDING CATALOG:
 {grounding_catalog(request.task, request.evidence)}
-
+{frontier_section}
 PREVIOUS SCHEMA-VALID PROPOSAL:
 {original_raw}
 
@@ -421,9 +444,19 @@ def healthz():
     except Exception:
         ollama = "unreachable"
 
+    try:
+        frontier = load_current_frontier(REPO_ROOT)
+        frontier_status = "bound"
+        frontier_meta = frontier_snapshot_metadata(frontier)
+        frontier_error = None
+    except Exception as exc:
+        frontier_status = "unavailable"
+        frontier_meta = None
+        frontier_error = f"{type(exc).__name__}:{exc}"
+
     return {
         "status": "ok",
-        "version": "0.6.0",
+        "version": "0.7.0",
         "node_id": NODE_ID,
         "role": "bounded_reasoning_node",
         "ollama": ollama,
@@ -438,6 +471,11 @@ def healthz():
             "max_attempts": 1,
             "authority": "NONE",
         },
+        "frontier_binding_policy": "fail_closed",
+        "frontier_repository_root": str(REPO_ROOT),
+        "frontier_status": frontier_status,
+        "frontier_snapshot": frontier_meta,
+        "frontier_error": frontier_error,
     }
 
 
@@ -447,6 +485,50 @@ def reason(request: ReasonRequest):
     request_id = str(uuid.uuid4())
     timestamp = utc_now()
     evidence_hash = sha256_text(request.evidence)
+    frontier_snapshot = None
+    frontier_catalog_text = ""
+
+    if request.task == "hypothesis_generation":
+        try:
+            frontier_snapshot = load_current_frontier(REPO_ROOT)
+            frontier_catalog_text = render_frontier_catalog(
+                frontier_snapshot
+            )
+        except Exception as exc:
+            failure_record = {
+                "request_id": request_id,
+                "timestamp_utc": timestamp,
+                "node_id": NODE_ID,
+                "model": MODEL,
+                "task": request.task,
+                "evidence_sha256": evidence_hash,
+                "status": "REJECTED_FRONTIER_UNAVAILABLE",
+                "schema_validated": False,
+                "semantic_admitted": False,
+                "frontier_binding_applied": False,
+                "frontier_admitted": False,
+                "reason": f"{type(exc).__name__}:{exc}",
+                "authority": {
+                    "solidworks_geometry": "NONE",
+                    "cad_write": "NONE",
+                    "mechanical_acceptance": "NONE",
+                    "evidence_verification": "NONE",
+                },
+            }
+            append_log(failure_record)
+            raise HTTPException(
+                status_code=422,
+                detail={
+                    "status": "REJECTED_FRONTIER_UNAVAILABLE",
+                    "message": "Current investigation frontier could not be bound deterministically.",
+                },
+            )
+
+    frontier_prompt_section = (
+        "\n" + frontier_catalog_text + "\n"
+        if frontier_catalog_text
+        else ""
+    )
 
     prompt = f"""
 {SYSTEM_BOUNDARY}
@@ -464,7 +546,7 @@ SUPPLIED EVIDENCE:
 
 DETERMINISTIC GROUNDING CATALOG:
 {grounding_catalog(request.task, request.evidence)}
-
+{frontier_prompt_section}
 Return only the required JSON object.
 """
 
@@ -598,6 +680,7 @@ Return only the required JSON object.
                         request,
                         raw_result,
                         initial_violations,
+                        frontier_catalog_text,
                     ),
                     "stream": False,
                     "format": AdvisoryPayload.model_json_schema(),
@@ -739,6 +822,65 @@ Return only the required JSON object.
         validated = repair_validated
         admission_status = "SEMANTICALLY_ADMITTED_AFTER_REPAIR"
 
+    frontier_binding_applied = False
+    frontier_admitted = None
+    frontier_meta = None
+    frontier_bindings: list[dict[str, Any]] = []
+
+    if request.task == "hypothesis_generation":
+        frontier_binding_applied = True
+        frontier_meta = frontier_snapshot_metadata(frontier_snapshot)
+
+        try:
+            frontier_bindings = bind_hypotheses(
+                validated.model_dump(),
+                frontier_snapshot,
+            )
+            frontier_admitted = True
+        except FrontierBindingError as exc:
+            frontier_bindings = list(
+                getattr(exc, "bindings", [])
+            )
+            failure_record = {
+                "request_id": request_id,
+                "timestamp_utc": timestamp,
+                "node_id": NODE_ID,
+                "model": MODEL,
+                "task": request.task,
+                "evidence_sha256": evidence_hash,
+                "proposal_raw_sha256": sha256_text(raw_result),
+                "proposal_raw": raw_result,
+                "proposal_validated": validated.model_dump(),
+                "status": "REJECTED_FRONTIER_POLICY",
+                "schema_validated": True,
+                "semantic_admitted": True,
+                "semantic_repair_attempted": semantic_repair_attempted,
+                "semantic_repair_count": semantic_repair_count,
+                "frontier_binding_applied": True,
+                "frontier_admitted": False,
+                "frontier_snapshot": frontier_meta,
+                "frontier_bindings": frontier_bindings,
+                "violations": list(exc.violations),
+                "authority": {
+                    "solidworks_geometry": "NONE",
+                    "cad_write": "NONE",
+                    "mechanical_acceptance": "NONE",
+                    "evidence_verification": "NONE",
+                },
+            }
+            if semantic_repair_record is not None:
+                failure_record["semantic_repair"] = (
+                    semantic_repair_record
+                )
+            append_log(failure_record)
+            raise HTTPException(
+                status_code=422,
+                detail={
+                    "status": "REJECTED_FRONTIER_POLICY",
+                    "violations": list(exc.violations),
+                },
+            )
+
     result = ReasonResponse(
         request_id=request_id,
         timestamp_utc=timestamp,
@@ -748,6 +890,10 @@ Return only the required JSON object.
         evidence_sha256=evidence_hash,
         semantic_repair_attempted=semantic_repair_attempted,
         semantic_repair_count=semantic_repair_count,
+        frontier_binding_applied=frontier_binding_applied,
+        frontier_admitted=frontier_admitted,
+        frontier_snapshot=frontier_meta,
+        frontier_bindings=frontier_bindings,
         result=validated,
     )
 
@@ -766,6 +912,10 @@ Return only the required JSON object.
         "semantic_admitted": True,
         "semantic_repair_attempted": semantic_repair_attempted,
         "semantic_repair_count": semantic_repair_count,
+        "frontier_binding_applied": frontier_binding_applied,
+        "frontier_admitted": frontier_admitted,
+        "frontier_snapshot": frontier_meta,
+        "frontier_bindings": frontier_bindings,
         "authority": {
             "solidworks_geometry": "NONE",
             "cad_write": "NONE",

@@ -283,6 +283,20 @@ class SemanticIntegrationTests(unittest.TestCase):
         self.assertTrue(result.semantic_admitted)
         self.assertFalse(result.semantic_repair_attempted)
         self.assertEqual(result.semantic_repair_count, 0)
+        self.assertTrue(result.frontier_binding_applied)
+        self.assertTrue(result.frontier_admitted)
+        self.assertEqual(
+            result.frontier_snapshot["current_architecture_id"],
+            "IXOR_FUNCTION_FIRST_BOTTLE_HANDLING_REFERENCE",
+        )
+        self.assertEqual(
+            result.frontier_bindings[0]["frontier_hypothesis_id"],
+            "H_CAPTURE_CLOSURE_OWNER",
+        )
+        self.assertEqual(
+            result.frontier_bindings[0]["binding_disposition"],
+            "KNOWN_ACTIVE",
+        )
         self.assertEqual(post.call_count, 1)
         self.assertEqual(result.cad_write_authority, "NONE")
         self.assertEqual(
@@ -301,6 +315,12 @@ class SemanticIntegrationTests(unittest.TestCase):
         )
         self.assertFalse(record["semantic_repair_attempted"])
         self.assertEqual(record["semantic_repair_count"], 0)
+        self.assertTrue(record["frontier_binding_applied"])
+        self.assertTrue(record["frontier_admitted"])
+        self.assertEqual(
+            record["frontier_bindings"][0]["frontier_hypothesis_id"],
+            "H_CAPTURE_CLOSURE_OWNER",
+        )
         self.assertEqual(
             record["proposal_validated"],
             payload,
@@ -313,6 +333,18 @@ class SemanticIntegrationTests(unittest.TestCase):
         )
         self.assertIn(
             "HYPOTHESIS GENERATION CONTRACT",
+            prompt,
+        )
+        self.assertIn(
+            "CURRENT INVESTIGATION FRONTIER",
+            prompt,
+        )
+        self.assertIn(
+            "H_STATIC_FIT_IS_SUFFICIENT_FOR_CAPTURE",
+            prompt,
+        )
+        self.assertIn(
+            "evidence=DISPROVEN",
             prompt,
         )
         self.assertIn(
@@ -352,6 +384,91 @@ class SemanticIntegrationTests(unittest.TestCase):
             "No evidence supplied here establishes the complete operating motion sequence.",
             catalog,
         )
+
+    @patch("app.append_log")
+    @patch("app.requests.post")
+    def test_frontier_disproven_hypothesis_fails_closed(
+        self,
+        post,
+        append_log,
+    ):
+        rejected_payload = advisory(
+            buckets=["KINEMATIC_STATE_UNRESOLVED"],
+            claims=[
+                "Capture kinematic ownership is unresolved."
+            ],
+            hypotheses=[
+                candidate_hypothesis(
+                    statement=(
+                        "Hypothesis: a static fit pose may be sufficient "
+                        "to establish operational capture."
+                    ),
+                    hypothesis_class="CLOSURE_KINEMATICS",
+                )
+            ],
+        )
+        post.return_value = FakeOllamaResponse(rejected_payload)
+
+        with self.assertRaises(HTTPException) as ctx:
+            app.reason(
+                app.ReasonRequest(
+                    task="hypothesis_generation",
+                    evidence=EVIDENCE,
+                )
+            )
+
+        self.assertEqual(ctx.exception.status_code, 422)
+        self.assertEqual(
+            ctx.exception.detail["status"],
+            "REJECTED_FRONTIER_POLICY",
+        )
+        self.assertIn(
+            "FRONTIER_HYPOTHESIS_DISPROVEN:0:"
+            "H_STATIC_FIT_IS_SUFFICIENT_FOR_CAPTURE",
+            ctx.exception.detail["violations"],
+        )
+        self.assertEqual(post.call_count, 1)
+
+        record = append_log.call_args.args[0]
+        self.assertTrue(record["schema_validated"])
+        self.assertTrue(record["semantic_admitted"])
+        self.assertFalse(record["frontier_admitted"])
+        self.assertEqual(
+            record["frontier_bindings"][0]["frontier_action"],
+            "SUPPRESS_DISPROVEN",
+        )
+
+    @patch("app.append_log")
+    @patch("app.requests.post")
+    @patch("app.load_current_frontier")
+    def test_frontier_unavailable_fails_before_ollama_call(
+        self,
+        load_frontier,
+        post,
+        append_log,
+    ):
+        load_frontier.side_effect = RuntimeError("frontier missing")
+
+        with self.assertRaises(HTTPException) as ctx:
+            app.reason(
+                app.ReasonRequest(
+                    task="hypothesis_generation",
+                    evidence=EVIDENCE,
+                )
+            )
+
+        self.assertEqual(
+            ctx.exception.detail["status"],
+            "REJECTED_FRONTIER_UNAVAILABLE",
+        )
+        post.assert_not_called()
+        record = append_log.call_args.args[0]
+        self.assertEqual(
+            record["status"],
+            "REJECTED_FRONTIER_UNAVAILABLE",
+        )
+        self.assertFalse(record["frontier_binding_applied"])
+        self.assertFalse(record["frontier_admitted"])
 
     @patch("app.append_log")
     @patch("app.requests.post")
