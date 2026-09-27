@@ -52,6 +52,7 @@ $expectedCommands = @(
     'Test-CGTopologyChain',
     'Get-CGMateBinding',
     'Get-CGRequiredBottleDOF',
+    'Get-CGBottleContactConstraintMap',
     'Get-CGCurrentPlan',
     'Get-CGInvestigationFrontier',
     'Invoke-CGRegisteredVerifier'
@@ -73,6 +74,7 @@ $requiredImplemented = @(
     'cg.topology.chain',
     'cg.mates.bind',
     'cg.product.required-dof',
+    'cg.product.contact-constraint-map',
     'cg.frontier.read',
     'cg.verifier.v43.full-chain-mates',
     'cg.verifier.function-first.bottle-support-contact'
@@ -130,6 +132,18 @@ Assert-True ([string]$bottleSupportVerifier.status -ceq 'IMPLEMENTED') 'Bottle s
 Assert-True ([string]$bottleSupportVerifier.execution_kind -ceq 'registered_verifier') 'Bottle support/contact verifier execution kind is incorrect.'
 Assert-True ([string]$bottleSupportVerifier.write_authority -ceq 'NONE') 'Bottle support/contact verifier must remain read-only.'
 Assert-True ([string]$bottleSupportVerifier.verifier_path -ceq 'agent-registry/workers/CadGrounded.SolidWorksWorker/Verify-ClassifyContact-FunctionFirst-BottleSupport.ps1') 'Bottle support/contact verifier path is incorrect.'
+
+$constraintMap = Get-CGBottleContactConstraintMap -EvidenceOnly
+Assert-True ([string]$constraintMap.capability_id -ceq 'cg.product.contact-constraint-map') 'Constraint-map capability id is incorrect.'
+Assert-True ($constraintMap.data.lateral_normal_closure.positive_span -eq $true) 'Three lateral normal reactions must positively span assembly XY in the admitted fixture.'
+Assert-True ([string]$constraintMap.data.lateral_normal_closure.state -ceq 'SUPPORTED_CURRENT_POSE_FRICTIONLESS_NORMAL_MODEL') 'Constraint-map lateral closure state is incorrect.'
+Assert-True ([Math]::Abs([double]$constraintMap.data.common_axis_candidate.point_xy_mm[0] - (-153.42061528267112)) -lt 1e-6) 'Constraint-map common-axis X is incorrect.'
+Assert-True ([Math]::Abs([double]$constraintMap.data.common_axis_candidate.point_xy_mm[1] - (-214.0)) -lt 1e-6) 'Constraint-map common-axis Y is incorrect.'
+Assert-True ([double]$constraintMap.data.radial_geometry.radius_spread_mm -lt 1e-6) 'Constraint-map lateral radii should agree to numerical precision.'
+Assert-True ([double]$constraintMap.data.normal_reaction_moment_about_common_axis.max_abs_torque_per_unit_reaction_mm -lt 1e-6) 'Constraint-map normal reactions should have near-zero moment about the common axis.'
+Assert-True ([string]$constraintMap.data.functional_projection.tilt_restraint -ceq 'UNRESOLVED') 'Constraint map must preserve unresolved tilt restraint.'
+Assert-True ([string]$constraintMap.data.functional_projection.frictional_wrap_torque -ceq 'UNRESOLVED') 'Constraint map must preserve unresolved frictional wrap torque.'
+Assert-True ($constraintMap.mechanical_acceptance_granted -eq $false) 'Constraint map must not grant mechanical acceptance.'
 
 $currentPlan = Get-CGCurrentPlan
 Assert-True (-not [string]::IsNullOrWhiteSpace([string]$currentPlan.current_plan_id)) 'CURRENT_PLAN has no current_plan_id.'

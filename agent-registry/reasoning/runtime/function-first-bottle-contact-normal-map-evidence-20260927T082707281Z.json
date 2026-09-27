@@ -1,0 +1,207 @@
+{
+  "schema_version": 1,
+  "record_type": "evidence",
+  "evidence_id": "E.FUNCTION_FIRST.BOTTLE_CONTACT_NORMAL_MAP.20260927T082707281Z",
+  "evidence_type": "solidworks_observation",
+  "evidence_state": "VERIFIED",
+  "source_authority": "SOLIDWORKS_LIVE_STATE",
+  "source_classification": "verified_from_solidworks_api",
+  "subject": {
+    "subject_type": "function_first_four_touching_pair_contact_normal_map",
+    "identity_exact": "BENCH_BOTTLE_D48_H180-2 vs conveyor, driven wrap belt, support roller 1, support roller 2",
+    "document_title_exact": "IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE",
+    "document_path_exact": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE.SLDASM"
+  },
+  "provenance": {
+    "recorded_at": "2026-09-27T08:27:07.2817424Z",
+    "source_ref": "User-supplied Windows-host verification artifact verification-output/function-first-bottle-contact-normals/verification-summary.json",
+    "sha256": "21d5ffedaae473247ff05d249aaec2f2dbc9f95ea713d592c3f7d60510afe469",
+    "tool_path": "Verify-ContactSurfaceNormals-FunctionFirst-BottleContacts.ps1; CadGrounded.SolidWorksWorker sw.classify_contact_pair + sw.contact_surface_normals_pair"
+  },
+  "dependencies": [
+    "E.FUNCTION_FIRST.BOTTLE_CONTACT_SET.20260927T081157483Z",
+    "E.FUNCTION_FIRST.BOTTLE_CONVEYOR_NORMALS.20260927T081632302Z"
+  ],
+  "geometry_state": "CANDIDATE_OPERATING",
+  "temporal_scope": {
+    "coverage": "POINT_ONLY",
+    "validity_state": "CURRENT",
+    "state_ids": [],
+    "transition_ids": []
+  },
+  "ambiguity_bucket": "GEOMETRY_UNRESOLVED",
+  "mechanical_acceptance_granted": false,
+  "payload": {
+    "document": {
+      "title": "IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE",
+      "path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE.SLDASM",
+      "active_configuration_exact": "V43_WRAP"
+    },
+    "worker_version": "0.4.4",
+    "write_authority": "NONE",
+    "remote_queue_authorized": false,
+    "assembly_file_sha256_before": "dcd53467d2693283bb6617bdde1d4da8c19790615385e307671690ddce84b32a",
+    "assembly_file_sha256_after": "dcd53467d2693283bb6617bdde1d4da8c19790615385e307671690ddce84b32a",
+    "pairs": [
+      {
+        "pair_id": "conveyor",
+        "component_b": "BENCH_CONVEYOR_L900_W82_H950-1",
+        "role_candidate": "vertical_support_candidate",
+        "contact_point_mm": [
+          -153.42061528267112,
+          -214,
+          950
+        ],
+        "minimum_distance_mm": 0,
+        "intersection_volume_mm3": 0,
+        "bottle_face_candidates": [
+          {
+            "unit_normal_assembly": [
+              0,
+              0,
+              -1
+            ],
+            "normal_state": "observed_planar_face_normal",
+            "point_residual_mm": 0
+          }
+        ],
+        "other_face_candidates": [
+          {
+            "unit_normal_assembly": [
+              0,
+              0,
+              1
+            ],
+            "normal_state": "observed_planar_face_normal",
+            "point_residual_mm": 0
+          }
+        ]
+      },
+      {
+        "pair_id": "wrap_belt",
+        "component_b": "FITCHECK_DRIVEN_WRAP_BELT_5x160x93_V25-1",
+        "role_candidate": "wrap_drive_contact_candidate",
+        "contact_point_mm": [
+          -129.42061528267112,
+          -214,
+          995
+        ],
+        "minimum_distance_mm": 0,
+        "intersection_volume_mm3": 0,
+        "bottle_face_candidates": [
+          {
+            "unit_normal_assembly": [
+              1,
+              0,
+              0
+            ],
+            "normal_state": "observed_surface_normal",
+            "point_residual_mm": 0
+          }
+        ],
+        "other_face_candidates": [
+          {
+            "unit_normal_assembly": [
+              -1,
+              0,
+              0
+            ],
+            "normal_state": "observed_planar_face_normal",
+            "point_residual_mm": 0
+          },
+          {
+            "unit_normal_assembly": [
+              0,
+              0,
+              -1
+            ],
+            "normal_state": "observed_planar_face_normal",
+            "point_residual_mm": 0
+          }
+        ]
+      },
+      {
+        "pair_id": "roller_1",
+        "component_b": "FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25-1",
+        "role_candidate": "lateral_support_candidate_1",
+        "contact_point_mm": [
+          -163.26532216974627,
+          -235.88793609063163,
+          1088
+        ],
+        "minimum_distance_mm": 9.520131864720731e-9,
+        "intersection_volume_mm3": 0,
+        "bottle_face_candidates": [
+          {
+            "unit_normal_assembly": [
+              -0.4101961202947978,
+              -0.9119973371096518,
+              0
+            ],
+            "normal_state": "observed_surface_normal",
+            "point_residual_mm": 0
+          }
+        ],
+        "other_face_candidates": [
+          {
+            "unit_normal_assembly": [
+              0,
+              0,
+              1
+            ],
+            "normal_state": "observed_planar_face_normal",
+            "point_residual_mm": 0
+          },
+          {
+            "unit_normal_assembly": [
+              0.4101546997874905,
+              0.9120159660018203,
+              0
+            ],
+            "normal_state": "observed_surface_normal",
+            "point_residual_mm": 0
+          }
+        ]
+      },
+      {
+        "pair_id": "roller_2",
+        "component_b": "FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25-2",
+        "role_candidate": "lateral_support_candidate_2",
+        "contact_point_mm": [
+          -172.12743815825996,
+          -198.96488184611286,
+          1041.686
+        ],
+        "minimum_distance_mm": 2.5746927072969167e-9,
+        "intersection_volume_mm3": 0,
+        "bottle_face_candidates": [
+          {
+            "unit_normal_assembly": [
+              -0.7794509531495346,
+              0.626463256411964,
+              0
+            ],
+            "normal_state": "observed_surface_normal",
+            "point_residual_mm": 0
+          }
+        ],
+        "other_face_candidates": [
+          {
+            "unit_normal_assembly": [
+              0.77946395128465,
+              -0.6264470836772416,
+              0
+            ],
+            "normal_state": "observed_surface_normal",
+            "point_residual_mm": 0
+          }
+        ]
+      }
+    ],
+    "explicitly_not_claimed": [
+      "This point-pose normal map does not establish gravity/up-axis semantics.",
+      "It does not establish functional support/restraint sufficiency or interval-wide contact.",
+      "It does not establish friction, traction, force, preload, stiffness, pressure, reaction capacity, mechanism selection, or mechanical acceptance."
+    ]
+  }
+}

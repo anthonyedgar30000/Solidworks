@@ -611,6 +611,333 @@ function Get-CGRequiredBottleDOF {
     Write-CGOutput -Value $result -AsJson:$AsJson
 }
 
+function Get-CGBottleContactConstraintMap {
+    [CmdletBinding()]
+    param(
+        [string]$EvidencePath = 'agent-registry\reasoning\runtime\function-first-bottle-contact-normal-map-evidence-20260927T082707281Z.json',
+        [double]$Tolerance = 1e-6,
+        [switch]$EvidenceOnly,
+        [switch]$AsJson
+    )
+
+    if ($Tolerance -le 0) { throw 'Tolerance must be greater than zero.' }
+
+    if ([IO.Path]::IsPathRooted($EvidencePath)) {
+        $resolvedEvidencePath = [IO.Path]::GetFullPath($EvidencePath)
+    } else {
+        $resolvedEvidencePath = [IO.Path]::GetFullPath((Join-Path $script:RepositoryRoot $EvidencePath))
+    }
+
+    $repoPrefix = [IO.Path]::GetFullPath($script:RepositoryRoot).TrimEnd([IO.Path]::DirectorySeparatorChar) + [IO.Path]::DirectorySeparatorChar
+    if (-not $resolvedEvidencePath.StartsWith($repoPrefix,[StringComparison]::OrdinalIgnoreCase)) {
+        throw 'Constraint-map evidence path escaped the repository root.'
+    }
+    if (-not (Test-Path -LiteralPath $resolvedEvidencePath -PathType Leaf)) {
+        throw "Constraint-map evidence file not found: $resolvedEvidencePath"
+    }
+
+    $evidence = Get-Content -LiteralPath $resolvedEvidencePath -Raw | ConvertFrom-Json
+    if ([string]$evidence.evidence_id -cne 'E.FUNCTION_FIRST.BOTTLE_CONTACT_NORMAL_MAP.20260927T082707281Z') {
+        throw "Unexpected contact-normal evidence id '$($evidence.evidence_id)'."
+    }
+    if ([string]$evidence.evidence_state -cne 'VERIFIED') {
+        throw "Contact-normal evidence is not VERIFIED. Actual='$($evidence.evidence_state)'."
+    }
+    if ([string]$evidence.source_authority -cne 'SOLIDWORKS_LIVE_STATE') {
+        throw "Unexpected source authority '$($evidence.source_authority)'."
+    }
+
+    $document = $evidence.payload.document
+    $freshness = [ordered]@{
+        mode = if ($EvidenceOnly) { 'ADMITTED_SNAPSHOT_ONLY' } else { 'LIVE_ASSEMBLY_FILE_MATCH_REQUIRED' }
+        live_match = $null
+        observed_file_sha256 = $null
+        expected_file_sha256 = [string]$evidence.payload.assembly_file_sha256_after
+    }
+
+    if (-not $EvidenceOnly) {
+        $status = Invoke-CGWorkerCli -Arguments @('status')
+        Assert-CGReadOnlyEnvelope -Envelope $status
+        Assert-CGExpectedState -StatusEnvelope $status -ExpectedDocumentTitle ([string]$document.title) -ExpectedDocumentPath ([string]$document.path) -ExpectedConfiguration ([string]$document.active_configuration_exact)
+
+        $fileState = Get-CGFileState -Path ([string]$document.path)
+        $freshness.observed_file_sha256 = [string]$fileState.sha256
+        if ([string]$fileState.sha256 -cne [string]$evidence.payload.assembly_file_sha256_after) {
+            throw "STALE_STATE: active assembly file hash does not match admitted contact-normal evidence. Expected='$($evidence.payload.assembly_file_sha256_after)' Actual='$($fileState.sha256)'."
+        }
+        $freshness.live_match = $true
+    }
+
+    function Get-Cross2Local {
+        param([double[]]$A,[double[]]$B)
+        return ([double]$A[0] * [double]$B[1]) - ([double]$A[1] * [double]$B[0])
+    }
+
+    function Get-Dot3Local {
+        param([double[]]$A,[double[]]$B)
+        return ([double]$A[0] * [double]$B[0]) + ([double]$A[1] * [double]$B[1]) + ([double]$A[2] * [double]$B[2])
+    }
+
+    function Get-Normalized2Local {
+        param([double[]]$A)
+        $mag = [Math]::Sqrt(([double]$A[0] * [double]$A[0]) + ([double]$A[1] * [double]$A[1]))
+        if ($mag -le $Tolerance) { throw 'Cannot normalize near-zero in-plane vector.' }
+        $nx = ([double]$A[0]) / ([double]$mag)
+        $ny = ([double]$A[1]) / ([double]$mag)
+        return @($nx,$ny)
+    }
+
+    function Get-BestOpposedCandidateLocal {
+        param([double[]]$BottleNormal,$Candidates,[string]$PairId)
+        $best = $null
+        $bestDot = [double]::PositiveInfinity
+        foreach ($candidate in @($Candidates)) {
+            $n = @($candidate.unit_normal_assembly | ForEach-Object { [double]$_ })
+            if ($n.Count -ne 3) { continue }
+            $dot = Get-Dot3Local -A $BottleNormal -B $n
+            if ($dot -lt $bestDot) {
+                $bestDot = $dot
+                $best = $candidate
+            }
+        }
+        if ($null -eq $best) { throw "No opposing face-normal candidate found for '$PairId'." }
+        if ($bestDot -gt -0.999) {
+            throw "Best opposing face-normal candidate for '$PairId' is not antiparallel enough. dot=$bestDot"
+        }
+        return [pscustomobject]@{ candidate = $best; dot = $bestDot }
+    }
+
+    $pairs = @($evidence.payload.pairs)
+    if ($pairs.Count -ne 4) { throw "Expected exactly four touching-pair observations. Actual=$($pairs.Count)." }
+
+    $lateral = @()
+    $axial = @()
+
+    foreach ($pair in $pairs) {
+        $bottleCandidates = @($pair.bottle_face_candidates)
+        if ($bottleCandidates.Count -ne 1) {
+            throw "Expected exactly one bottle-side face-normal candidate for '$($pair.pair_id)'. Actual=$($bottleCandidates.Count)."
+        }
+
+        $bn = @($bottleCandidates[0].unit_normal_assembly | ForEach-Object { [double]$_ })
+        if ($bn.Count -ne 3) { throw "Bottle normal for '$($pair.pair_id)' is not 3D." }
+
+        $opposed = Get-BestOpposedCandidateLocal -BottleNormal $bn -Candidates $pair.other_face_candidates -PairId ([string]$pair.pair_id)
+        $on = @($opposed.candidate.unit_normal_assembly | ForEach-Object { [double]$_ })
+        $p = @($pair.contact_point_mm | ForEach-Object { [double]$_ })
+
+        $row = [pscustomobject][ordered]@{
+            pair_id = [string]$pair.pair_id
+            component_b = [string]$pair.component_b
+            role_candidate = [string]$pair.role_candidate
+            contact_point_mm = $p
+            bottle_normal_assembly = $bn
+            selected_opposing_normal_assembly = $on
+            opposed_dot = [double]$opposed.dot
+            minimum_distance_mm = [double]$pair.minimum_distance_mm
+            intersection_volume_mm3 = [double]$pair.intersection_volume_mm3
+        }
+
+        if ([Math]::Abs([double]$bn[2]) -le $Tolerance) {
+            $lateral += $row
+        } else {
+            $axial += $row
+        }
+    }
+
+    if ($lateral.Count -ne 3) { throw "Expected exactly three lateral bottle contacts. Actual=$($lateral.Count)." }
+    if ($axial.Count -ne 1) { throw "Expected exactly one non-lateral bottle contact. Actual=$($axial.Count)." }
+
+    $lateralRows = @()
+    foreach ($row in $lateral) {
+        $n2 = Get-Normalized2Local -A @([double]$row.bottle_normal_assembly[0],[double]$row.bottle_normal_assembly[1])
+        $reaction = @(-[double]$n2[0],-[double]$n2[1])
+        $lateralRows += [pscustomobject][ordered]@{
+            pair_id = $row.pair_id
+            component_b = $row.component_b
+            role_candidate = $row.role_candidate
+            contact_point_xy_mm = @([double]$row.contact_point_mm[0],[double]$row.contact_point_mm[1])
+            contact_point_z_mm = [double]$row.contact_point_mm[2]
+            bottle_normal_xy = $n2
+            compressive_reaction_direction_xy = $reaction
+            opposed_dot = $row.opposed_dot
+        }
+    }
+
+    $intersections = @()
+    for ($i = 0; $i -lt $lateralRows.Count; $i++) {
+        for ($j = $i + 1; $j -lt $lateralRows.Count; $j++) {
+            $a = $lateralRows[$i]
+            $b = $lateralRows[$j]
+            $pa = @([double]$a.contact_point_xy_mm[0],[double]$a.contact_point_xy_mm[1])
+            $pb = @([double]$b.contact_point_xy_mm[0],[double]$b.contact_point_xy_mm[1])
+            $na = @([double]$a.bottle_normal_xy[0],[double]$a.bottle_normal_xy[1])
+            $nb = @([double]$b.bottle_normal_xy[0],[double]$b.bottle_normal_xy[1])
+            $den = Get-Cross2Local -A $na -B $nb
+            if ([Math]::Abs($den) -le $Tolerance) {
+                throw "Lateral normal lines '$($a.pair_id)' and '$($b.pair_id)' are parallel/degenerate."
+            }
+            $delta = @(([double]$pb[0]-[double]$pa[0]),([double]$pb[1]-[double]$pa[1]))
+            $tLine = (Get-Cross2Local -A $delta -B $nb) / $den
+            $point = @(([double]$pa[0] + $tLine * [double]$na[0]),([double]$pa[1] + $tLine * [double]$na[1]))
+            $intersections += [pscustomobject][ordered]@{
+                pair_a = $a.pair_id
+                pair_b = $b.pair_id
+                point_xy_mm = $point
+            }
+        }
+    }
+
+    $sumCx = 0.0
+    $sumCy = 0.0
+    foreach ($item in $intersections) {
+        $sumCx += [double]$item.point_xy_mm[0]
+        $sumCy += [double]$item.point_xy_mm[1]
+    }
+    $intersectionCount = [double]$intersections.Count
+    $commonX = ([double]$sumCx) / $intersectionCount
+    $commonY = ([double]$sumCy) / $intersectionCount
+    $commonPoint = @($commonX,$commonY)
+
+    $maxIntersectionSpread = 0.0
+    foreach ($item in $intersections) {
+        $dx = [double]$item.point_xy_mm[0] - [double]$commonPoint[0]
+        $dy = [double]$item.point_xy_mm[1] - [double]$commonPoint[1]
+        $d = [Math]::Sqrt($dx*$dx + $dy*$dy)
+        if ($d -gt $maxIntersectionSpread) { $maxIntersectionSpread = $d }
+    }
+
+    $maxLineResidual = 0.0
+    $radii = @()
+    $torques = @()
+    foreach ($row in $lateralRows) {
+        $p = @([double]$row.contact_point_xy_mm[0],[double]$row.contact_point_xy_mm[1])
+        $n = @([double]$row.bottle_normal_xy[0],[double]$row.bottle_normal_xy[1])
+        $reaction = @([double]$row.compressive_reaction_direction_xy[0],[double]$row.compressive_reaction_direction_xy[1])
+        $delta = @(([double]$commonPoint[0]-[double]$p[0]),([double]$commonPoint[1]-[double]$p[1]))
+        $lineResidual = [Math]::Abs((Get-Cross2Local -A $n -B $delta))
+        if ($lineResidual -gt $maxLineResidual) { $maxLineResidual = $lineResidual }
+
+        $rx = [double]$p[0]-[double]$commonPoint[0]
+        $ry = [double]$p[1]-[double]$commonPoint[1]
+        $radii += [Math]::Sqrt($rx*$rx + $ry*$ry)
+        $torques += $rx * [double]$reaction[1] - $ry * [double]$reaction[0]
+    }
+
+    $reaction0 = @([double]$lateralRows[0].compressive_reaction_direction_xy[0],[double]$lateralRows[0].compressive_reaction_direction_xy[1])
+    $reaction1 = @([double]$lateralRows[1].compressive_reaction_direction_xy[0],[double]$lateralRows[1].compressive_reaction_direction_xy[1])
+    $reaction2 = @([double]$lateralRows[2].compressive_reaction_direction_xy[0],[double]$lateralRows[2].compressive_reaction_direction_xy[1])
+
+    $coefficients = @(
+        (Get-Cross2Local -A $reaction1 -B $reaction2),
+        (Get-Cross2Local -A $reaction2 -B $reaction0),
+        (Get-Cross2Local -A $reaction0 -B $reaction1)
+    )
+    $nonPositiveCount = @($coefficients | Where-Object { [double]$_ -le $Tolerance }).Count
+    $nonNegativeCount = @($coefficients | Where-Object { [double]$_ -ge -$Tolerance }).Count
+    $allPositive = ($nonPositiveCount -eq 0)
+    $allNegative = ($nonNegativeCount -eq 0)
+    if ($allNegative) {
+        $coefficients = @($coefficients | ForEach-Object { -[double]$_ })
+        $allPositive = $true
+    }
+
+    $positiveSpan = $allPositive
+    $normalizedCoefficients = @()
+    $equilibriumResidual = @($null,$null)
+    if ($positiveSpan) {
+        $minCoefficient = ($coefficients | Measure-Object -Minimum).Minimum
+        $normalizedCoefficients = @($coefficients | ForEach-Object {
+            $numerator = [double]$_
+            $denominator = [double]$minCoefficient
+            $numerator / $denominator
+        })
+        $sumX = 0.0
+        $sumY = 0.0
+        for ($i = 0; $i -lt 3; $i++) {
+            $sumX += [double]$normalizedCoefficients[$i] * [double]$lateralRows[$i].compressive_reaction_direction_xy[0]
+            $sumY += [double]$normalizedCoefficients[$i] * [double]$lateralRows[$i].compressive_reaction_direction_xy[1]
+        }
+        $equilibriumResidual = @($sumX,$sumY)
+    }
+
+    $radiusMin = ($radii | Measure-Object -Minimum).Minimum
+    $radiusMax = ($radii | Measure-Object -Maximum).Maximum
+    $maxAbsTorque = ($torques | ForEach-Object { [Math]::Abs([double]$_) } | Measure-Object -Maximum).Maximum
+
+    $axialRow = $axial[0]
+    $axialBottleNormal = @($axialRow.bottle_normal_assembly | ForEach-Object { [double]$_ })
+    $axialOtherNormal = @($axialRow.selected_opposing_normal_assembly | ForEach-Object { [double]$_ })
+
+    $data = [ordered]@{
+        evidence_id = [string]$evidence.evidence_id
+        evidence_path = $resolvedEvidencePath
+        evidence_sha256 = (Get-FileHash -LiteralPath $resolvedEvidencePath -Algorithm SHA256).Hash.ToLowerInvariant()
+        freshness = $freshness
+        lateral_contacts = $lateralRows
+        pairwise_normal_line_intersections = $intersections
+        common_axis_candidate = [ordered]@{
+            point_xy_mm = $commonPoint
+            direction_assembly = @(0.0,0.0,1.0)
+            derivation = 'perpendicular to the plane of three concurrent lateral bottle-side contact normals'
+            max_pairwise_intersection_spread_mm = $maxIntersectionSpread
+            max_normal_line_residual_mm = $maxLineResidual
+        }
+        radial_geometry = [ordered]@{
+            radii_mm = $radii
+            min_radius_mm = [double]$radiusMin
+            max_radius_mm = [double]$radiusMax
+            radius_spread_mm = [double]$radiusMax - [double]$radiusMin
+        }
+        lateral_normal_closure = [ordered]@{
+            state = if ($positiveSpan) { 'SUPPORTED_CURRENT_POSE_FRICTIONLESS_NORMAL_MODEL' } else { 'NOT_SUPPORTED' }
+            positive_span = $positiveSpan
+            normalized_positive_equilibrium_coefficients = $normalizedCoefficients
+            equilibrium_residual_xy = $equilibriumResidual
+            interpretation = 'Positive compressive normal reactions can balance first-order translation directions in the assembly XY plane at this recorded pose.'
+        }
+        normal_reaction_moment_about_common_axis = [ordered]@{
+            torque_per_unit_reaction_mm = $torques
+            max_abs_torque_per_unit_reaction_mm = [double]$maxAbsTorque
+            state = if ([double]$maxAbsTorque -le 1e-6) { 'APPROX_ZERO_CURRENT_POSE' } else { 'NONZERO' }
+            interpretation = 'The selected frictionless normal reaction lines pass through the common axis candidate, so normal reactions alone do not resist rotation about that axis.'
+        }
+        non_lateral_contact = [ordered]@{
+            pair_id = [string]$axialRow.pair_id
+            bottle_normal_assembly = $axialBottleNormal
+            selected_opposing_normal_assembly = $axialOtherNormal
+            contact_point_mm = @($axialRow.contact_point_mm)
+            interpretation = 'An opposed assembly-Z contact direction is observed. Gravity/up semantics and load capacity remain unresolved.'
+        }
+        functional_projection = [ordered]@{
+            assembly_xy_translation = if ($positiveSpan) { 'NORMAL_CLOSURE_SUPPORTED_CURRENT_POSE' } else { 'UNRESOLVED' }
+            rotation_about_common_axis = if ([double]$maxAbsTorque -le 1e-6) { 'NOT_RESTRAINED_BY_FRICTIONLESS_NORMAL_REACTIONS_CURRENT_POSE' } else { 'NORMAL_REACTION_MOMENT_OBSERVED' }
+            assembly_z_contact_direction = 'OPPOSED_NORMAL_CONTACT_OBSERVED'
+            tilt_restraint = 'UNRESOLVED'
+            frictional_wrap_torque = 'UNRESOLVED'
+            preload_and_contact_maintenance = 'UNRESOLVED'
+            interval_wide_validity = 'UNRESOLVED_POINT_POSE_ONLY'
+        }
+    }
+
+    $result = New-CGEnvelope -CapabilityId 'cg.product.contact-constraint-map' -Result 'PASS' -Data $data -SourceAuthority 'DETERMINISTIC_CALCULATION' -SourceClassification 'measured_calculated_from_admitted_solidworks_observation' -AmbiguityBucket 'KINEMATIC_STATE_UNRESOLVED' -Establishes @(
+        'the three selected lateral bottle-side normal lines are concurrent at the recorded pose',
+        'the three compressive lateral normal directions positively span the assembly XY plane at the recorded pose',
+        'frictionless normal reactions about the derived common-axis candidate have approximately zero moment at the recorded pose',
+        'one opposed assembly-Z contact-normal pair is observed for the bottle-to-conveyor contact'
+    ) -DoesNotEstablish @(
+        'that the derived common-axis candidate is yet authoritatively bound to the functional wrap axis',
+        'gravity/up-axis semantics or vertical load capacity',
+        'tilt restraint or full six-DOF restraint rank',
+        'friction, traction, preload, compliance, pressure, force, stiffness, or reaction capacity',
+        'that any current V43 component is required in the final mechanism',
+        'interval-wide contact maintenance or reachable motion',
+        'mechanism selection or mechanical acceptance'
+    )
+
+    Write-CGOutput -Value $result -AsJson:$AsJson
+}
+
 function Get-CGCurrentPlan {
     [CmdletBinding()]
     param([switch]$AsJson)
@@ -723,6 +1050,7 @@ Export-ModuleMember -Function @(
     'Test-CGTopologyChain',
     'Get-CGMateBinding',
     'Get-CGRequiredBottleDOF',
+    'Get-CGBottleContactConstraintMap',
     'Get-CGCurrentPlan',
     'Get-CGInvestigationFrontier',
     'Invoke-CGRegisteredVerifier'
