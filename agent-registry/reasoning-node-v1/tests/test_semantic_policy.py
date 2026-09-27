@@ -2,6 +2,7 @@
 
 from semantic_policy import (
     SemanticPolicyError,
+    supported_bucket_claim_pairs,
     validate_semantic_admission,
 )
 
@@ -180,6 +181,51 @@ class AmbiguityClassificationAdmissionTests(unittest.TestCase):
             ctx.exception.violations,
         )
 
+
+
+class SupportedPairCatalogTests(unittest.TestCase):
+
+    def test_catalog_contains_only_deterministically_supported_pairs(self):
+        self.assertEqual(
+            supported_bucket_claim_pairs(EVIDENCE),
+            [
+                {
+                    "bucket": "KINEMATIC_STATE_UNRESOLVED",
+                    "claim": "Capture kinematic ownership is unresolved.",
+                },
+                {
+                    "bucket": "KINEMATIC_STATE_UNRESOLVED",
+                    "claim": "No evidence supplied here establishes the complete operating motion sequence.",
+                },
+                {
+                    "bucket": "INSUFFICIENT_EVIDENCE",
+                    "claim": "No evidence supplied here establishes the complete operating motion sequence.",
+                },
+            ],
+        )
+
+    def test_not_granted_is_not_cataloged_as_acceptance_blocked(self):
+        pairs = supported_bucket_claim_pairs(EVIDENCE)
+        buckets = [pair["bucket"] for pair in pairs]
+
+        self.assertNotIn(
+            "MECHANICAL_ACCEPTANCE_BLOCKED",
+            buckets,
+        )
+
+    def test_explicit_blocked_state_is_cataloged(self):
+        evidence = """
+SOURCE STATE:
+- Mechanical acceptance is blocked pending deterministic clearance verification.
+"""
+
+        self.assertEqual(
+            supported_bucket_claim_pairs(evidence),
+            [{
+                "bucket": "MECHANICAL_ACCEPTANCE_BLOCKED",
+                "claim": "Mechanical acceptance is blocked pending deterministic clearance verification.",
+            }],
+        )
 
 
 class MechanicalAcceptanceSemanticsTests(unittest.TestCase):

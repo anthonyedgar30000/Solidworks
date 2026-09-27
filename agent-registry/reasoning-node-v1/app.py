@@ -13,6 +13,7 @@ from pydantic import BaseModel, Field, ConfigDict
 
 from semantic_policy import (
     SemanticPolicyError,
+    supported_bucket_claim_pairs,
     validate_semantic_admission,
 )
 
@@ -32,7 +33,7 @@ MODEL = config["ollama"]["initial_model"]
 
 app = FastAPI(
     title="CADGrounded Reasoning Node",
-    version="0.3.0",
+    version="0.4.0",
 )
 
 
@@ -216,6 +217,7 @@ AMBIGUITY CLASSIFICATION CONTRACT:
 - Copy claims verbatim except for insignificant whitespace normalization.
 - Do not paraphrase claims_used.
 - ambiguity_buckets must contain only buckets directly supported by claims_used.
+- When a deterministic allowed-pair catalog is supplied, select only bucket/claim values from that catalog.
 - inferences MUST be [].
 - hypotheses MUST be [].
 - next_tests MUST be [].
@@ -229,6 +231,41 @@ No deterministic semantic-admission policy is implemented for this task yet.
 Any output may be schema-valid, but it will be rejected rather than
 semantically admitted.
 """
+
+
+def grounding_catalog(task: str, evidence: str) -> str:
+    if task != "ambiguity_classification":
+        return "No deterministic grounding catalog is implemented for this task."
+
+    pairs = supported_bucket_claim_pairs(evidence)
+
+    if not pairs:
+        return """DETERMINISTICALLY ALLOWED BUCKET/CLAIM PAIRS:
+NONE
+
+No bucket/claim pair has deterministic support in the supplied evidence.
+Do not invent one."""
+
+    lines = ["DETERMINISTICALLY ALLOWED BUCKET/CLAIM PAIRS:"]
+
+    for index, pair in enumerate(pairs, start=1):
+        lines.extend([
+            f"PAIR-{index}",
+            f"bucket: {pair['bucket']}",
+            f"claim: {pair['claim']}",
+            "",
+        ])
+
+    lines.extend([
+        "SELECTION CONTRACT:",
+        "- Select one or more pairs only from the allowed list above.",
+        "- ambiguity_buckets must contain only selected pair bucket values.",
+        "- claims_used must contain only selected pair claim values, copied exactly.",
+        "- Do not use any evidence sentence that is not in an allowed pair.",
+        "- Do not invent another bucket.",
+    ])
+
+    return "\n".join(lines)
 
 
 def utc_now():
@@ -269,7 +306,7 @@ def healthz():
 
     return {
         "status": "ok",
-        "version": "0.3.0",
+        "version": "0.4.0",
         "node_id": NODE_ID,
         "role": "bounded_reasoning_node",
         "ollama": ollama,
@@ -304,6 +341,9 @@ SUPPLIED EVIDENCE:
 --- BEGIN EVIDENCE ---
 {request.evidence}
 --- END EVIDENCE ---
+
+DETERMINISTIC GROUNDING CATALOG:
+{grounding_catalog(request.task, request.evidence)}
 
 Return only the required JSON object.
 """
