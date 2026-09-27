@@ -113,3 +113,31 @@ export, but introduces no telemetry service dependency.
 
 Focused regression: `python -m unittest -v test_source_freshness.py` from
 `agent-registry/planning`.
+
+### Captured response bundle
+
+`source_freshness_bundle.py` accepts the original JSON responses from three
+read-only connector calls. A response bundle has `schema_version: 1` and:
+
+- `solidworks`: `observed_at`, `tool: cadgrounded_solidworks_sw_status`,
+  `response` from the status connector;
+- `github`: `observed_at`, `repository_full_name`, exact 40-character
+  `commit_sha`, runtime EvidenceRecord `path`, and `response` from the GitHub
+  file fetch pinned to that commit;
+- `google_drive`: `observed_at`, exact canonical `document_id`, and `response`
+  from the Google Docs text read, including `revisionId` and paragraphs.
+
+Run `python agent-registry/planning/source_freshness_bundle.py bundle.json`.
+The normalizer verifies the Git blob SHA against its content, checks that the
+EvidenceRecord is a bounded `VERIFIED` SolidWorks observation, checks exact
+subject/payload document binding, binds the live title to its assembly path,
+and reads the single checkpoint in the canonical document's `Freshness rule`
+paragraph. A missing or ambiguous statement fails explicitly. It then invokes
+the existing point-in-time comparator. It never fetches, changes, or admits
+anything itself. Capture timestamps, commit ref, and connector responses are
+caller supplied; a content hash or revision ID does not authenticate their
+origin. Keep response bundles outside version control when they contain local
+paths or sensitive source details.
+
+Focused regression: `python -m unittest -v test_source_freshness_bundle.py`
+from `agent-registry/planning`.
