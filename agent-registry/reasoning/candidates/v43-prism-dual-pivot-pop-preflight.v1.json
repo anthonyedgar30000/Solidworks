@@ -1,0 +1,191 @@
+{
+  "schema_version": 1,
+  "record_type": "candidate_pop_preflight",
+  "preflight_id": "PF.PLAN-0011.V43_PRISM_DUAL_PIVOT_OPEN_ENVELOPE.V1.20260927T221310Z",
+  "plan_id": "PLAN-0011",
+  "step_id": "P0011.4",
+  "candidate_id": "CANDIDATE_V43_PRISM_AS_PROJECT_PROPOSAL",
+  "candidate_motion_variant_id": "CANDIDATE_V43_PRISM_DUAL_INDEPENDENT_PIVOT_ARMS_V1",
+  "status": "BOUNDED_ANALYTIC_PREFLIGHT_PARTIAL_EXACT_SWEEP_REQUIRED",
+  "recorded_at_utc": "2026-09-27T22:13:10Z",
+  "authority": {
+    "cad_write_authority": "NONE",
+    "model_mutation_performed": false,
+    "mechanical_acceptance_granted": false,
+    "candidate_selection_status": "DIAGNOSTIC_VARIANT_ONLY_NOT_PRODUCTION_SELECTION"
+  },
+  "state_binding": {
+    "live_document_title_exact": "IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE",
+    "live_document_path_exact": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE.SLDASM",
+    "fresh_status_source_classification": "verified_from_solidworks_api",
+    "configuration_reference": "V43_WRAP",
+    "configuration_binding_note": "V43_WRAP is taken from admitted current-pose evidence and PLAN-0011. The lightweight fresh sw_status call did not expose configuration; exact configuration must be reasserted by the host verifier before any exact hypothetical sweep.",
+    "fresh_component_read": "sw_query_components(top_level_only=true)"
+  },
+  "inputs": {
+    "bottle": {
+      "name2": "BENCH_BOTTLE_D48_H180-2",
+      "center_xy_mm": [
+        -153.42061528267112,
+        -214
+      ],
+      "radius_mm": 24,
+      "radius_basis": "deterministic benchmark D48 identity and admitted contact-manifold evidence"
+    },
+    "rollers": [
+      {
+        "name2": "FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25-1",
+        "closed_center_xy_mm": [
+          -169.41764267046375,
+          -249.56817558934128
+        ],
+        "radius_mm": 15
+      },
+      {
+        "name2": "FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25-2",
+        "closed_center_xy_mm": [
+          -183.81939742953654,
+          -189.56817558934128
+        ],
+        "radius_mm": 15
+      }
+    ],
+    "arm_root_hypothesis": [
+      {
+        "arm": "FITCHECK_PRISM_ARM1_33p0824x10x5_V43-1",
+        "pivot_axis_hypothesis": "assembly +Z through [-202.5,-249.56817558934128]",
+        "pivot_xy_mm": [
+          -202.5,
+          -249.56817558934128
+        ],
+        "centerline_radius_mm": 33.08235732953625
+      },
+      {
+        "arm": "FITCHECK_PRISM_ARM2_18p6806x10x5_V43-1",
+        "pivot_axis_hypothesis": "assembly +Z through [-202.5,-189.56817558934128]",
+        "pivot_xy_mm": [
+          -202.5,
+          -189.56817558934128
+        ],
+        "centerline_radius_mm": 18.680602570463464
+      }
+    ],
+    "pivot_basis_boundary": "Pivot roots are a deterministic POP hypothesis derived from the current arm left-end geometry / encoded arm spans. No active-assembly mate, bearing, pin, or authored pivot joint is established.",
+    "exact_existing_evidence_refs": [
+      "E.FUNCTION_FIRST.BOTTLE_CONTACT_SET.20260927T081157483Z",
+      "E.FUNCTION_FIRST.BOTTLE_LATERAL_CONTACT_MANIFOLD.20260927T100903861Z",
+      "E.FUNCTION_FIRST.BOTTLE_FINITE_LINE_RESTRAINT_RANK.20260927T100903861Z",
+      "E.V43.PRISM.LINK1_REACTION_BASE.CONTACT.20260926T212845290Z",
+      "E.V43.PRISM.FULL_CHAIN_MATES.20260927T070827844Z"
+    ]
+  },
+  "acceptance_geometry_derivation": {
+    "bottle_path_centerline_x_mm": -153.42061528267112,
+    "required_center_separation_mm": 39,
+    "zero_margin_open_center_limit_x_mm": -192.42061528267112,
+    "zero_margin_independent_retreat_mm": {
+      "roller_1": 23.002972612207373,
+      "roller_2": 8.601217853134585
+    },
+    "common_rigid_translation_screen": {
+      "motion_hypothesis": "both rollers plus their current link/arm chain translate together in assembly -X",
+      "governing_zero_margin_retreat_mm": 23.002972612207373,
+      "exact_link1_to_reaction_base_current_clearance_mm": 1.2499999999999734,
+      "result": "FAIL",
+      "interpretation": "Under this exact common-rigid -X interpretation, the admitted Link-1/reaction-base gap is exhausted far before the roller retreat needed to clear the bottle path. This rejects that motion interpretation only; it does not reject all translating-carrier architectures."
+    }
+  },
+  "hypothetical_screening_margin": {
+    "margin_mm": 2,
+    "status": "HYPOTHETICAL_SCREENING_VALUE_NOT_ACCEPTED_PRODUCT_TOLERANCE_OR_REQUIREMENT",
+    "open_center_limit_x_mm": -194.42061528267112,
+    "rationale": "Provides a finite nonzero preflight clearance target while product tolerance and incoming-position variation remain MEASUREMENT_REQUIRED."
+  },
+  "dual_pivot_variant": {
+    "motion_law": "Two independent planar arm rotations about hypothetical +Z pivots at the current arm roots; Roller-1 swings toward -Y and Roller-2 swings toward +Y. Closed state is the admitted current tangent pose.",
+    "roller_1": {
+      "pivot_xy_mm": [
+        -202.5,
+        -249.56817558934128
+      ],
+      "radius_mm": 33.08235732953625,
+      "open_angle_deg": -75.86423677166873,
+      "open_center_xy_mm": [
+        -194.42061528267112,
+        -281.64879137315245
+      ],
+      "x_retreat_mm": 25.002972612207373
+    },
+    "roller_2": {
+      "pivot_xy_mm": [
+        -202.5,
+        -189.56817558934128
+      ],
+      "radius_mm": 18.680602570463464,
+      "open_angle_deg": 64.37359663899446,
+      "open_center_xy_mm": [
+        -194.42061528267112,
+        -172.7251219770951
+      ],
+      "x_retreat_mm": 10.601217853134585
+    },
+    "analytic_precheck": {
+      "bottle_2_behavior": "Both rollers depart monotonically from their admitted tangent condition under the chosen opening directions in the ideal XY circle model; no inward penetration is required.",
+      "roller_1_to_bottle_1_min_surface_clearance_mm": 8.71382139746764,
+      "roller_1_to_bottle_1_minimum_occurs_near_arm_angle_deg": -52.8883521100452,
+      "reaction_base_screen": "At the 2 mm screening open state, both roller centers remain to the +X side of the reaction-base expanded-by-15-mm boundary; nominal roller-to-base X surface clearance is about 9.329 mm. This is an analytic/nominal screen, not exact B-rep evidence.",
+      "arm_reaction_base_screen": "With nominal 10 mm arm width, the rotated arm envelopes remain to the +X side of the reaction-base right face in the ideal planar screen. Exact B-rep verification remains required.",
+      "index_stop_screen": "Current GetBox envelopes place support-roller top near Z=1088 mm and index-stop-finger bottoms near Z=1090 mm, leaving only about 2 mm approximate vertical envelope separation where XY overlap may occur. This must be checked exactly before the variant can progress.",
+      "neighbor_and_cab_boundary": "No whole-body exact sweep has yet been performed against all neighboring bottles, index stops, conveyor, wrap belt, CAB hardware, label-transfer geometry, rails, actuator envelope, mounting hardware, or guards."
+    }
+  },
+  "closed_state_result": {
+    "state": "SUPPORTED_AS_REFERENCE_BASELINE_ONLY",
+    "claims": [
+      "Current Bottle-2/belt/roller-1/roller-2 contacts are exact admitted current-pose tangencies with 93 mm axial overlap.",
+      "The ideal maintained frictionless finite-line model has rank 5, nullity 1, with wrap-axis rotation as the null mode."
+    ],
+    "boundary": "Does not establish maintained contact, preload, force, traction, or interval-wide operation."
+  },
+  "preflight_result": {
+    "common_rigid_translation_variant": "REJECTED_FOR_CURRENT_V43_GEOMETRY",
+    "independent_dual_pivot_variant": "GEOMETRICALLY_PLAUSIBLE_IN_IDEAL_PLANAR_SCREEN",
+    "candidate_a_overall": "RETAIN_FOR_READ_ONLY_EXACT_HYPOTHETICAL_SWEEP",
+    "unresolved_blockers": [
+      "No active-assembly pivot joints or mate chain establish the proposed +Z pivots.",
+      "No actuator or synchronization law is bound for the two arm rotations.",
+      "No preload/compliance/normal-force law is bound.",
+      "No exact whole-body B-rep swept-state verification exists for OPEN or intermediate angles.",
+      "Reaction path through pivot shafts/bearings/slider/fixed support is not structurally bound.",
+      "Product tolerance and incoming-position variation remain MEASUREMENT_REQUIRED.",
+      "Index-stop clearance is especially tight in approximate Z-envelope screening and requires exact verification."
+    ]
+  },
+  "required_next_read_only_test": {
+    "test_id": "TEST_POP_V43_PRISM_DUAL_PIVOT_EXACT_HYPOTHETICAL_SWEEP",
+    "purpose": "Evaluate OPEN and bounded intermediate arm/roller candidate transforms using temporary-body/no-mutation B-rep operations while leaving the live assembly unchanged.",
+    "state_samples": "At minimum CLOSED plus several bounded intermediate angular samples plus the 2 mm screening OPEN endpoint for each arm, with denser sampling or continuous-envelope treatment if any clearance approaches tolerance.",
+    "obstacle_set": [
+      "BENCH_BOTTLE_D48_H180-1",
+      "BENCH_BOTTLE_D48_H180-2",
+      "BENCH_BOTTLE_D48_H180-5",
+      "FITCHECK_PRISM_REACTION_BASE_70x120x20_V43-1",
+      "FITCHECK_PRISM_GUIDE_RAIL_100x10x10_V43-1",
+      "FITCHECK_PRISM_GUIDE_RAIL_100x10x10_V43-2",
+      "FITCHECK_PRISM_ACTUATOR_ENVELOPE_45x35x35_V43-1",
+      "FITCHECK_INDEX_STOP_FINGER_54p25x6x20_V37-1",
+      "FITCHECK_INDEX_STOP_FINGER_54p25x6x20_V37-2",
+      "FITCHECK_DRIVEN_WRAP_BELT_5x160x93_V25-1",
+      "BENCH_CONVEYOR_L900_W82_H950-1",
+      "relevant CAB/SP100/IXOR bodies and label-transfer geometry"
+    ],
+    "no_mutation_contract": [
+      "Assert exact document/configuration before execution.",
+      "Use temporary transformed body copies only; do not call Component2.Transform2 setters.",
+      "Hash/compare assembly file before and after.",
+      "Compare target component transforms and document dirty/save state before and after.",
+      "Do not infer positive clearance when the temporary-body distance primitive is unresolved; fail closed."
+    ],
+    "write_authority": "NONE"
+  }
+}
