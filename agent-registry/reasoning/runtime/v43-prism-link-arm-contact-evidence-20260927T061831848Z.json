@@ -1,0 +1,146 @@
+{
+  "schema_version": 1,
+  "record_type": "evidence",
+  "evidence_id": "E.V43.PRISM.LINK_ARM_CONTACT.20260927T061831848Z",
+  "evidence_type": "solidworks_observation",
+  "evidence_state": "VERIFIED",
+  "source_authority": "SOLIDWORKS_LIVE_STATE",
+  "source_classification": "verified_from_solidworks_api",
+  "subject": {
+    "subject_type": "component_pair_topology_set",
+    "identity_exact": "FITCHECK_PRISM_LINK_15x10x25_V43-1↔FITCHECK_PRISM_ARM1_33p0824x10x5_V43-1; FITCHECK_PRISM_LINK_15x10x25_V43-1↔FITCHECK_PRISM_ARM2_18p6806x10x5_V43-1; FITCHECK_PRISM_LINK_15x10x25_V43-2↔FITCHECK_PRISM_ARM1_33p0824x10x5_V43-1; FITCHECK_PRISM_LINK_15x10x25_V43-2↔FITCHECK_PRISM_ARM2_18p6806x10x5_V43-1",
+    "document_title_exact": "IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE",
+    "document_path_exact": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE.SLDASM"
+  },
+  "provenance": {
+    "recorded_at": "2026-09-27T06:18:31.8488123Z",
+    "source_ref": "user-supplied Windows-host verification artifact: C:\\ChatGPT\\Solidworks-main\\agent-registry\\workers\\CadGrounded.SolidWorksWorker\\verification-output\\classify-contact-v43-prism-link-arms\\verification-summary.json",
+    "sha256": "01ff96bee1a596c8420b142d1ed36fe1fa1d0472eedba5d59bc31f82f26c9ee3",
+    "tool_path": "Verify-ClassifyContact-V43-Prism-LinkArms.ps1; CadGrounded.SolidWorksWorker sw.classify_contact_pair"
+  },
+  "dependencies": [
+    "E.V43.PRISM.SLIDER_LINK_CONTACT.20260927T060459001Z",
+    "PLAN-0006"
+  ],
+  "geometry_state": "CANDIDATE_OPERATING",
+  "temporal_scope": {
+    "coverage": "POINT_ONLY",
+    "validity_state": "CURRENT",
+    "state_ids": [],
+    "transition_ids": []
+  },
+  "ambiguity_bucket": "KINEMATIC_STATE_UNRESOLVED",
+  "mechanical_acceptance_granted": false,
+  "payload": {
+    "observation_kind": "exact_top_level_all_link_to_arm_current_pose_contact_classification",
+    "document": {
+      "title": "IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE",
+      "path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE.SLDASM",
+      "document_type": "assembly",
+      "active_configuration_exact": "V43_WRAP",
+      "configuration_binding": "PREASSERTED_AND_OBSERVED"
+    },
+    "executed_at_utc": "2026-09-27T06:18:31.8488123Z",
+    "worker_version": "0.4.4",
+    "target_components": [
+      {
+        "name2": "FITCHECK_PRISM_LINK_15x10x25_V43-1",
+        "fixed_component": false,
+        "top_level": true
+      },
+      {
+        "name2": "FITCHECK_PRISM_LINK_15x10x25_V43-2",
+        "fixed_component": false,
+        "top_level": true
+      },
+      {
+        "name2": "FITCHECK_PRISM_ARM1_33p0824x10x5_V43-1",
+        "fixed_component": false,
+        "top_level": true
+      },
+      {
+        "name2": "FITCHECK_PRISM_ARM2_18p6806x10x5_V43-1",
+        "fixed_component": false,
+        "top_level": true
+      }
+    ],
+    "pair_results": [
+      {
+        "a_name_exact": "FITCHECK_PRISM_LINK_15x10x25_V43-1",
+        "b_name_exact": "FITCHECK_PRISM_ARM1_33p0824x10x5_V43-1",
+        "minimum_distance_mm": 0,
+        "classification": "contact_or_coincidence_within_tolerance",
+        "contact_tolerance_mm": 0.001,
+        "volume_tolerance_mm3": 0.001,
+        "intersection_body_count": 0,
+        "intersection_volume_mm3": 0,
+        "boolean_executed": true,
+        "api_distance": "IModelDoc2.ClosestDistance",
+        "api_intersection": "IBody2.Operations2(SWBODYINTERSECT) on transformed temporary body copies"
+      },
+      {
+        "a_name_exact": "FITCHECK_PRISM_LINK_15x10x25_V43-1",
+        "b_name_exact": "FITCHECK_PRISM_ARM2_18p6806x10x5_V43-1",
+        "minimum_distance_mm": 49.999999999999986,
+        "classification": "clearance",
+        "contact_tolerance_mm": 0.001,
+        "volume_tolerance_mm3": 0.001,
+        "boolean_executed": false,
+        "api_distance": "IModelDoc2.ClosestDistance",
+        "api_intersection": "IBody2.Operations2(SWBODYINTERSECT) on transformed temporary body copies"
+      },
+      {
+        "a_name_exact": "FITCHECK_PRISM_LINK_15x10x25_V43-2",
+        "b_name_exact": "FITCHECK_PRISM_ARM1_33p0824x10x5_V43-1",
+        "minimum_distance_mm": 49.999999999999986,
+        "classification": "clearance",
+        "contact_tolerance_mm": 0.001,
+        "volume_tolerance_mm3": 0.001,
+        "boolean_executed": false,
+        "api_distance": "IModelDoc2.ClosestDistance",
+        "api_intersection": "IBody2.Operations2(SWBODYINTERSECT) on transformed temporary body copies"
+      },
+      {
+        "a_name_exact": "FITCHECK_PRISM_LINK_15x10x25_V43-2",
+        "b_name_exact": "FITCHECK_PRISM_ARM2_18p6806x10x5_V43-1",
+        "minimum_distance_mm": 0,
+        "classification": "contact_or_coincidence_within_tolerance",
+        "contact_tolerance_mm": 0.001,
+        "volume_tolerance_mm3": 0.001,
+        "intersection_body_count": 0,
+        "intersection_volume_mm3": 0,
+        "boolean_executed": true,
+        "api_distance": "IModelDoc2.ClosestDistance",
+        "api_intersection": "IBody2.Operations2(SWBODYINTERSECT) on transformed temporary body copies"
+      }
+    ],
+    "no_mutation_comparison": {
+      "solidworks_process_id_before_after": "7488",
+      "active_document_title_same_before_after": true,
+      "active_document_path_same_before_after": true,
+      "active_configuration_same_before_after": true,
+      "document_save_flag_before_after": false,
+      "target_transforms_same_before_after": true,
+      "assembly_file_length_before_after": 33580499,
+      "assembly_file_last_write_utc_before_after": "2026-09-26T02:52:27.9309358Z",
+      "assembly_file_sha256_before_after": "dcd53467d2693283bb6617bdde1d4da8c19790615385e307671690ddce84b32a",
+      "model_mutation": false,
+      "write_authority": "NONE",
+      "remote_queue_authorized": false
+    },
+    "admitted_claims": [
+      "At the recorded V43_WRAP point, exact FITCHECK_PRISM_LINK_15x10x25_V43-1 to exact FITCHECK_PRISM_ARM1_33p0824x10x5_V43-1 returned minimum_distance_mm=0 and classification=contact_or_coincidence_within_tolerance with zero intersection volume.",
+      "At the same recorded point, exact FITCHECK_PRISM_LINK_15x10x25_V43-2 to exact FITCHECK_PRISM_ARM2_18p6806x10x5_V43-1 returned minimum_distance_mm=0 and classification=contact_or_coincidence_within_tolerance with zero intersection volume.",
+      "At the same recorded point, exact FITCHECK_PRISM_LINK_15x10x25_V43-1 to exact FITCHECK_PRISM_ARM2_18p6806x10x5_V43-1 returned 49.999999999999986 mm clearance.",
+      "At the same recorded point, exact FITCHECK_PRISM_LINK_15x10x25_V43-2 to exact FITCHECK_PRISM_ARM1_33p0824x10x5_V43-1 returned 49.999999999999986 mm clearance.",
+      "The exact same-number adjacency pattern is therefore supported at this recorded pose, while crossed link-arm adjacency is excluded at 50 mm clearance.",
+      "The verifier detected no change to exact target transforms, active document/configuration/save state, or assembly-file SHA-256/length/last-write evidence."
+    ],
+    "explicitly_not_claimed": [
+      "No claim that the same-number adjacency constitutes a revolute, pin, prismatic, flexure, fastened, or otherwise mechanically accepted joint.",
+      "No claim about allowed degree of freedom, permitted motion direction, stroke, actuator ownership, preload, force, stiffness, or reaction capacity.",
+      "No claim that either arm is contiguous with either support roller.",
+      "No interval-wide, reachable-state, capture/release, timing, or mechanical-acceptance conclusion is admitted."
+    ]
+  }
+}
