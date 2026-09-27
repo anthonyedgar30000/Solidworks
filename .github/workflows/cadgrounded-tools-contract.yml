@@ -5,12 +5,16 @@ on:
     paths:
       - 'agent-registry/powershell/CADGrounded.Tools/**'
       - 'agent-registry/tests/Test-CADGrounded-Tools-Contract.ps1'
+      - 'agent-registry/tests/CADGrounded.EvidenceBoundary.Tests.ps1'
+      - 'agent-registry/tests/Test-PowerShellQuality.ps1'
       - '.github/workflows/cadgrounded-tools-contract.yml'
   push:
     branches: [main]
     paths:
       - 'agent-registry/powershell/CADGrounded.Tools/**'
       - 'agent-registry/tests/Test-CADGrounded-Tools-Contract.ps1'
+      - 'agent-registry/tests/CADGrounded.EvidenceBoundary.Tests.ps1'
+      - 'agent-registry/tests/Test-PowerShellQuality.ps1'
       - '.github/workflows/cadgrounded-tools-contract.yml'
 
 jobs:
@@ -21,3 +25,11 @@ jobs:
       - name: Validate CADGrounded.Tools module and capability authority
         shell: pwsh
         run: .\agent-registry\tests\Test-CADGrounded-Tools-Contract.ps1
+      - name: Install PowerShell quality tooling
+        shell: pwsh
+        run: |
+          Install-Module Pester -MinimumVersion 6.0.0 -Force -SkipPublisherCheck -Scope CurrentUser
+          Install-Module PSScriptAnalyzer -MinimumVersion 1.22.0 -Force -Scope CurrentUser
+      - name: Test evidence boundary and analyze governed scripts
+        shell: pwsh
+        run: .\agent-registry\tests\Test-PowerShellQuality.ps1
