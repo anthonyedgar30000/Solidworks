@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "record_type": "evidence",
+  "evidence_id": "E.FUNCTION_FIRST.BOTTLE_CONTACT_SET.20260927T081157483Z",
+  "evidence_type": "solidworks_observation",
+  "evidence_state": "VERIFIED",
+  "source_authority": "SOLIDWORKS_LIVE_STATE",
+  "source_classification": "verified_from_solidworks_api",
+  "subject": {
+    "subject_type": "function_first_bottle_current_pose_bounded_contact_set",
+    "identity_exact": "BENCH_BOTTLE_D48_H180-2 vs conveyor, driven wrap belt, support rollers 1/2, index-stop fingers 1/2",
+    "document_title_exact": "IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE",
+    "document_path_exact": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE.SLDASM"
+  },
+  "provenance": {
+    "recorded_at": "2026-09-27T08:11:57.4836569Z",
+    "source_ref": "Windows-host verification artifact verification-output/function-first-bottle-support-contact/verification-summary.json",
+    "sha256": "cad86fb39fd8c74cf08c90b162a1bb8ad98d1e0412449265c2879b9b6a6fd3ac",
+    "tool_path": "Verify-ClassifyContact-FunctionFirst-BottleSupport.ps1; CadGrounded.SolidWorksWorker sw.classify_contact_pair"
+  },
+  "dependencies": [
+    "E.FUNCTION_FIRST.BOTTLE_DOF.20260927T075043247Z",
+    "PLAN-0010"
+  ],
+  "geometry_state": "CANDIDATE_OPERATING",
+  "temporal_scope": {
+    "coverage": "POINT_ONLY",
+    "validity_state": "CURRENT",
+    "state_ids": [],
+    "transition_ids": []
+  },
+  "ambiguity_bucket": "GEOMETRY_UNRESOLVED",
+  "mechanical_acceptance_granted": false,
+  "payload": {
+    "document": {
+      "title": "IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE",
+      "path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE.SLDASM",
+      "active_configuration_exact": "V43_WRAP"
+    },
+    "worker_version": "0.4.4",
+    "write_authority": "NONE",
+    "remote_queue_authorized": false,
+    "assembly_file_sha256_before": "dcd53467d2693283bb6617bdde1d4da8c19790615385e307671690ddce84b32a",
+    "assembly_file_sha256_after": "dcd53467d2693283bb6617bdde1d4da8c19790615385e307671690ddce84b32a",
+    "pair_results": [
+      {
+        "candidate": "BENCH_CONVEYOR_L900_W82_H950-1",
+        "role_candidate": "vertical_support_candidate",
+        "minimum_distance_mm": 0,
+        "classification": "contact_or_coincidence_within_tolerance",
+        "intersection_volume_mm3": 0
+      },
+      {
+        "candidate": "FITCHECK_DRIVEN_WRAP_BELT_5x160x93_V25-1",
+        "role_candidate": "wrap_drive_contact_candidate",
+        "minimum_distance_mm": 0,
+        "classification": "contact_or_coincidence_within_tolerance",
+        "intersection_volume_mm3": 0
+      },
+      {
+        "candidate": "FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25-1",
+        "role_candidate": "lateral_support_candidate_1",
+        "minimum_distance_mm": 9.520131864720731e-9,
+        "classification": "contact_or_coincidence_within_tolerance",
+        "intersection_volume_mm3": 0
+      },
+      {
+        "candidate": "FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25-2",
+        "role_candidate": "lateral_support_candidate_2",
+        "minimum_distance_mm": 2.5746927072969167e-9,
+        "classification": "contact_or_coincidence_within_tolerance",
+        "intersection_volume_mm3": 0
+      },
+      {
+        "candidate": "FITCHECK_INDEX_STOP_FINGER_54p25x6x20_V37-1",
+        "role_candidate": "index_restraint_candidate_1",
+        "minimum_distance_mm": 8.499427808764338,
+        "classification": "clearance"
+      },
+      {
+        "candidate": "FITCHECK_INDEX_STOP_FINGER_54p25x6x20_V37-2",
+        "role_candidate": "index_restraint_candidate_2",
+        "minimum_distance_mm": 47.07751914289005,
+        "classification": "clearance"
+      }
+    ],
+    "admitted_claims": [
+      "At the recorded V43_WRAP pose, the exact bottle is in contact/coincidence with the conveyor, driven wrap belt, and both support rollers, with zero measured B-rep intersection volume for all four touching pairs.",
+      "At the same pose, index-stop finger 1 has 8.499427808764338 mm clearance and index-stop finger 2 has 47.07751914289005 mm clearance from the bottle.",
+      "The verifier preserved document, target-component, and assembly-file state before/after the observation."
+    ],
+    "explicitly_not_claimed": [
+      "Observed contact does not establish functional support/restraint ownership or sufficiency.",
+      "Role labels are investigation-routing labels only.",
+      "No surface-normal direction, restraint rank, friction, traction, preload, force, stiffness, reaction capacity, interval-wide contact, reachable motion, or mechanical acceptance is established."
+    ]
+  }
+}
