@@ -348,7 +348,7 @@ foreach($pair in $Pairs){
     }
 }
 
-$rows=@($finiteRows | ForEach-Object { [double[]]$_ })
+$rows=@($finiteRows | ForEach-Object { ,([double[]]$_) })
 $rank=Get-MatrixRank -Rows $rows -Tolerance 1e-9
 $nullity=6-$rank
 $wrapTwist=@(0.0,0.0,0.0,0.0,0.0,1.0)
