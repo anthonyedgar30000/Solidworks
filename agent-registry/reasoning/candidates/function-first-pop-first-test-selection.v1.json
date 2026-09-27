@@ -1,0 +1,135 @@
+{
+  "schema_version": 1,
+  "decision_id": "CADGROUNDED.IXOR.POP_FIRST_TEST_SELECTION.V1",
+  "plan_id": "PLAN-0011",
+  "step_id": "P0011.3",
+  "decision_type": "DIAGNOSTIC_TEST_PRIORITY_NOT_PRODUCTION_SELECTION",
+  "selection_rule": "dependency centrality × discrimination power × evidence confidence × unresolved relevance ÷ cost",
+  "scoring_method": "QUALITATIVE_FACTOR_PROFILE_ONLY_NO_PSEUDO_NUMERIC_SCORE",
+  "selected_first_test_candidate": "CANDIDATE_V43_PRISM_AS_PROJECT_PROPOSAL",
+  "selection_rationale": [
+    "It has the strongest current evidence basis because the exact candidate geometry is already present in the live v43 assembly and the relevant PRISM, bottle, belt, and roller identities are freshly verified from the SOLIDWORKS API.",
+    "Its nominal capture-like pose already has three deterministic current-pose contact relationships, so a POP investigation can start from an evidence-backed contact baseline instead of from entirely hypothetical geometry.",
+    "Its central unresolved questions are exactly the current project frontier: closure ownership, open/capture/release motion, interval-wide contact maintenance, reaction path, compliance/preload ownership, and reachable clearance.",
+    "A bounded PRISM POP test is comparatively low cost because existing project geometry can be inspected and, only after separate authorization, copied into a disposable candidate branch/state rather than inventing a new mechanism family from scratch.",
+    "The test has high discrimination value for the immediate decision: it can determine whether the existing project proposal can be given a coherent deterministic operating architecture or whether investigation should widen to a new translating, pivoting, or moving-belt architecture."
+  ],
+  "explicit_non_conclusion": [
+    "This is not a ranking of production mechanisms.",
+    "This does not state that PRISM is preferred, superior, likely to succeed, or mechanically accepted.",
+    "A PRISM POP failure does not by itself choose translating, pivoting, or moving-belt architecture; it only removes or weakens the current project proposal.",
+    "A PRISM POP success would justify deeper testing, not production selection."
+  ],
+  "candidate_factor_profiles": [
+    {
+      "candidate_id": "CANDIDATE_V43_PRISM_AS_PROJECT_PROPOSAL",
+      "dependency_centrality": "HIGH",
+      "discrimination_power": "HIGH_FOR_CURRENT_PROPOSAL_VS_ARCHITECTURE_CHANGE",
+      "evidence_confidence": "HIGH_RELATIVE_TO_OTHER_CANDIDATES",
+      "unresolved_relevance": "VERY_HIGH",
+      "test_cost": "LOW_TO_MEDIUM",
+      "basis": [
+        "Live exact geometry exists now.",
+        "Three current-pose lateral contacts are already deterministically verified.",
+        "Fixed PRISM base/rails and floating carrier/link/arm/roller geometry are separately identifiable.",
+        "Open/release motion, contact maintenance, reaction path, compliance, and actuator ownership remain unresolved."
+      ]
+    },
+    {
+      "candidate_id": "CANDIDATE_TRANSLATING_ROLLER_CARRIER",
+      "dependency_centrality": "HIGH",
+      "discrimination_power": "MEDIUM_TO_HIGH",
+      "evidence_confidence": "LOWER_BECAUSE_ARCHITECTURE_IS_HYPOTHETICAL",
+      "unresolved_relevance": "HIGH",
+      "test_cost": "MEDIUM",
+      "basis": [
+        "Directly addresses closure/contact maintenance.",
+        "Requires new candidate geometry and an assumed translation architecture before deterministic testing can begin."
+      ]
+    },
+    {
+      "candidate_id": "CANDIDATE_PIVOTING_ROLLER_CARRIER",
+      "dependency_centrality": "HIGH",
+      "discrimination_power": "MEDIUM_TO_HIGH",
+      "evidence_confidence": "LOWER_BECAUSE_ARCHITECTURE_IS_HYPOTHETICAL",
+      "unresolved_relevance": "HIGH",
+      "test_cost": "MEDIUM",
+      "basis": [
+        "Directly addresses closure/contact maintenance and swept clearance.",
+        "Requires a new pivot location, arm topology, and candidate geometry before deterministic testing can begin."
+      ]
+    },
+    {
+      "candidate_id": "CANDIDATE_MOVING_WRAP_BELT_ASSEMBLY",
+      "dependency_centrality": "HIGH",
+      "discrimination_power": "HIGH",
+      "evidence_confidence": "MIXED",
+      "unresolved_relevance": "HIGH",
+      "test_cost": "MEDIUM_TO_HIGH",
+      "basis": [
+        "The driven belt exists, but a moving belt-support closure architecture does not.",
+        "It couples closure, belt support, tension, traction, and clearance questions, increasing test complexity before simpler current-proposal questions are resolved."
+      ]
+    },
+    {
+      "candidate_id": "CANDIDATE_SPRING_OR_COMPLIANT_PRELOAD",
+      "dependency_centrality": "DEPENDENT_ON_PARENT_ARCHITECTURE",
+      "discrimination_power": "LOW_AS_STANDALONE_FIRST_TEST",
+      "evidence_confidence": "LOW",
+      "unresolved_relevance": "HIGH_FOR_MAINTENANCE_LAW",
+      "test_cost": "NOT_STANDALONE",
+      "basis": [
+        "It cannot define entry/capture/release by itself.",
+        "It should be tested only after a parent kinematic closure architecture exists."
+      ]
+    }
+  ],
+  "competing_hypotheses_discriminated_by_first_test": [
+    {
+      "hypothesis": "The current v43 PRISM project topology can be assigned a coherent deterministic closure/open/release architecture without replacing its fundamental topology.",
+      "disposition_before_test": "UNRESOLVED"
+    },
+    {
+      "hypothesis": "The current v43 PRISM geometry is only a static fit-check arrangement whose verified nominal contacts cannot be maintained through a valid operating sequence.",
+      "disposition_before_test": "UNRESOLVED"
+    },
+    {
+      "hypothesis": "A simpler alternate closure family must replace the current PRISM proposal before interval-wide contact maintenance can be established.",
+      "disposition_before_test": "UNRESOLVED_DEPENDENT_ON_PRISM_TEST"
+    },
+    {
+      "hypothesis": "A separate compliant/preload law is required in addition to any PRISM kinematic closure path.",
+      "disposition_before_test": "UNRESOLVED"
+    }
+  ],
+  "first_test_question": "Can the existing v43 PRISM proposal be bound to a deterministic OPEN -> CAPTURE -> WRAP/TRANSFER -> RELEASE state path that preserves the verified current-pose contact geometry where required, keeps bottle wrap-axis rotation intentionally available, provides a reaction path to fixed support, and restores entry/exit clearance without inventing unverified force/compliance values?",
+  "required_deterministic_observations_before_any_cad_write": [
+    "Fresh exact live v43 document/configuration binding.",
+    "Exact Component2.Name2 identity and fixed/floating state for all PRISM members, bottle, driven wrap belt, and both support rollers.",
+    "Read-only mate/joint/constraint inventory for PRISM members; absence must remain absence rather than inferred joints.",
+    "Relative transforms and geometric adjacency among carrier slider, links, arms, rollers, guide rails, reaction base, and actuator envelope.",
+    "Candidate motion-axis hypotheses derived only from deterministic geometry and explicitly labeled hypothetical until a motion law is chosen.",
+    "Current-pose exact contact manifold baseline for bottle-to-belt and bottle-to-roller pairs.",
+    "Whole-body clearance envelopes for candidate moving PRISM members relative to bottle entry/exit, neighbors, CAB hardware, hard stops, conveyor, and label path."
+  ],
+  "measurements_or_external_inputs_required_before_mechanical_acceptance": [
+    "bottle diameter/process tolerance",
+    "incoming bottle position variation",
+    "closure travel/stroke",
+    "open/capture/release limits",
+    "preload or normal-force range",
+    "stiffness/compliance law",
+    "friction coefficient and traction limit",
+    "actuator identity and speed",
+    "reaction load capacity",
+    "drive speed/acceleration",
+    "label-transfer timing/phase tolerance"
+  ],
+  "next_step": {
+    "step_id": "P0011.4",
+    "purpose": "Read-only preflight of a disposable deterministic PRISM POP representation.",
+    "cad_write_authority": "NONE_UNTIL_SEPARATE_EXPLICIT_AUTHORIZATION",
+    "preservation_rule": "Do not overwrite v43. Any later geometry experiment must use a separately named preserved copy/branch/state after explicit authorization."
+  },
+  "mechanical_acceptance_granted": false
+}
