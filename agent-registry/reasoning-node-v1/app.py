@@ -31,6 +31,12 @@ from frontier_state import (
     render_frontier_state,
 )
 from diagnostic_binding import DiagnosticBindingError
+from tradition_context import (
+    TraditionContextError,
+    load_tradition_context,
+    render_tradition_context,
+    tradition_runtime_status,
+)
 
 
 BASE_DIR = Path(r"C:\CADGrounded\reasoning-node")
@@ -51,10 +57,47 @@ REPO_ROOT = Path(
     )
 )
 
+TRADITION_RAG_CONFIG = config.get("tradition_rag") or {}
+TRADITION_RAG_ENABLED = bool(
+    TRADITION_RAG_CONFIG.get("enabled", False)
+)
+TRADITION_RAG_REQUIRED = bool(
+    TRADITION_RAG_CONFIG.get(
+        "required_for_hypothesis_generation",
+        False,
+    )
+)
+TRADITION_RAG_CODE_ROOT = Path(
+    TRADITION_RAG_CONFIG.get(
+        "code_root",
+        r"C:\CADGrounded\runtime\tradition-rag-v1",
+    )
+)
+TRADITION_RAG_DATA_ROOT = Path(
+    TRADITION_RAG_CONFIG.get(
+        "data_root",
+        r"C:\CADGrounded\tradition-rag-data",
+    )
+)
+TRADITION_RAG_LIMITS = {
+    "authoritative": int(
+        TRADITION_RAG_CONFIG.get("authoritative_hits_per_tradition", 2)
+    ),
+    "professional": int(
+        TRADITION_RAG_CONFIG.get("professional_hits_per_tradition", 1)
+    ),
+    "chatter": int(
+        TRADITION_RAG_CONFIG.get("chatter_hits_per_tradition", 1)
+    ),
+    "excerpt_chars": int(
+        TRADITION_RAG_CONFIG.get("excerpt_chars", 520)
+    ),
+}
+
 
 app = FastAPI(
     title="CADGrounded Reasoning Node",
-    version="0.9.0",
+    version="0.10.0",
 )
 
 
@@ -177,6 +220,12 @@ class ReasonResponse(BaseModel):
     frontier_snapshot: dict[str, Any] | None = None
     frontier_state: dict[str, Any] | None = None
     frontier_bindings: list[dict[str, Any]] = Field(default_factory=list)
+
+    tradition_context_applied: bool = False
+    tradition_context_admitted: Literal[False] = False
+    tradition_context_snapshot: dict[str, Any] | None = None
+    tradition_context_engineering_evidence_admissibility: Literal["NONE"] = "NONE"
+    tradition_context_frontier_mutation_authority: Literal["NONE"] = "NONE"
 
     result: AdvisoryPayload
 
@@ -375,6 +424,7 @@ def semantic_repair_prompt(
     violations: list[str],
     frontier_catalog_text: str = "",
     frontier_state_text: str = "",
+    tradition_context_text: str = "",
 ) -> str:
     frontier_section = (
         "\n" + frontier_catalog_text + "\n"
@@ -384,6 +434,11 @@ def semantic_repair_prompt(
     frontier_state_section = (
         "\n" + frontier_state_text + "\n"
         if frontier_state_text
+        else ""
+    )
+    tradition_context_section = (
+        "\n" + tradition_context_text + "\n"
+        if tradition_context_text
         else ""
     )
     return f"""
@@ -404,6 +459,7 @@ DETERMINISTIC GROUNDING CATALOG:
 {grounding_catalog(request.task, request.evidence)}
 {frontier_section}
 {frontier_state_section}
+{tradition_context_section}
 PREVIOUS SCHEMA-VALID PROPOSAL:
 {original_raw}
 
@@ -463,6 +519,19 @@ def frontier_context_fields(
     }
 
 
+def tradition_context_fields(
+    tradition_snapshot: dict[str, Any] | None,
+    applied: bool,
+) -> dict[str, Any]:
+    return {
+        "tradition_context_applied": applied,
+        "tradition_context_admitted": False,
+        "tradition_context_snapshot": tradition_snapshot,
+        "tradition_context_engineering_evidence_admissibility": "NONE",
+        "tradition_context_frontier_mutation_authority": "NONE",
+    }
+
+
 @app.get("/healthz")
 def healthz():
 
@@ -489,9 +558,23 @@ def healthz():
         frontier_state_projection = None
         frontier_error = f"{type(exc).__name__}:{exc}"
 
+    if TRADITION_RAG_ENABLED:
+        tradition_status = tradition_runtime_status(
+            repo_root=REPO_ROOT,
+            code_root=TRADITION_RAG_CODE_ROOT,
+            data_root=TRADITION_RAG_DATA_ROOT,
+        )
+    else:
+        tradition_status = {
+            "status": "disabled",
+            "engineering_evidence_admissibility": "NONE",
+            "cad_write_authority": "NONE",
+            "mechanical_acceptance_authority": "NONE",
+        }
+
     return {
         "status": "ok",
-        "version": "0.9.0",
+        "version": "0.10.0",
         "node_id": NODE_ID,
         "role": "bounded_reasoning_node",
         "ollama": ollama,
@@ -514,6 +597,15 @@ def healthz():
         "frontier_snapshot": frontier_meta,
         "frontier_state": frontier_state_projection,
         "frontier_error": frontier_error,
+        "tradition_rag": {
+            "enabled": TRADITION_RAG_ENABLED,
+            "required_for_hypothesis_generation": TRADITION_RAG_REQUIRED,
+            "code_root": str(TRADITION_RAG_CODE_ROOT),
+            "data_root": str(TRADITION_RAG_DATA_ROOT),
+            "status": tradition_status,
+            "context_admission": "UNADMITTED_ADVISORY",
+            "frontier_mutation_authority": "NONE",
+        },
     }
 
 
@@ -545,7 +637,7 @@ def frontierz():
 
     return {
         "status": "ok",
-        "version": "0.9.0",
+        "version": "0.10.0",
         "frontier_snapshot": frontier_snapshot_metadata(frontier),
         "frontier_state": state,
         "authority": {
@@ -568,6 +660,9 @@ def reason(request: ReasonRequest):
     frontier_state_projection = None
     frontier_catalog_text = ""
     frontier_state_text = ""
+    tradition_snapshot = None
+    tradition_context_text = ""
+    tradition_context_applied = False
 
     if request.task == "hypothesis_generation":
         try:
@@ -611,6 +706,58 @@ def reason(request: ReasonRequest):
                 },
             )
 
+        if TRADITION_RAG_ENABLED:
+            try:
+                tradition_snapshot = load_tradition_context(
+                    repo_root=REPO_ROOT,
+                    code_root=TRADITION_RAG_CODE_ROOT,
+                    data_root=TRADITION_RAG_DATA_ROOT,
+                    evidence=request.evidence,
+                    frontier_snapshot=frontier_snapshot,
+                    limits=TRADITION_RAG_LIMITS,
+                )
+                tradition_context_text = render_tradition_context(
+                    tradition_snapshot
+                )
+                tradition_context_applied = True
+            except TraditionContextError as exc:
+                if TRADITION_RAG_REQUIRED:
+                    failure_record = {
+                        "request_id": request_id,
+                        "timestamp_utc": timestamp,
+                        "node_id": NODE_ID,
+                        "model": MODEL,
+                        "task": request.task,
+                        "evidence_sha256": evidence_hash,
+                        "status": "REJECTED_TRADITION_CONTEXT_UNAVAILABLE",
+                        "schema_validated": False,
+                        "semantic_admitted": False,
+                        "frontier_binding_applied": False,
+                        "frontier_admitted": False,
+                        "tradition_context_applied": False,
+                        "tradition_context_admitted": False,
+                        "violations": list(exc.violations),
+                        "authority": {
+                            "solidworks_geometry": "NONE",
+                            "cad_write": "NONE",
+                            "mechanical_acceptance": "NONE",
+                            "evidence_verification": "NONE",
+                            "frontier_state_mutation": "NONE",
+                        },
+                    }
+                    failure_record.update(frontier_context_fields(
+                        frontier_snapshot,
+                        frontier_state_projection,
+                    ))
+                    append_log(failure_record)
+                    raise HTTPException(
+                        status_code=422,
+                        detail={
+                            "status": "REJECTED_TRADITION_CONTEXT_UNAVAILABLE",
+                            "violations": list(exc.violations),
+                        },
+                    )
+
     frontier_prompt_section = (
         "\n" + frontier_catalog_text + "\n"
         if frontier_catalog_text
@@ -619,6 +766,11 @@ def reason(request: ReasonRequest):
     frontier_state_prompt_section = (
         "\n" + frontier_state_text + "\n"
         if frontier_state_text
+        else ""
+    )
+    tradition_prompt_section = (
+        "\n" + tradition_context_text + "\n"
+        if tradition_context_text
         else ""
     )
 
@@ -640,6 +792,7 @@ DETERMINISTIC GROUNDING CATALOG:
 {grounding_catalog(request.task, request.evidence)}
 {frontier_prompt_section}
 {frontier_state_prompt_section}
+{tradition_prompt_section}
 Return only the required JSON object.
 """
 
@@ -694,6 +847,10 @@ Return only the required JSON object.
         failure_record.update(frontier_context_fields(
             frontier_snapshot,
             frontier_state_projection,
+        ))
+        failure_record.update(tradition_context_fields(
+            tradition_snapshot,
+            tradition_context_applied,
         ))
         append_log(failure_record)
 
@@ -779,6 +936,7 @@ Return only the required JSON object.
                         initial_violations,
                         frontier_catalog_text,
                         frontier_state_text,
+                        tradition_context_text,
                     ),
                     "stream": False,
                     "format": AdvisoryPayload.model_json_schema(),
@@ -838,6 +996,10 @@ Return only the required JSON object.
             failure_record.update(frontier_context_fields(
                 frontier_snapshot,
                 frontier_state_projection,
+            ))
+            failure_record.update(tradition_context_fields(
+                tradition_snapshot,
+                tradition_context_applied,
             ))
             append_log(failure_record)
 
@@ -903,6 +1065,10 @@ Return only the required JSON object.
             failure_record.update(frontier_context_fields(
                 frontier_snapshot,
                 frontier_state_projection,
+            ))
+            failure_record.update(tradition_context_fields(
+                tradition_snapshot,
+                tradition_context_applied,
             ))
             append_log(failure_record)
 
@@ -975,6 +1141,10 @@ Return only the required JSON object.
                     "evidence_verification": "NONE",
                 },
             }
+            failure_record.update(tradition_context_fields(
+                tradition_snapshot,
+                tradition_context_applied,
+            ))
             if semantic_repair_record is not None:
                 failure_record["semantic_repair"] = (
                     semantic_repair_record
@@ -1002,6 +1172,8 @@ Return only the required JSON object.
         frontier_snapshot=frontier_meta,
         frontier_state=frontier_state_projection,
         frontier_bindings=frontier_bindings,
+        tradition_context_applied=tradition_context_applied,
+        tradition_context_snapshot=tradition_snapshot,
         result=validated,
     )
 
@@ -1025,6 +1197,11 @@ Return only the required JSON object.
         "frontier_snapshot": frontier_meta,
         "frontier_state": frontier_state_projection,
         "frontier_bindings": frontier_bindings,
+        "tradition_context_applied": tradition_context_applied,
+        "tradition_context_admitted": False,
+        "tradition_context_snapshot": tradition_snapshot,
+        "tradition_context_engineering_evidence_admissibility": "NONE",
+        "tradition_context_frontier_mutation_authority": "NONE",
         "authority": {
             "solidworks_geometry": "NONE",
             "cad_write": "NONE",

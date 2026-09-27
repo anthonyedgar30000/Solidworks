@@ -93,7 +93,7 @@ class SemanticIntegrationTests(unittest.TestCase):
         result = app.frontierz()
 
         self.assertEqual(result["status"], "ok")
-        self.assertEqual(result["version"], "0.9.0")
+        self.assertEqual(result["version"], "0.10.0")
         self.assertEqual(
             result["frontier_snapshot"]["current_plan_id"],
             "PLAN-0011",
@@ -814,6 +814,181 @@ class SemanticIntegrationTests(unittest.TestCase):
         )
         self.assertFalse(record["schema_validated"])
         self.assertFalse(record["semantic_admitted"])
+
+
+    @patch("app.append_log")
+    @patch("app.requests.post")
+    def test_tradition_context_is_advisory_and_visible_to_hypothesis_prompt(
+        self,
+        post,
+        append_log,
+    ):
+        payload = advisory(
+            buckets=["KINEMATIC_STATE_UNRESOLVED"],
+            claims=["Capture kinematic ownership is unresolved."],
+            hypotheses=[candidate_hypothesis()],
+        )
+        post.return_value = FakeOllamaResponse(payload)
+        tradition_snapshot = {
+            "context_id": "CADGROUNDED.TRADITION_CONTEXT.V1",
+            "state": "BOUND_UNADMITTED_ADVISORY",
+            "engineering_evidence_admissibility": "NONE",
+            "frontier_mutation_authority": "NONE",
+        }
+
+        with (
+            patch.object(app, "TRADITION_RAG_ENABLED", True),
+            patch.object(app, "TRADITION_RAG_REQUIRED", True),
+            patch(
+                "app.load_tradition_context",
+                return_value=tradition_snapshot,
+            ),
+            patch(
+                "app.render_tradition_context",
+                return_value=(
+                    "TRADITION RAG ADVISORY CONTEXT:\n"
+                    "RAG_ONLY_SERVICEABILITY_CONCERN"
+                ),
+            ),
+        ):
+            result = app.reason(
+                app.ReasonRequest(
+                    task="hypothesis_generation",
+                    evidence=EVIDENCE,
+                )
+            )
+
+        self.assertTrue(result.tradition_context_applied)
+        self.assertFalse(result.tradition_context_admitted)
+        self.assertEqual(
+            result.tradition_context_snapshot,
+            tradition_snapshot,
+        )
+        self.assertEqual(
+            result.tradition_context_engineering_evidence_admissibility,
+            "NONE",
+        )
+        self.assertEqual(
+            result.tradition_context_frontier_mutation_authority,
+            "NONE",
+        )
+
+        prompt = post.call_args.kwargs["json"]["prompt"]
+        self.assertIn("TRADITION RAG ADVISORY CONTEXT", prompt)
+        self.assertIn("RAG_ONLY_SERVICEABILITY_CONCERN", prompt)
+
+        record = append_log.call_args.args[0]
+        self.assertTrue(record["tradition_context_applied"])
+        self.assertFalse(record["tradition_context_admitted"])
+        self.assertEqual(
+            record["tradition_context_engineering_evidence_admissibility"],
+            "NONE",
+        )
+
+    @patch("app.append_log")
+    @patch("app.requests.post")
+    def test_tradition_context_cannot_be_promoted_into_claims_used(
+        self,
+        post,
+        append_log,
+    ):
+        rag_only_claim = "Practitioner chatter says pivot arms improve service access."
+        rejected = advisory(
+            buckets=["KINEMATIC_STATE_UNRESOLVED"],
+            claims=[rag_only_claim],
+            hypotheses=[
+                candidate_hypothesis(
+                    statement=(
+                        "Hypothesis: a pivot arm may improve service access "
+                        "while owning closure."
+                    ),
+                    anchor_claims=[rag_only_claim],
+                )
+            ],
+        )
+        post.side_effect = [
+            FakeOllamaResponse(rejected),
+            FakeOllamaResponse(rejected),
+        ]
+
+        with (
+            patch.object(app, "TRADITION_RAG_ENABLED", True),
+            patch.object(app, "TRADITION_RAG_REQUIRED", True),
+            patch(
+                "app.load_tradition_context",
+                return_value={
+                    "context_id": "CADGROUNDED.TRADITION_CONTEXT.V1",
+                    "state": "BOUND_UNADMITTED_ADVISORY",
+                },
+            ),
+            patch(
+                "app.render_tradition_context",
+                return_value=rag_only_claim,
+            ),
+        ):
+            with self.assertRaises(HTTPException) as ctx:
+                app.reason(
+                    app.ReasonRequest(
+                        task="hypothesis_generation",
+                        evidence=EVIDENCE,
+                    )
+                )
+
+        self.assertEqual(
+            ctx.exception.detail["status"],
+            "REJECTED_SEMANTIC_POLICY_AFTER_REPAIR",
+        )
+        self.assertIn(
+            "UNGROUNDED_CLAIM:0",
+            ctx.exception.detail["violations"],
+        )
+        self.assertEqual(post.call_count, 2)
+
+        record = append_log.call_args.args[0]
+        self.assertTrue(record["tradition_context_applied"])
+        self.assertFalse(record["tradition_context_admitted"])
+
+    @patch("app.append_log")
+    @patch("app.requests.post")
+    def test_required_tradition_context_failure_blocks_before_ollama(
+        self,
+        post,
+        append_log,
+    ):
+        with (
+            patch.object(app, "TRADITION_RAG_ENABLED", True),
+            patch.object(app, "TRADITION_RAG_REQUIRED", True),
+            patch(
+                "app.load_tradition_context",
+                side_effect=app.TraditionContextError([
+                    "TRADITION_RUNTIME_REPO_TREE_MISMATCH"
+                ]),
+            ),
+        ):
+            with self.assertRaises(HTTPException) as ctx:
+                app.reason(
+                    app.ReasonRequest(
+                        task="hypothesis_generation",
+                        evidence=EVIDENCE,
+                    )
+                )
+
+        self.assertEqual(
+            ctx.exception.detail["status"],
+            "REJECTED_TRADITION_CONTEXT_UNAVAILABLE",
+        )
+        self.assertIn(
+            "TRADITION_RUNTIME_REPO_TREE_MISMATCH",
+            ctx.exception.detail["violations"],
+        )
+        post.assert_not_called()
+
+        record = append_log.call_args.args[0]
+        self.assertEqual(
+            record["status"],
+            "REJECTED_TRADITION_CONTEXT_UNAVAILABLE",
+        )
+        self.assertFalse(record["tradition_context_admitted"])
 
 
 if __name__ == "__main__":
