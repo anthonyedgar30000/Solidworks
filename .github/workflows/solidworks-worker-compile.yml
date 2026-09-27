@@ -87,6 +87,9 @@ jobs:
       - name: Test v43 PRISM dual-pivot rotation math regression
         working-directory: agent-registry/workers/CadGrounded.SolidWorksWorker
         run: .\Test-V43-Prism-DualPivot-RotationMath.ps1
+      - name: Test v43 PRISM dual-pivot optional result-field regression
+        working-directory: agent-registry/workers/CadGrounded.SolidWorksWorker
+        run: .\Test-V43-Prism-DualPivot-OptionalResultFields.ps1
   interface-reasoning:
     name: Interface contract reasoning regressions
     runs-on: ubuntu-latest

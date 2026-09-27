@@ -174,6 +174,18 @@ function Assert-VectorNear {
     }
 }
 
+function Get-OptionalPropertyValue {
+    param(
+        [Parameter(Mandatory=$true)]$Object,
+        [Parameter(Mandatory=$true)][string]$Name
+    )
+    $property = $Object.PSObject.Properties[$Name]
+    if ($null -eq $property) {
+        return $null
+    }
+    return $property.Value
+}
+
 function Multiply-Rotation3RowMajor {
     param(
         [Parameter(Mandatory=$true)][double[]]$A,
@@ -332,8 +344,8 @@ foreach ($fraction in $SampleFractions) {
                 b_name_exact = $obstacle
                 classification = [string]$data.classification
                 intersection_body_count = $data.intersection_body_count
-                intersection_volume_mm3 = $data.intersection_volume_mm3
-                minimum_distance_mm = $data.minimum_distance_mm
+                intersection_volume_mm3 = Get-OptionalPropertyValue -Object $data -Name 'intersection_volume_mm3'
+                minimum_distance_mm = Get-OptionalPropertyValue -Object $data -Name 'minimum_distance_mm'
                 api_distance = [string]$data.api_distance
             }
             $pairRows.Add($row)
@@ -358,8 +370,8 @@ foreach ($fraction in $SampleFractions) {
             b_name_exact = $b
             classification = [string]$data.classification
             intersection_body_count = $data.intersection_body_count
-            intersection_volume_mm3 = $data.intersection_volume_mm3
-            minimum_distance_mm = $data.minimum_distance_mm
+            intersection_volume_mm3 = Get-OptionalPropertyValue -Object $data -Name 'intersection_volume_mm3'
+            minimum_distance_mm = Get-OptionalPropertyValue -Object $data -Name 'minimum_distance_mm'
             api_distance = [string]$data.api_distance
         }
         $pairRows.Add($row)
