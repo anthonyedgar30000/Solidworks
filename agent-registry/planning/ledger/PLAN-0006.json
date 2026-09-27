@@ -1,0 +1,82 @@
+{
+  "record_type": "plan",
+  "schema_version": 1,
+  "record_id": "PLAN-0006",
+  "project_id": "CADGROUNDED.IXOR",
+  "created_at_utc": "2026-09-27T06:04:59.0019476Z",
+  "parent_plan_id": "PLAN-0005",
+  "caused_by_divergence_ids": [],
+  "status": "ACTIVE",
+  "state_binding": {
+    "source": "SOLIDWORKS",
+    "document_title": "IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE",
+    "document_path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE.SLDASM",
+    "configuration_exact": "V43_WRAP",
+    "configuration_state": "REQUIRE_FRESH_PREEXECUTION_REBIND",
+    "source_observation_ids": [
+      "E.V43.PRISM.MATE_BINDING.20260926T205657149Z",
+      "E.V43.PRISM.GUIDE_CONTACT.20260927T001914327Z",
+      "E.V43.PRISM.SLIDER_LINK_CONTACT.20260927T060459001Z"
+    ],
+    "freshness": "SLIDER_LINK_CONTACT_ADMITTED_POINT_EVIDENCE; FRESH LIVE REBIND REQUIRED BEFORE NEXT EXECUTION"
+  },
+  "intent": "Discriminate the exact current-pose Prism link-to-arm adjacency pattern without assuming numbered correspondence before spending evidence cost on arm-to-support-roller topology or bounded motion observations.",
+  "projected_steps": [
+    {
+      "step_id": "P0006.1",
+      "title": "Freshly rebind exact V43 document, V43_WRAP configuration, both Prism links, and both Prism arms",
+      "depends_on": [],
+      "write_authority": "NONE",
+      "expected_outputs": [
+        "fresh exact document/configuration status",
+        "fresh exact target component state",
+        "no mutation"
+      ],
+      "status": "PROJECTED"
+    },
+    {
+      "step_id": "P0006.2",
+      "title": "Classify all four exact current-pose Prism link-to-arm contact combinations",
+      "depends_on": [
+        "P0006.1"
+      ],
+      "write_authority": "NONE",
+      "expected_outputs": [
+        "four exact minimum-distance/contact classifications",
+        "exact B-rep intersection results",
+        "pre/post no-mutation comparison"
+      ],
+      "status": "PROJECTED"
+    },
+    {
+      "step_id": "P0006.3",
+      "title": "Admit timestamped link-arm observations or preserve their exact failure",
+      "depends_on": [
+        "P0006.2"
+      ],
+      "write_authority": "NONE",
+      "expected_outputs": [
+        "schema-conforming EvidenceRecord(s) or explicit admission status",
+        "SHA-256 provenance",
+        "no joint/motion/force promotion"
+      ],
+      "status": "PROJECTED"
+    },
+    {
+      "step_id": "P0006.4",
+      "title": "Re-evaluate linkage-transfer topology and select the next exact arm-to-support-roller edge only from admitted results",
+      "depends_on": [
+        "P0006.3"
+      ],
+      "write_authority": "NONE",
+      "expected_outputs": [
+        "updated H_V43_PRISM_LINKS_AND_ARMS_TRANSFER_CLOSURE state",
+        "bounded arm-to-roller next question if warranted",
+        "investigation frontier update"
+      ],
+      "status": "PROJECTED"
+    }
+  ],
+  "acceptance_gate": "Link-arm contact at one pose cannot establish joint type, linkage DOF, motion direction, stroke, actuator ownership, force/preload, reachable clearance, capture/release timing, or mechanical acceptance.",
+  "no_write_boundary": "No move, rebuild, save, mate, suppression, selection, transform, or Remote Queue write is authorized by this plan."
+}
