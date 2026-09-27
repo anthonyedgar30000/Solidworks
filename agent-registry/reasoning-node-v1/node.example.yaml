@@ -22,3 +22,13 @@ permitted_roles:
 ollama:
   endpoint: http://127.0.0.1:11434
   initial_model: qwen2.5:3b
+
+tradition_rag:
+  enabled: false
+  required_for_hypothesis_generation: false
+  code_root: C:\\CADGrounded\\runtime\\tradition-rag-v1
+  data_root: C:\\CADGrounded\\tradition-rag-data
+  authoritative_hits_per_tradition: 2
+  professional_hits_per_tradition: 1
+  chatter_hits_per_tradition: 1
+  excerpt_chars: 520
