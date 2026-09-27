@@ -88,7 +88,7 @@
       "depends_on": [
         "P0011.3"
       ],
-      "write_authority": "NONE_UNTIL_SEPARATE_EXPLICIT_AUTHORIZATION",
+      "write_authority": "NONE",
       "expected_outputs": [
         "exact component identities and source classification",
         "open/capture/release state transforms or constrained motion definition",
@@ -97,7 +97,8 @@
         "reaction-path and mounting checks",
         "rollback/preservation strategy that does not overwrite v43"
       ],
-      "status": "READY"
+      "status": "READY",
+      "authorization_boundary": "Any SOLIDWORKS write remains outside this ledger plan and requires separate explicit authorization plus fresh preflight."
     },
     {
       "step_id": "P0011.5",
@@ -105,14 +106,15 @@
       "depends_on": [
         "P0011.4"
       ],
-      "write_authority": "SEPARATE_AUTHORIZATION_REQUIRED",
+      "write_authority": "NONE",
       "expected_outputs": [
         "state-by-state evidence for entry, capture, wrap, release and neighbor clearance",
         "negative evidence and disproven candidate assumptions recorded",
         "representative physical-product trial requirements identified for any behavior CAD cannot establish",
         "mechanical acceptance remains separately gated"
       ],
-      "status": "PROJECTED"
+      "status": "PROJECTED",
+      "authorization_boundary": "This ledger step authorizes verification planning/read-only evidence only; any SOLIDWORKS write requires separate explicit authorization and is not granted here."
     }
   ],
   "source_discovery_reopen_rule": "Any new authoritative OEM/integrator source that names the actual product-centering owner reopens source binding and is evaluated before further candidate commitment.",
