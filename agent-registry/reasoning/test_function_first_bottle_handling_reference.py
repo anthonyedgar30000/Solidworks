@@ -75,7 +75,7 @@ class FunctionFirstBottleHandlingTests(unittest.TestCase):
         self.assertEqual(evidence["evidence_state"], "MEASURED_CALCULATED")
         self.assertFalse(evidence["mechanical_acceptance_granted"])
 
-    def test_contact_maintenance_source_probe_activates_candidate_eligibility(self):
+    def test_contact_maintenance_candidate_registry_is_admitted_without_selection(self):
         case = load_case()
 
         source_probe = by_id(
@@ -83,31 +83,32 @@ class FunctionFirstBottleHandlingTests(unittest.TestCase):
             "E.FUNCTION_FIRST.CONTACT_MAINTENANCE_SOURCE_PROBE.20260927T150842223Z",
             field="evidence_id",
         )
-        self.assertEqual(source_probe["evidence_type"], "solidworks_observation")
         self.assertEqual(source_probe["evidence_state"], "VERIFIED")
-        self.assertEqual(source_probe["source_authority"], "SOLIDWORKS_LIVE_STATE")
-        self.assertEqual(source_probe["payload"]["component_inventory_count"], 64)
-        self.assertEqual(source_probe["payload"]["explicit_name_classification"]["spring_or_spring_synonym_matches"], [])
-        self.assertEqual(source_probe["payload"]["explicit_name_classification"]["pneumatic_or_cylinder_matches"], [])
-        self.assertEqual(
-            source_probe["payload"]["explicit_name_classification"]["actuator_matches"],
-            ["FITCHECK_PRISM_ACTUATOR_ENVELOPE_45x35x35_V43-1"],
-        )
-        self.assertTrue(
-            all(
-                row["incident_active_assembly_mate_count"] == 0
-                for row in source_probe["payload"]["targets"]
-            )
-        )
         self.assertFalse(source_probe["mechanical_acceptance_granted"])
 
-        dof_hypothesis = by_id(case["hypotheses"], "H_FUNCTION_FIRST_REQUIRED_DOF")
-        self.assertEqual(dof_hypothesis["evidence_state"], "SUPPORTED")
-        self.assertEqual(dof_hypothesis["investigation_state"], "EXHAUSTED")
+        registry = by_id(
+            case["evidence_catalog"],
+            "E.FUNCTION_FIRST.MAINTENANCE_CANDIDATE_REGISTRY.20260927T151927324Z",
+            field="evidence_id",
+        )
+        self.assertEqual(registry["evidence_type"], "deterministic_calculation")
+        self.assertEqual(registry["evidence_state"], "MEASURED_CALCULATED")
+        self.assertEqual(registry["payload"]["result"]["selection_status"], "NOT_SELECTED")
+        self.assertEqual(
+            registry["payload"]["result"]["eligible_candidates"],
+            [
+                "CANDIDATE_TRANSLATING_ROLLER_CARRIER",
+                "CANDIDATE_PIVOTING_ROLLER_CARRIER",
+                "CANDIDATE_MOVING_WRAP_BELT_ASSEMBLY",
+                "CANDIDATE_SPRING_OR_COMPLIANT_PRELOAD",
+            ],
+        )
+        self.assertFalse(registry["mechanical_acceptance_granted"])
 
-        contact_hypothesis = by_id(case["hypotheses"], "H_FUNCTION_FIRST_CONTACT_SET")
-        self.assertEqual(contact_hypothesis["evidence_state"], "SUPPORTED")
-        self.assertEqual(contact_hypothesis["investigation_state"], "ACTIVE")
+        owner = by_id(case["obligations"], "CAPTURE_KINEMATIC_OWNER")
+        self.assertIn(registry["evidence_id"], owner["evidence_refs"])
+        self.assertEqual(owner["verification_state"], "UNRESOLVED")
+        self.assertEqual(owner["ambiguity_bucket"], "MULTIPLE_PLAUSIBLE_HYPOTHESES")
 
         closure_owner = by_id(case["hypotheses"], "H_CAPTURE_CLOSURE_OWNER")
         self.assertEqual(closure_owner["investigation_state"], "ACTIVE")
@@ -121,80 +122,36 @@ class FunctionFirstBottleHandlingTests(unittest.TestCase):
             self.assertEqual(by_id(case["hypotheses"], item_id)["investigation_state"], "ELIGIBLE")
 
         for item_id in (
-            "H_MOVING_SIDE_WALL_OR_BELT_DRIVE",
-            "H_PINCH_BELT_OR_MULTIROLLER_CAPTURE",
             "H_CANDIDATE_A_V43_PRISM",
             "H_PNEUMATIC_CAPTURE_ACTUATOR",
-            "H_OTHER_EXPLICIT_CLOSURE_MECHANISM",
         ):
             self.assertEqual(by_id(case["hypotheses"], item_id)["investigation_state"], "DORMANT")
+            self.assertEqual(by_id(case["hypotheses"], item_id)["evidence_state"], "WEAKENED")
 
-        candidate_a = by_id(case["hypotheses"], "H_CANDIDATE_A_V43_PRISM")
-        self.assertEqual(candidate_a["evidence_state"], "WEAKENED")
-        pneumatic = by_id(case["hypotheses"], "H_PNEUMATIC_CAPTURE_ACTUATOR")
-        self.assertEqual(pneumatic["evidence_state"], "WEAKENED")
-
-    def test_finite_line_rank_and_source_probe_route_to_candidate_registry(self):
+    def test_candidate_registry_routes_to_nonranking_screen_contract(self):
         case = load_case()
 
-        wrap_axis = by_id(case["obligations"], "BOTTLE_WRAP_AXIS_BOUND")
-        self.assertEqual(wrap_axis["verification_state"], "VERIFIED")
-
-        manifold = by_id(
-            case["evidence_catalog"],
-            "E.FUNCTION_FIRST.BOTTLE_LATERAL_CONTACT_MANIFOLD.20260927T100903861Z",
-            field="evidence_id",
-        )
-        self.assertEqual(
-            [item["trimmed_axis_overlap"]["length_mm"] for item in manifold["payload"]["lateral_contact_manifolds"]],
-            [93, 93, 93],
-        )
-
-        finite_rank = by_id(
-            case["evidence_catalog"],
-            "E.FUNCTION_FIRST.BOTTLE_FINITE_LINE_RESTRAINT_RANK.20260927T100903861Z",
-            field="evidence_id",
-        )
-        self.assertEqual(finite_rank["payload"]["result"]["matrix_rank"], 5)
-        self.assertEqual(finite_rank["payload"]["result"]["nullity"], 1)
-        self.assertTrue(finite_rank["payload"]["result"]["wrap_axis_rotation_is_null_mode"])
-
-        source_probe = by_id(
-            case["evidence_catalog"],
-            "E.FUNCTION_FIRST.CONTACT_MAINTENANCE_SOURCE_PROBE.20260927T150842223Z",
-            field="evidence_id",
-        )
-
-        for obligation_id in (
-            "CAPTURE_KINEMATIC_OWNER",
-            "BOTTLE_SUPPORT_CONTACT_SET_BOUND",
-            "BOTTLE_RESTRAINT_THROUGHOUT_CAPTURE",
-            "WRAP_CONTACT_THROUGHOUT_CAPTURE",
-            "CAPTURE_REACTION_FORCE_PATH",
-        ):
-            obligation = by_id(case["obligations"], obligation_id)
-            self.assertIn(source_probe["evidence_id"], obligation["evidence_refs"])
-            self.assertEqual(obligation["verification_state"], "UNRESOLVED")
-
-        self.assertEqual(
-            by_id(case["obligations"], "CAPTURE_KINEMATIC_OWNER")["ambiguity_bucket"],
-            "OEM_SOURCE_REQUIRED",
-        )
-
         ids = [item["id"] for item in case["next_tests"]]
-        self.assertEqual(ids, ["TEST_FUNCTION_FIRST_MAINTENANCE_CANDIDATE_ELIGIBILITY"])
-        test = by_id(case["next_tests"], "TEST_FUNCTION_FIRST_MAINTENANCE_CANDIDATE_ELIGIBILITY")
+        self.assertEqual(ids, ["TEST_FUNCTION_FIRST_MECHANISM_SCREEN_CONTRACT"])
+        test = by_id(case["next_tests"], "TEST_FUNCTION_FIRST_MECHANISM_SCREEN_CONTRACT")
+
         for token in (
-            "Get-CGContactMaintenanceRequirements",
-            "cg.mechanism.candidates",
-            "translating roller carrier/slide",
-            "pivoting roller arm/carrier",
-            "moving wrap-belt assembly",
-            "spring/compliant preload architecture",
-            "V43 Prism remains WEAKENED/DORMANT",
-            "pneumatic capture remains WEAKENED/DORMANT",
-            "Do not rank/select a winner",
-            "do not create or move CAD geometry",
+            "cg.mechanism.screen",
+            "Test-CGMechanismCandidate",
+            "Get-CGMechanismCandidates",
+            "closure owner",
+            "open/capture/release motion definition",
+            "contact-maintenance law",
+            "bottle-contact interval",
+            "wrap-axis preservation",
+            "reaction path",
+            "release behavior",
+            "PASS only when explicitly established",
+            "FAIL only when contradicted",
+            "otherwise UNRESOLVED",
+            "MAINTENANCE_LAW_AUGMENTATION",
+            "Do not rank, score, prefer, select",
+            "do not create/move CAD geometry",
         ):
             self.assertIn(token, test["question"])
 
