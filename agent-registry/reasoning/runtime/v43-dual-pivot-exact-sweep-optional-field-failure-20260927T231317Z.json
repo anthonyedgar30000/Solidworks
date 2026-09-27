@@ -1,0 +1,130 @@
+{
+  "schema_version": 1,
+  "record_type": "read_only_verification_attempt",
+  "attempt_id": "ATTEMPT.PLAN-0011.V43_DUAL_PIVOT_EXACT_SWEEP.OPTIONAL_FIELD_TOOLING_FAILURE.20260927T231317Z",
+  "plan_id": "PLAN-0011",
+  "step_id": "P0011.4",
+  "candidate_preflight_id": "PF.PLAN-0011.V43_PRISM_DUAL_PIVOT_OPEN_ENVELOPE.V1.20260927T221310Z",
+  "test_id": "TEST_POP_V43_PRISM_DUAL_PIVOT_EXACT_HYPOTHETICAL_SWEEP",
+  "attempted_at_utc": "2026-09-27T23:13:17.6004054Z",
+  "finished_at_utc": "2026-09-27T23:14:07.0253355Z",
+  "source_git_commit": "2c03702d1f14fcdb1e2ae346813b71c1b184fb46",
+  "verifier_git_blob_sha1": "6b6dd203c0ee60774efce9127209a9511478a0ce",
+  "live_binding": {
+    "document_title_exact": "IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE",
+    "document_path_exact": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE.SLDASM",
+    "active_configuration_exact": "V43_WRAP",
+    "top_level_component_count": 58
+  },
+  "execution_result": "BLOCKED_DURING_SAMPLED_SWEEP_RESULT_NORMALIZATION_TOOLING_BUG",
+  "observed_tooling_failure": {
+    "stage": "row normalization after read-only sw.classify_contact_pair_at_transform responses had begun",
+    "powershell_error": "The property 'intersection_volume_mm3' cannot be found on this object. Verify that the property exists.",
+    "deterministic_root_cause": "The worker intentionally serializes some result members as nullable null. System.Text.Json omits null-valued members under the worker's serializer options. Under PowerShell StrictMode, direct access such as $data.intersection_volume_mm3 or $data.minimum_distance_mm throws when the omitted property is absent.",
+    "diagnostic_confirmation": "A bounded one-pair probe returned intersection_volume_mm3=0 and minimum_distance_mm=37.462319998749706 for a normal solid-body current-pose-equivalent sample, confirming the fields exist when populated; the failure is shape normalization across nullable/omitted result variants.",
+    "classification": "TOOLING_DEFECT"
+  },
+  "evidence_boundary": {
+    "geometry_calls_began": true,
+    "complete_sample_set_finished": false,
+    "final_no_mutation_comparison_finished": false,
+    "verification_summary_produced": false,
+    "admitted_mechanical_result": false
+  },
+  "fresh_post_failure_state": {
+    "active_document_reverified": true,
+    "tracked_component_transforms_unchanged": true,
+    "tracked_components": [
+      {
+        "name2": "FITCHECK_PRISM_ARM1_33p0824x10x5_V43-1",
+        "translation_mm": [
+          -185.95882133523187,
+          -249.56817558934128,
+          995
+        ],
+        "rotation9": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          -1,
+          0,
+          1,
+          0
+        ]
+      },
+      {
+        "name2": "FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25-1",
+        "translation_mm": [
+          -169.41764267046375,
+          -249.56817558934128,
+          995
+        ],
+        "rotation9": [
+          1,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "name2": "FITCHECK_PRISM_ARM2_18p6806x10x5_V43-1",
+        "translation_mm": [
+          -193.15969871476827,
+          -189.56817558934128,
+          995
+        ],
+        "rotation9": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          -1,
+          0,
+          1,
+          0
+        ]
+      },
+      {
+        "name2": "FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25-2",
+        "translation_mm": [
+          -183.81939742953654,
+          -189.56817558934128,
+          995
+        ],
+        "rotation9": [
+          1,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
+        ]
+      }
+    ]
+  },
+  "admitted_project_state": [
+    "The sampled sweep did not complete and produced no admissible overall geometry conclusion.",
+    "Partial pairwise responses are diagnostic execution evidence only and are not admitted as a candidate-level mechanical result.",
+    "No positive-clearance, continuous-motion, contact-maintenance, reaction-path or mechanical-acceptance claim is admitted from this attempt.",
+    "The live v43 document and tracked PRISM mover transforms remained unchanged on fresh reread.",
+    "The failure is verifier result-normalization tooling, not evidence weakening the dual-pivot mechanical hypothesis."
+  ],
+  "remediation": {
+    "action": "Read nullable/omitted worker fields through a fail-closed optional-property accessor and regression-test present-zero, present-null and missing-property cases under StrictMode.",
+    "status": "IMPLEMENTED_ON_FIX_BRANCH_PENDING_REVIEW"
+  },
+  "write_authority": "NONE",
+  "model_mutation": false,
+  "mechanical_acceptance_granted": false
+}
