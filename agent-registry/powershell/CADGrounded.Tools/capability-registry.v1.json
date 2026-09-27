@@ -185,6 +185,29 @@
       ]
     },
     {
+      "id": "cg.verifier.function-first.bottle-support-contact",
+      "command": "Invoke-CGRegisteredVerifier",
+      "status": "IMPLEMENTED",
+      "category": "product_handling",
+      "engineering_question": "At the current exact bottle-application pose, what are the B-rep-backed pair classifications between BENCH_BOTTLE_D48_H180-2 and the conveyor, driven wrap belt, both support rollers, and both index-stop fingers?",
+      "execution_kind": "registered_verifier",
+      "verifier_path": "agent-registry/workers/CadGrounded.SolidWorksWorker/Verify-ClassifyContact-FunctionFirst-BottleSupport.ps1",
+      "write_authority": "NONE",
+      "remote_queue_authorized": false,
+      "establishes": [
+        "exact current-pose pair identities for the bounded six-pair bottle contact set",
+        "minimum distances and current-pose contact/clearance/interference classifications",
+        "pre/post no-mutation state and assembly-file comparison"
+      ],
+      "does_not_establish": [
+        "functional support or restraint ownership",
+        "contact-normal direction or restraint rank",
+        "friction, preload, force, reaction capacity, or traction sufficiency",
+        "interval-wide contact or reachable motion",
+        "mechanical acceptance"
+      ]
+    },
+    {
       "id": "cg.contact.surface-normal",
       "future_command": "Get-CGContactSurfaceNormalEvidence",
       "status": "PLANNED",

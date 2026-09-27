@@ -72,6 +72,9 @@ jobs:
       - name: Test BOM-free JSON evidence artifacts
         working-directory: agent-registry/workers/CadGrounded.SolidWorksWorker
         run: .\Test-JsonFileEvidence.ps1
+      - name: Test function-first bottle support/contact verifier source contract
+        working-directory: agent-registry/workers/CadGrounded.SolidWorksWorker
+        run: .\Test-FunctionFirst-BottleSupportContactVerifierSourceContract.ps1
   interface-reasoning:
     name: Interface contract reasoning regressions
     runs-on: ubuntu-latest
