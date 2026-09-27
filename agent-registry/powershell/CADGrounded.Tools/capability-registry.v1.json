@@ -156,8 +156,7 @@
     },
     {
       "id": "cg.product.required-dof",
-      "future_command": "Get-CGRequiredBottleDOF",
-      "status": "PLANNED",
+      "status": "IMPLEMENTED",
       "category": "product_handling",
       "engineering_question": "Across indexing, capture, label transfer, wrap, and release, which bottle translations/rotations must be restrained, supported, or intentionally permitted before a mechanism architecture is selected?",
       "required_primitives": [
@@ -167,7 +166,23 @@
         "label-wrap functional requirement",
         "deterministic DOF/restraint calculation"
       ],
-      "write_authority": "NONE"
+      "write_authority": "NONE",
+      "command": "Get-CGRequiredBottleDOF",
+      "execution_kind": "deterministic_requirement_derivation",
+      "primitive": "live bottle/conveyor binding + function-first-bottle-dof.v1.json",
+      "remote_queue_authorized": false,
+      "establishes": [
+        "mechanism-neutral required/permitted bottle DOF behavior by scoped operating state",
+        "fresh exact live bottle and conveyor identity binding",
+        "explicit unresolved DOF choices where function does not force a mechanism behavior"
+      ],
+      "does_not_establish": [
+        "which mechanism supplies restraint or support",
+        "which current-pose contacts are functionally required",
+        "capture force/preload or friction sufficiency",
+        "exact motion timing or reachable-state clearance",
+        "mechanical acceptance"
+      ]
     },
     {
       "id": "cg.product.support",
