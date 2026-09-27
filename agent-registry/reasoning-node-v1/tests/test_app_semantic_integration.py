@@ -125,6 +125,35 @@ class SemanticIntegrationTests(unittest.TestCase):
             "hypotheses MUST be []",
             prompt,
         )
+        self.assertIn(
+            "DETERMINISTICALLY ALLOWED BUCKET/CLAIM PAIRS",
+            prompt,
+        )
+        self.assertIn(
+            "bucket: KINEMATIC_STATE_UNRESOLVED",
+            prompt,
+        )
+        self.assertIn(
+            "claim: Capture kinematic ownership is unresolved.",
+            prompt,
+        )
+
+        catalog = prompt.split(
+            "DETERMINISTIC GROUNDING CATALOG:",
+            1,
+        )[1].split(
+            "Return only the required JSON object.",
+            1,
+        )[0]
+
+        self.assertNotIn(
+            "bucket: GEOMETRY_UNRESOLVED",
+            catalog,
+        )
+        self.assertNotIn(
+            "bucket: MECHANICAL_ACCEPTANCE_BLOCKED",
+            catalog,
+        )
 
     @patch("app.append_log")
     @patch("app.requests.post")

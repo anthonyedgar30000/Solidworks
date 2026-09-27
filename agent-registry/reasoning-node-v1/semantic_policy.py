@@ -162,6 +162,34 @@ def _bucket_supported(bucket: str, grounded_claims: list[str]) -> bool:
     return False
 
 
+def supported_bucket_claim_pairs(evidence: str) -> list[dict[str, str]]:
+    """Return deterministic bucket/claim pairs supported by source evidence.
+
+    The catalog is advisory input to the model, not a new evidence source.
+    Claims remain exact source sentences and all authority stays with the
+    deterministic semantic policy.
+    """
+    pairs: list[dict[str, str]] = []
+
+    for raw_line in evidence.splitlines():
+        line = raw_line.strip()
+        if not line.startswith("- "):
+            continue
+
+        claim = line[2:].strip()
+        if not claim:
+            continue
+
+        for bucket in _BUCKET_PATTERNS:
+            if _bucket_supported(bucket, [claim]):
+                pairs.append({
+                    "bucket": bucket,
+                    "claim": claim,
+                })
+
+    return pairs
+
+
 def validate_semantic_admission(
     *,
     task: str,
