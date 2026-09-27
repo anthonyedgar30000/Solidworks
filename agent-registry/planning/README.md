@@ -179,8 +179,9 @@ from `agent-registry/planning`.
 ### Local OTLP receiver
 
 `telemetry/compose.yaml` starts a pinned OpenTelemetry Collector with only an
-OTLP/HTTP logs receiver. The host port is bound to `127.0.0.1:4318`. The logs
-pipeline writes OTLP JSON to a Docker named volume using a file exporter with
+OTLP/HTTP logs receiver. A one-shot container makes the named volume writable
+by the Collector's UID 10001 before it starts. The host port is bound to
+`127.0.0.1:4318`. The logs pipeline writes OTLP JSON to that volume with
 1 MB rotation, three days of retention, and three backup files. It does not
 configure traces, metrics, remote exporters, or a schedule.
 
