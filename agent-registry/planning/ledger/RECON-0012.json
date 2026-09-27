@@ -1,0 +1,46 @@
+{
+  "record_type": "plan_reconciliation",
+  "schema_version": 1,
+  "record_id": "RECON-0012",
+  "project_id": "CADGROUNDED.IXOR",
+  "reconciled_at_utc": "2026-09-27T07:36:05Z",
+  "plan_id": "PLAN-0009",
+  "revised_plan_id": "PLAN-0010",
+  "raw_observation_ids": [
+    "E.PROJECT.DESIGN_INTENT.FUNCTION_FIRST_BOTTLE_HANDLER.20260927T073605Z"
+  ],
+  "actual_actions": [
+    {
+      "action_id": "ACT_REFRAME_V43_AS_CANDIDATE_A",
+      "write_authority": "NONE",
+      "result": "COMPLETED",
+      "reason": "Human project direction explicitly rejects treating the existing V43 Prism geometry as mandatory architecture. Prior V43 observations remain valid only within their admitted fit-check/candidate scope."
+    },
+    {
+      "action_id": "ACT_DEFER_V43_REVERSE_ENGINEERING",
+      "write_authority": "NONE",
+      "result": "COMPLETED",
+      "reason": "PLAN-0009 design-intent reconstruction of the V43 Prism chain is no longer the highest-value path because mechanism architecture itself remains open."
+    }
+  ],
+  "step_outcomes": [
+    {
+      "step_id": "P0009.1",
+      "outcome": "SUPERSEDED_BY_FUNCTION_FIRST_ARCHITECTURE_SELECTION",
+      "evidence_id": "E.PROJECT.DESIGN_INTENT.FUNCTION_FIRST_BOTTLE_HANDLER.20260927T073605Z"
+    },
+    {
+      "step_id": "P0009.2",
+      "outcome": "SUPERSEDED_BY_FUNCTION_FIRST_ARCHITECTURE_SELECTION",
+      "evidence_id": "E.PROJECT.DESIGN_INTENT.FUNCTION_FIRST_BOTTLE_HANDLER.20260927T073605Z"
+    },
+    {
+      "step_id": "P0009.3",
+      "outcome": "NOT_EXECUTED_NO_LONGER_REQUIRED_AS_PRIMARY_FRONTIER",
+      "evidence_id": "E.PROJECT.DESIGN_INTENT.FUNCTION_FIRST_BOTTLE_HANDLER.20260927T073605Z"
+    }
+  ],
+  "conclusion": "PLAN-0009 is reconciled without discarding its negative zero-mate result. V43 remains Candidate A research geometry, but the project frontier is broadened to function-first bottle-handling architecture selection. The next plan will freeze mechanism-independent requirements, register multiple candidate mechanism families, and screen them against a common deterministic obligation set before any new candidate CAD is authorized.",
+  "mechanical_acceptance_granted": false,
+  "write_authority": "NONE"
+}
