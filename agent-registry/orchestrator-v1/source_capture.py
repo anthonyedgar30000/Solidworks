@@ -13,6 +13,8 @@ import re
 import tempfile
 from urllib.request import Request, urlopen
 
+from source_sync import sync_once
+
 
 REGISTRY = Path(__file__).with_name("source_registry.v1.json")
 ALLOWED = {
@@ -189,10 +191,17 @@ def capture_one(row: dict, state_dir: Path, fetch=fetch_source) -> dict:
             "candidate_snippet_count": len(record["candidate_snippets"])}
 
 
-def capture_all(state_dir: Path, fetch=fetch_source, registry_path: Path = REGISTRY) -> dict:
+def capture_all(state_dir: Path, fetch=fetch_source, registry_path: Path = REGISTRY,
+                frontier_sync=sync_once) -> dict:
     status = {"captured_at_utc": datetime.now(timezone.utc).isoformat(),
               "execution_authority": "NONE", "results": []}
     try:
+        frontier = frontier_sync(state_dir)
+        status["basis_main_commit_sha"] = frontier.get("source_commit_sha")
+        if (frontier.get("status") != "SOURCE_ACQUISITION_REQUIRED"
+                or frontier.get("projection", {}).get("plan_id") != "PLAN-0010"
+                or frontier.get("projection", {}).get("execution_authority") != "NONE"):
+            raise CaptureBlocked("FRONTIER_NOT_ACTIVE_OR_FRESH")
         entries = validate_registry(json.loads(registry_path.read_text(encoding="utf-8-sig")))
         for row in entries:
             try:

@@ -22,9 +22,17 @@ class SourceCaptureTests(unittest.TestCase):
         self.state = Path(self.temp.name) / "state"
         self.registry = json.loads(REGISTRY.read_text())
 
+    def capture(self, fetch=fake_fetch):
+        return capture_all(self.state, fetch=fetch,
+                           frontier_sync=lambda state: {
+                               "status": "SOURCE_ACQUISITION_REQUIRED",
+                               "source_commit_sha": "a" * 40,
+                               "projection": {"plan_id": "PLAN-0010", "execution_authority": "NONE"},
+                           })
+
     def test_capture_is_unadmitted_and_idempotent(self):
-        first = capture_all(self.state, fetch=fake_fetch)
-        second = capture_all(self.state, fetch=fake_fetch)
+        first = self.capture()
+        second = self.capture()
         self.assertEqual(first["status"], "CAPTURED")
         self.assertTrue(all(row["new"] for row in first["results"]))
         self.assertTrue(all(not row["new"] for row in second["results"]))
@@ -38,13 +46,13 @@ class SourceCaptureTests(unittest.TestCase):
         self.assertEqual(json.loads((self.state / "last_capture_status.json").read_text())["status"], "CAPTURED")
 
     def test_dynamic_html_markup_does_not_create_duplicate_record(self):
-        first = capture_all(self.state, fetch=fake_fetch)
+        first = self.capture()
 
         def changing(row):
             raw = fake_fetch(row)
             return raw.replace(b"<body>", b"<script>session-token-2</script><body>") if row["expected_media_type"] == "text/html" else raw
 
-        second = capture_all(self.state, fetch=changing)
+        second = self.capture(fetch=changing)
         self.assertEqual(second["status"], "CAPTURED")
         self.assertTrue(all(not item["new"] for item in second["results"]))
         self.assertNotEqual(first["results"][1]["retrieved_raw_sha256"],
@@ -62,24 +70,24 @@ class SourceCaptureTests(unittest.TestCase):
             validate_registry(self.registry)
 
     def test_record_tamper_is_blocked_without_rewrite(self):
-        result = capture_all(self.state, fetch=fake_fetch)
+        result = self.capture()
         record_path = Path(result["results"][0]["record"])
         record = json.loads(record_path.read_text())
         record["evidence_state"] = "VERIFIED"
         record_path.write_text(json.dumps(record))
-        second = capture_all(self.state, fetch=fake_fetch)
+        second = self.capture()
         self.assertEqual(second["status"], "PARTIAL_BLOCKED")
         self.assertIn("IMMUTABLE_RECORD_DRIFT", second["results"][0]["reason"])
 
     def test_legacy_pdf_record_remains_immutable_and_reusable(self):
-        result = capture_all(self.state, fetch=fake_fetch)
+        result = self.capture()
         path = Path(result["results"][0]["record"])
         legacy = json.loads(path.read_text())
         legacy.pop("content_sha256")
         legacy.pop("content_fingerprint_kind")
         path.write_text(json.dumps(legacy), encoding="utf-8")
         before = path.read_bytes()
-        second = capture_all(self.state, fetch=fake_fetch)
+        second = self.capture()
         self.assertEqual(second["status"], "CAPTURED")
         self.assertFalse(second["results"][0]["new"])
         self.assertEqual(path.read_bytes(), before)
@@ -90,10 +98,20 @@ class SourceCaptureTests(unittest.TestCase):
                 raise TimeoutError("unavailable")
             return fake_fetch(row)
 
-        result = capture_all(self.state, fetch=failing)
+        result = self.capture(fetch=failing)
         self.assertEqual(result["status"], "PARTIAL_BLOCKED")
         self.assertEqual(len([row for row in result["results"] if "record" in row]), 2)
         self.assertEqual(len([row for row in result["results"] if row.get("status") == "BLOCKED"]), 1)
+
+    def test_moved_frontier_blocks_all_source_fetches(self):
+        def unexpected_fetch(row):
+            self.fail("source fetch must not occur after frontier moves")
+
+        result = capture_all(self.state, fetch=unexpected_fetch,
+                             frontier_sync=lambda state: {"status": "BLOCKED"})
+        self.assertEqual(result["status"], "BLOCKED")
+        self.assertIn("FRONTIER_NOT_ACTIVE_OR_FRESH", result["reason"])
+        self.assertFalse((self.state / "source_candidates").exists())
 
     def test_snippets_are_source_text_windows(self):
         snippets = candidate_snippets(HTML, ["roller prism", "counterpressure plate", "absent term"])
