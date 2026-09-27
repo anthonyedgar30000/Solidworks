@@ -37,6 +37,21 @@ class SourceCaptureTests(unittest.TestCase):
             self.assertFalse(record["mechanical_acceptance_granted"])
         self.assertEqual(json.loads((self.state / "last_capture_status.json").read_text())["status"], "CAPTURED")
 
+    def test_dynamic_html_markup_does_not_create_duplicate_record(self):
+        first = capture_all(self.state, fetch=fake_fetch)
+
+        def changing(row):
+            raw = fake_fetch(row)
+            return raw.replace(b"<body>", b"<script>session-token-2</script><body>") if row["expected_media_type"] == "text/html" else raw
+
+        second = capture_all(self.state, fetch=changing)
+        self.assertEqual(second["status"], "CAPTURED")
+        self.assertTrue(all(not item["new"] for item in second["results"]))
+        self.assertNotEqual(first["results"][1]["retrieved_raw_sha256"],
+                            second["results"][1]["retrieved_raw_sha256"])
+        self.assertEqual(first["results"][1]["content_sha256"], second["results"][1]["content_sha256"])
+        self.assertEqual(len(list((self.state / "source_blobs").iterdir())), 2)
+
     def test_registry_cannot_widen_url_or_source_role(self):
         self.registry["sources"][0]["url"] = "https://example.org/instructions.pdf"
         with self.assertRaisesRegex(CaptureBlocked, "SOURCE_AUTHORITY_CHANGED"):

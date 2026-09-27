@@ -94,10 +94,14 @@ def fetch_source(row: dict) -> bytes:
     return raw
 
 
-def candidate_snippets(raw: bytes, markers: list[str]) -> list[dict[str, str]]:
+def visible_text(raw: bytes) -> str:
     parser = _VisibleText()
     parser.feed(raw.decode("utf-8", errors="replace"))
-    visible = re.sub(r"\s+", " ", " ".join(parser.fragments)).strip()
+    return re.sub(r"\s+", " ", " ".join(parser.fragments)).strip()
+
+
+def candidate_snippets(raw: bytes, markers: list[str]) -> list[dict[str, str]]:
+    visible = visible_text(raw)
     lower = visible.casefold()
     matches = []
     for marker in markers:
@@ -133,19 +137,26 @@ def capture_one(row: dict, state_dir: Path, fetch=fetch_source) -> dict:
     if len(raw) > row["max_bytes"]:
         raise CaptureBlocked("SOURCE_TOO_LARGE")
     digest = hashlib.sha256(raw).hexdigest()
-    blob = state_dir / "source_blobs" / digest
-    _create_immutable(blob, raw)
-    destination = state_dir / "source_candidates" / row["source_id"] / f"{digest}.json"
+    is_html = row["expected_media_type"] == "text/html"
+    text = visible_text(raw) if is_html else ""
+    content_digest = hashlib.sha256(text.encode("utf-8")).hexdigest() if is_html else digest
+    destination = state_dir / "source_candidates" / row["source_id"] / f"{content_digest}.json"
     if destination.exists():
         prior = json.loads(destination.read_text(encoding="utf-8"))
         if (prior.get("source_id") != row["source_id"] or prior.get("source_url") != row["url"]
-                or prior.get("raw_sha256") != digest or prior.get("source_role") != row["source_role"]
+                or prior.get("content_sha256") != content_digest or prior.get("source_role") != row["source_role"]
                 or prior.get("evidence_state") != "UNADMITTED"
                 or prior.get("claim_verification_authority") != "NONE"
                 or prior.get("mechanical_acceptance_granted") is not False):
             raise CaptureBlocked("IMMUTABLE_RECORD_DRIFT")
-        return {"source_id": row["source_id"], "raw_sha256": digest, "record": str(destination),
+        first_blob = state_dir / "source_blobs" / prior["raw_sha256"]
+        if hashlib.sha256(first_blob.read_bytes()).hexdigest() != prior["raw_sha256"]:
+            raise CaptureBlocked("IMMUTABLE_RECORD_DRIFT")
+        return {"source_id": row["source_id"], "retrieved_raw_sha256": digest,
+                "content_sha256": content_digest, "record": str(destination),
                 "new": False, "candidate_snippet_count": len(prior.get("candidate_snippets", []))}
+    blob = state_dir / "source_blobs" / digest
+    _create_immutable(blob, raw)
     record = {
         "schema_version": 1,
         "record_type": "unadmitted_source_candidate",
@@ -156,17 +167,20 @@ def capture_one(row: dict, state_dir: Path, fetch=fetch_source) -> dict:
         "relation_to_v43": row["relation_to_v43"],
         "captured_at_utc": datetime.now(timezone.utc).isoformat(),
         "raw_sha256": digest,
+        "content_sha256": content_digest,
+        "content_fingerprint_kind": "NORMALIZED_VISIBLE_HTML_TEXT" if is_html else "EXACT_PDF_BYTES",
         "raw_byte_count": len(raw),
         "expected_media_type": row["expected_media_type"],
-        "candidate_snippets": candidate_snippets(raw, row["markers"]) if row["expected_media_type"] == "text/html" else [],
-        "text_extraction_state": "MARKER_WINDOWS_ONLY" if row["expected_media_type"] == "text/html" else "NOT_PERFORMED",
+        "candidate_snippets": candidate_snippets(raw, row["markers"]) if is_html else [],
+        "text_extraction_state": "MARKER_WINDOWS_ONLY" if is_html else "NOT_PERFORMED",
         "evidence_state": "UNADMITTED",
         "claim_verification_authority": "NONE",
         "mechanical_acceptance_granted": False,
         "cad_write_authority": "NONE",
     }
     new = _create_immutable(destination, (json.dumps(record, indent=2, sort_keys=True) + "\n").encode())
-    return {"source_id": row["source_id"], "raw_sha256": digest, "record": str(destination), "new": new,
+    return {"source_id": row["source_id"], "retrieved_raw_sha256": digest,
+            "content_sha256": content_digest, "record": str(destination), "new": new,
             "candidate_snippet_count": len(record["candidate_snippets"])}
 
 
