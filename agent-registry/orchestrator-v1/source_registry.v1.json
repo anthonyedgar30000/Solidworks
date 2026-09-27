@@ -6,11 +6,12 @@
   "sources": [
     {
       "source_id": "CAB.IXORPLUS.ASSEMBLY_INSTRUCTIONS.202604",
-      "url": "https://www.cab.de/media/pushfile.cfm?file=4444",
+      "url": "https://www.cab.de/media/pushfile.cfm?file=4542",
       "publisher": "cab Produkttechnik GmbH & Co. KG",
       "source_role": "SUBJECT_OEM_DOCUMENT",
       "relation_to_v43": "IXOR+ device documentation; bottle handling integration remains unresolved",
       "expected_media_type": "application/pdf",
+      "expected_content_disposition_filename": "MA_Etikettenspender_IXOR_Plus_en.pdf",
       "max_bytes": 9000000,
       "markers": []
     },
