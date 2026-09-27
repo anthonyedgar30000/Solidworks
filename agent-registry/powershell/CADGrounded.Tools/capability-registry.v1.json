@@ -246,6 +246,32 @@
       "write_authority": "NONE"
     },
     {
+      "id": "cg.product.contact-constraint-map",
+      "command": "Get-CGBottleContactConstraintMap",
+      "status": "IMPLEMENTED",
+      "category": "product_handling",
+      "engineering_question": "Given the admitted four-pair contact-normal observation, what mechanism-neutral first-order constraint geometry is supported at the recorded bottle pose?",
+      "execution_kind": "deterministic_calculation",
+      "primitive": "admitted SOLIDWORKS contact points/normals + 2D normal-line concurrence/positive-span/moment calculation",
+      "write_authority": "NONE",
+      "remote_queue_authorized": false,
+      "establishes": [
+        "current-pose concurrence of the three lateral bottle-side normal lines",
+        "current-pose positive compressive normal closure of assembly XY translation",
+        "current-pose approximately zero normal-reaction moment about the derived common-axis candidate",
+        "observed opposed assembly-Z contact-normal pair at the bottle/conveyor contact"
+      ],
+      "does_not_establish": [
+        "authoritative functional wrap-axis binding",
+        "gravity/up semantics or vertical load capacity",
+        "tilt restraint or full six-DOF restraint rank",
+        "friction/traction/force/preload/reaction capacity",
+        "interval-wide contact maintenance",
+        "mechanism selection",
+        "mechanical acceptance"
+      ]
+    },
+    {
       "id": "cg.product.support",
       "future_command": "Get-CGProductSupportEvidence",
       "status": "PLANNED",
