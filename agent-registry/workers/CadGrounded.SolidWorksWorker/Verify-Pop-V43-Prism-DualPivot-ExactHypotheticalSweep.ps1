@@ -152,27 +152,45 @@ function Invoke-WorkerRequest {
     try {
         $process.StandardInput.WriteLine($requestJson)
         $process.StandardInput.Flush()
-        $text = $process.StandardOutput.ReadLine()
+
+        $responseLines = New-Object System.Collections.Generic.List[string]
+        $envelope = $null
+        while ($null -eq $envelope) {
+            $line = $process.StandardOutput.ReadLine()
+            if ($null -eq $line) {
+                $stderr = ''
+                $exit = $null
+                try {
+                    if ($process.HasExited) {
+                        $exit = $process.ExitCode
+                        $stderr = $process.StandardError.ReadToEnd()
+                    }
+                } catch {}
+                throw "Persistent worker closed stdout before a complete JSON envelope. ExitCode=$exit Stderr=$stderr"
+            }
+
+            $responseLines.Add([string]$line)
+            $text = $responseLines -join [Environment]::NewLine
+            try {
+                $envelope = $text | ConvertFrom-Json -ErrorAction Stop
+            }
+            catch {
+                if ($responseLines.Count -gt 10000) {
+                    throw "Persistent worker response exceeded 10000 lines without forming one JSON envelope."
+                }
+                $envelope = $null
+            }
+        }
     }
     catch {
         $stderr = ''
-        try { $stderr = $process.StandardError.ReadToEnd() } catch {}
-        throw "Persistent worker I/O failed. Error=$($_.Exception.Message) Stderr=$stderr"
-    }
-
-    if ([string]::IsNullOrWhiteSpace($text)) {
-        $exit = $null
-        $stderr = ''
         try {
             if ($process.HasExited) {
-                $exit = $process.ExitCode
                 $stderr = $process.StandardError.ReadToEnd()
             }
         } catch {}
-        throw "Persistent worker returned no JSON. ExitCode=$exit Stderr=$stderr"
+        throw "Persistent worker I/O/JSON framing failed. Error=$($_.Exception.Message) Stderr=$stderr"
     }
-
-    $envelope = $text | ConvertFrom-Json
     if (-not [bool]$envelope.ok) {
         throw "Worker returned ok=false. Command=$($envelope.command_id) ErrorType=$($envelope.error.type) Error=$($envelope.error.message)"
     }
