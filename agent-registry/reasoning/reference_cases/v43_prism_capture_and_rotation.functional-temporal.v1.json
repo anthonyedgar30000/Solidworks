@@ -1632,9 +1632,7 @@
       "temporal_scope": {
         "coverage": "POINT_ONLY",
         "validity_state": "CURRENT",
-        "state_ids": [
-          "V43_WRAP"
-        ],
+        "state_ids": [],
         "transition_ids": []
       },
       "ambiguity_bucket": "KINEMATIC_STATE_UNRESOLVED",
