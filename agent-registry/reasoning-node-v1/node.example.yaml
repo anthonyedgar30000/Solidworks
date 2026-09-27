@@ -3,6 +3,7 @@ role: bounded_reasoning_node
 host: REPLACE_WITH_REASONING_NODE_HOST
 ipv4: REPLACE_WITH_REASONING_NODE_IPV4
 cad_host_ipv4: REPLACE_WITH_CAD_HOST_IPV4
+repository_root: REPLACE_WITH_REPOSITORY_ROOT
 
 authority:
   solidworks_geometry: NONE
