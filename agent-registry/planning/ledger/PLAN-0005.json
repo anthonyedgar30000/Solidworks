@@ -1,0 +1,82 @@
+{
+  "record_type": "plan",
+  "schema_version": 1,
+  "record_id": "PLAN-0005",
+  "project_id": "CADGROUNDED.IXOR",
+  "created_at_utc": "2026-09-27T00:20:26Z",
+  "parent_plan_id": "PLAN-0004",
+  "caused_by_divergence_ids": [],
+  "status": "ACTIVE",
+  "state_binding": {
+    "source": "SOLIDWORKS",
+    "document_title": "IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE",
+    "document_path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE.SLDASM",
+    "configuration_exact": "V43_WRAP",
+    "configuration_state": "REQUIRE_FRESH_PREEXECUTION_REBIND",
+    "source_observation_ids": [
+      "E.V43.PRISM.MATE_BINDING.20260926T205657149Z",
+      "E.V43.PRISM.LINK1_REACTION_BASE.CONTACT.20260926T212845290Z",
+      "E.V43.PRISM.GUIDE_CONTACT.20260927T001914327Z"
+    ],
+    "freshness": "GUIDE_CONTACT_ADMITTED_POINT_EVIDENCE; FRESH LIVE REBIND REQUIRED BEFORE NEXT EXECUTION"
+  },
+  "intent": "Discriminate whether the V43 Prism carrier slider physically continues into both Prism links before spending evidence cost on link-to-arm, arm-to-support-roller, or bounded motion observations.",
+  "projected_steps": [
+    {
+      "step_id": "P0005.1",
+      "title": "Freshly rebind exact V43 document, V43_WRAP configuration, slider, and both Prism links before topology execution",
+      "depends_on": [],
+      "write_authority": "NONE",
+      "expected_outputs": [
+        "fresh exact document/configuration status",
+        "fresh exact target component state",
+        "no mutation"
+      ],
+      "status": "PROJECTED"
+    },
+    {
+      "step_id": "P0005.2",
+      "title": "Classify exact current-pose slider-to-Link-1 and slider-to-Link-2 contact topology",
+      "depends_on": [
+        "P0005.1"
+      ],
+      "write_authority": "NONE",
+      "expected_outputs": [
+        "slider-to-Link-1 exact minimum distance/contact classification",
+        "slider-to-Link-2 exact minimum distance/contact classification",
+        "pre/post no-mutation comparison"
+      ],
+      "status": "PROJECTED"
+    },
+    {
+      "step_id": "P0005.3",
+      "title": "Admit timestamped slider-link observations or preserve their exact failure",
+      "depends_on": [
+        "P0005.2"
+      ],
+      "write_authority": "NONE",
+      "expected_outputs": [
+        "schema-conforming EvidenceRecord(s) or explicit admission status",
+        "SHA-256 provenance",
+        "no motion/force promotion"
+      ],
+      "status": "PROJECTED"
+    },
+    {
+      "step_id": "P0005.4",
+      "title": "Re-evaluate Prism linkage-transfer hypothesis and select the next exact topology edge only from admitted results",
+      "depends_on": [
+        "P0005.3"
+      ],
+      "write_authority": "NONE",
+      "expected_outputs": [
+        "updated H_V43_PRISM_LINKS_AND_ARMS_TRANSFER_CLOSURE state",
+        "bounded next pair question if needed",
+        "investigation frontier update"
+      ],
+      "status": "PROJECTED"
+    }
+  ],
+  "acceptance_gate": "Slider-link contact at one pose cannot establish linkage DOF, permitted motion, stroke, actuator ownership, force/preload, reachable clearance, capture/release timing, or mechanical acceptance.",
+  "no_write_boundary": "No move, rebuild, save, mate, suppression, selection, transform, or Remote Queue write is authorized by this plan."
+}
