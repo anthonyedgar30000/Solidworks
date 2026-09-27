@@ -13,3 +13,13 @@ python -m unittest discover -s agent-registry/orchestrator-v1 -p 'test_*.py' -v
 ```
 
 The state directory must be outside Git. Repeated scans of the same bytes return `new: false` and do not create another task. When GitHub's plan advances beyond PLAN-0010, this runner returns `BLOCKED: FRONTIER_MOVED`; it needs a separately reviewed frontier contract before following the new plan. The watcher reads the **local** checkout, so a separate governed sync must update that checkout before a new remote commit is visible.
+
+## Isolated GitHub input sync
+
+`source_sync.py` is the unattended entry point when the local checkout is used for other work. It resolves the public repository's exact `main` commit, downloads only the five allowlisted JSON paths at that commit, and stores them under `state/snapshots/<commit>`. It never fetches into, resets, or checks out the active project repository. A repeated commit must reproduce the identical immutable snapshot. The existing runner then evaluates that snapshot and deduplicates the proposal by input bytes.
+
+```bash
+python agent-registry/orchestrator-v1/source_sync.py --state-dir /path/to/durable/local/state
+```
+
+`state/last_sync_status.json` reports the pinned commit, input hashes, receipt or blocking reason. Network failure does not fall back to a stale snapshot. A new plan, changed evidence, or unsupported input remains blocked. The sync downloads source data only; it does not execute repository code, search OEM sources, dispatch CAD reads, or admit evidence. Run the test suite with the `unittest discover` command above.
