@@ -1,0 +1,122 @@
+{
+  "schema_version": 1,
+  "record_type": "evidence",
+  "evidence_id": "E.V43.PRISM.GUIDE_CONTACT.20260927T001914327Z",
+  "evidence_type": "solidworks_observation",
+  "evidence_state": "VERIFIED",
+  "source_authority": "SOLIDWORKS_LIVE_STATE",
+  "source_classification": "verified_from_solidworks_api",
+  "subject": {
+    "subject_type": "v43_prism_slider_guide_rail_current_pose_contact_observation",
+    "identity_exact": "FITCHECK_PRISM_CARRIER_SLIDER_15x80x60_V43-1; FITCHECK_PRISM_GUIDE_RAIL_100x10x10_V43-1; FITCHECK_PRISM_GUIDE_RAIL_100x10x10_V43-2",
+    "document_title_exact": "IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE",
+    "document_path_exact": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE.SLDASM"
+  },
+  "provenance": {
+    "recorded_at": "2026-09-27T00:19:14.3270803Z",
+    "source_ref": "C:\\ChatGPT\\Solidworks-main-9e4ef55\\agent-registry\\workers\\CadGrounded.SolidWorksWorker\\verification-output\\classify-contact-v43-prism-guide-rails\\verification-summary.json; user-supplied SHA-256 binding",
+    "sha256": "813b983c5f07b6c03220bc21d68065ca39887d253b7c475a550543687cc2ffed",
+    "tool_path": "Verify-ClassifyContact-V43-Prism-GuideRails.ps1; CadGrounded.SolidWorksWorker sw.classify_contact_pair"
+  },
+  "dependencies": [
+    "E.V43.PRISM.MATE_BINDING.20260926T205657149Z",
+    "E.V43.PRISM.LINK1_REACTION_BASE.CONTACT.20260926T212845290Z",
+    "PLAN-0004",
+    "P0004.1",
+    "P0004.2",
+    "PR-41"
+  ],
+  "geometry_state": "CANDIDATE_OPERATING",
+  "temporal_scope": {
+    "coverage": "POINT_ONLY",
+    "validity_state": "CURRENT",
+    "state_ids": [
+      "V43_WRAP",
+      "V43.SNAPSHOT.20260927T001914327Z"
+    ],
+    "transition_ids": []
+  },
+  "ambiguity_bucket": "KINEMATIC_STATE_UNRESOLVED",
+  "mechanical_acceptance_granted": false,
+  "payload": {
+    "observation_kind": "exact_top_level_slider_to_two_guide_rails_current_pose_contact_classification",
+    "document": {
+      "title": "IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE",
+      "path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE.SLDASM",
+      "document_type": "assembly",
+      "active_configuration_exact": "V43_WRAP",
+      "configuration_binding": "PREASSERTED_AND_OBSERVED"
+    },
+    "executed_at_utc": "2026-09-27T00:19:14.3270803Z",
+    "worker_version": "0.4.4",
+    "target_components": [
+      {
+        "name2": "FITCHECK_PRISM_CARRIER_SLIDER_15x80x60_V43-1",
+        "fixed_component": false,
+        "top_level": true
+      },
+      {
+        "name2": "FITCHECK_PRISM_GUIDE_RAIL_100x10x10_V43-1",
+        "fixed_component": true,
+        "top_level": true
+      },
+      {
+        "name2": "FITCHECK_PRISM_GUIDE_RAIL_100x10x10_V43-2",
+        "fixed_component": true,
+        "top_level": true
+      }
+    ],
+    "pair_results": [
+      {
+        "a_name_exact": "FITCHECK_PRISM_CARRIER_SLIDER_15x80x60_V43-1",
+        "b_name_exact": "FITCHECK_PRISM_GUIDE_RAIL_100x10x10_V43-1",
+        "minimum_distance_mm": 2.7755575615628914e-14,
+        "classification": "contact_or_coincidence_within_tolerance",
+        "contact_tolerance_mm": 0.001,
+        "volume_tolerance_mm3": 0.001,
+        "intersection_body_count": 0,
+        "intersection_volume_mm3": 0,
+        "boolean_executed": true,
+        "api_distance": "IModelDoc2.ClosestDistance",
+        "api_intersection": "IBody2.Operations2(SWBODYINTERSECT) on transformed temporary body copies"
+      },
+      {
+        "a_name_exact": "FITCHECK_PRISM_CARRIER_SLIDER_15x80x60_V43-1",
+        "b_name_exact": "FITCHECK_PRISM_GUIDE_RAIL_100x10x10_V43-2",
+        "minimum_distance_mm": 2.7755575615628914e-14,
+        "classification": "contact_or_coincidence_within_tolerance",
+        "contact_tolerance_mm": 0.001,
+        "volume_tolerance_mm3": 0.001,
+        "intersection_body_count": 0,
+        "intersection_volume_mm3": 0,
+        "boolean_executed": true,
+        "api_distance": "IModelDoc2.ClosestDistance",
+        "api_intersection": "IBody2.Operations2(SWBODYINTERSECT) on transformed temporary body copies"
+      }
+    ],
+    "no_mutation_comparison": {
+      "active_document_path_same_before_after": true,
+      "active_document_title_same_before_after": true,
+      "active_configuration_same_before_after": true,
+      "target_transforms_same_before_after": true,
+      "assembly_file_length_same_before_after": true,
+      "assembly_file_last_write_utc_same_before_after": true,
+      "assembly_file_sha256_before_after": "dcd53467d2693283bb6617bdde1d4da8c19790615385e307671690ddce84b32a",
+      "model_mutation": false,
+      "write_authority": "NONE",
+      "remote_queue_authorized": false
+    },
+    "admitted_claims": [
+      "At the recorded point observation in exact active configuration V43_WRAP, exact FITCHECK_PRISM_CARRIER_SLIDER_15x80x60_V43-1 to FITCHECK_PRISM_GUIDE_RAIL_100x10x10_V43-1 minimum distance was 2.7755575615628914e-14 mm and classification was contact_or_coincidence_within_tolerance.",
+      "At the same recorded point observation, exact FITCHECK_PRISM_CARRIER_SLIDER_15x80x60_V43-1 to FITCHECK_PRISM_GUIDE_RAIL_100x10x10_V43-2 minimum distance was 2.7755575615628914e-14 mm and classification was contact_or_coincidence_within_tolerance.",
+      "Both exact pair checks reported zero intersection bodies and zero intersection volume, so the observation supports bilateral current-pose physical adjacency without detected solid interference.",
+      "The verifier detected no change to the exact target transforms, active document/configuration state, or assembly-file evidence."
+    ],
+    "explicitly_not_claimed": [
+      "No claim that the slider has a prismatic joint or any particular allowed degree of freedom.",
+      "No claim about permitted motion direction, stroke, endpoint limits, friction, bearing fit, preload, force, stiffness, or reaction capacity.",
+      "No claim that the slider is mechanically connected to either Prism link, arm, support roller, or actuator.",
+      "No interval-wide, reachable-state, capture/release, timing, or mechanical-acceptance conclusion is admitted from this point observation."
+    ]
+  }
+}\n
