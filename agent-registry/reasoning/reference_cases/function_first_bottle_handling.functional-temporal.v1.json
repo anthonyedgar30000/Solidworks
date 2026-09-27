@@ -26,12 +26,13 @@
     {
       "id": "CAPTURE_AND_ROTATION",
       "parent_id": null,
-      "goal": "Establish and maintain controlled bottle restraint and a justified rotation/reaction-force path while label wrap is active; the v43 Prism-named parts are a candidate closure path, not a proven mechanism.",
+      "goal": "Establish and maintain controlled bottle support/restraint, an explicitly justified rotation source, wrap contact, and a supported reaction-force path while label wrap is active. Existing v43 Prism geometry is Candidate A evidence only; no mechanism family is privileged before requirement binding and candidate screening.",
       "local_obligation_ids": [
         "BOTTLE_SUPPORT_CONTACT_SET_BOUND",
         "BOTTLE_REQUIRED_DOF_BOUND",
         "CAPTURE_KINEMATIC_OWNER",
         "BOTTLE_RESTRAINT_THROUGHOUT_CAPTURE",
+        "BOTTLE_ROTATION_SOURCE_BOUND",
         "WRAP_CONTACT_THROUGHOUT_CAPTURE",
         "CAPTURE_REACTION_FORCE_PATH",
         "REACHABLE_MOTION_CLEARANCE"
@@ -204,7 +205,7 @@
     {
       "id": "CAPTURE_KINEMATIC_OWNER",
       "owner_subsystem_id": "CAPTURE_AND_ROTATION",
-      "description": "The physical subassembly that closes, guides, limits, actuates, or preloads bottle capture is identified from authoritative evidence.",
+      "description": "After function-first bottle requirements are bound and candidate families are screened, the selected physical architecture has an explicit owner for closure/guidance, rotation input, limits, compliance/preload when required, reaction support, and release.",
       "verification_state": "UNRESOLVED",
       "ambiguity_bucket": "KINEMATIC_STATE_UNRESOLVED",
       "criticality": 5,
@@ -212,7 +213,8 @@
       "expected_authority": [
         "OEM_CAD",
         "OEM_DOCUMENTATION",
-        "SOLIDWORKS_LIVE_STATE"
+        "SOLIDWORKS_LIVE_STATE",
+        "DETERMINISTIC_CALCULATION"
       ],
       "evidence_refs": [
         "E.V43.PRISM.LIVE_STATE.20260926T200826594Z",
@@ -223,7 +225,10 @@
         "E.V43.PRISM.ARM_ROLLER_CONTACT.ARCH_PROJECTION.20260927",
         "E.V43.PRISM.FULL_CHAIN_MATES.ARCH_PROJECTION.20260927"
       ],
-      "depends_on_requirement_ids": [],
+      "depends_on_requirement_ids": [
+        "BOTTLE_REQUIRED_DOF_BOUND",
+        "BOTTLE_SUPPORT_CONTACT_SET_BOUND"
+      ],
       "scope": {
         "state_ids": [
           "CAPTURE_AND_ROTATION",
@@ -265,6 +270,35 @@
           "INDEXED_TO_CAPTURE",
           "CAPTURE_TO_RELEASE"
         ],
+        "required_coverage": "THROUGHOUT_SCOPE"
+      }
+    },
+    {
+      "id": "BOTTLE_ROTATION_SOURCE_BOUND",
+      "owner_subsystem_id": "CAPTURE_AND_ROTATION",
+      "description": "The selected candidate explicitly identifies how required bottle rotation is generated and controlled relative to the label lead and wrap-contact surfaces, including drive source, direction, contact relationship, and required operating interval.",
+      "verification_state": "UNRESOLVED",
+      "ambiguity_bucket": "KINEMATIC_STATE_UNRESOLVED",
+      "criticality": 5,
+      "resolution_cost": 2,
+      "expected_authority": [
+        "OEM_CAD",
+        "OEM_DOCUMENTATION",
+        "SOLIDWORKS_LIVE_STATE",
+        "DETERMINISTIC_CALCULATION"
+      ],
+      "evidence_refs": [],
+      "depends_on_requirement_ids": [
+        "BOTTLE_REQUIRED_DOF_BOUND",
+        "BOTTLE_SUPPORT_CONTACT_SET_BOUND"
+      ],
+      "scope": {
+        "state_ids": [
+          "CAPTURE_AND_ROTATION",
+          "LABEL_TRANSFER_INTERVAL",
+          "WRAP_ACTIVE"
+        ],
+        "transition_ids": [],
         "required_coverage": "THROUGHOUT_SCOPE"
       }
     },
@@ -477,6 +511,7 @@
       "required_requirement_ids": [
         "BOTTLE_RESTRAINT_THROUGHOUT_CAPTURE",
         "WRAP_CONTACT_THROUGHOUT_CAPTURE",
+        "BOTTLE_ROTATION_SOURCE_BOUND",
         "CAPTURE_REACTION_FORCE_PATH",
         "INV_CAPTURE_PHASE_ORDER_AND_CONTAINMENT"
       ],
@@ -1179,7 +1214,7 @@
     },
     {
       "id": "H_CAPTURE_CLOSURE_OWNER",
-      "description": "A physical carrier, slide, pivot, actuator, or preload assembly owns bottle-capture closure but is not yet bound into the current v42 evidence model.",
+      "description": "A physical candidate architecture will eventually own bottle capture/rotation closure, guidance, limits, actuation/preload, and release, but mechanism selection is deferred until bottle requirements are bound and candidates are screened.",
       "prior": "COMMON",
       "evidence_state": "UNRESOLVED",
       "investigation_state": "DORMANT",
@@ -1195,7 +1230,7 @@
         "WRAP_ACTIVE"
       ],
       "required_evidence": [
-        "A no-mutation native read or OEM assembly/drawing map that binds the exact parent, closure input, allowed motion, limits, and reaction mount of the FITCHECK belt and both support rollers."
+        "A completed function-first DOF/support/restraint baseline plus candidate-specific evidence binding closure input, allowed motion, bottle contacts, rotation source, limits, release behavior, and reaction mount."
       ]
     },
     {
@@ -1277,7 +1312,7 @@
         "RELEASE"
       ],
       "required_evidence": [
-        "A no-mutation mate/feature/DOF read or OEM assembly drawing that binds at least one named FITCHECK support roller to a translating carrier, including travel limits, closure input, and reaction mount."
+        "A candidate definition or authoritative reference binding one or more support rollers to a translating carrier, including travel axis, limits, closure input, bottle-contact interval, release behavior, rotation-source relationship, and reaction mount."
       ]
     },
     {
@@ -1300,7 +1335,7 @@
         "RELEASE"
       ],
       "required_evidence": [
-        "A no-mutation native read or OEM drawing identifying the pivot axis, angular limits, linkage to a named FITCHECK roller, closure force source, and reaction path."
+        "A candidate definition or authoritative reference identifying pivot axis, angular limits, roller retention, closure force source, bottle-contact interval, release behavior, rotation-source relationship, and reaction path."
       ]
     },
     {
@@ -1324,12 +1359,12 @@
         "RELEASE"
       ],
       "required_evidence": [
-        "A no-mutation native read or OEM assembly/drawing map binding FITCHECK_DRIVEN_WRAP_BELT_5x160x93_V25-1 to a carrier or actuator and specifying its controlled motion, limits, drive relationship, and reaction mount."
+        "A candidate definition or authoritative reference specifying how a driven wrap-belt assembly translates/pivots or otherwise closes, including belt drive, limits, bottle-contact interval, controlled bottle rotation, release behavior, and reaction mount."
       ]
     },
     {
       "id": "H_PNEUMATIC_CAPTURE_ACTUATOR",
-      "description": "A pneumatic cylinder or actuator provides capture closure force or commanded compliance at the v42 FITCHECK station.",
+      "description": "A pneumatic cylinder or actuator may provide closure force or commanded compliance for a selected capture architecture.",
       "prior": "UNCOMMON",
       "evidence_state": "WEAKENED",
       "investigation_state": "DORMANT",
@@ -1345,7 +1380,7 @@
         "WRAP_ACTIVE"
       ],
       "required_evidence": [
-        "An OEM BOM/drawing and a no-mutation live binding of the exact cylinder or actuator, rod, stroke, force, valve/control relationship, and attachment to a named FITCHECK belt or roller."
+        "An OEM or deterministic candidate specification binding actuator identity, rod/attachment, stroke, force, controls, travel limits, and reaction mount."
       ]
     },
     {
@@ -1365,7 +1400,7 @@
         "WRAP_ACTIVE"
       ],
       "required_evidence": [
-        "An OEM drawing/BOM or no-mutation native feature read showing the exact spring or compliant element, preload setting or force range, usable travel, retention, and reaction path in the v42 FITCHECK station."
+        "An OEM or deterministic candidate specification showing the exact spring/compliant element, preload or force range, usable travel, retention, and reaction path."
       ]
     },
     {
@@ -1388,7 +1423,84 @@
         "RELEASE"
       ],
       "required_evidence": [
-        "A precise OEM or no-mutation native source identifying the closure mechanism, its input, constrained motion or force path, limits, interface to the named FITCHECK parts, and affected reachable states."
+        "A precise OEM/reference or deterministic candidate definition identifying closure/rotation mechanism, input, constrained motion/force path, limits, bottle interfaces, release behavior, and affected reachable states."
+      ]
+    },
+    {
+      "id": "H_CANDIDATE_A_V43_PRISM",
+      "description": "The preserved v43 Prism fit-check arrangement remains Candidate A, but its static contact topology and zero-mate result do not establish an operating mechanism.",
+      "prior": "COMMON",
+      "evidence_state": "WEAKENED",
+      "investigation_state": "DORMANT",
+      "related_requirement_ids": [
+        "CAPTURE_KINEMATIC_OWNER",
+        "BOTTLE_RESTRAINT_THROUGHOUT_CAPTURE",
+        "BOTTLE_ROTATION_SOURCE_BOUND",
+        "WRAP_CONTACT_THROUGHOUT_CAPTURE",
+        "CAPTURE_REACTION_FORCE_PATH",
+        "REACHABLE_MOTION_CLEARANCE"
+      ],
+      "affected_state_ids": [
+        "INDEXED",
+        "CAPTURE_AND_ROTATION",
+        "LABEL_TRANSFER_INTERVAL",
+        "WRAP_ACTIVE",
+        "RELEASE"
+      ],
+      "required_evidence": [
+        "If reactivated after requirements are bound, Candidate A needs an explicit deterministic or authoritative joint/actuation specification plus interval-wide restraint, controlled rotation, wrap-contact, reaction-path, reachable-clearance, and release evidence. Existing v43 observations remain bounded fit-check evidence."
+      ]
+    },
+    {
+      "id": "H_MOVING_SIDE_WALL_OR_BELT_DRIVE",
+      "description": "A driven side wall or side belt may advance and rotate the bottle while a complementary support/reaction structure maintains controlled capture.",
+      "prior": "COMMON",
+      "evidence_state": "UNRESOLVED",
+      "investigation_state": "DORMANT",
+      "related_requirement_ids": [
+        "CAPTURE_KINEMATIC_OWNER",
+        "BOTTLE_RESTRAINT_THROUGHOUT_CAPTURE",
+        "BOTTLE_ROTATION_SOURCE_BOUND",
+        "WRAP_CONTACT_THROUGHOUT_CAPTURE",
+        "CAPTURE_REACTION_FORCE_PATH",
+        "REACHABLE_MOTION_CLEARANCE",
+        "RELEASE_PATH_CLEAR_ACROSS_REACHABLE_STATES"
+      ],
+      "affected_state_ids": [
+        "INDEXED",
+        "CAPTURE_AND_ROTATION",
+        "LABEL_TRANSFER_INTERVAL",
+        "WRAP_ACTIVE",
+        "RELEASE"
+      ],
+      "required_evidence": [
+        "A deterministic candidate definition for drive-surface speed/direction, bottle contact geometry, complementary support/reaction geometry, entry/capture/release sequence, reachable clearance, and CAB label-transfer relationship."
+      ]
+    },
+    {
+      "id": "H_PINCH_BELT_OR_MULTIROLLER_CAPTURE",
+      "description": "A pinch-belt or multi-roller architecture may constrain and rotate the bottle through the label-transfer interval with explicit entry and release states.",
+      "prior": "UNCOMMON",
+      "evidence_state": "UNRESOLVED",
+      "investigation_state": "DORMANT",
+      "related_requirement_ids": [
+        "CAPTURE_KINEMATIC_OWNER",
+        "BOTTLE_RESTRAINT_THROUGHOUT_CAPTURE",
+        "BOTTLE_ROTATION_SOURCE_BOUND",
+        "WRAP_CONTACT_THROUGHOUT_CAPTURE",
+        "CAPTURE_REACTION_FORCE_PATH",
+        "REACHABLE_MOTION_CLEARANCE",
+        "RELEASE_PATH_CLEAR_ACROSS_REACHABLE_STATES"
+      ],
+      "affected_state_ids": [
+        "INDEXED",
+        "CAPTURE_AND_ROTATION",
+        "LABEL_TRANSFER_INTERVAL",
+        "WRAP_ACTIVE",
+        "RELEASE"
+      ],
+      "required_evidence": [
+        "A deterministic candidate definition for belt/roller placement, drive source, support/restraint contacts, controlled rotation, entry/capture/release states, wrap interval, reaction path, and whole-body clearance."
       ]
     }
   ],
@@ -1646,12 +1758,13 @@
   "next_tests": [
     {
       "id": "TEST_FUNCTION_FIRST_BOTTLE_SUPPORT_RESTRAINT_DOF",
-      "question": "Before selecting any capture mechanism, what degrees of freedom must a D48 upright bottle have restrained or supported at INDEXED, CAPTURE_AND_ROTATION, LABEL_TRANSFER_INTERVAL, WRAP_ACTIVE, and RELEASE, and which rotation must remain intentionally available for label wrapping? Bind the current deterministic support/contact set from conveyor, bottle, wrap-contact, and any presently adjacent geometry, but distinguish current-pose contacts from required functional contacts. The result must not assume the v43 Prism slider/links/arms are required.",
+      "question": "Before selecting any capture mechanism, what degrees of freedom must a D48 upright bottle have restrained or supported at INDEXED, CAPTURE_AND_ROTATION, LABEL_TRANSFER_INTERVAL, WRAP_ACTIVE, and RELEASE, and which rotation must remain intentionally available for label wrapping, and what functional rotation-source relationship will a later candidate need to provide? Bind the current deterministic support/contact set from conveyor, bottle, wrap-contact, and any presently adjacent geometry, but distinguish current-pose contacts from required functional contacts. The result must not assume the v43 Prism slider/links/arms are required.",
       "resolves_requirement_ids": [
         "BOTTLE_REQUIRED_DOF_BOUND",
         "BOTTLE_SUPPORT_CONTACT_SET_BOUND",
         "BOTTLE_RESTRAINT_THROUGHOUT_CAPTURE",
-        "WRAP_CONTACT_THROUGHOUT_CAPTURE"
+        "WRAP_CONTACT_THROUGHOUT_CAPTURE",
+        "BOTTLE_ROTATION_SOURCE_BOUND"
       ],
       "hypothesis_ids": [
         "H_FUNCTION_FIRST_REQUIRED_DOF",
@@ -1661,6 +1774,52 @@
       "evidence_confidence": 0.95,
       "unresolved_relevance": 1,
       "cost": 1
+    },
+    {
+      "id": "TEST_MECHANISM_CANDIDATE_FAMILY_SET",
+      "question": "Only after the function-first bottle DOF/support/contact requirements are bound, activate and register multiple explicit candidate mechanism families without privileging current geometry: preserved v43 Prism Candidate A, moving driven wrap-belt assembly, translating roller carrier, pivoting roller arm/carrier, moving side-wall or side-belt drive, pinch-belt/multi-roller capture, and any other explicit mechanism whose assumptions and provenance are stated. Do not generate CAD or infer missing kinematics.",
+      "resolves_requirement_ids": [
+        "CAPTURE_KINEMATIC_OWNER"
+      ],
+      "hypothesis_ids": [
+        "H_TRANSLATING_ROLLER_CARRIER_OR_SLIDE",
+        "H_PIVOTING_ROLLER_ARM_OR_CARRIER",
+        "H_MOVING_WRAP_BELT_ASSEMBLY",
+        "H_MOVING_SIDE_WALL_OR_BELT_DRIVE",
+        "H_PINCH_BELT_OR_MULTIROLLER_CAPTURE",
+        "H_CANDIDATE_A_V43_PRISM",
+        "H_OTHER_EXPLICIT_CLOSURE_MECHANISM"
+      ],
+      "discrimination_power": 0.98,
+      "evidence_confidence": 0.9,
+      "unresolved_relevance": 1,
+      "cost": 1
+    },
+    {
+      "id": "TEST_MECHANISM_CANDIDATE_SCREEN",
+      "question": "Screen every activated bottle-handling candidate against the same deterministic obligation matrix: indexed-product compatibility, required bottle DOF/support/restraint, controlled rotation source, wrap contact, CAB label-transfer relationship, reaction-force path, mounting, reachable interference, release/exit, and neighboring-product clearance. Record PASS, FAIL, or UNRESOLVED per obligation and retain negative evidence. Identify candidates eligible for further deterministic CAD prototyping; do not grant mechanical acceptance.",
+      "resolves_requirement_ids": [
+        "CAPTURE_KINEMATIC_OWNER",
+        "BOTTLE_RESTRAINT_THROUGHOUT_CAPTURE",
+        "BOTTLE_ROTATION_SOURCE_BOUND",
+        "WRAP_CONTACT_THROUGHOUT_CAPTURE",
+        "CAPTURE_REACTION_FORCE_PATH",
+        "REACHABLE_MOTION_CLEARANCE",
+        "RELEASE_PATH_CLEAR_ACROSS_REACHABLE_STATES"
+      ],
+      "hypothesis_ids": [
+        "H_TRANSLATING_ROLLER_CARRIER_OR_SLIDE",
+        "H_PIVOTING_ROLLER_ARM_OR_CARRIER",
+        "H_MOVING_WRAP_BELT_ASSEMBLY",
+        "H_MOVING_SIDE_WALL_OR_BELT_DRIVE",
+        "H_PINCH_BELT_OR_MULTIROLLER_CAPTURE",
+        "H_CANDIDATE_A_V43_PRISM",
+        "H_OTHER_EXPLICIT_CLOSURE_MECHANISM"
+      ],
+      "discrimination_power": 0.99,
+      "evidence_confidence": 0.9,
+      "unresolved_relevance": 1,
+      "cost": 2
     },
     {
       "id": "TEST_CAPTURE_RESTRAINT_AND_CONTACT_INTERVAL",
@@ -1695,27 +1854,6 @@
       "evidence_confidence": 0.8,
       "unresolved_relevance": 1,
       "cost": 3
-    },
-    {
-      "id": "TEST_FRESH_V42_COMPONENT_BINDING",
-      "question": "Repeat a read-only full v42 component inventory only if a later claim needs freshness after 2026-09-25T02:58:42.924369+00:00; it does not itself prove capture, contact, clearance, or owner binding.",
-      "resolves_requirement_ids": [
-        "PRODUCT_POSITION_STABLE"
-      ],
-      "hypothesis_ids": [],
-      "discrimination_power": 0.4,
-      "evidence_confidence": 1,
-      "unresolved_relevance": 0.5,
-      "cost": 1,
-      "cad_request": {
-        "schema_version": 1,
-        "job_id": "v42-functional-temporal-component-binding",
-        "command_id": "sw.query_components",
-        "write_authority": "NONE",
-        "payload": {
-          "top_level_only": false
-        }
-      }
     }
   ]
 }
