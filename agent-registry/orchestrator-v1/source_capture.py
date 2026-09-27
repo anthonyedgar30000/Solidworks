@@ -19,13 +19,14 @@ from source_sync import sync_once
 REGISTRY = Path(__file__).with_name("source_registry.v1.json")
 ALLOWED = {
     "CAB.IXORPLUS.ASSEMBLY_INSTRUCTIONS.202604": (
-        "https://www.cab.de/media/pushfile.cfm?file=4444", "application/pdf", "SUBJECT_OEM_DOCUMENT"),
+        "https://www.cab.de/media/pushfile.cfm?file=4542", "application/pdf",
+        "SUBJECT_OEM_DOCUMENT", "MA_Etikettenspender_IXOR_Plus_en.pdf"),
     "HERMA.152C.PRODUCT_PAGE": (
         "https://www.herma.com/machines/products/labeling-machines/wrap-around-labeler-152c/",
-        "text/html", "COMPARATIVE_MECHANISM_OEM"),
+        "text/html", "COMPARATIVE_MECHANISM_OEM", None),
     "HERMA.WRAP_TECHNOLOGY.PAGE": (
         "https://www.herma.com/machines/types-of-labeling/wrap-around-labeling/",
-        "text/html", "COMPARATIVE_MECHANISM_OEM"),
+        "text/html", "COMPARATIVE_MECHANISM_OEM", None),
 }
 MAX_BYTES = 9_000_000
 
@@ -63,8 +64,10 @@ def validate_registry(registry: dict) -> list[dict]:
     if {row.get("source_id") for row in entries} != set(ALLOWED):
         raise CaptureBlocked("REGISTRY_SOURCE_SET_CHANGED")
     for row in entries:
-        url, media, role = ALLOWED[row["source_id"]]
-        if (row.get("url"), row.get("expected_media_type"), row.get("source_role")) != (url, media, role):
+        url, media, role, expected_filename = ALLOWED[row["source_id"]]
+        if (row.get("url"), row.get("expected_media_type"), row.get("source_role"),
+                row.get("expected_content_disposition_filename")) != (
+                    url, media, role, expected_filename):
             raise CaptureBlocked("SOURCE_AUTHORITY_CHANGED")
         size = row.get("max_bytes")
         if not isinstance(size, int) or isinstance(size, bool) or not (1 <= size <= MAX_BYTES):
@@ -86,6 +89,13 @@ def fetch_source(row: dict) -> bytes:
         media = response.headers.get("Content-Type", "").split(";", 1)[0].strip().lower()
         if media != row["expected_media_type"]:
             raise CaptureBlocked("SOURCE_MEDIA_CHANGED")
+        expected_filename = row.get("expected_content_disposition_filename")
+        if expected_filename:
+            disposition = response.headers.get("Content-Disposition", "")
+            match = re.search(r'filename="?([^";]+)"?', disposition, re.IGNORECASE)
+            observed_filename = match.group(1).strip() if match else None
+            if observed_filename != expected_filename:
+                raise CaptureBlocked("SOURCE_IDENTITY_MISMATCH")
         raw = response.read(row["max_bytes"] + 1)
     if len(raw) > row["max_bytes"]:
         raise CaptureBlocked("SOURCE_TOO_LARGE")
@@ -178,6 +188,7 @@ def capture_one(row: dict, state_dir: Path, fetch=fetch_source) -> dict:
         "content_fingerprint_kind": "NORMALIZED_VISIBLE_HTML_TEXT" if is_html else "EXACT_PDF_BYTES",
         "raw_byte_count": len(raw),
         "expected_media_type": row["expected_media_type"],
+        "expected_content_disposition_filename": row.get("expected_content_disposition_filename"),
         "candidate_snippets": candidate_snippets(raw, row["markers"]) if is_html else [],
         "text_extraction_state": "MARKER_WINDOWS_ONLY" if is_html else "NOT_PERFORMED",
         "evidence_state": "UNADMITTED",
