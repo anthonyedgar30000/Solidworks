@@ -16,6 +16,7 @@
         'Test-CGContactPair',
         'Test-CGTopologyChain',
         'Get-CGMateBinding',
+        'Get-CGRequiredBottleDOF',
         'Get-CGCurrentPlan',
         'Get-CGInvestigationFrontier',
         'Invoke-CGRegisteredVerifier'
