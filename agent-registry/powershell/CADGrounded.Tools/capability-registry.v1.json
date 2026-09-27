@@ -185,6 +185,19 @@
       ]
     },
     {
+      "id": "cg.contact.surface-normal",
+      "future_command": "Get-CGContactSurfaceNormalEvidence",
+      "status": "PLANNED",
+      "category": "geometry_contact",
+      "engineering_question": "At an exact current-pose contact/coincidence point, what candidate B-rep face normals are returned for both components without mutating the live assembly?",
+      "required_primitives": [
+        "sw.classify_contact_pair",
+        "sw.contact_surface_normals_pair candidate",
+        "independent Windows-host no-mutation verification"
+      ],
+      "write_authority": "NONE"
+    },
+    {
       "id": "cg.product.support",
       "future_command": "Get-CGProductSupportEvidence",
       "status": "PLANNED",
