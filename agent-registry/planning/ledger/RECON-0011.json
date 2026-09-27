@@ -1,0 +1,57 @@
+{
+  "record_type": "plan_reconciliation",
+  "schema_version": 1,
+  "record_id": "RECON-0011",
+  "project_id": "CADGROUNDED.IXOR",
+  "reconciled_at_utc": "2026-09-27T07:11:43.537605Z",
+  "plan_id": "PLAN-0008",
+  "revised_plan_id": "PLAN-0009",
+  "raw_observation_ids": [
+    "E.V43.PRISM.FULL_CHAIN_MATES.20260927T070827844Z"
+  ],
+  "actual_actions": [
+    {
+      "action_id": "ACT_V43_PRISM_FULL_CHAIN_MATE_VERIFIER",
+      "write_authority": "NONE",
+      "result_id": "E.V43.PRISM.FULL_CHAIN_MATES.20260927T070827844Z",
+      "reason": "The local native worker resolved the exact V43_WRAP document and all seven targets, returned zero incident active-assembly mates for each without traversal errors, and passed no-mutation checks."
+    },
+    {
+      "action_id": "ACT_BIND_V43_PRISM_FULL_CHAIN_MATE_ARTIFACT_SHA256",
+      "write_authority": "NONE",
+      "result": "COMPLETED",
+      "reason": "User-provided artifact SHA-256 was independently confirmed from exact Windows-host bytes: 901d1a81d3a8570fdb69c900d6614b756f70d32b9ee5d192363e9039a18a932f."
+    },
+    {
+      "action_id": "ACT_DEFER_UNSUPPORTED_HYPOTHETICAL_MOTION",
+      "write_authority": "NONE",
+      "result": "NO_KINEMATIC_CANDIDATE",
+      "reason": "The complete target chain has no observed incident active-assembly mate definitions; contact alone cannot define joint axes or actuation."
+    }
+  ],
+  "step_outcomes": [
+    {
+      "step_id": "P0008.1",
+      "outcome": "COMPLETED",
+      "evidence_id": "E.V43.PRISM.FULL_CHAIN_MATES.20260927T070827844Z"
+    },
+    {
+      "step_id": "P0008.2",
+      "outcome": "COMPLETED_ZERO_MATES_ALL_SEVEN",
+      "evidence_id": "E.V43.PRISM.FULL_CHAIN_MATES.20260927T070827844Z"
+    },
+    {
+      "step_id": "P0008.3",
+      "outcome": "COMPLETED_ADMITTED",
+      "evidence_id": "E.V43.PRISM.FULL_CHAIN_MATES.20260927T070827844Z"
+    },
+    {
+      "step_id": "P0008.4",
+      "outcome": "COMPLETED_KINEMATIC_STATE_UNRESOLVED_REPLANNED",
+      "evidence_id": "E.V43.PRISM.FULL_CHAIN_MATES.20260927T070827844Z"
+    }
+  ],
+  "conclusion": "PLAN-0008 is provenance-complete. All seven exact floating V43_WRAP targets returned zero incident active-assembly mates and zero traversal errors at the recorded point. Prior contact observations establish only current-pose adjacency. No supported kinematic law, joint graph, permitted DOF, stroke, or actuator ownership is available, so hypothetical motion testing is deferred pending an authoritative design-intent source.",
+  "mechanical_acceptance_granted": false,
+  "write_authority": "NONE"
+}

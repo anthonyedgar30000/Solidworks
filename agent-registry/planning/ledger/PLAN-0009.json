@@ -1,0 +1,66 @@
+{
+  "record_type": "plan",
+  "schema_version": 1,
+  "record_id": "PLAN-0009",
+  "project_id": "CADGROUNDED.IXOR",
+  "created_at_utc": "2026-09-27T07:11:43.537605Z",
+  "parent_plan_id": "PLAN-0008",
+  "caused_by_divergence_ids": [],
+  "status": "ACTIVE",
+  "state_binding": {
+    "source": "SOLIDWORKS",
+    "document_title": "IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE",
+    "document_path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE.SLDASM",
+    "configuration_exact": "V43_WRAP",
+    "configuration_state": "OBSERVED_AT_ADMITTED_POINT; REQUIRE_FRESH_REBIND_BEFORE_LIVE_EXECUTION",
+    "source_observation_ids": [
+      "E.V43.PRISM.SLIDER_LINK_CONTACT.20260927T060459001Z",
+      "E.V43.PRISM.LINK_ARM_CONTACT.20260927T061831848Z",
+      "E.V43.PRISM.ARM_ROLLER_CONTACT.20260927T063140284Z",
+      "E.V43.PRISM.FULL_CHAIN_MATES.20260927T070827844Z"
+    ],
+    "freshness": "FULL_CHAIN_ZERO_MATE_POINT_OBSERVATION_ADMITTED; DESIGN_INTENT_NOT_YET_BOUND"
+  },
+  "intent": "Acquire an authoritative, exact-component kinematic design-intent source for the proposed V43 Prism chain before selecting any hypothetical motion/endpoint test.",
+  "projected_steps": [
+    {
+      "step_id": "P0009.1",
+      "title": "Locate a designer-authorized joint/actuation specification or exact native CAD mechanism definition for the seven V43 Prism targets",
+      "depends_on": [],
+      "write_authority": "NONE",
+      "expected_outputs": [
+        "source identity, authorship, revision and component-name mapping",
+        "explicit missing-source status if unavailable"
+      ],
+      "status": "PROJECTED"
+    },
+    {
+      "step_id": "P0009.2",
+      "title": "Check whether that source explicitly binds each intended joint/guide, axis or direction, actuator, limits, and operating configuration",
+      "depends_on": [
+        "P0009.1"
+      ],
+      "write_authority": "NONE",
+      "expected_outputs": [
+        "source-bound candidate joint graph, or field-by-field unresolved status",
+        "no inference of force or reachability from point contact"
+      ],
+      "status": "PROJECTED"
+    },
+    {
+      "step_id": "P0009.3",
+      "title": "Only if a candidate kinematic relation is source-bound, propose a separate bounded read-only hypothetical-state test and refresh live bindings before execution",
+      "depends_on": [
+        "P0009.2"
+      ],
+      "write_authority": "NONE",
+      "expected_outputs": [
+        "reviewable conditional test contract or explicit no-test decision",
+        "no live CAD motion or edits"
+      ],
+      "status": "PROJECTED"
+    }
+  ],
+  "acceptance_gate": "Seven zero incident active-assembly mate results and point contact do not establish the intended mechanism. No motion, DOF, stroke, capture/release sequence, reaction capacity, or mechanical acceptance is granted without further authoritative evidence.",
+  "no_write_boundary": "No move, rebuild, save, mate, suppression, selection, transform assignment, or Remote Queue write is authorized by this plan."
+}
