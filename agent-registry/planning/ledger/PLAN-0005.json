@@ -79,4 +79,4 @@
   ],
   "acceptance_gate": "Slider-link contact at one pose cannot establish linkage DOF, permitted motion, stroke, actuator ownership, force/preload, reachable clearance, capture/release timing, or mechanical acceptance.",
   "no_write_boundary": "No move, rebuild, save, mate, suppression, selection, transform, or Remote Queue write is authorized by this plan."
-}\n
+}
