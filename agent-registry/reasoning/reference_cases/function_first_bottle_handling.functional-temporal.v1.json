@@ -32,6 +32,7 @@
         "BOTTLE_REQUIRED_DOF_BOUND",
         "CAPTURE_KINEMATIC_OWNER",
         "BOTTLE_RESTRAINT_THROUGHOUT_CAPTURE",
+        "BOTTLE_WRAP_AXIS_BOUND",
         "BOTTLE_ROTATION_SOURCE_BOUND",
         "WRAP_CONTACT_THROUGHOUT_CAPTURE",
         "CAPTURE_REACTION_FORCE_PATH",
@@ -119,6 +120,35 @@
       }
     },
     {
+      "id": "BOTTLE_WRAP_AXIS_BOUND",
+      "owner_subsystem_id": "CAPTURE_AND_ROTATION",
+      "description": "The exact bottle longitudinal/cylindrical axis used by the function-first rotation_wrap_axis requirement is bound in assembly coordinates independently of mechanism selection.",
+      "verification_state": "VERIFIED",
+      "ambiguity_bucket": "MEASUREMENT_REQUIRED",
+      "criticality": 5,
+      "resolution_cost": 1,
+      "expected_authority": [
+        "SOLIDWORKS_LIVE_STATE",
+        "DETERMINISTIC_CALCULATION"
+      ],
+      "evidence_refs": [
+        "E.FUNCTION_FIRST.BOTTLE_CYLINDER_AXIS.20260927T090058895Z",
+        "E.FUNCTION_FIRST.BOTTLE_WRAP_AXIS_BINDING.20260927T090058895Z"
+      ],
+      "depends_on_requirement_ids": [
+        "BOTTLE_REQUIRED_DOF_BOUND"
+      ],
+      "scope": {
+        "state_ids": [
+          "CAPTURE_AND_ROTATION",
+          "LABEL_TRANSFER_INTERVAL",
+          "WRAP_ACTIVE"
+        ],
+        "transition_ids": [],
+        "required_coverage": "THROUGHOUT_SCOPE"
+      }
+    },
+    {
       "id": "BOTTLE_SUPPORT_CONTACT_SET_BOUND",
       "owner_subsystem_id": "CAPTURE_AND_ROTATION",
       "description": "The minimum required support and restraint contact set for the bottle is defined independently of any specific Prism, roller-carrier, belt-wall, or other mechanism architecture.",
@@ -135,7 +165,8 @@
         "E.FUNCTION_FIRST.BOTTLE_CONTACT_SET.20260927T081157483Z",
         "E.FUNCTION_FIRST.BOTTLE_CONVEYOR_NORMALS.20260927T081632302Z",
         "E.FUNCTION_FIRST.BOTTLE_CONTACT_NORMAL_MAP.20260927T082707281Z",
-        "E.FUNCTION_FIRST.BOTTLE_CONTACT_CONSTRAINT.20260927T084903368Z"
+        "E.FUNCTION_FIRST.BOTTLE_CONTACT_CONSTRAINT.20260927T084903368Z",
+        "E.FUNCTION_FIRST.BOTTLE_WRAP_AXIS_BINDING.20260927T090058895Z"
       ],
       "depends_on_requirement_ids": [
         "BOTTLE_REQUIRED_DOF_BOUND"
@@ -292,10 +323,13 @@
         "SOLIDWORKS_LIVE_STATE",
         "DETERMINISTIC_CALCULATION"
       ],
-      "evidence_refs": [],
+      "evidence_refs": [
+        "E.FUNCTION_FIRST.BOTTLE_WRAP_AXIS_BINDING.20260927T090058895Z"
+      ],
       "depends_on_requirement_ids": [
         "BOTTLE_REQUIRED_DOF_BOUND",
-        "BOTTLE_SUPPORT_CONTACT_SET_BOUND"
+        "BOTTLE_SUPPORT_CONTACT_SET_BOUND",
+        "BOTTLE_WRAP_AXIS_BOUND"
       ],
       "scope": {
         "state_ids": [
@@ -1214,7 +1248,7 @@
         "WRAP_ACTIVE"
       ],
       "required_evidence": [
-        "Current-pose deterministic constraint projection is admitted: the three lateral normal lines are concurrent, their compressive directions positively close assembly-XY translation in the frictionless normal model, and normal reactions do not resist rotation about the derived common-axis candidate. Bind that common axis to the exact bottle longitudinal/functional wrap axis and separately resolve vertical/gravity semantics before assigning functional support/restraint roles. Interval-wide contact maintenance, tilt, preload, friction/traction, reaction capacity, and mechanism selection remain unresolved."
+        "The common contact axis is now bound to the exact bottle D48 cylindrical/longitudinal axis and the function-first rotation_wrap_axis. Determine the full six-coordinate maintained frictionless point-normal constraint rank. If rank < 5 while wrap-axis rotation is a null mode, preserve missing tilt/full-restraint evidence and investigate the missing constraint class rather than selecting a mechanism."
       ]
     },
     {
@@ -2472,20 +2506,197 @@
           "note": "Independent fresh execution of the registered four-pair normal verifier against the same active V43_WRAP assembly; retained as corroboration, not as the calculation input record."
         }
       }
+    },
+    {
+      "schema_version": 1,
+      "record_type": "evidence",
+      "evidence_id": "E.FUNCTION_FIRST.BOTTLE_CYLINDER_AXIS.20260927T090058895Z",
+      "evidence_type": "solidworks_observation",
+      "evidence_state": "VERIFIED",
+      "source_authority": "SOLIDWORKS_LIVE_STATE",
+      "source_classification": "verified_from_solidworks_api",
+      "subject": {
+        "subject_type": "exact_bottle_cylindrical_axis_observation",
+        "identity_exact": "BENCH_BOTTLE_D48_H180-2",
+        "document_title_exact": "IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE",
+        "document_path_exact": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE.SLDASM"
+      },
+      "provenance": {
+        "recorded_at": "2026-09-27T09:00:58.895239Z",
+        "source_ref": "Live read-only SOLIDWORKS B-rep inspection via sw_execute_code",
+        "source_sha256": "95fc1ebf6f25ea59257df733cad1ade02d776a3ecdcdf7093239f1f1c1e854c6",
+        "operation": "Enumerate exact bottle part solid-body cylindrical faces; transform cylinder axis point/vector into assembly coordinates using Component2.Transform2 and SOLIDWORKS MathPoint/MathVector.",
+        "post_readback": "sw_status and sw_query_components confirmed same active v43 document and exact bottle transform/state."
+      },
+      "dependencies": [
+        "E.FUNCTION_FIRST.BOTTLE_CONTACT_CONSTRAINT.20260927T084903368Z"
+      ],
+      "geometry_state": "CANDIDATE_OPERATING",
+      "temporal_scope": {
+        "coverage": "POINT_ONLY",
+        "validity_state": "CURRENT",
+        "state_ids": [],
+        "transition_ids": []
+      },
+      "ambiguity_bucket": "MEASUREMENT_REQUIRED",
+      "mechanical_acceptance_granted": false,
+      "payload": {
+        "component": {
+          "name2": "BENCH_BOTTLE_D48_H180-2",
+          "path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\BENCH_BOTTLE_D48_H180.SLDPRT",
+          "referenced_configuration": "Default",
+          "suppressed": false,
+          "fixed_component": false
+        },
+        "active_configuration": "V43_WRAP",
+        "cylinders": [
+          {
+            "body_index": 0,
+            "face_index": 2,
+            "radius_mm": 24,
+            "axis_point_assembly_mm": [
+              -153.42061528267112,
+              -214,
+              950
+            ],
+            "axis_direction_assembly": [
+              0,
+              0,
+              1
+            ],
+            "face_area_mm2": 21111.502632123415
+          },
+          {
+            "body_index": 2,
+            "face_index": 2,
+            "radius_mm": 14,
+            "axis_point_assembly_mm": [
+              -153.42061528267112,
+              -214,
+              1105
+            ],
+            "axis_direction_assembly": [
+              0,
+              0,
+              1
+            ],
+            "face_area_mm2": 615.7521601036
+          },
+          {
+            "body_index": 3,
+            "face_index": 2,
+            "radius_mm": 16,
+            "axis_point_assembly_mm": [
+              -153.42061528267112,
+              -214,
+              1111.9999999999998
+            ],
+            "axis_direction_assembly": [
+              0,
+              0,
+              1
+            ],
+            "face_area_mm2": 1809.55736846772
+          }
+        ],
+        "admitted_claims": [
+          "The exact bottle component contains a main cylindrical face of radius 24 mm.",
+          "The main D48 cylinder axis is assembly direction [0,0,1] through XY [-153.42061528267112,-214] mm.",
+          "The observed smaller cylindrical bottle features are coaxial with the same assembly axis.",
+          "The read-only inspection reported model_mutation=false and write_authority=NONE; a subsequent live readback preserved the same active document and bottle component transform."
+        ],
+        "explicitly_not_claimed": [
+          "assembly +Z gravity/up semantics",
+          "rotation drive source, speed, torque, friction, or traction",
+          "tilt restraint, preload, interval-wide contact, mechanism selection, or mechanical acceptance"
+        ]
+      }
+    },
+    {
+      "schema_version": 1,
+      "record_type": "evidence",
+      "evidence_id": "E.FUNCTION_FIRST.BOTTLE_WRAP_AXIS_BINDING.20260927T090058895Z",
+      "evidence_type": "deterministic_calculation",
+      "evidence_state": "MEASURED_CALCULATED",
+      "source_authority": "DETERMINISTIC_CALCULATION",
+      "source_classification": "measured_calculated_from_admitted_solidworks_observation",
+      "subject": {
+        "subject_type": "function_first_wrap_axis_binding",
+        "identity_exact": "BENCH_BOTTLE_D48_H180-2 longitudinal/cylindrical axis ↔ derived common-axis candidate ↔ rotation_wrap_axis"
+      },
+      "provenance": {
+        "recorded_at": "2026-09-27T09:00:58.895239Z",
+        "method": "Compare exact live B-rep main D48 cylinder axis with admitted contact-constraint common-axis candidate, then bind to the function-first DOF definition of rotation_wrap_axis as bottle longitudinal-axis rotation."
+      },
+      "dependencies": [
+        "E.FUNCTION_FIRST.BOTTLE_CYLINDER_AXIS.20260927T090058895Z",
+        "E.FUNCTION_FIRST.BOTTLE_CONTACT_CONSTRAINT.20260927T084903368Z",
+        "E.FUNCTION_FIRST.BOTTLE_DOF.20260927T075043247Z"
+      ],
+      "geometry_state": "CANDIDATE_OPERATING",
+      "temporal_scope": {
+        "coverage": "POINT_ONLY",
+        "validity_state": "CURRENT",
+        "state_ids": [],
+        "transition_ids": []
+      },
+      "ambiguity_bucket": "MEASUREMENT_REQUIRED",
+      "mechanical_acceptance_granted": false,
+      "payload": {
+        "bottle_main_cylinder": {
+          "radius_mm": 24,
+          "axis_point_xy_mm": [
+            -153.42061528267112,
+            -214
+          ],
+          "axis_direction_assembly": [
+            0,
+            0,
+            1
+          ]
+        },
+        "derived_common_axis": {
+          "point_xy_mm": [
+            -153.42061528267115,
+            -214
+          ],
+          "direction_assembly": [
+            0,
+            0,
+            1
+          ]
+        },
+        "comparison": {
+          "xy_offset_mm": 2.842170943040401e-14,
+          "direction_dot": 1,
+          "direction_parallel": true,
+          "line_coincident_within_1e_9_mm": true
+        },
+        "functional_axis_definition": "rotation_wrap_axis = bottle upright longitudinal-axis rotation used for circumferential labeling/wrapping",
+        "admitted_claims": [
+          "The derived contact common-axis candidate is coincident with the exact main D48 bottle cylindrical axis to numerical precision.",
+          "The common/bottle axis direction is assembly [0,0,1].",
+          "That exact bottle longitudinal/cylindrical axis is the geometric axis referenced by the function-first rotation_wrap_axis requirement."
+        ],
+        "explicitly_not_claimed": [
+          "assembly +Z is gravity/up",
+          "the current belt or rollers are the required final mechanism",
+          "rotation source, frictional traction, speed, torque, preload, tilt restraint, interval-wide contact, or mechanical acceptance"
+        ]
+      }
     }
   ],
   "next_tests": [
     {
-      "id": "TEST_FUNCTION_FIRST_BOTTLE_COMMON_AXIS_BINDING",
-      "question": "Bind the deterministic common-axis candidate at assembly direction [0,0,1] and XY center [-153.42061528267115,-214] mm to the exact BENCH_BOTTLE_D48_H180-2 longitudinal/cylindrical axis using authoritative live SOLIDWORKS B-rep or accepted deterministic source geometry. Then determine whether that geometric axis can be bound to the functional rotation_wrap_axis requirement. Separately seek authoritative support for assembly-Z vertical/gravity semantics; do not infer gravity from viewport orientation or the word upright. If the wrap-axis binding is established, project the current-pose assembly-XY normal closure onto the required lateral translational DOFs while preserving tilt restraint, friction/traction, preload/contact maintenance, interval-wide validity, mechanism selection, and mechanical acceptance as unresolved.",
+      "id": "TEST_FUNCTION_FIRST_CONTACT_WRENCH_RANK",
+      "question": "Execute Get-CGBottleContactWrenchRank with live freshness enabled now that BOTTLE_WRAP_AXIS_BOUND is verified. Under an optimistic maintained frictionless point-normal model of the four observed contacts, compute the 6-DOF contact-wrench/constraint matrix rank and nullity, verify that pure rotation about the bound bottle wrap axis is a null mode, and determine whether any additional independent instantaneous mode remains. Five independent normal constraints are required to leave only the intended wrap-axis rotation free. Preserve finite line/surface contact, unilateral contact maintenance, tilt stabilization, friction/traction, preload, interval-wide behavior, mechanism selection, and mechanical acceptance as unresolved unless separately evidenced.",
       "resolves_requirement_ids": [
-        "BOTTLE_SUPPORT_CONTACT_SET_BOUND",
-        "BOTTLE_ROTATION_SOURCE_BOUND"
+        "BOTTLE_SUPPORT_CONTACT_SET_BOUND"
       ],
       "hypothesis_ids": [
         "H_FUNCTION_FIRST_CONTACT_SET"
       ],
-      "discrimination_power": 0.99,
+      "discrimination_power": 1,
       "evidence_confidence": 0.98,
       "unresolved_relevance": 1,
       "cost": 1

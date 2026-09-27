@@ -1,0 +1,105 @@
+{
+  "schema_version": 1,
+  "record_type": "evidence",
+  "evidence_id": "E.FUNCTION_FIRST.BOTTLE_CYLINDER_AXIS.20260927T090058895Z",
+  "evidence_type": "solidworks_observation",
+  "evidence_state": "VERIFIED",
+  "source_authority": "SOLIDWORKS_LIVE_STATE",
+  "source_classification": "verified_from_solidworks_api",
+  "subject": {
+    "subject_type": "exact_bottle_cylindrical_axis_observation",
+    "identity_exact": "BENCH_BOTTLE_D48_H180-2",
+    "document_title_exact": "IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE",
+    "document_path_exact": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE.SLDASM"
+  },
+  "provenance": {
+    "recorded_at": "2026-09-27T09:00:58.895239Z",
+    "source_ref": "Live read-only SOLIDWORKS B-rep inspection via sw_execute_code",
+    "source_sha256": "95fc1ebf6f25ea59257df733cad1ade02d776a3ecdcdf7093239f1f1c1e854c6",
+    "operation": "Enumerate exact bottle part solid-body cylindrical faces; transform cylinder axis point/vector into assembly coordinates using Component2.Transform2 and SOLIDWORKS MathPoint/MathVector.",
+    "post_readback": "sw_status and sw_query_components confirmed same active v43 document and exact bottle transform/state."
+  },
+  "dependencies": [
+    "E.FUNCTION_FIRST.BOTTLE_CONTACT_CONSTRAINT.20260927T084903368Z"
+  ],
+  "geometry_state": "CANDIDATE_OPERATING",
+  "temporal_scope": {
+    "coverage": "POINT_ONLY",
+    "validity_state": "CURRENT",
+    "state_ids": [],
+    "transition_ids": []
+  },
+  "ambiguity_bucket": "MEASUREMENT_REQUIRED",
+  "mechanical_acceptance_granted": false,
+  "payload": {
+    "component": {
+      "name2": "BENCH_BOTTLE_D48_H180-2",
+      "path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\BENCH_BOTTLE_D48_H180.SLDPRT",
+      "referenced_configuration": "Default",
+      "suppressed": false,
+      "fixed_component": false
+    },
+    "active_configuration": "V43_WRAP",
+    "cylinders": [
+      {
+        "body_index": 0,
+        "face_index": 2,
+        "radius_mm": 24,
+        "axis_point_assembly_mm": [
+          -153.42061528267112,
+          -214,
+          950
+        ],
+        "axis_direction_assembly": [
+          0,
+          0,
+          1
+        ],
+        "face_area_mm2": 21111.502632123415
+      },
+      {
+        "body_index": 2,
+        "face_index": 2,
+        "radius_mm": 14,
+        "axis_point_assembly_mm": [
+          -153.42061528267112,
+          -214,
+          1105
+        ],
+        "axis_direction_assembly": [
+          0,
+          0,
+          1
+        ],
+        "face_area_mm2": 615.7521601036
+      },
+      {
+        "body_index": 3,
+        "face_index": 2,
+        "radius_mm": 16,
+        "axis_point_assembly_mm": [
+          -153.42061528267112,
+          -214,
+          1111.9999999999998
+        ],
+        "axis_direction_assembly": [
+          0,
+          0,
+          1
+        ],
+        "face_area_mm2": 1809.55736846772
+      }
+    ],
+    "admitted_claims": [
+      "The exact bottle component contains a main cylindrical face of radius 24 mm.",
+      "The main D48 cylinder axis is assembly direction [0,0,1] through XY [-153.42061528267112,-214] mm.",
+      "The observed smaller cylindrical bottle features are coaxial with the same assembly axis.",
+      "The read-only inspection reported model_mutation=false and write_authority=NONE; a subsequent live readback preserved the same active document and bottle component transform."
+    ],
+    "explicitly_not_claimed": [
+      "assembly +Z gravity/up semantics",
+      "rotation drive source, speed, torque, friction, or traction",
+      "tilt restraint, preload, interval-wide contact, mechanism selection, or mechanical acceptance"
+    ]
+  }
+}

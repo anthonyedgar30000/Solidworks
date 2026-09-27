@@ -272,6 +272,31 @@
       ]
     },
     {
+      "id": "cg.product.contact-wrench-rank",
+      "command": "Get-CGBottleContactWrenchRank",
+      "status": "IMPLEMENTED",
+      "category": "product_handling",
+      "engineering_question": "Under a maintained frictionless point-normal model of the four observed contacts, how many independent bottle twist directions are constrained, and does any mode remain free beyond the now-bound bottle wrap axis?",
+      "execution_kind": "deterministic_calculation",
+      "primitive": "cg.product.contact-constraint-map + 6D contact wrench/Jacobian rank and nullspace calculation",
+      "write_authority": "NONE",
+      "remote_queue_authorized": false,
+      "establishes": [
+        "rank and nullity of the four-contact maintained frictionless point-normal constraint matrix",
+        "whether pure rotation about the bound bottle wrap axis is a null mode",
+        "whether five independent constraint directions are supported while leaving only wrap-axis rotation free"
+      ],
+      "does_not_establish": [
+        "finite line/surface contact effects beyond sampled point normals",
+        "unilateral contact maintenance or preload",
+        "friction/traction or driven wrap torque",
+        "gravity/up semantics or load capacity",
+        "interval-wide restraint",
+        "mechanism selection",
+        "mechanical acceptance"
+      ]
+    },
+    {
       "id": "cg.product.support",
       "future_command": "Get-CGProductSupportEvidence",
       "status": "PLANNED",
