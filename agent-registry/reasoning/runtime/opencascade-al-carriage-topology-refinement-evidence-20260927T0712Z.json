@@ -1,0 +1,243 @@
+{
+  "schema_version": 1,
+  "record_type": "evidence",
+  "evidence_id": "opencascade.al-carriage.topology-refinement.sha256-dc9cb4cc01a30dfd90ea88997f877d671fdfede0eecb30910b0bf894a6062ac4",
+  "evidence_type": "deterministic_calculation",
+  "evidence_state": "MEASURED_CALCULATED",
+  "source_authority": "DETERMINISTIC_CALCULATION",
+  "source_classification": "opencascade_step_inspection",
+  "subject": {
+    "subject_type": "OEM_STEP_SOURCE_GEOMETRY",
+    "identity_exact": "CAB 6130648_01 Carriage Schlitten AL",
+    "document_title_exact": "6130648_01_Carriage_Schlitten_AL.stp",
+    "document_path_exact": "C:\\ChatGPT\\Solidworks\\IXOR\\6130648_01_Carriage_Schlitten_AL (2)\\6130648_01_Carriage_Schlitten_AL.stp"
+  },
+  "provenance": {
+    "recorded_at": "2026-09-27T07:12:00Z",
+    "source_ref": "C:\\ChatGPT\\Solidworks-main-pilot\\agent-registry\\sidecars\\opencascade\\verification-output\\al-carriage-6130648-v1\\evidence-bundle-v1\\bundle-root.sha256.txt",
+    "sha256": "dc9cb4cc01a30dfd90ea88997f877d671fdfede0eecb30910b0bf894a6062ac4",
+    "tool_path": "cad-mcp-server@0.6.1 via @modelcontextprotocol/inspector",
+    "job_id": "opencascade-al-carriage-6130648-v1"
+  },
+  "dependencies": [
+    "evidence_id:opencascade.al-carriage.source-geometry.sha256-707f4147e8ca9572b8040fe9e5654576bcfa047681a703cb06a5cff3f3504886",
+    "github:commit/482a95396829ed36317b7db965e4471cbd305ddf",
+    "oem-step:sha256-bfcd381045f4e115be81ea22a349dfeccc6453ae49a00acab25c547205b50c5b",
+    "bundle-root:sha256-dc9cb4cc01a30dfd90ea88997f877d671fdfede0eecb30910b0bf894a6062ac4"
+  ],
+  "geometry_state": "SOURCE_GEOMETRY",
+  "temporal_scope": {
+    "coverage": "POINT_ONLY",
+    "validity_state": "UNKNOWN",
+    "state_ids": [],
+    "transition_ids": []
+  },
+  "ambiguity_bucket": "IDENTITY_AMBIGUOUS",
+  "mechanical_acceptance_granted": false,
+  "payload": {
+    "method": "Read-only Open CASCADE topology refinement of the exact-hash-bound CAB 6130648 AL OEM STEP. Raw single-point occupancy observations, exact cylindrical-face topology, section arcs, and deterministic axis spacing were frozen into a hash-bound evidence bundle before this admission.",
+    "inputs": [
+      {
+        "kind": "OEM_STEP_CAD",
+        "path": "C:\\ChatGPT\\Solidworks\\IXOR\\6130648_01_Carriage_Schlitten_AL (2)\\6130648_01_Carriage_Schlitten_AL.stp",
+        "sha256": "bfcd381045f4e115be81ea22a349dfeccc6453ae49a00acab25c547205b50c5b"
+      },
+      {
+        "kind": "PRIOR_DETERMINISTIC_EVIDENCE",
+        "evidence_id": "opencascade.al-carriage.source-geometry.sha256-707f4147e8ca9572b8040fe9e5654576bcfa047681a703cb06a5cff3f3504886",
+        "repository_path": "agent-registry/reasoning/runtime/opencascade-al-carriage-source-geometry-evidence-20260927T041237890Z.json"
+      },
+      {
+        "kind": "FROZEN_EVIDENCE_BUNDLE",
+        "bundle_root_sha256": "dc9cb4cc01a30dfd90ea88997f877d671fdfede0eecb30910b0bf894a6062ac4",
+        "hashed_payload_count": 66,
+        "local_path": "C:\\ChatGPT\\Solidworks-main-pilot\\agent-registry\\sidecars\\opencascade\\verification-output\\al-carriage-6130648-v1\\evidence-bundle-v1"
+      }
+    ],
+    "result": {
+      "source_geometry": {
+        "solid_body_count": 1,
+        "partial_cylindrical_feature": {
+          "face_ids": [
+            "face:160",
+            "face:161"
+          ],
+          "nominal_radius_mm": 3.5,
+          "nominal_diameter_mm": 7,
+          "axial_extent_mm": 8,
+          "axis": {
+            "direction": [
+              -1,
+              5.21461440408067e-17,
+              -4.51566325587369e-16
+            ],
+            "location": [
+              43.2383325091286,
+              -26.9177965032351,
+              -111.20719640018
+            ]
+          },
+          "sectional_cylindrical_coverage_deg": 258.492266,
+          "sectional_non_cylindrical_coverage_deg": 101.507734,
+          "axis_center_contains_body": false
+        },
+        "occupancy_sampling_r4_mm": {
+          "center": [
+            38.2383325091286,
+            -26.9177965032351,
+            -111.20719640018
+          ],
+          "radius_mm": 4,
+          "coarse": {
+            "sample_count": 16,
+            "increment_deg": 22.5,
+            "material_samples_deg": [
+              0,
+              22.5,
+              45,
+              112.5,
+              135,
+              157.5,
+              180,
+              202.5,
+              225,
+              292.5,
+              315,
+              337.5
+            ],
+            "void_samples_deg": [
+              67.5,
+              90,
+              247.5,
+              270
+            ]
+          },
+          "refinement": {
+            "sample_count": 16,
+            "tested_angles_deg": [
+              50,
+              55,
+              60,
+              65,
+              95,
+              100,
+              105,
+              110,
+              230,
+              235,
+              240,
+              245,
+              275,
+              280,
+              285,
+              290
+            ],
+            "void_samples_deg": [
+              50,
+              55,
+              60,
+              65,
+              230,
+              235,
+              240,
+              245
+            ],
+            "material_samples_deg": [
+              95,
+              100,
+              105,
+              110,
+              275,
+              280,
+              285,
+              290
+            ],
+            "transition_brackets_deg": [
+              {
+                "material_deg": 45,
+                "void_deg": 50
+              },
+              {
+                "void_deg": 90,
+                "material_deg": 95
+              },
+              {
+                "material_deg": 225,
+                "void_deg": 230
+              },
+              {
+                "void_deg": 270,
+                "material_deg": 275
+              }
+            ],
+            "observation": "Corresponding sampled transition brackets are separated by 180 degrees. This is a sampled topology observation, not a functional mechanism claim."
+          }
+        },
+        "reference_axis": {
+          "face_id": "face:3",
+          "nominal_diameter_mm": 10,
+          "axis_location": [
+            16.0514631542649,
+            1.92691118979024,
+            -39.8140395985378
+          ],
+          "partial_feature_axis_spacing_mm": 77
+        }
+      },
+      "negative_evidence": [
+        {
+          "hypothesis": "complete nominal 7 mm cylindrical bore",
+          "status": "DISPROVEN"
+        },
+        {
+          "hypothesis": "blind nominal 7 mm bore",
+          "status": "DISPROVEN"
+        },
+        {
+          "hypothesis": "external nominal 7 mm cylindrical boss",
+          "status": "DISPROVEN"
+        },
+        {
+          "hypothesis": "simple single-opening C-shaped cylindrical seat",
+          "status": "INCONSISTENT_WITH_SAMPLED_TOPOLOGY"
+        }
+      ],
+      "semantic_limits": [
+        {
+          "claim": "partial cylindrical feature is the roller-mount feature",
+          "state": "SUPPORTED_NOT_VERIFIED"
+        },
+        {
+          "claim": "face:3 axis is the functional carriage pivot axis",
+          "state": "SUPPORTED_NOT_VERIFIED"
+        }
+      ],
+      "rejected_or_nonadmissible": [
+        {
+          "observation": "multi-point point_analysis aggregate contains_point=true",
+          "reason": "The tool returned one aggregate boolean rather than one classification per supplied point."
+        },
+        {
+          "observation": "first 5-degree boundary refinement",
+          "reason": "PowerShell coordinate variables were empty and the probes serialized as [0,0,0]."
+        },
+        {
+          "observation": "full cylinder geometry plus adjacency query",
+          "reason": "The tools/call request timed out; no geometry conclusion was admitted from that call."
+        }
+      ],
+      "explicit_non_claims": [
+        "not a SolidWorksObservation",
+        "not live SOLIDWORKS state",
+        "not independent verification of roller-mount semantic identity",
+        "not independent verification of functional pivot semantic identity",
+        "not assembly operating-state evidence",
+        "not capture or release evidence",
+        "not bottle restraint evidence",
+        "not product-flow evidence",
+        "not kinematic acceptance",
+        "not mechanical acceptance"
+      ]
+    }
+  }
+}
