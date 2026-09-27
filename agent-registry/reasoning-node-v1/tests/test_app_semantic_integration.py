@@ -112,7 +112,7 @@ class SemanticIntegrationTests(unittest.TestCase):
         )
         self.assertEqual(
             result["frontier_state"]["next_action_mode"],
-            "REBIND_LIVE_CAD_BEFORE_DIAGNOSTIC",
+            "REVIEW_DIAGNOSTIC_RESULT",
         )
         self.assertEqual(
             result["frontier_state"]["current_diagnostic_test_id"],
@@ -120,15 +120,15 @@ class SemanticIntegrationTests(unittest.TestCase):
         )
         self.assertEqual(
             result["frontier_state"]["current_diagnostic_state"],
-            "BLOCKED_FRESH_CAD_REBIND_REQUIRED",
+            "EXECUTED_RESULT_REVIEW_REQUIRED",
         )
         self.assertEqual(
             result["frontier_state"]["current_diagnostic_mechanical_effect"],
-            "NO_HYPOTHESIS_STATE_CHANGE",
+            "NO_AUTOMATIC_HYPOTHESIS_STATE_CHANGE",
         )
         self.assertEqual(
             result["frontier_snapshot"]["current_diagnostic"]["attempt_id"],
-            "ATTEMPT.PLAN-0011.V43_DUAL_PIVOT_EXACT_SWEEP.20260927T222600Z",
+            "ATTEMPT.PLAN-0011.V43_DUAL_PIVOT_EXACT_SWEEP.20260927T231617920Z",
         )
         self.assertEqual(
             result["frontier_state"]["uncommon_frontier_state"],
@@ -448,7 +448,7 @@ class SemanticIntegrationTests(unittest.TestCase):
             prompt,
         )
         self.assertIn(
-            "next_action_mode: REBIND_LIVE_CAD_BEFORE_DIAGNOSTIC",
+            "next_action_mode: REVIEW_DIAGNOSTIC_RESULT",
             prompt,
         )
         self.assertIn(
@@ -456,7 +456,7 @@ class SemanticIntegrationTests(unittest.TestCase):
             prompt,
         )
         self.assertIn(
-            "current_diagnostic_mechanical_effect: NO_HYPOTHESIS_STATE_CHANGE",
+            "current_diagnostic_mechanical_effect: NO_AUTOMATIC_HYPOTHESIS_STATE_CHANGE",
             prompt,
         )
         self.assertIn(
