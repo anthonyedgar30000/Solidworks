@@ -1,0 +1,117 @@
+{
+  "record_type": "plan",
+  "schema_version": 1,
+  "record_id": "PLAN-0011",
+  "project_id": "CADGROUNDED.IXOR",
+  "created_at_utc": "2026-09-27T21:48:22Z",
+  "parent_plan_id": "PLAN-0010",
+  "caused_by_divergence_ids": [],
+  "status": "ACTIVE",
+  "state_binding": {
+    "source": "MULTI_SOURCE",
+    "document_title": "IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE",
+    "document_path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE.SLDASM",
+    "configuration_exact": "V43_WRAP",
+    "configuration_state": "CURRENT_CANDIDATE_SCENE_ONLY; V43_PRISM_REMAINS_CANDIDATE_A; REQUIRE_FRESH_REBIND_BEFORE_ANY_LIVE_CAD_TEST_OR_WRITE",
+    "source_observation_ids": [
+      "E.FUNCTION_FIRST.MECHANISM_REFERENCE_SOURCE_BOUNDARY.20260927T212442Z"
+    ],
+    "freshness": "Fresh live status and nested component inventory were re-read during the PLAN-0010 source-exhaustion review; source-search results are project-state observations, not new admitted mechanical evidence."
+  },
+  "intent": "Enter an explicit mechanism-engineering / Proof-of-Principle phase for bottle capture and rotation. Define a mechanism-independent POP acceptance envelope, then formulate and test bounded candidate architectures against the same support/restraint, rotation, label-transfer, reaction-path, motion, release, and clearance obligations. Candidate testing is diagnostic and does not constitute final mechanism selection or mechanical acceptance.",
+  "projected_steps": [
+    {
+      "step_id": "P0011.1",
+      "title": "Freeze the mechanism-independent POP acceptance envelope before creating or moving candidate geometry",
+      "depends_on": [],
+      "write_authority": "NONE",
+      "expected_outputs": [
+        "D48 bottle/product geometry binding and allowed variation explicitly sourced or left unresolved",
+        "required restrained/permitted bottle DOF by INDEXED, CAPTURE, LABEL_TRANSFER, WRAP and RELEASE states",
+        "minimum functional support/contact roles and wrap-axis requirement",
+        "entry/capture/release sequencing obligations",
+        "success/failure observables for maintained contact, restraint, rotation, reaction path and clearance",
+        "unknown friction, preload, force, stiffness and tolerance inputs preserved as MEASUREMENT_REQUIRED rather than guessed"
+      ],
+      "status": "PROJECTED"
+    },
+    {
+      "step_id": "P0011.2",
+      "title": "Define candidate mechanism contracts without ranking or selecting a production design",
+      "depends_on": [
+        "P0011.1"
+      ],
+      "write_authority": "NONE",
+      "expected_outputs": [
+        "candidate owner identity and architecture class",
+        "open-to-capture-to-release motion law",
+        "contact-maintenance method",
+        "rotation input and drive/contact separation",
+        "reaction support and mounting concept",
+        "limits, adjustment and compliance model",
+        "Candidate A v43 Prism explicitly retained as project proposal/FITCHECK geometry only"
+      ],
+      "candidate_classes": [
+        "CANDIDATE_TRANSLATING_ROLLER_CARRIER",
+        "CANDIDATE_PIVOTING_ROLLER_CARRIER",
+        "CANDIDATE_MOVING_WRAP_BELT_ASSEMBLY",
+        "CANDIDATE_V43_PRISM_AS_PROJECT_PROPOSAL"
+      ],
+      "augmentation_classes": [
+        "CANDIDATE_SPRING_OR_COMPLIANT_PRELOAD"
+      ],
+      "status": "PROJECTED"
+    },
+    {
+      "step_id": "P0011.3",
+      "title": "Choose the first Proof-of-Principle candidate by diagnostic value, not resemblance or convenience",
+      "depends_on": [
+        "P0011.2"
+      ],
+      "write_authority": "NONE",
+      "selection_rule": "dependency centrality × discrimination power × evidence confidence × unresolved relevance ÷ cost",
+      "expected_outputs": [
+        "explicit reason for which candidate is tested first",
+        "which competing hypotheses the test can discriminate",
+        "required deterministic observations and measurements",
+        "clear statement that POP test priority is not final mechanism preference"
+      ],
+      "status": "PROJECTED"
+    },
+    {
+      "step_id": "P0011.4",
+      "title": "Preflight a bounded deterministic CAD POP representation for the selected test candidate",
+      "depends_on": [
+        "P0011.3"
+      ],
+      "write_authority": "NONE_UNTIL_SEPARATE_EXPLICIT_AUTHORIZATION",
+      "expected_outputs": [
+        "exact component identities and source classification",
+        "open/capture/release state transforms or constrained motion definition",
+        "whole-body interference/clearance test plan",
+        "contact/tangency and restraint checks",
+        "reaction-path and mounting checks",
+        "rollback/preservation strategy that does not overwrite v43"
+      ],
+      "status": "PROJECTED"
+    },
+    {
+      "step_id": "P0011.5",
+      "title": "Run representative Proof-of-Principle verification only after deterministic preflight",
+      "depends_on": [
+        "P0011.4"
+      ],
+      "write_authority": "SEPARATE_AUTHORIZATION_REQUIRED",
+      "expected_outputs": [
+        "state-by-state evidence for entry, capture, wrap, release and neighbor clearance",
+        "negative evidence and disproven candidate assumptions recorded",
+        "representative physical-product trial requirements identified for any behavior CAD cannot establish",
+        "mechanical acceptance remains separately gated"
+      ],
+      "status": "PROJECTED"
+    }
+  ],
+  "source_discovery_reopen_rule": "Any new authoritative OEM/integrator source that names the actual product-centering owner reopens source binding and is evaluated before further candidate commitment.",
+  "acceptance_gate": "No candidate progresses because it looks plausible in a static pose. A POP candidate must have explicit closure/release ownership, maintained contact, rotation input, reaction support, limits, reachable-state clearance, and label-transfer coherence. POP success still does not equal mechanically accepted production geometry.",
+  "no_write_boundary": "This plan authorizes planning, source review, calculations and read-only CAD inspection only. No SOLIDWORKS geometry creation, transform, mate, insertion, suppression change, rebuild or save is authorized without a separate explicit write authorization and fresh preflight."
+}
