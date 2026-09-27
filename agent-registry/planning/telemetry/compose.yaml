@@ -1,0 +1,13 @@
+services:
+  collector:
+    image: otel/opentelemetry-collector:0.161.0
+    command: ["--config=/etc/otelcol/config.yaml"]
+    volumes:
+      - ./collector.yaml:/etc/otelcol/config.yaml:ro
+      - freshness-logs:/data
+    ports:
+      - "127.0.0.1:4318:4318"
+    restart: "no"
+
+volumes:
+  freshness-logs:
