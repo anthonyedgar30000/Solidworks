@@ -1,0 +1,120 @@
+{
+  "schema_version": 1,
+  "screen_model_id": "CADGROUNDED.IXOR.MECHANISM_SCREEN.V1",
+  "title": "Function-first maintenance mechanism screening contract",
+  "basis_requirement_model_id": "CADGROUNDED.IXOR.CONTACT_MAINTENANCE.V1",
+  "basis_candidate_registry_id": "CADGROUNDED.IXOR.MAINTENANCE_CANDIDATES.V1",
+  "allowed_statuses": [
+    "PASS",
+    "FAIL",
+    "UNRESOLVED"
+  ],
+  "status_semantics": {
+    "PASS": "The exact screen item is explicitly established at the stated definition/evidence layer. PASS does not imply mechanical acceptance or superiority.",
+    "FAIL": "The candidate definition explicitly contradicts the exact screen item. FAIL is bounded to that item and does not rank the candidate.",
+    "UNRESOLVED": "The candidate definition or admitted evidence does not establish or contradict the exact screen item."
+  },
+  "screens": [
+    {
+      "id": "CANDIDATE_REGISTERED",
+      "layer": "DEFINITION",
+      "question": "Is the candidate an exact unique entry in the current mechanism candidate registry?",
+      "evaluation_rule": "PASS_IF_EXACT_UNIQUE_REGISTRY_ENTRY_ELSE_FAIL"
+    },
+    {
+      "id": "ELIGIBILITY_STATE",
+      "layer": "DEFINITION",
+      "question": "Is the candidate explicitly marked ELIGIBLE for bounded investigation?",
+      "evaluation_rule": "PASS_IF_ELIGIBLE_ELSE_FAIL"
+    },
+    {
+      "id": "PROVENANCE_STATED",
+      "layer": "DEFINITION",
+      "question": "Is the candidate provenance state explicitly FUNCTION_FIRST_HYPOTHESIS_ONLY?",
+      "evaluation_rule": "PASS_IF_FUNCTION_FIRST_HYPOTHESIS_ONLY_ELSE_UNRESOLVED"
+    },
+    {
+      "id": "STANDALONE_KINEMATIC_ARCHITECTURE_CLASS",
+      "layer": "DEFINITION",
+      "question": "Does the candidate definition represent a standalone kinematic architecture class rather than a maintenance-law augmentation?",
+      "evaluation_rule": "PASS_IF_KINEMATIC_ARCHITECTURE; FAIL_IF_MAINTENANCE_LAW_AUGMENTATION; OTHERWISE_UNRESOLVED"
+    },
+    {
+      "id": "CONTACT_MAINTENANCE_OWNER_BOUND",
+      "layer": "ENGINEERING_EVIDENCE",
+      "question": "Is an exact physical or accepted deterministic closure/contact-maintenance owner bound?",
+      "evaluation_rule": "UNRESOLVED_UNTIL_CANDIDATE_SPECIFIC_OWNER_EVIDENCE_EXISTS"
+    },
+    {
+      "id": "OPEN_CAPTURE_RELEASE_MOTION_BOUND",
+      "layer": "ENGINEERING_EVIDENCE",
+      "question": "Are motion type, open/capture/release states, usable travel/range, and limits explicitly bound?",
+      "evaluation_rule": "UNRESOLVED_UNTIL_CANDIDATE_SPECIFIC_MOTION_EVIDENCE_EXISTS"
+    },
+    {
+      "id": "CONTACT_MAINTENANCE_LAW_BOUND",
+      "layer": "ENGINEERING_EVIDENCE",
+      "question": "Is the actual unilateral contact-maintenance law explicitly bound, including compliance/force/position behavior as applicable?",
+      "evaluation_rule": "UNRESOLVED_UNTIL_CANDIDATE_SPECIFIC_MAINTENANCE_LAW_EXISTS"
+    },
+    {
+      "id": "BOTTLE_CONTACT_INTERVAL_PROVEN",
+      "layer": "ENGINEERING_EVIDENCE",
+      "question": "Is equivalent rank-sufficient bottle contact proven throughout CAPTURE_AND_ROTATION, LABEL_TRANSFER_INTERVAL, and WRAP_ACTIVE?",
+      "evaluation_rule": "UNRESOLVED_UNTIL_INTERVAL_WIDE_CONTACT_EVIDENCE_EXISTS"
+    },
+    {
+      "id": "WRAP_AXIS_PRESERVATION_PROVEN",
+      "layer": "ENGINEERING_EVIDENCE",
+      "question": "Does candidate-specific geometry prove preservation of the already-bound bottle rotation_wrap_axis during maintained contact?",
+      "evaluation_rule": "UNRESOLVED_UNTIL_CANDIDATE_SPECIFIC_GEOMETRY_EVIDENCE_EXISTS"
+    },
+    {
+      "id": "REACTION_PATH_BOUND",
+      "layer": "ENGINEERING_EVIDENCE",
+      "question": "Is the candidate reaction path from contact/closure elements to fixed support explicitly bound?",
+      "evaluation_rule": "UNRESOLVED_UNTIL_CANDIDATE_SPECIFIC_REACTION_PATH_EXISTS"
+    },
+    {
+      "id": "RELEASE_BEHAVIOR_PROVEN",
+      "layer": "ENGINEERING_EVIDENCE",
+      "question": "Is bottle release/opening behavior and downstream clearance explicitly proved?",
+      "evaluation_rule": "UNRESOLVED_UNTIL_CANDIDATE_SPECIFIC_RELEASE_EVIDENCE_EXISTS"
+    },
+    {
+      "id": "TANGENTIAL_DRIVE_SEPARATION_BOUND",
+      "layer": "ENGINEERING_EVIDENCE",
+      "question": "Is tangential rotation drive/traction explicitly separated and bound relative to normal-force closure?",
+      "evaluation_rule": "UNRESOLVED_UNTIL_ROTATION_SOURCE_AND_TRACTION_BINDING_EXISTS"
+    },
+    {
+      "id": "QUANTITATIVE_INPUTS_BOUND",
+      "layer": "ENGINEERING_EVIDENCE",
+      "question": "Are the candidate's required travel/force/preload/stiffness/friction/reaction-capacity inputs authoritatively or deterministically bound?",
+      "evaluation_rule": "UNRESOLVED_WHILE_REGISTRY_LISTS_UNRESOLVED_QUANTITATIVE_INPUTS"
+    },
+    {
+      "id": "LIMITS_AND_INTERFERENCE_PROVEN",
+      "layer": "ENGINEERING_EVIDENCE",
+      "question": "Are reachable open/closed limits and interference/clearance across entry, transfer, wrap, release, neighbors, CAB hardware, and mounts proved?",
+      "evaluation_rule": "UNRESOLVED_UNTIL_REACHABLE_STATE_SWEEP_OR_EQUIVALENT_EVIDENCE_EXISTS"
+    }
+  ],
+  "prohibited_outputs": [
+    "rank",
+    "ranking",
+    "score",
+    "winner",
+    "preferred_candidate",
+    "selected_candidate",
+    "overall_pass_fail_verdict",
+    "mechanical_acceptance"
+  ],
+  "interpretation_boundary": [
+    "A definition-layer PASS establishes only the candidate registry/definition property named by that screen.",
+    "An engineering-evidence UNRESOLVED must not be upgraded because the candidate definition contains requirement text describing what should eventually be proved.",
+    "A FAIL for standalone kinematic architecture on a maintenance-law augmentation does not make that augmentation unusable when paired with a separately defined parent architecture.",
+    "Screen results are not a ranking and cannot select a candidate.",
+    "Mechanical acceptance remains false."
+  ]
+}

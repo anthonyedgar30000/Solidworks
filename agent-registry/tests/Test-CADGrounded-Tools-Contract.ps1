@@ -18,6 +18,7 @@ $registryPath = Join-Path $moduleRoot 'capability-registry.v1.json'
 $requiredDofPath = Join-Path $repoRoot 'agent-registry\reasoning\requirements\function-first-bottle-dof.v1.json'
 $contactMaintenancePath = Join-Path $repoRoot 'agent-registry\reasoning\requirements\function-first-contact-maintenance.v1.json'
 $candidateRegistryPath = Join-Path $repoRoot 'agent-registry\reasoning\candidates\function-first-maintenance-candidates.v1.json'
+$mechanismScreenPath = Join-Path $repoRoot 'agent-registry\reasoning\candidates\function-first-mechanism-screen.v1.json'
 
 Assert-True (Test-Path -LiteralPath $manifestPath -PathType Leaf) 'Module manifest is missing.'
 Assert-True (Test-Path -LiteralPath $modulePath -PathType Leaf) 'Module source is missing.'
@@ -25,6 +26,7 @@ Assert-True (Test-Path -LiteralPath $registryPath -PathType Leaf) 'Capability re
 Assert-True (Test-Path -LiteralPath $requiredDofPath -PathType Leaf) 'Function-first bottle DOF requirement model is missing.'
 Assert-True (Test-Path -LiteralPath $contactMaintenancePath -PathType Leaf) 'Contact-maintenance requirement model is missing.'
 Assert-True (Test-Path -LiteralPath $candidateRegistryPath -PathType Leaf) 'Mechanism candidate registry is missing.'
+Assert-True (Test-Path -LiteralPath $mechanismScreenPath -PathType Leaf) 'Mechanism screen contract is missing.'
 
 Import-Module $manifestPath -Force
 
@@ -60,6 +62,7 @@ $expectedCommands = @(
     'Get-CGBottleContactWrenchRank',
     'Get-CGContactMaintenanceRequirements',
     'Get-CGMechanismCandidates',
+    'Test-CGMechanismCandidate',
     'Get-CGCurrentPlan',
     'Get-CGInvestigationFrontier',
     'Invoke-CGRegisteredVerifier'
@@ -85,6 +88,7 @@ $requiredImplemented = @(
     'cg.product.contact-wrench-rank',
     'cg.requirements.contact-maintenance',
     'cg.mechanism.candidates',
+    'cg.mechanism.screen',
     'cg.frontier.read',
     'cg.verifier.v43.full-chain-mates',
     'cg.verifier.function-first.bottle-support-contact',
@@ -119,8 +123,7 @@ $requiredPlanned = @(
     'cg.acceptance.check',
     'cg.visualization.gate',
     'cg.requirements.functional',
-    'cg.requirements.rotation',
-    'cg.mechanism.screen'
+    'cg.requirements.rotation'
 )
 foreach ($id in $requiredPlanned) {
     $matches = @($catalog | Where-Object { [string]$_.id -ceq $id -and [string]$_.status -ceq 'PLANNED' })
@@ -194,6 +197,47 @@ foreach ($candidate in @($mechanismCandidates.data.candidates)) {
     }
 }
 Assert-True ($mechanismCandidates.mechanical_acceptance_granted -eq $false) 'Mechanism candidate registry must not grant mechanical acceptance.'
+
+$mechanismScreens = Test-CGMechanismCandidate -All
+Assert-True ([string]$mechanismScreens.capability_id -ceq 'cg.mechanism.screen') 'Mechanism-screen capability id is incorrect.'
+Assert-True ([string]$mechanismScreens.result -ceq 'PASS') 'Mechanism screening did not PASS as a deterministic screen execution.'
+Assert-True ([string]$mechanismScreens.data.screen_model_id -ceq 'CADGROUNDED.IXOR.MECHANISM_SCREEN.V1') 'Mechanism screen model id is incorrect.'
+Assert-True ([string]$mechanismScreens.data.selection_status -ceq 'NOT_SELECTED') 'Mechanism screen must not select a candidate.'
+Assert-True (@($mechanismScreens.data.screened_candidates).Count -eq 4) 'Mechanism screen must return the four eligible registry candidates.'
+
+$screenRowsExpected = 14
+foreach ($screened in @($mechanismScreens.data.screened_candidates)) {
+    Assert-True (@($screened.screen_rows).Count -eq $screenRowsExpected) "Candidate '$($screened.candidate_id)' has an unexpected screen-row count."
+    Assert-True ([string]$screened.selection_effect -ceq 'NONE') "Candidate '$($screened.candidate_id)' unexpectedly changes selection state."
+
+    foreach ($row in @($screened.screen_rows)) {
+        Assert-True (@('PASS','FAIL','UNRESOLVED') -contains [string]$row.status) "Candidate '$($screened.candidate_id)' has invalid screen status '$($row.status)'."
+        if ([string]$row.layer -ceq 'ENGINEERING_EVIDENCE') {
+            Assert-True ([string]$row.status -ceq 'UNRESOLVED') "Candidate '$($screened.candidate_id)' improperly promotes engineering evidence for '$($row.screen_id)'."
+        }
+    }
+}
+
+foreach ($candidateId in @(
+    'CANDIDATE_TRANSLATING_ROLLER_CARRIER',
+    'CANDIDATE_PIVOTING_ROLLER_CARRIER',
+    'CANDIDATE_MOVING_WRAP_BELT_ASSEMBLY'
+)) {
+    $candidateScreen = @($mechanismScreens.data.screened_candidates | Where-Object { [string]$_.candidate_id -ceq $candidateId })
+    Assert-True ($candidateScreen.Count -eq 1) "Candidate screen '$candidateId' did not resolve uniquely."
+    $standalone = @($candidateScreen[0].screen_rows | Where-Object { [string]$_.screen_id -ceq 'STANDALONE_KINEMATIC_ARCHITECTURE_CLASS' })
+    Assert-True ($standalone.Count -eq 1 -and [string]$standalone[0].status -ceq 'PASS') "Kinematic architecture candidate '$candidateId' must PASS definition-level standalone class screening."
+}
+
+$springScreen = @($mechanismScreens.data.screened_candidates | Where-Object { [string]$_.candidate_id -ceq 'CANDIDATE_SPRING_OR_COMPLIANT_PRELOAD' })
+Assert-True ($springScreen.Count -eq 1) 'Spring/compliant candidate screen did not resolve uniquely.'
+$springStandalone = @($springScreen[0].screen_rows | Where-Object { [string]$_.screen_id -ceq 'STANDALONE_KINEMATIC_ARCHITECTURE_CLASS' })
+Assert-True ($springStandalone.Count -eq 1 -and [string]$springStandalone[0].status -ceq 'FAIL') 'Spring/compliant maintenance-law augmentation must FAIL standalone kinematic architecture screening.'
+Assert-True ($mechanismScreens.mechanical_acceptance_granted -eq $false) 'Mechanism screen must not grant mechanical acceptance.'
+
+$singleScreen = Test-CGMechanismCandidate -CandidateId 'CANDIDATE_TRANSLATING_ROLLER_CARRIER'
+Assert-True (@($singleScreen.data.screened_candidates).Count -eq 1) 'Single-candidate mechanism screen must return exactly one candidate.'
+Assert-True ([string]$singleScreen.data.screened_candidates[0].candidate_id -ceq 'CANDIDATE_TRANSLATING_ROLLER_CARRIER') 'Single-candidate mechanism screen returned the wrong candidate.'
 
 $currentPlan = Get-CGCurrentPlan
 Assert-True (-not [string]::IsNullOrWhiteSpace([string]$currentPlan.current_plan_id)) 'CURRENT_PLAN has no current_plan_id.'

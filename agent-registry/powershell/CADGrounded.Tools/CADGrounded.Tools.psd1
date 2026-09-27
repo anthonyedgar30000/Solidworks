@@ -21,6 +21,7 @@
         'Get-CGBottleContactWrenchRank',
         'Get-CGContactMaintenanceRequirements',
         'Get-CGMechanismCandidates',
+        'Test-CGMechanismCandidate',
         'Get-CGCurrentPlan',
         'Get-CGInvestigationFrontier',
         'Invoke-CGRegisteredVerifier'

@@ -591,8 +591,7 @@
     },
     {
       "id": "cg.mechanism.screen",
-      "future_command": "Test-CGMechanismCandidate",
-      "status": "PLANNED",
+      "status": "IMPLEMENTED",
       "category": "architecture_selection",
       "engineering_question": "For one explicit candidate, which common bottle-labeler obligations PASS, FAIL, or remain UNRESOLVED based on deterministic evidence?",
       "required_primitives": [
@@ -601,7 +600,22 @@
         "candidate-specific geometry/evidence bindings",
         "negative-evidence retention"
       ],
-      "write_authority": "NONE"
+      "write_authority": "NONE",
+      "command": "Test-CGMechanismCandidate",
+      "execution_kind": "deterministic_candidate_screen",
+      "primitive": "cg.mechanism.candidates + CADGROUNDED.IXOR.MECHANISM_SCREEN.V1",
+      "remote_queue_authorized": false,
+      "establishes": [
+        "bounded PASS/FAIL/UNRESOLVED candidate screen rows",
+        "definition completeness separated from engineering evidence sufficiency",
+        "explicit nonselection"
+      ],
+      "does_not_establish": [
+        "candidate ranking, score, winner, preference or selection",
+        "candidate geometry or quantitative design values",
+        "interval-wide feasibility",
+        "mechanical acceptance"
+      ]
     }
   ]
 }
