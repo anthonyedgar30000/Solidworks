@@ -102,7 +102,11 @@ $requiredPlanned = @(
     'cg.motion.candidate',
     'cg.motion.sweep',
     'cg.acceptance.check',
-    'cg.visualization.gate'
+    'cg.visualization.gate',
+    'cg.requirements.functional',
+    'cg.requirements.rotation',
+    'cg.mechanism.candidates',
+    'cg.mechanism.screen'
 )
 foreach ($id in $requiredPlanned) {
     $matches = @($catalog | Where-Object { [string]$_.id -ceq $id -and [string]$_.status -ceq 'PLANNED' })
