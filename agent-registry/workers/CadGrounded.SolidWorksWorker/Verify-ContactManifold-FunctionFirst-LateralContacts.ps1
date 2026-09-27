@@ -362,7 +362,10 @@ foreach($row in $rows){
     }
     $wrapResiduals += $sum
 }
-$maxWrapResidual=($wrapResiduals | ForEach-Object {[Math]::Abs([double]$_} | Measure-Object -Maximum).Maximum)
+$maxWrapResidual=($wrapResiduals | ForEach-Object {
+    $residualValue=[double]$_
+    [Math]::Abs($residualValue)
+} | Measure-Object -Maximum).Maximum
 
 $componentsAfter=Invoke-WorkerJson -Arguments @('components','--all')
 $targetStateAfter=Get-TargetState -ComponentsEnvelope $componentsAfter -TargetComponents $TargetComponents
