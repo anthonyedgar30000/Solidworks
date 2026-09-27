@@ -278,7 +278,7 @@ function Get-CGTargetState {
             fixed_component = $row.fixed_component
             fixed = $row.fixed
             is_top_level = $row.is_top_level
-            parent_name = $row.parent_name
+            parent_name = if ($row.PSObject.Properties.Name -contains 'parent_name') { $row.parent_name } else { $null }
             rotation9 = @($row.rotation9)
             translation_mm = @($row.translation_mm)
             transform_source = $row.transform_source
