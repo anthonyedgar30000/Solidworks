@@ -389,6 +389,94 @@ function Test-CGContactPair {
     Write-CGOutput -Value $result -AsJson:$AsJson
 }
 
+function Get-CGCurrentBottleContacts {
+    [CmdletBinding()]
+    param(
+        [string]$BottleName2 = 'BENCH_BOTTLE_D48_H180-2',
+        [string[]]$CandidateName2 = @(
+            'BENCH_CONVEYOR_L900_W82_H950-1',
+            'FITCHECK_DRIVEN_WRAP_BELT_5x160x93_V25-1',
+            'FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25-1',
+            'FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25-2',
+            'FITCHECK_INDEX_STOP_FINGER_54p25x6x20_V37-1',
+            'FITCHECK_INDEX_STOP_FINGER_54p25x6x20_V37-2'
+        ),
+        [string]$ExpectedDocumentTitle = 'IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE',
+        [string]$ExpectedDocumentPath = 'C:\ChatGPT\Solidworks\IXOR\CAB_IXOR_6130800\IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE.SLDASM',
+        [string]$ExpectedConfiguration = 'V43_WRAP',
+        [switch]$AsJson
+    )
+
+    if (@($CandidateName2).Count -eq 0) { throw 'CandidateName2 must contain at least one exact component identity.' }
+    if (@($CandidateName2 | Select-Object -Unique).Count -ne @($CandidateName2).Count) {
+        throw 'CandidateName2 contains duplicate component identities.'
+    }
+    if ($CandidateName2 -contains $BottleName2) {
+        throw 'CandidateName2 must not include the bottle itself.'
+    }
+
+    $statusBefore = Invoke-CGWorkerCli -Arguments @('status')
+    Assert-CGReadOnlyEnvelope -Envelope $statusBefore
+    Assert-CGExpectedState -StatusEnvelope $statusBefore -ExpectedDocumentTitle $ExpectedDocumentTitle -ExpectedDocumentPath $ExpectedDocumentPath -ExpectedConfiguration $ExpectedConfiguration
+
+    $components = Invoke-CGWorkerCli -Arguments @('components','--all')
+    Assert-CGReadOnlyEnvelope -Envelope $components
+    $bottle = Get-CGExactComponentFromEnvelope -ComponentsEnvelope $components -Name2 $BottleName2
+    if ([bool]$bottle.suppressed) { throw "Bottle component '$BottleName2' is suppressed." }
+
+    foreach ($candidate in $CandidateName2) {
+        $row = Get-CGExactComponentFromEnvelope -ComponentsEnvelope $components -Name2 $candidate
+        if ([bool]$row.suppressed) { throw "Candidate component '$candidate' is suppressed." }
+    }
+
+    $observations = @()
+    foreach ($candidate in $CandidateName2) {
+        $pair = Test-CGContactPair -AName2 $BottleName2 -BName2 $candidate -ExpectedDocumentTitle $ExpectedDocumentTitle -ExpectedDocumentPath $ExpectedDocumentPath -ExpectedConfiguration $ExpectedConfiguration
+
+        $observations += [pscustomobject][ordered]@{
+            bottle_name2 = $BottleName2
+            candidate_name2 = $candidate
+            minimum_distance_mm = $pair.data.observation.minimum_distance_mm
+            classification = [string]$pair.data.observation.classification
+            contact_observation = $pair.data.observation
+        }
+    }
+
+    $statusAfter = Invoke-CGWorkerCli -Arguments @('status')
+    Assert-CGReadOnlyEnvelope -Envelope $statusAfter
+    Assert-CGExpectedState -StatusEnvelope $statusAfter -ExpectedDocumentTitle $ExpectedDocumentTitle -ExpectedDocumentPath $ExpectedDocumentPath -ExpectedConfiguration $ExpectedConfiguration
+
+    $result = New-CGEnvelope -CapabilityId 'cg.product.current-contacts' -Result 'PASS' -Data ([ordered]@{
+        document = Get-CGDocumentState -StatusEnvelope $statusAfter
+        bottle = [ordered]@{
+            name2 = [string]$bottle.name2
+            path = [string]$bottle.path
+            fixed_component = $bottle.fixed_component
+            fixed = $bottle.fixed
+            suppressed = $bottle.suppressed
+            rotation9 = @($bottle.rotation9)
+            translation_mm = @($bottle.translation_mm)
+        }
+        candidate_name2 = @($CandidateName2)
+        observations = @($observations)
+    }) -Establishes @(
+        'exact current-pose contact/clearance/interference observations between the exact bottle and each explicitly supplied candidate component',
+        'exact current live bottle and candidate identity binding',
+        'per-pair read-only no-mutation checks inherited from cg.contact.pair'
+    ) -DoesNotEstablish @(
+        'that any observed contact is functionally required',
+        'support direction or contact normal',
+        'restraint sufficiency',
+        'friction or traction sufficiency',
+        'force, preload, compliance, or reaction capacity',
+        'candidate mechanism selection',
+        'interval-wide contact behavior',
+        'mechanical acceptance'
+    ) -AmbiguityBucket 'GEOMETRY_UNRESOLVED'
+
+    Write-CGOutput -Value $result -AsJson:$AsJson
+}
+
 function Test-CGTopologyChain {
     [CmdletBinding()]
     param(
