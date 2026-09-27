@@ -101,41 +101,64 @@ class FunctionFirstBottleHandlingTests(unittest.TestCase):
         self.assertEqual(candidate_a["evidence_state"], "WEAKENED")
         self.assertIn("zero-mate", candidate_a["description"])
 
-    def test_active_frontier_routes_to_bottle_common_axis_binding(self):
+    def test_active_frontier_routes_to_lateral_contact_manifold(self):
         case = load_case()
         ids = [item["id"] for item in case["next_tests"]]
-        self.assertEqual(ids, ["TEST_FUNCTION_FIRST_BOTTLE_COMMON_AXIS_BINDING"])
-        test = by_id(case["next_tests"], "TEST_FUNCTION_FIRST_BOTTLE_COMMON_AXIS_BINDING")
+        self.assertEqual(ids, ["TEST_FUNCTION_FIRST_LATERAL_CONTACT_MANIFOLD"])
+        test = by_id(case["next_tests"], "TEST_FUNCTION_FIRST_LATERAL_CONTACT_MANIFOLD")
         for token in (
-            "assembly direction [0,0,1]",
-            "BENCH_BOTTLE_D48_H180-2 longitudinal/cylindrical axis",
-            "functional rotation_wrap_axis",
-            "assembly-Z vertical/gravity semantics",
-            "do not infer gravity from viewport orientation",
-            "tilt restraint",
-            "interval-wide validity",
+            "point, line/generator, or finite patch contact",
+            "axial extent",
+            "ClosestDistance point",
+            "first-order stabilization against both bottle tilt DOFs",
+            "rotation about the bound wrap axis available",
+            "preload/compliance",
+            "contact maintenance through time",
         ):
             self.assertIn(token, test["question"])
+        self.assertEqual(test["resolves_requirement_ids"], ["BOTTLE_SUPPORT_CONTACT_SET_BOUND"])
 
         support = by_id(case["obligations"], "BOTTLE_SUPPORT_CONTACT_SET_BOUND")
-        self.assertIn("E.FUNCTION_FIRST.BOTTLE_CONTACT_NORMAL_MAP.20260927T082707281Z", support["evidence_refs"])
-        self.assertIn("E.FUNCTION_FIRST.BOTTLE_CONTACT_CONSTRAINT.20260927T084903368Z", support["evidence_refs"])
+        self.assertIn("E.FUNCTION_FIRST.BOTTLE_AXIS.20260927T090433245Z", support["evidence_refs"])
+        self.assertIn("E.FUNCTION_FIRST.BOTTLE_WRAP_AXIS_BINDING.20260927T090433245Z", support["evidence_refs"])
         self.assertEqual(support["verification_state"], "UNRESOLVED")
         self.assertEqual(support["ambiguity_bucket"], "KINEMATIC_STATE_UNRESOLVED")
 
-        evidence = by_id(
+        rotation = by_id(case["obligations"], "BOTTLE_ROTATION_SOURCE_BOUND")
+        self.assertIn("E.FUNCTION_FIRST.BOTTLE_WRAP_AXIS_BINDING.20260927T090433245Z", rotation["evidence_refs"])
+        self.assertEqual(rotation["verification_state"], "UNRESOLVED")
+
+        axis_observation = by_id(
             case["evidence_catalog"],
-            "E.FUNCTION_FIRST.BOTTLE_CONTACT_CONSTRAINT.20260927T084903368Z",
+            "E.FUNCTION_FIRST.BOTTLE_AXIS.20260927T090433245Z",
             field="evidence_id",
         )
-        self.assertEqual(evidence["evidence_type"], "deterministic_calculation")
-        self.assertEqual(evidence["evidence_state"], "MEASURED_CALCULATED")
-        self.assertEqual(evidence["source_authority"], "DETERMINISTIC_CALCULATION")
-        self.assertFalse(evidence["mechanical_acceptance_granted"])
-        self.assertTrue(evidence["payload"]["result"]["lateral_normal_closure"]["positive_span"])
+        self.assertEqual(axis_observation["evidence_type"], "solidworks_observation")
+        self.assertEqual(axis_observation["evidence_state"], "VERIFIED")
+        self.assertEqual(axis_observation["source_authority"], "SOLIDWORKS_LIVE_STATE")
+        self.assertFalse(axis_observation["mechanical_acceptance_granted"])
         self.assertEqual(
-            evidence["payload"]["result"]["functional_projection"]["rotation_about_common_axis"],
-            "NOT_RESTRAINED_BY_FRICTIONLESS_NORMAL_REACTIONS_CURRENT_POSE",
+            axis_observation["payload"]["main_d48_body_cylinder"]["axis_direction_assembly"],
+            [0, 0, 1],
+        )
+        self.assertEqual(axis_observation["payload"]["main_d48_body_cylinder"]["radius_mm"], 24)
+
+        binding = by_id(
+            case["evidence_catalog"],
+            "E.FUNCTION_FIRST.BOTTLE_WRAP_AXIS_BINDING.20260927T090433245Z",
+            field="evidence_id",
+        )
+        self.assertEqual(binding["evidence_type"], "deterministic_calculation")
+        self.assertEqual(binding["evidence_state"], "MEASURED_CALCULATED")
+        self.assertEqual(binding["source_authority"], "DETERMINISTIC_CALCULATION")
+        self.assertFalse(binding["mechanical_acceptance_granted"])
+        self.assertEqual(
+            binding["payload"]["result"]["functional_projection"]["rotation_wrap_axis_cad_binding"],
+            "BOUND_TO_BOTTLE_LONGITUDINAL_AXIS_AT_CURRENT_POSE",
+        )
+        self.assertIn(
+            "gravity/up vector or sign in the assembly frame",
+            binding["payload"]["result"]["unresolved"],
         )
 
         for item_id in (
