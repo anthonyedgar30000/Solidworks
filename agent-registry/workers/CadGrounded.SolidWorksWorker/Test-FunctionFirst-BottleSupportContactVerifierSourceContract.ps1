@@ -27,16 +27,16 @@ foreach ($required in @(
     "FITCHECK_INDEX_STOP_FINGER_54p25x6x20_V37-2",
     "sw.classify_contact_pair",
     "write_authority -cne 'NONE'",
-    "model_mutation -ne $false",
+    'model_mutation -ne $false',
     "Get-TargetState",
     "Get-FileEvidence",
-    "mechanical_acceptance_granted = $false",
+    'mechanical_acceptance_granted = $false',
     "investigation_role_candidate values are routing labels, not engineering conclusions"
 )) {
     Assert-True ($source.Contains($required)) "Verifier is missing required bounded-read invariant: $required"
 }
 
-$pairCount = ([regex]::Matches($source, "\[ordered\]@\{ a = \$Bottle; b = ")).Count
+$pairCount = ([regex]::Matches($source, '\[ordered\]@\{ a = \$Bottle; b = ')).Count
 Assert-True ($pairCount -eq 6) "Expected exactly six function-first bottle candidate pairs; found $pairCount."
 
 foreach ($forbidden in @(
