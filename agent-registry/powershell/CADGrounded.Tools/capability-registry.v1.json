@@ -1,0 +1,332 @@
+{
+  "schema_version": 1,
+  "registry_id": "CADGROUNDED.POWERSHELL.CAPABILITIES.V1",
+  "authority_note": "This registry describes callable orchestration capabilities. It does not promote an AI, PowerShell, or a successful command to engineering authority.",
+  "default_write_authority": "NONE",
+  "capabilities": [
+    {
+      "id": "cg.state.read",
+      "command": "Get-CGState",
+      "status": "IMPLEMENTED",
+      "category": "identity_state",
+      "engineering_question": "What exact SOLIDWORKS document and configuration are currently active?",
+      "execution_kind": "native_worker",
+      "primitive": "sw.status",
+      "write_authority": "NONE",
+      "remote_queue_authorized": false,
+      "establishes": [
+        "live document identity",
+        "active configuration",
+        "worker/write-authority state"
+      ],
+      "does_not_establish": [
+        "mechanical correctness",
+        "geometry acceptance",
+        "operating state"
+      ]
+    },
+    {
+      "id": "cg.component.bind",
+      "command": "Get-CGComponentBinding",
+      "status": "IMPLEMENTED",
+      "category": "identity_state",
+      "engineering_question": "Does an exact Component2.Name2 resolve uniquely in the active assembly, and what is its current state/transform?",
+      "execution_kind": "native_worker",
+      "primitive": "sw.query_components",
+      "write_authority": "NONE",
+      "remote_queue_authorized": false,
+      "establishes": [
+        "exact component identity",
+        "component path",
+        "fixed/suppressed state",
+        "current transform"
+      ],
+      "does_not_establish": [
+        "function",
+        "joint relationship",
+        "mechanical acceptance"
+      ]
+    },
+    {
+      "id": "cg.contact.pair",
+      "command": "Test-CGContactPair",
+      "status": "IMPLEMENTED",
+      "category": "geometry_contact",
+      "engineering_question": "At the current recorded pose, do two exact components have clearance, contact/coincidence, or physical interference?",
+      "execution_kind": "native_worker",
+      "primitive": "sw.classify_contact_pair",
+      "write_authority": "NONE",
+      "remote_queue_authorized": false,
+      "establishes": [
+        "exact pair identity",
+        "current-pose distance/classification",
+        "B-rep intersection evidence when applicable",
+        "pre/post no-mutation comparison"
+      ],
+      "does_not_establish": [
+        "joint type",
+        "force transfer",
+        "motion",
+        "bearing function",
+        "mechanical acceptance"
+      ]
+    },
+    {
+      "id": "cg.topology.chain",
+      "command": "Test-CGTopologyChain",
+      "status": "IMPLEMENTED",
+      "category": "geometry_contact",
+      "engineering_question": "Is a proposed ordered chain physically contiguous at the current pose without assuming naming implies adjacency?",
+      "execution_kind": "composition",
+      "primitive": "cg.contact.pair",
+      "write_authority": "NONE",
+      "remote_queue_authorized": false,
+      "establishes": [
+        "adjacent-pair current-pose contact/clearance classifications across an explicit ordered chain"
+      ],
+      "does_not_establish": [
+        "mechanism DOF",
+        "motion law",
+        "force path",
+        "mechanical acceptance"
+      ]
+    },
+    {
+      "id": "cg.mates.bind",
+      "command": "Get-CGMateBinding",
+      "status": "IMPLEMENTED",
+      "category": "kinematics",
+      "engineering_question": "What exact active-assembly mate/constraint evidence references the supplied exact components?",
+      "execution_kind": "native_worker",
+      "primitive": "sw.query_mates",
+      "write_authority": "NONE",
+      "remote_queue_authorized": false,
+      "establishes": [
+        "incident mate identities/types/suppression observations",
+        "variation values when exposed",
+        "zero mate count as negative evidence",
+        "pre/post no-mutation comparison"
+      ],
+      "does_not_establish": [
+        "physical closure ownership",
+        "force/preload",
+        "reachable motion",
+        "mechanical acceptance"
+      ]
+    },
+    {
+      "id": "cg.frontier.read",
+      "command": "Get-CGInvestigationFrontier",
+      "status": "IMPLEMENTED",
+      "category": "reasoning",
+      "engineering_question": "What is the current governed plan and unresolved next-test frontier?",
+      "execution_kind": "repository_read",
+      "primitive": "planning/CURRENT_PLAN + functional-temporal reference",
+      "write_authority": "NONE",
+      "remote_queue_authorized": false,
+      "establishes": [
+        "durable current plan pointer",
+        "registered next tests",
+        "registered active hypotheses"
+      ],
+      "does_not_establish": [
+        "live CAD freshness",
+        "engineering truth beyond admitted evidence"
+      ]
+    },
+    {
+      "id": "cg.verifier.v43.full-chain-mates",
+      "command": "Invoke-CGRegisteredVerifier",
+      "status": "IMPLEMENTED",
+      "category": "kinematics",
+      "engineering_question": "Run the reviewed v43 seven-component full-chain mate-binding verifier.",
+      "execution_kind": "registered_verifier",
+      "verifier_path": "agent-registry/workers/CadGrounded.SolidWorksWorker/Verify-QueryMates-V43-Prism-FullChain.ps1",
+      "write_authority": "NONE",
+      "remote_queue_authorized": false,
+      "establishes": [
+        "the verifier's own bounded evidence contract only"
+      ],
+      "does_not_establish": [
+        "motion law",
+        "stroke",
+        "force/preload",
+        "mechanical acceptance"
+      ]
+    },
+    {
+      "id": "cg.product.support",
+      "future_command": "Get-CGProductSupportEvidence",
+      "status": "PLANNED",
+      "category": "product_handling",
+      "engineering_question": "What exact deterministic surfaces support the bottle at the evaluated state?",
+      "required_primitives": [
+        "cg.contact.pair",
+        "surface/normal evidence"
+      ],
+      "write_authority": "NONE"
+    },
+    {
+      "id": "cg.product.restraint",
+      "future_command": "Test-CGBottleRestraint",
+      "status": "PLANNED",
+      "category": "product_handling",
+      "engineering_question": "Is the bottle deterministically restrained against the required translational/rotational escape modes at the evaluated state?",
+      "required_primitives": [
+        "cg.product.support",
+        "contact normals",
+        "kinematic constraints"
+      ],
+      "write_authority": "NONE"
+    },
+    {
+      "id": "cg.product.entry-path",
+      "future_command": "Test-CGProductEntryPath",
+      "status": "PLANNED",
+      "category": "product_handling",
+      "engineering_question": "Can the bottle enter the station through the bounded path without unacceptable interference?",
+      "required_primitives": [
+        "candidate path definition",
+        "whole-body interference sweep"
+      ],
+      "write_authority": "NONE"
+    },
+    {
+      "id": "cg.product.exit-path",
+      "future_command": "Test-CGProductExitPath",
+      "status": "PLANNED",
+      "category": "product_handling",
+      "engineering_question": "Can the completed bottle exit through the bounded release path without unacceptable interference?",
+      "required_primitives": [
+        "candidate path definition",
+        "whole-body interference sweep"
+      ],
+      "write_authority": "NONE"
+    },
+    {
+      "id": "cg.wrap.contact",
+      "future_command": "Test-CGWrapContact",
+      "status": "PLANNED",
+      "category": "label_wrap",
+      "engineering_question": "Does the bottle maintain the required relationship to the driven wrap belt over the required interval?",
+      "required_primitives": [
+        "interval states",
+        "contact/tangency evaluator"
+      ],
+      "write_authority": "NONE"
+    },
+    {
+      "id": "cg.label.peel-edge",
+      "future_command": "Get-CGPeelEdgeBinding",
+      "status": "PLANNED",
+      "category": "label_presentation",
+      "engineering_question": "What exact OEM/CAD geometry defines the peel/presentation edge and frame?",
+      "required_primitives": [
+        "OEM feature identity",
+        "frame/edge extraction"
+      ],
+      "write_authority": "NONE"
+    },
+    {
+      "id": "cg.label.transfer-path",
+      "future_command": "Test-CGLabelTransferPath",
+      "status": "PLANNED",
+      "category": "label_presentation",
+      "engineering_question": "Is the label presentation/transfer path geometrically coherent across the defined transfer interval?",
+      "required_primitives": [
+        "peel edge binding",
+        "bottle interval states",
+        "label reference geometry"
+      ],
+      "write_authority": "NONE"
+    },
+    {
+      "id": "cg.index.hardstop",
+      "future_command": "Test-CGIndexHardstop",
+      "status": "PLANNED",
+      "category": "indexing",
+      "engineering_question": "Does the hard-stop/indexing geometry establish the intended bottle position without creating a blocked entry/release condition?",
+      "required_primitives": [
+        "contact topology",
+        "state sequence"
+      ],
+      "write_authority": "NONE"
+    },
+    {
+      "id": "cg.reaction.path",
+      "future_command": "Get-CGReactionPathEvidence",
+      "status": "PLANNED",
+      "category": "reaction_support",
+      "engineering_question": "What deterministic support/contact/constraint chain can carry the reaction generated by capture and wrap?",
+      "required_primitives": [
+        "contact topology",
+        "constraint topology",
+        "mount bindings",
+        "load inputs"
+      ],
+      "write_authority": "NONE"
+    },
+    {
+      "id": "cg.mount.integrity",
+      "future_command": "Test-CGMountIntegrity",
+      "status": "PLANNED",
+      "category": "reaction_support",
+      "engineering_question": "Are required mounts/supports/restraints present and deterministically bound for the candidate operating state?",
+      "required_primitives": [
+        "mount identity",
+        "constraint evidence",
+        "load requirements"
+      ],
+      "write_authority": "NONE"
+    },
+    {
+      "id": "cg.motion.candidate",
+      "future_command": "New-CGMotionCandidate",
+      "status": "PLANNED",
+      "category": "kinematics",
+      "engineering_question": "Create a bounded hypothetical motion candidate only from justified constraint or OEM evidence.",
+      "required_primitives": [
+        "mate/constraint evidence or OEM motion specification"
+      ],
+      "write_authority": "NONE"
+    },
+    {
+      "id": "cg.motion.sweep",
+      "future_command": "Test-CGMotionSweep",
+      "status": "PLANNED",
+      "category": "kinematics",
+      "engineering_question": "Evaluate a justified candidate motion across bounded states without mutating the live assembly.",
+      "required_primitives": [
+        "cg.motion.candidate",
+        "sw.classify_contact_pair_at_transform",
+        "whole-body sweep coverage"
+      ],
+      "write_authority": "NONE"
+    },
+    {
+      "id": "cg.acceptance.check",
+      "future_command": "Test-CGMechanicalAcceptance",
+      "status": "PLANNED",
+      "category": "acceptance",
+      "engineering_question": "Are all required mechanical obligations satisfied by authoritative evidence across their required temporal scope?",
+      "required_primitives": [
+        "epistemic/dependency graph",
+        "obligation coverage",
+        "acceptance policy"
+      ],
+      "write_authority": "NONE"
+    },
+    {
+      "id": "cg.visualization.gate",
+      "future_command": "Test-CGVisualizationGate",
+      "status": "PLANNED",
+      "category": "acceptance",
+      "engineering_question": "Has deterministic mechanical coherence reached the threshold that permits AI visualization?",
+      "required_primitives": [
+        "cg.acceptance.check",
+        "visualization policy"
+      ],
+      "write_authority": "NONE"
+    }
+  ]
+}
