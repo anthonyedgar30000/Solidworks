@@ -79,9 +79,9 @@ function Get-Cross3 {
     $ax=[double]$A[0]; $ay=[double]$A[1]; $az=[double]$A[2]
     $bx=[double]$B[0]; $by=[double]$B[1]; $bz=[double]$B[2]
     @(
-        ($ay*$bz)-($az*$by),
-        ($az*$bx)-($ax*$bz),
-        ($ax*$by)-($ay*$bx)
+        (($ay*$bz)-($az*$by)),
+        (($az*$bx)-($ax*$bz)),
+        (($ax*$by)-($ay*$bx))
     )
 }
 
