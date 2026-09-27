@@ -103,20 +103,78 @@ function Invoke-WorkerJson {
     return $envelope
 }
 
+$script:WorkerServer = $null
+
+function Get-WorkerServer {
+    if ($null -ne $script:WorkerServer -and -not $script:WorkerServer.HasExited) {
+        return $script:WorkerServer
+    }
+
+    $psi = New-Object System.Diagnostics.ProcessStartInfo
+    $psi.FileName = $WorkerExe
+    $psi.Arguments = 'serve-stdio'
+    $psi.WorkingDirectory = $WorkerRoot
+    $psi.UseShellExecute = $false
+    $psi.CreateNoWindow = $true
+    $psi.RedirectStandardInput = $true
+    $psi.RedirectStandardOutput = $true
+    $psi.RedirectStandardError = $true
+
+    $process = New-Object System.Diagnostics.Process
+    $process.StartInfo = $psi
+    if (-not $process.Start()) {
+        throw 'Failed to start persistent worker serve-stdio process.'
+    }
+
+    $script:WorkerServer = $process
+    return $script:WorkerServer
+}
+
+function Stop-WorkerServer {
+    if ($null -eq $script:WorkerServer) { return }
+    try { $script:WorkerServer.StandardInput.Close() } catch {}
+    try {
+        if (-not $script:WorkerServer.WaitForExit(2000)) {
+            $script:WorkerServer.Kill()
+            [void]$script:WorkerServer.WaitForExit(2000)
+        }
+    } catch {}
+    try { $script:WorkerServer.Dispose() } catch {}
+    $script:WorkerServer = $null
+}
+
 function Invoke-WorkerRequest {
     param([Parameter(Mandatory=$true)]$Request)
+
     $requestJson = $Request | ConvertTo-Json -Depth 30 -Compress
-    $text = ($requestJson | & $WorkerExe execute-json | Out-String).Trim()
-    $exitCode = $LASTEXITCODE
-    if ([string]::IsNullOrWhiteSpace($text)) {
-        throw "Worker execute-json returned no JSON. ExitCode=$exitCode"
+    $process = Get-WorkerServer
+
+    try {
+        $process.StandardInput.WriteLine($requestJson)
+        $process.StandardInput.Flush()
+        $text = $process.StandardOutput.ReadLine()
     }
+    catch {
+        $stderr = ''
+        try { $stderr = $process.StandardError.ReadToEnd() } catch {}
+        throw "Persistent worker I/O failed. Error=$($_.Exception.Message) Stderr=$stderr"
+    }
+
+    if ([string]::IsNullOrWhiteSpace($text)) {
+        $exit = $null
+        $stderr = ''
+        try {
+            if ($process.HasExited) {
+                $exit = $process.ExitCode
+                $stderr = $process.StandardError.ReadToEnd()
+            }
+        } catch {}
+        throw "Persistent worker returned no JSON. ExitCode=$exit Stderr=$stderr"
+    }
+
     $envelope = $text | ConvertFrom-Json
     if (-not [bool]$envelope.ok) {
         throw "Worker returned ok=false. Command=$($envelope.command_id) ErrorType=$($envelope.error.type) Error=$($envelope.error.message)"
-    }
-    if ($exitCode -ne 0) {
-        throw "Worker returned ok=true with nonzero exit code. ExitCode=$exitCode"
     }
     return $envelope
 }
@@ -284,9 +342,14 @@ function Invoke-PairAtTransforms {
     if ($null -ne $ATransform) { $payload['a_candidate_transform'] = $ATransform }
     if ($null -ne $BTransform) { $payload['b_candidate_transform'] = $BTransform }
 
-    $env = Invoke-WorkerRequest -Request @{
-        command_id = 'sw.classify_contact_pair_at_transform'
-        payload = $payload
+    try {
+        $env = Invoke-WorkerRequest -Request @{
+            command_id = 'sw.classify_contact_pair_at_transform'
+            payload = $payload
+        }
+    }
+    catch {
+        throw "Pair evaluation failed for '$A' <-> '$B'. $($_.Exception.Message)"
     }
     if ([string]$env.command_id -cne 'sw.classify_contact_pair_at_transform') { throw 'Unexpected command id.' }
     if ([string]$env.source_classification -cne 'verified_from_solidworks_api') { throw 'Unexpected source classification.' }
@@ -487,6 +550,8 @@ $verification = [ordered]@{
 
 $verificationPath = Join-Path $OutputRoot 'verification-summary.json'
 Write-JsonFileUtf8NoBom -Value $verification -LiteralPath $verificationPath -Depth 100
+
+Stop-WorkerServer
 
 Write-Host "RESULT: $resultState"
 Write-Host "Evidence: $verificationPath"
