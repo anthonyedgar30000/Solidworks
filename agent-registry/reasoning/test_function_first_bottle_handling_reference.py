@@ -204,21 +204,21 @@ class FunctionFirstBottleHandlingTests(unittest.TestCase):
         self.assertIn(projection["evidence_id"], owner["evidence_refs"])
 
         ids = [item["id"] for item in case["next_tests"]]
-        self.assertEqual(ids, ["TEST_FUNCTION_FIRST_PROJECT_SPECIFIC_CAPTURE_OWNER_BINDING"])
+        self.assertEqual(ids, ["TEST_FUNCTION_FIRST_CAPTURE_OWNER_SOURCE_ESCALATION"])
         test = by_id(
             case["next_tests"],
-            "TEST_FUNCTION_FIRST_PROJECT_SPECIFIC_CAPTURE_OWNER_BINDING",
+            "TEST_FUNCTION_FIRST_CAPTURE_OWNER_SOURCE_ESCALATION",
         )
         for token in (
-            "project-specific evidence",
-            "actual bottle-handling owner in v43",
-            "exact owner/component identity and mounting",
+            "Fresh live V43_WRAP",
+            "no active-assembly mate chain",
+            "project-specific integration/OEM application evidence",
+            "exact physical owner and mounting",
             "closure and release motion",
             "contact-maintenance method",
             "rotation input",
             "reaction support",
             "fresh live SOLIDWORKS identity",
-            "mechanism-pattern precedent only",
             "do not rank or select a candidate",
         ):
             self.assertIn(token, test["question"])
@@ -232,6 +232,38 @@ class FunctionFirstBottleHandlingTests(unittest.TestCase):
             hypothesis = by_id(case["hypotheses"], item_id)
             self.assertEqual(hypothesis["investigation_state"], "ELIGIBLE")
             self.assertEqual(hypothesis["evidence_state"], "UNRESOLVED")
+
+    def test_project_specific_capture_owner_live_probe_preserves_unresolved_owner(self):
+        case = load_case()
+        evidence_id = "E.FUNCTION_FIRST.PROJECT_SPECIFIC_CAPTURE_OWNER_LIVE_PROBE.20260927T213948Z"
+        probe = by_id(case["evidence_catalog"], evidence_id, field="evidence_id")
+
+        self.assertEqual(probe["evidence_type"], "solidworks_observation")
+        self.assertEqual(probe["evidence_state"], "VERIFIED")
+        self.assertEqual(probe["source_authority"], "SOLIDWORKS_LIVE_STATE")
+        self.assertEqual(probe["source_classification"], "verified_from_solidworks_api")
+        self.assertEqual(probe["payload"]["document"]["active_configuration_exact"], "V43_WRAP")
+        self.assertEqual(probe["payload"]["full_component_inventory_count"], 64)
+        self.assertEqual(probe["payload"]["top_level_component_count"], 58)
+        self.assertEqual(len(probe["payload"]["zero_incident_mate_targets"]), 15)
+        self.assertEqual(probe["payload"]["nested_name_scan"]["spring_or_spring_synonym_matches"], [])
+        self.assertEqual(probe["payload"]["nested_name_scan"]["pneumatic_or_cylinder_matches"], [])
+        self.assertEqual(
+            probe["payload"]["nested_name_scan"]["actuator_matches"],
+            ["FITCHECK_PRISM_ACTUATOR_ENVELOPE_45x35x35_V43-1"],
+        )
+        self.assertEqual(probe["payload"]["selection_status"], "NOT_SELECTED")
+        self.assertFalse(probe["mechanical_acceptance_granted"])
+
+        owner = by_id(case["obligations"], "CAPTURE_KINEMATIC_OWNER")
+        self.assertIn(evidence_id, owner["evidence_refs"])
+        self.assertEqual(owner["verification_state"], "UNRESOLVED")
+        self.assertEqual(owner["ambiguity_bucket"], "OEM_SOURCE_REQUIRED")
+
+        self.assertEqual(
+            [item["id"] for item in case["next_tests"]],
+            ["TEST_FUNCTION_FIRST_CAPTURE_OWNER_SOURCE_ESCALATION"],
+        )
 
     def test_static_fit_remains_disproven_as_operating_proof(self):
         case = load_case()
