@@ -111,6 +111,17 @@ Get-CGBottleContactConstraintMap -AsJson
 
 This command deliberately does **not** establish gravity/up semantics, tilt restraint, frictional drive torque, preload, interval-wide contact, mechanism selection, or mechanical acceptance.
 
+
+### Get-CGBottleContactWrenchRank
+
+Builds a six-coordinate maintained frictionless point-normal contact constraint matrix from the admitted bottle contact geometry and reports matrix rank, nullity, the common-axis rotation residual, and whether any independent instantaneous mode remains beyond common-axis rotation.
+
+```powershell
+Get-CGBottleContactWrenchRank -AsJson
+```
+
+Normal mode inherits the live document/configuration/file-hash freshness check from `Get-CGBottleContactConstraintMap`. `-EvidenceOnly` is for deterministic replay/CI. A four-contact point-normal model cannot be promoted into finite surface-contact, preload, friction, interval-wide, or mechanical-acceptance evidence.
+
 ### Get-CGCurrentPlan / Get-CGInvestigationFrontier
 
 Reads the durable GitHub project-state files from the checked-out repository.
