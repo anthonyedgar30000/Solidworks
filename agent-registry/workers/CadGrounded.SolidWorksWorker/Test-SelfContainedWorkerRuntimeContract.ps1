@@ -55,7 +55,7 @@ foreach ($verifier in $verifiers) {
     $source = Get-Content -LiteralPath $verifier.FullName -Raw
     $pin = [regex]::Match(
         $source,
-        "\$ExpectedWorkerVersion\s*=\s*'(?<version>[^']+)'"
+        '\$ExpectedWorkerVersion\s*=\s*''(?<version>[^'']+)'''
     )
 
     if (-not $pin.Success) {
