@@ -36,6 +36,20 @@ From the repository root:
 Import-Module .\agent-registry\powershell\CADGrounded.Tools\CADGrounded.Tools.psd1 -Force
 ```
 
+The existing SQLite reasoning database (`agent-registry/reasoning-db/schema.sql`)
+already indexes immutable EvidenceRecord IDs, exact record hashes, dependencies,
+inspection fingerprints, and current validity projections. Do not create a
+second evidence catalog. `agent-registry/reasoning/incremental_evidence.py`
+populates this derived index from admitted records; JSON EvidenceRecords remain
+the source of evidence. An index alone does not establish live CAD freshness.
+
+For the offline PowerShell quality gate, install Pester 6 and PSScriptAnalyzer,
+then run `agent-registry/tests/Test-PowerShellQuality.ps1` from the repo root.
+The Pester tests replay one admitted snapshot and inject invalid authority and
+state. The analyzer initially gates a narrow set of unsafe scripting patterns
+in the governed module and its quality tests. The existing capability contract
+remains a separate CI check.
+
 Inspect the allowed surface:
 
 ```powershell
