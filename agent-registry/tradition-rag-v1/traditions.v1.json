@@ -1,0 +1,122 @@
+{
+  "schema_version": 1,
+  "service_id": "CADGROUNDED.TRADITION_RAG.V1",
+  "authority_boundary": {
+    "statement": "Tradition RAG retrieval is reference context only. Retrieval never admits EvidenceRecords, verifies CAD geometry, establishes OEM intent, authorizes CAD writes, or grants mechanical acceptance.",
+    "lanes": {
+      "AUTHORITATIVE": {
+        "permitted_use": [
+          "general requirements",
+          "standards/trade obligations",
+          "terminology",
+          "source discovery",
+          "candidate test design"
+        ],
+        "prohibited_use": [
+          "automatic EvidenceRecord admission",
+          "project-geometry verification",
+          "mechanical acceptance",
+          "CAD-write authorization"
+        ]
+      },
+      "PROFESSIONAL_PRACTICE": {
+        "permitted_use": [
+          "design heuristics",
+          "failure-mode prompts",
+          "test ideas",
+          "maintenance/manufacturing considerations"
+        ],
+        "prohibited_use": [
+          "UNKNOWN_TO_VERIFIED",
+          "OEM intent",
+          "mechanical acceptance",
+          "CAD-write authorization"
+        ]
+      },
+      "FIELD_CHATTER": {
+        "permitted_use": [
+          "hypothesis generation",
+          "neglected failure modes",
+          "diagnostic test ideas",
+          "search-term discovery"
+        ],
+        "prohibited_use": [
+          "verification",
+          "dimension establishment",
+          "force/friction/stiffness establishment",
+          "OEM intent",
+          "mechanical acceptance",
+          "CAD-write authorization"
+        ],
+        "effect_ceiling": "HYPOTHESIS_ONLY"
+      }
+    }
+  },
+  "traditions": [
+    {
+      "tradition_id": "MACHINE_DESIGN",
+      "name": "Mechanical engineering / machine design",
+      "enabled": true
+    },
+    {
+      "tradition_id": "MILLWRIGHT",
+      "name": "Industrial mechanic / millwright",
+      "enabled": true
+    },
+    {
+      "tradition_id": "MACHINING_TOOLMAKING",
+      "name": "Machining / toolmaking",
+      "enabled": true
+    },
+    {
+      "tradition_id": "FABRICATION_WELDING_SHEET_METAL",
+      "name": "Fabrication / welding / sheet metal",
+      "enabled": true
+    },
+    {
+      "tradition_id": "INDUSTRIAL_ELECTRICAL",
+      "name": "Industrial electrical",
+      "enabled": true
+    },
+    {
+      "tradition_id": "CONTROLS_AUTOMATION",
+      "name": "Controls / automation",
+      "enabled": true
+    },
+    {
+      "tradition_id": "INSTRUMENTATION_MECHATRONICS",
+      "name": "Instrumentation / mechatronics",
+      "enabled": true
+    },
+    {
+      "tradition_id": "FLUID_POWER",
+      "name": "Pneumatics / hydraulics / fluid power",
+      "enabled": true
+    },
+    {
+      "tradition_id": "CONVEYOR_MATERIAL_HANDLING",
+      "name": "Conveyor / material handling",
+      "enabled": true
+    },
+    {
+      "tradition_id": "PACKAGING_MACHINE_BUILDING",
+      "name": "Packaging engineering / machine building",
+      "enabled": true
+    },
+    {
+      "tradition_id": "INDUSTRIAL_MANUFACTURING_ENGINEERING",
+      "name": "Industrial / manufacturing engineering",
+      "enabled": true
+    },
+    {
+      "tradition_id": "MACHINE_SAFETY",
+      "name": "Machine safety",
+      "enabled": true
+    },
+    {
+      "tradition_id": "RELIABILITY_MAINTENANCE",
+      "name": "Reliability / maintenance",
+      "enabled": true
+    }
+  ]
+}
