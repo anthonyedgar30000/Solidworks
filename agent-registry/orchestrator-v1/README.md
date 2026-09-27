@@ -23,3 +23,13 @@ python agent-registry/orchestrator-v1/source_sync.py --state-dir /path/to/durabl
 ```
 
 `state/last_sync_status.json` reports the pinned commit, input hashes, receipt or blocking reason. Network failure does not fall back to a stale snapshot. A new plan, changed evidence, or unsupported input remains blocked. The sync downloads source data only; it does not execute repository code, search OEM sources, dispatch CAD reads, or admit evidence. Run the test suite with the `unittest discover` command above.
+
+## Official source capture candidates
+
+`source_registry.v1.json` registers three exact official URLs for bounded source review: cab's IXOR+ assembly instructions, plus HERMA's 152C and wrap-labeling technology pages. HERMA describes a **different manufacturer's mechanism**, so it is comparative source material only. None of these URLs proves the mechanism in the live v43 assembly.
+
+```bash
+python agent-registry/orchestrator-v1/source_capture.py --state-dir /path/to/durable/local/state
+```
+
+The capture accepts only the hardcoded URL, media type, role, and size bounds. It stores raw bytes by SHA-256 and immutable `UNADMITTED` candidate records. For HTML, marker windows reproduce source text for review; the PDF is stored without text extraction. `last_capture_status.json` records successes and failures. A failed source yields `PARTIAL_BLOCKED` and no implied claim verification. No captured material is admitted to the epistemic graph, used to select a mechanism, or treated as mechanical acceptance.
