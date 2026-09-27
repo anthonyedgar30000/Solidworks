@@ -101,7 +101,7 @@ class FunctionFirstBottleHandlingTests(unittest.TestCase):
         self.assertEqual(candidate_a["evidence_state"], "WEAKENED")
         self.assertIn("zero-mate", candidate_a["description"])
 
-    def test_wrench_rank_is_admitted_and_frontier_routes_to_contact_manifold(self):
+    def test_lateral_contact_manifold_is_admitted_and_frontier_routes_to_finite_rank(self):
         case = load_case()
 
         wrap_axis = by_id(case["obligations"], "BOTTLE_WRAP_AXIS_BOUND")
@@ -114,41 +114,41 @@ class FunctionFirstBottleHandlingTests(unittest.TestCase):
             "E.FUNCTION_FIRST.BOTTLE_CONTACT_WRENCH_RANK.20260927T091125291Z",
             field="evidence_id",
         )
-        self.assertEqual(wrench["evidence_type"], "deterministic_calculation")
-        self.assertEqual(wrench["evidence_state"], "MEASURED_CALCULATED")
-        self.assertEqual(wrench["source_authority"], "DETERMINISTIC_CALCULATION")
         self.assertEqual(wrench["payload"]["result"]["matrix_rank"], 4)
         self.assertEqual(wrench["payload"]["result"]["nullity"], 2)
         self.assertTrue(wrench["payload"]["result"]["wrap_axis_rotation_test"]["is_null_mode"])
-        self.assertEqual(
-            wrench["payload"]["result"]["restraint_projection"]["additional_independent_null_modes_beyond_wrap_axis_rotation"],
-            1,
+
+        manifold = by_id(
+            case["evidence_catalog"],
+            "E.FUNCTION_FIRST.BOTTLE_LATERAL_CONTACT_MANIFOLD.20260927T091837877Z",
+            field="evidence_id",
         )
-        self.assertEqual(
-            wrench["payload"]["result"]["restraint_projection"]["five_dof_restraint_excluding_wrap_axis_rotation"],
-            "NOT_SUPPORTED_BY_CURRENT_FOUR_POINT_NORMAL_MODEL",
-        )
-        self.assertFalse(wrench["mechanical_acceptance_granted"])
+        self.assertEqual(manifold["evidence_type"], "solidworks_observation")
+        self.assertEqual(manifold["evidence_state"], "VERIFIED")
+        self.assertEqual(manifold["source_authority"], "SOLIDWORKS_LIVE_STATE")
+        self.assertFalse(manifold["mechanical_acceptance_granted"])
+        self.assertEqual(len(manifold["payload"]["lateral_contact_manifolds"]), 3)
+        for contact in manifold["payload"]["lateral_contact_manifolds"]:
+            self.assertEqual(contact["classification"], "TANGENT_GENERATOR_LINE_SEGMENT")
+            self.assertAlmostEqual(contact["contact_length_mm"], 93.0, places=6)
+            self.assertEqual(contact["axis_interval_mm"], [995, 1088])
 
         support = by_id(case["obligations"], "BOTTLE_SUPPORT_CONTACT_SET_BOUND")
-        self.assertIn("E.FUNCTION_FIRST.BOTTLE_CONTACT_WRENCH_RANK.20260927T091125291Z", support["evidence_refs"])
+        self.assertIn("E.FUNCTION_FIRST.BOTTLE_LATERAL_CONTACT_MANIFOLD.20260927T091837877Z", support["evidence_refs"])
         self.assertEqual(support["verification_state"], "UNRESOLVED")
 
-        rotation = by_id(case["obligations"], "BOTTLE_ROTATION_SOURCE_BOUND")
-        self.assertEqual(rotation["verification_state"], "UNRESOLVED")
-        self.assertIn("BOTTLE_WRAP_AXIS_BOUND", rotation["depends_on_requirement_ids"])
-
         ids = [item["id"] for item in case["next_tests"]]
-        self.assertEqual(ids, ["TEST_FUNCTION_FIRST_LATERAL_CONTACT_MANIFOLD"])
-        test = by_id(case["next_tests"], "TEST_FUNCTION_FIRST_LATERAL_CONTACT_MANIFOLD")
+        self.assertEqual(ids, ["TEST_FUNCTION_FIRST_FINITE_CONTACT_RANK"])
+        test = by_id(case["next_tests"], "TEST_FUNCTION_FIRST_FINITE_CONTACT_RANK")
         for token in (
-            "point, line/generator, or finite patch contact",
-            "measure its extent along the bound bottle rotation_wrap_axis",
-            "ClosestDistance point",
-            "adds an independent tilt-restraint constraint",
-            "preserving rotation about the bound wrap axis",
+            "Get-CGBottleFiniteContactRank",
+            "live freshness enabled",
+            "93 mm tangent generator-line contact",
+            "two endpoint normal constraints",
+            "6-DOF rank/nullity",
+            "sole instantaneous null mode",
             "preload/compliance",
-            "interval-wide behavior",
+            "interval-wide restraint",
         ):
             self.assertIn(token, test["question"])
         self.assertEqual(test["resolves_requirement_ids"], ["BOTTLE_SUPPORT_CONTACT_SET_BOUND"])

@@ -54,6 +54,7 @@ $expectedCommands = @(
     'Get-CGRequiredBottleDOF',
     'Get-CGBottleContactConstraintMap',
     'Get-CGBottleContactWrenchRank',
+    'Get-CGBottleFiniteContactRank',
     'Get-CGCurrentPlan',
     'Get-CGInvestigationFrontier',
     'Invoke-CGRegisteredVerifier'
@@ -77,6 +78,7 @@ $requiredImplemented = @(
     'cg.product.required-dof',
     'cg.product.contact-constraint-map',
     'cg.product.contact-wrench-rank',
+    'cg.product.finite-contact-rank',
     'cg.frontier.read',
     'cg.verifier.v43.full-chain-mates',
     'cg.verifier.function-first.bottle-support-contact'
@@ -155,6 +157,20 @@ Assert-True ($wrenchRank.data.wrap_axis_rotation_test.is_null_mode -eq $true) 'P
 Assert-True ([int]$wrenchRank.data.restraint_projection.additional_independent_null_modes_beyond_common_axis_rotation -eq 1) 'Expected one additional independent null mode beyond wrap-axis rotation.'
 Assert-True ([string]$wrenchRank.data.restraint_projection.five_dof_restraint_excluding_common_axis_rotation -ceq 'NOT_SUPPORTED_BY_CURRENT_FOUR_POINT_NORMAL_MODEL') 'Four-point normal model must not claim five-DOF restraint.'
 Assert-True ($wrenchRank.mechanical_acceptance_granted -eq $false) 'Wrench-rank calculation must not grant mechanical acceptance.'
+
+$finiteRank = Get-CGBottleFiniteContactRank -EvidenceOnly
+Assert-True ([string]$finiteRank.capability_id -ceq 'cg.product.finite-contact-rank') 'Finite-contact rank capability id is incorrect.'
+Assert-True ([int]$finiteRank.data.matrix_rank -eq 5) 'Expected rank five for the maintained finite-line-contact model.'
+Assert-True ([int]$finiteRank.data.nullity -eq 1) 'Expected one instantaneous null mode for the maintained finite-line-contact model.'
+Assert-True ($finiteRank.data.wrap_axis_rotation_test.is_null_mode -eq $true) 'Bound wrap-axis rotation must remain a null mode in the finite-contact model.'
+Assert-True ($finiteRank.data.restraint_projection.only_wrap_axis_rotation_free -eq $true) 'Finite-contact model should leave only wrap-axis rotation free.'
+Assert-True ([string]$finiteRank.data.restraint_projection.five_dof_restraint_excluding_wrap_axis_rotation -ceq 'SUPPORTED_BY_MAINTAINED_FINITE_LINE_CONTACT_MODEL_CURRENT_POSE') 'Finite-contact model should support current-pose five-DOF restraint only under its maintained-contact assumptions.'
+Assert-True (@($finiteRank.data.lateral_contact_manifolds).Count -eq 3) 'Finite-contact rank must consume exactly three lateral manifolds.'
+foreach ($manifold in @($finiteRank.data.lateral_contact_manifolds)) {
+    Assert-True ([string]$manifold.classification -ceq 'TANGENT_GENERATOR_LINE_SEGMENT') "Unexpected finite-contact classification for '$($manifold.pair_id)'."
+    Assert-True ([Math]::Abs([double]$manifold.contact_length_mm - 93.0) -lt 1e-6) "Unexpected line-contact length for '$($manifold.pair_id)'."
+}
+Assert-True ($finiteRank.mechanical_acceptance_granted -eq $false) 'Finite-contact rank calculation must not grant mechanical acceptance.'
 
 $currentPlan = Get-CGCurrentPlan
 Assert-True (-not [string]::IsNullOrWhiteSpace([string]$currentPlan.current_plan_id)) 'CURRENT_PLAN has no current_plan_id.'

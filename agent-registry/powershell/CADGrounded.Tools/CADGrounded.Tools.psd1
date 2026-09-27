@@ -19,6 +19,7 @@
         'Get-CGRequiredBottleDOF',
         'Get-CGBottleContactConstraintMap',
         'Get-CGBottleContactWrenchRank',
+        'Get-CGBottleFiniteContactRank',
         'Get-CGCurrentPlan',
         'Get-CGInvestigationFrontier',
         'Invoke-CGRegisteredVerifier'

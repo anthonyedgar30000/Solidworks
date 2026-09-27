@@ -167,7 +167,8 @@
         "E.FUNCTION_FIRST.BOTTLE_CONTACT_NORMAL_MAP.20260927T082707281Z",
         "E.FUNCTION_FIRST.BOTTLE_CONTACT_CONSTRAINT.20260927T084903368Z",
         "E.FUNCTION_FIRST.BOTTLE_WRAP_AXIS_BINDING.20260927T090058895Z",
-        "E.FUNCTION_FIRST.BOTTLE_CONTACT_WRENCH_RANK.20260927T091125291Z"
+        "E.FUNCTION_FIRST.BOTTLE_CONTACT_WRENCH_RANK.20260927T091125291Z",
+        "E.FUNCTION_FIRST.BOTTLE_LATERAL_CONTACT_MANIFOLD.20260927T091837877Z"
       ],
       "depends_on_requirement_ids": [
         "BOTTLE_REQUIRED_DOF_BOUND"
@@ -1249,7 +1250,7 @@
         "WRAP_ACTIVE"
       ],
       "required_evidence": [
-        "The exact bottle wrap axis is bound and the live-fresh four-contact maintained frictionless sampled point-normal model has rank 4/nullity 2: wrap-axis rotation is one null mode and one additional coupled instantaneous mode remains. Characterize the exact finite B-rep contact manifolds and their axial extents before concluding that tilt/full restraint is missing or supplied. Preload/compliance, unilateral contact maintenance, friction/traction, interval-wide behavior, reaction capacity, and mechanism selection remain unresolved."
+        "Exact live B-rep now shows the driven belt and both support rollers contact the bottle along approximately 93 mm tangent generator line segments, not isolated points. Execute the deterministic finite-contact rank model to test whether this axial extent supplies the missing independent first-order tilt constraint while preserving wrap-axis rotation. Unilateral contact maintenance, preload/compliance, friction/traction, interval-wide behavior, reaction capacity, and mechanism selection remain unresolved."
       ]
     },
     {
@@ -3068,12 +3069,207 @@
           ]
         }
       }
+    },
+    {
+      "schema_version": 1,
+      "record_type": "evidence",
+      "evidence_id": "E.FUNCTION_FIRST.BOTTLE_LATERAL_CONTACT_MANIFOLD.20260927T091837877Z",
+      "evidence_type": "solidworks_observation",
+      "evidence_state": "VERIFIED",
+      "source_authority": "SOLIDWORKS_LIVE_STATE",
+      "source_classification": "verified_from_solidworks_api",
+      "subject": {
+        "subject_type": "function_first_bottle_lateral_contact_manifold_observation",
+        "identity_exact": "BENCH_BOTTLE_D48_H180-2 vs driven wrap belt and both D30 support rollers",
+        "document_title_exact": "IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE",
+        "document_path_exact": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE.SLDASM"
+      },
+      "provenance": {
+        "recorded_at": "2026-09-27T09:18:37.8773319Z",
+        "source_ref": "Live CADGrounded SOLIDWORKS sw_execute_code B-rep contact-manifold observation",
+        "tool_path": "CADGrounded SOLIDWORKS/sw_execute_code; transformed temporary IBody2 copies; ISurface.CylinderParams/PlaneParams; IBody2.GetExtremePoint; IFace2.GetClosestPointOn endpoint residual checks"
+      },
+      "dependencies": [
+        "E.FUNCTION_FIRST.BOTTLE_CONTACT_WRENCH_RANK.20260927T091125291Z",
+        "E.FUNCTION_FIRST.BOTTLE_WRAP_AXIS_BINDING.20260927T090058895Z",
+        "PLAN-0010"
+      ],
+      "geometry_state": "CANDIDATE_OPERATING",
+      "temporal_scope": {
+        "coverage": "POINT_ONLY",
+        "validity_state": "CURRENT",
+        "state_ids": [],
+        "transition_ids": []
+      },
+      "ambiguity_bucket": "KINEMATIC_STATE_UNRESOLVED",
+      "mechanical_acceptance_granted": false,
+      "payload": {
+        "observation_kind": "exact_current_pose_lateral_contact_manifold",
+        "document": {
+          "title": "IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE",
+          "path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE.SLDASM",
+          "active_configuration_exact": "V43_WRAP"
+        },
+        "bottle": {
+          "name2": "BENCH_BOTTLE_D48_H180-2",
+          "main_axis_point_mm": [
+            -153.42061528267112,
+            -214,
+            950
+          ],
+          "main_axis_direction_assembly": [
+            0,
+            0,
+            1
+          ],
+          "radius_mm": 24,
+          "body_z_extent_mm": [
+            950,
+            1089.9999999999998
+          ]
+        },
+        "lateral_contact_manifolds": [
+          {
+            "pair_id": "wrap_belt",
+            "component_b": "FITCHECK_DRIVEN_WRAP_BELT_5x160x93_V25-1",
+            "classification": "TANGENT_GENERATOR_LINE_SEGMENT",
+            "contact_xy_mm": [
+              -129.42061528267112,
+              -214
+            ],
+            "axis_interval_mm": [
+              995,
+              1088
+            ],
+            "contact_length_mm": 93.00000000000009,
+            "analytic_tangency_residual_mm": 6.938893903907228e-15,
+            "endpoint0_face_residuals_mm": [
+              0,
+              0
+            ],
+            "endpoint1_face_residuals_mm": [
+              0,
+              0
+            ],
+            "analytic_geometry": {
+              "bottle_radius_mm": 24,
+              "other_surface_type": "plane",
+              "other_plane_normal_assembly": [
+                -1,
+                0,
+                0
+              ],
+              "other_body_z_extent_mm": [
+                995,
+                1088
+              ]
+            }
+          },
+          {
+            "pair_id": "roller_1",
+            "component_b": "FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25-1",
+            "classification": "TANGENT_GENERATOR_LINE_SEGMENT",
+            "contact_xy_mm": [
+              -163.26493982900504,
+              -235.88810805497923
+            ],
+            "axis_interval_mm": [
+              995,
+              1088
+            ],
+            "contact_length_mm": 93.00000000000009,
+            "analytic_tangency_residual_mm": 0,
+            "endpoint0_face_residuals_mm": [
+              0,
+              0
+            ],
+            "endpoint1_face_residuals_mm": [
+              0,
+              0
+            ],
+            "analytic_geometry": {
+              "bottle_radius_mm": 24,
+              "other_surface_type": "cylinder",
+              "roller_radius_mm": 15,
+              "axis_center_distance_mm": 39,
+              "roller_axis_xy_mm": [
+                -169.41764267046375,
+                -249.56817558934128
+              ],
+              "other_body_z_extent_mm": [
+                995,
+                1088
+              ]
+            }
+          },
+          {
+            "pair_id": "roller_2",
+            "component_b": "FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25-2",
+            "classification": "TANGENT_GENERATOR_LINE_SEGMENT",
+            "contact_xy_mm": [
+              -172.1275581419987,
+              -198.9650311321289
+            ],
+            "axis_interval_mm": [
+              995,
+              1088
+            ],
+            "contact_length_mm": 93.00000000000009,
+            "analytic_tangency_residual_mm": 5.877381914487501e-10,
+            "endpoint0_face_residuals_mm": [
+              0,
+              5.877207909533619e-10
+            ],
+            "endpoint1_face_residuals_mm": [
+              0,
+              5.877207909533619e-10
+            ],
+            "analytic_geometry": {
+              "bottle_radius_mm": 24,
+              "other_surface_type": "cylinder",
+              "roller_radius_mm": 15,
+              "axis_center_distance_mm": 39.00000000058774,
+              "roller_axis_xy_mm": [
+                -183.81939742953654,
+                -189.56817558934128
+              ],
+              "other_body_z_extent_mm": [
+                995,
+                1088
+              ]
+            }
+          }
+        ],
+        "admitted_claims": [
+          "At the recorded V43_WRAP pose, the bottle-to-driven-belt contact is an exact tangent generator line segment over assembly Z 995..1088 mm.",
+          "At the same pose, bottle-to-support-roller-1 contact is an exact tangent generator line segment over assembly Z 995..1088 mm.",
+          "Bottle-to-support-roller-2 is tangent to sub-nanometre numerical residual and spans the same Z 995..1088 mm generator interval.",
+          "All three lateral contact manifolds therefore have approximately 93 mm axial extent along the bound bottle wrap axis; they are not isolated point contacts.",
+          "The live read used transformed temporary bodies only and preserved the assembly file hash, save flag, and target transforms."
+        ],
+        "no_mutation": {
+          "source_sha256": "5396261b45beb8a0eaad04701220bded5913b05ad40811951e7cc58937e677d6",
+          "assembly_sha256_before": "dcd53467d2693283bb6617bdde1d4da8c19790615385e307671690ddce84b32a",
+          "assembly_sha256_after": "dcd53467d2693283bb6617bdde1d4da8c19790615385e307671690ddce84b32a",
+          "save_flag_before": false,
+          "save_flag_after": false,
+          "target_transforms_unchanged": true,
+          "model_mutation": false,
+          "write_authority": "NONE"
+        },
+        "explicitly_not_claimed": [
+          "A finite line contact in ideal CAD does not establish that the real unilateral contact remains engaged without preload/compliance.",
+          "The observation does not establish friction, traction, wrap torque, force capacity, pressure, stiffness, or reaction-path adequacy.",
+          "It does not establish interval-wide contact during entry, capture, label transfer, wrap, or release.",
+          "It does not require the current V43 belt/roller architecture in the final design and does not grant mechanical acceptance."
+        ]
+      }
     }
   ],
   "next_tests": [
     {
-      "id": "TEST_FUNCTION_FIRST_LATERAL_CONTACT_MANIFOLD",
-      "question": "Using exact live SOLIDWORKS B-rep geometry for BENCH_BOTTLE_D48_H180-2, FITCHECK_DRIVEN_WRAP_BELT_5x160x93_V25-1, and both FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25 components, characterize each current lateral contact as point, line/generator, or finite patch contact and measure its extent along the bound bottle rotation_wrap_axis. Do not treat one arbitrary IModelDoc2.ClosestDistance point as the entire contact when tangent cylinder/plane or cylinder/cylinder surfaces may coincide along an interval. Then determine whether the ideal rigid frictionless maintained finite-contact geometry adds an independent tilt-restraint constraint missing from the sampled point-normal rank model while preserving rotation about the bound wrap axis. Preserve unilateral contact maintenance, preload/compliance, friction/traction, force capacity, interval-wide behavior, mechanism selection, and mechanical acceptance as unresolved.",
+      "id": "TEST_FUNCTION_FIRST_FINITE_CONTACT_RANK",
+      "question": "Execute Get-CGBottleFiniteContactRank with live freshness enabled against E.FUNCTION_FIRST.BOTTLE_LATERAL_CONTACT_MANIFOLD.20260927T091837877Z. Model each exact 93 mm tangent generator-line contact by two endpoint normal constraints, retain the conveyor support-normal constraint, compute the 6-DOF rank/nullity, and verify whether pure rotation about the bound bottle wrap axis is the sole instantaneous null mode. This is an optimistic maintained frictionless finite-contact model: do not infer unilateral contact retention, preload/compliance, friction/traction, force capacity, interval-wide restraint, mechanism selection, or mechanical acceptance.",
       "resolves_requirement_ids": [
         "BOTTLE_SUPPORT_CONTACT_SET_BOUND"
       ],
@@ -3081,7 +3277,7 @@
         "H_FUNCTION_FIRST_CONTACT_SET"
       ],
       "discrimination_power": 1,
-      "evidence_confidence": 0.98,
+      "evidence_confidence": 0.99,
       "unresolved_relevance": 1,
       "cost": 1
     }

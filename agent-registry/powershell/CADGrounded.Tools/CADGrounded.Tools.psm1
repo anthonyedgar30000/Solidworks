@@ -1341,6 +1341,322 @@ function Get-CGBottleContactWrenchRank {
     Write-CGOutput -Value $result -AsJson:$AsJson
 }
 
+function Get-CGBottleFiniteContactRank {
+    [CmdletBinding()]
+    param(
+        [string]$EvidencePath = 'agent-registry\reasoning\runtime\function-first-bottle-lateral-contact-manifold-evidence-20260927T091837877Z.json',
+        [double]$Tolerance = 1e-9,
+        [switch]$EvidenceOnly,
+        [switch]$AsJson
+    )
+
+    if ($Tolerance -le 0) { throw 'Tolerance must be greater than zero.' }
+
+    if ([IO.Path]::IsPathRooted($EvidencePath)) {
+        $resolvedEvidencePath = [IO.Path]::GetFullPath($EvidencePath)
+    } else {
+        $resolvedEvidencePath = [IO.Path]::GetFullPath((Join-Path $script:RepositoryRoot $EvidencePath))
+    }
+
+    $repoPrefix = [IO.Path]::GetFullPath($script:RepositoryRoot).TrimEnd([IO.Path]::DirectorySeparatorChar) + [IO.Path]::DirectorySeparatorChar
+    if (-not $resolvedEvidencePath.StartsWith($repoPrefix,[StringComparison]::OrdinalIgnoreCase)) {
+        throw 'Finite-contact evidence path escaped the repository root.'
+    }
+    if (-not (Test-Path -LiteralPath $resolvedEvidencePath -PathType Leaf)) {
+        throw "Finite-contact evidence file not found: $resolvedEvidencePath"
+    }
+
+    $evidence = Get-Content -LiteralPath $resolvedEvidencePath -Raw | ConvertFrom-Json
+    if ([string]$evidence.evidence_id -cne 'E.FUNCTION_FIRST.BOTTLE_LATERAL_CONTACT_MANIFOLD.20260927T091837877Z') {
+        throw "Unexpected finite-contact evidence id '$($evidence.evidence_id)'."
+    }
+    if ([string]$evidence.evidence_state -cne 'VERIFIED' -or [string]$evidence.source_authority -cne 'SOLIDWORKS_LIVE_STATE') {
+        throw 'Finite-contact manifold evidence is not a verified live SOLIDWORKS observation.'
+    }
+
+    $constraint = if ($EvidenceOnly) {
+        Get-CGBottleContactConstraintMap -EvidenceOnly
+    } else {
+        Get-CGBottleContactConstraintMap
+    }
+    if ([string]$constraint.result -cne 'PASS') {
+        throw "Bottle contact constraint map did not PASS. Actual='$($constraint.result)'."
+    }
+
+    $expectedHash = [string]$evidence.payload.no_mutation.assembly_sha256_after
+    if ([string]::IsNullOrWhiteSpace($expectedHash)) {
+        throw 'Finite-contact evidence has no assembly SHA256 binding.'
+    }
+    if (-not $EvidenceOnly) {
+        $observedHash = [string]$constraint.data.freshness.observed_file_sha256
+        if ($observedHash -cne $expectedHash) {
+            throw "STALE_STATE: finite-contact evidence assembly hash does not match the live constraint-map hash. Expected='$expectedHash' Actual='$observedHash'."
+        }
+    }
+
+    $common = @($constraint.data.common_axis_candidate.point_xy_mm | ForEach-Object { [double]$_ })
+    $axialPoint = @($constraint.data.non_lateral_contact.contact_point_mm | ForEach-Object { [double]$_ })
+    if ($common.Count -ne 2 -or $axialPoint.Count -ne 3) {
+        throw 'Constraint-map common-axis or axial contact point shape is invalid.'
+    }
+    $referencePoint = @([double]($common[0]),[double]($common[1]),[double]($axialPoint[2]))
+
+    function Get-Cross3FiniteLocal {
+        param([double[]]$A,[double[]]$B)
+        $ax = [double]($A[0]); $ay = [double]($A[1]); $az = [double]($A[2])
+        $bx = [double]($B[0]); $by = [double]($B[1]); $bz = [double]($B[2])
+        return @(
+            ($ay * $bz) - ($az * $by),
+            ($az * $bx) - ($ax * $bz),
+            ($ax * $by) - ($ay * $bx)
+        )
+    }
+
+    function New-FiniteConstraintRowLocal {
+        param(
+            [string]$PairId,
+            [string]$SampleId,
+            [double[]]$Point,
+            [double[]]$Reaction
+        )
+        if ($Point.Count -ne 3 -or $Reaction.Count -ne 3) {
+            throw "Finite-contact row '$PairId/$SampleId' requires 3D point and reaction."
+        }
+        $arm = @(
+            [double]($Point[0]) - [double]($referencePoint[0]),
+            [double]($Point[1]) - [double]($referencePoint[1]),
+            [double]($Point[2]) - [double]($referencePoint[2])
+        )
+        $moment = Get-Cross3FiniteLocal -A $arm -B $Reaction
+        return [pscustomobject][ordered]@{
+            pair_id = $PairId
+            sample_id = $SampleId
+            contact_point_mm = @($Point)
+            compressive_normal_direction = @($Reaction)
+            moment_arm_mm = @($arm)
+            moment_per_unit_normal_mm = @($moment)
+            row = @(
+                [double]($Reaction[0]),
+                [double]($Reaction[1]),
+                [double]($Reaction[2]),
+                [double]($moment[0]),
+                [double]($moment[1]),
+                [double]($moment[2])
+            )
+        }
+    }
+
+    $reactionByPair = @{}
+    foreach ($lateral in @($constraint.data.lateral_contacts)) {
+        $reactionByPair[[string]$lateral.pair_id] = @(
+            [double]($lateral.compressive_reaction_direction_xy[0]),
+            [double]($lateral.compressive_reaction_direction_xy[1]),
+            0.0
+        )
+    }
+
+    $rows = @()
+    $axialReaction = @($constraint.data.non_lateral_contact.selected_opposing_normal_assembly | ForEach-Object { [double]$_ })
+    $rows += New-FiniteConstraintRowLocal -PairId ([string]$constraint.data.non_lateral_contact.pair_id) -SampleId 'support_point' -Point $axialPoint -Reaction $axialReaction
+
+    $manifolds = @($evidence.payload.lateral_contact_manifolds)
+    if ($manifolds.Count -ne 3) {
+        throw "Expected exactly three lateral contact manifolds. Actual=$($manifolds.Count)."
+    }
+
+    $manifoldSummary = @()
+    foreach ($manifold in $manifolds) {
+        $pairId = [string]$manifold.pair_id
+        if (-not $reactionByPair.ContainsKey($pairId)) {
+            throw "No admitted lateral reaction direction found for manifold '$pairId'."
+        }
+        if ([string]$manifold.classification -cne 'TANGENT_GENERATOR_LINE_SEGMENT') {
+            throw "Manifold '$pairId' is not an admitted tangent generator line segment."
+        }
+
+        $xy = @($manifold.contact_xy_mm | ForEach-Object { [double]$_ })
+        $z = @($manifold.axis_interval_mm | ForEach-Object { [double]$_ })
+        if ($xy.Count -ne 2 -or $z.Count -ne 2 -or [double]($z[1]) -le [double]($z[0])) {
+            throw "Manifold '$pairId' has invalid line-segment coordinates."
+        }
+
+        $reaction = [double[]]($reactionByPair[$pairId])
+        $p0 = @([double]($xy[0]),[double]($xy[1]),[double]($z[0]))
+        $p1 = @([double]($xy[0]),[double]($xy[1]),[double]($z[1]))
+        $rows += New-FiniteConstraintRowLocal -PairId $pairId -SampleId 'line_endpoint_0' -Point $p0 -Reaction $reaction
+        $rows += New-FiniteConstraintRowLocal -PairId $pairId -SampleId 'line_endpoint_1' -Point $p1 -Reaction $reaction
+
+        $manifoldSummary += [pscustomobject][ordered]@{
+            pair_id = $pairId
+            classification = [string]$manifold.classification
+            contact_xy_mm = $xy
+            axis_interval_mm = $z
+            contact_length_mm = [double]$manifold.contact_length_mm
+            analytic_tangency_residual_mm = [double]$manifold.analytic_tangency_residual_mm
+        }
+    }
+
+    if ($rows.Count -ne 7) {
+        throw "Expected one conveyor point row plus six lateral line-endpoint rows. Actual=$($rows.Count)."
+    }
+
+    $rowCount = $rows.Count
+    $columnCount = 6
+    $matrix = New-Object 'double[,]' $rowCount,$columnCount
+    for ($r = 0; $r -lt $rowCount; $r++) {
+        for ($col = 0; $col -lt $columnCount; $col++) {
+            $matrix[$r,$col] = [double]($rows[$r].row[$col])
+        }
+    }
+
+    $rref = New-Object 'double[,]' $rowCount,$columnCount
+    for ($r = 0; $r -lt $rowCount; $r++) {
+        for ($col = 0; $col -lt $columnCount; $col++) {
+            $rref[$r,$col] = [double]($matrix[$r,$col])
+        }
+    }
+
+    $pivotColumns = @()
+    $pivotRow = 0
+    for ($col = 0; $col -lt $columnCount -and $pivotRow -lt $rowCount; $col++) {
+        $bestRow = -1
+        $bestAbs = 0.0
+        for ($r = $pivotRow; $r -lt $rowCount; $r++) {
+            $candidateAbs = [Math]::Abs([double]($rref[$r,$col]))
+            if ($candidateAbs -gt $bestAbs) {
+                $bestAbs = $candidateAbs
+                $bestRow = $r
+            }
+        }
+        if ($bestRow -lt 0 -or $bestAbs -le $Tolerance) { continue }
+
+        if ($bestRow -ne $pivotRow) {
+            for ($j = 0; $j -lt $columnCount; $j++) {
+                $tmp = [double]($rref[$pivotRow,$j])
+                $rref[$pivotRow,$j] = [double]($rref[$bestRow,$j])
+                $rref[$bestRow,$j] = $tmp
+            }
+        }
+
+        $pivotValue = [double]($rref[$pivotRow,$col])
+        for ($j = 0; $j -lt $columnCount; $j++) {
+            $rref[$pivotRow,$j] = [double]($rref[$pivotRow,$j]) / $pivotValue
+        }
+
+        for ($r = 0; $r -lt $rowCount; $r++) {
+            if ($r -eq $pivotRow) { continue }
+            $factor = [double]($rref[$r,$col])
+            if ([Math]::Abs($factor) -le $Tolerance) { continue }
+            for ($j = 0; $j -lt $columnCount; $j++) {
+                $currentValue = [double]($rref[$r,$j])
+                $pivotColumnValue = [double]($rref[$pivotRow,$j])
+                $rref[$r,$j] = $currentValue - ($factor * $pivotColumnValue)
+            }
+        }
+
+        $pivotColumns += $col
+        $pivotRow++
+    }
+
+    $rank = $pivotColumns.Count
+    $nullity = $columnCount - $rank
+    $freeColumns = @(0..($columnCount-1) | Where-Object { $pivotColumns -notcontains $_ })
+    $nullspaceBasis = @()
+    foreach ($free in $freeColumns) {
+        $vector = New-Object double[] $columnCount
+        $vector[$free] = 1.0
+        for ($i = 0; $i -lt $pivotColumns.Count; $i++) {
+            $pivotCol = [int]$pivotColumns[$i]
+            $vector[$pivotCol] = -[double]($rref[$i,$free])
+        }
+        $nullspaceBasis += ,@($vector)
+    }
+
+    $wrapTwist = @(0.0,0.0,0.0,0.0,0.0,1.0)
+    $wrapResiduals = @()
+    foreach ($row in $rows) {
+        $sum = 0.0
+        for ($j = 0; $j -lt $columnCount; $j++) {
+            $sum += [double]($row.row[$j]) * [double]($wrapTwist[$j])
+        }
+        $wrapResiduals += $sum
+    }
+    $maxWrapResidual = ($wrapResiduals | ForEach-Object { [Math]::Abs([double]$_) } | Measure-Object -Maximum).Maximum
+    $wrapRotationIsNullMode = ([double]$maxWrapResidual -le $Tolerance)
+
+    $rrefRows = @()
+    for ($r = 0; $r -lt $rowCount; $r++) {
+        $values = @()
+        for ($col = 0; $col -lt $columnCount; $col++) {
+            $value = [double]($rref[$r,$col])
+            if ([Math]::Abs($value) -le $Tolerance) { $value = 0.0 }
+            $values += $value
+        }
+        $rrefRows += ,$values
+    }
+
+    $onlyWrapAxisFree = ($rank -eq 5 -and $nullity -eq 1 -and $wrapRotationIsNullMode)
+
+    $data = [ordered]@{
+        source_manifold_evidence = [ordered]@{
+            evidence_id = [string]$evidence.evidence_id
+            evidence_path = $resolvedEvidencePath
+            evidence_sha256 = (Get-FileHash -LiteralPath $resolvedEvidencePath -Algorithm SHA256).Hash.ToLowerInvariant()
+            assembly_sha256 = $expectedHash
+        }
+        freshness = if ($EvidenceOnly) {
+            [ordered]@{ mode = 'ADMITTED_SNAPSHOT_ONLY'; live_match = $null; assembly_sha256 = $expectedHash }
+        } else {
+            [ordered]@{ mode = 'LIVE_ASSEMBLY_FILE_MATCH_REQUIRED'; live_match = $true; assembly_sha256 = $expectedHash }
+        }
+        model = [ordered]@{
+            name = 'CURRENT_POSE_MAINTAINED_FRICTIONLESS_FINITE_LINE_CONTACT_CONSTRAINT_MODEL'
+            twist_coordinate_order = @('vx','vy','vz','omega_x','omega_y','omega_z')
+            reference_point_mm = $referencePoint
+            lateral_line_representation = 'two endpoint normal constraints per exact tangent generator line segment'
+            note = 'For a straight maintained frictionless line contact with constant normal direction, endpoint rows span the first-order wrench subspace of the finite line. This remains an optimistic maintained-contact model and does not prove unilateral contact retention.'
+        }
+        lateral_contact_manifolds = $manifoldSummary
+        constraint_rows = $rows
+        matrix_rank = $rank
+        nullity = $nullity
+        pivot_columns_zero_based = $pivotColumns
+        free_columns_zero_based = $freeColumns
+        rref = $rrefRows
+        nullspace_basis_free_variable_one = $nullspaceBasis
+        wrap_axis_rotation_test = [ordered]@{
+            twist = $wrapTwist
+            residuals = $wrapResiduals
+            max_abs_residual = [double]$maxWrapResidual
+            is_null_mode = $wrapRotationIsNullMode
+        }
+        restraint_projection = [ordered]@{
+            five_dof_restraint_excluding_wrap_axis_rotation = if ($onlyWrapAxisFree) { 'SUPPORTED_BY_MAINTAINED_FINITE_LINE_CONTACT_MODEL_CURRENT_POSE' } else { 'NOT_SUPPORTED' }
+            only_wrap_axis_rotation_free = $onlyWrapAxisFree
+            interpretation = if ($onlyWrapAxisFree) {
+                'Under the optimistic maintained frictionless finite-line-contact model, the current conveyor plus three lateral generator contacts provide rank 5 and leave only wrap-axis rotation as an instantaneous null mode at the recorded pose.'
+            } else {
+                'The maintained finite-contact model does not reduce the instantaneous nullspace to only wrap-axis rotation.'
+            }
+        }
+    }
+
+    $result = New-CGEnvelope -CapabilityId 'cg.product.finite-contact-rank' -Result 'PASS' -Data $data -SourceAuthority 'DETERMINISTIC_CALCULATION' -SourceClassification 'measured_calculated_from_admitted_finite_contact_manifold' -AmbiguityBucket 'KINEMATIC_STATE_UNRESOLVED' -Establishes @(
+        'rank and nullity of the current maintained frictionless finite-line-contact constraint model',
+        'whether exact lateral generator-line extent supplies an independent first-order tilt constraint absent from the sampled point-normal model',
+        'whether pure bound wrap-axis rotation remains the sole instantaneous null mode at the recorded pose'
+    ) -DoesNotEstablish @(
+        'unilateral contact maintenance, preload, compliance, or force closure',
+        'friction, traction, driven wrap torque, pressure, stiffness, or load capacity',
+        'gravity/up semantics',
+        'interval-wide restraint or reachable-state behavior',
+        'that the current V43 belt/roller architecture is required in the final mechanism',
+        'mechanism selection or mechanical acceptance'
+    )
+
+    Write-CGOutput -Value $result -AsJson:$AsJson
+}
+
 function Get-CGCurrentPlan {
     [CmdletBinding()]
     param([switch]$AsJson)

@@ -5,9 +5,9 @@
   "previous_plan_id": "PLAN-0009",
   "latest_divergence_id": "DIV-0002",
   "latest_reconciliation_id": "RECON-0012",
-  "updated_at_utc": "2026-09-27T09:11:25.2915470Z",
-  "status": "ACTIVE_INVESTIGATION_FUNCTION_FIRST_LATERAL_CONTACT_MANIFOLD_PROJECTED",
+  "updated_at_utc": "2026-09-27T09:18:37.8773319Z",
+  "status": "ACTIVE_INVESTIGATION_FUNCTION_FIRST_FINITE_CONTACT_RANK_PROJECTED",
   "authority_note": "GitHub project-state pointer only. SOLIDWORKS remains the authority for live geometry and active document state.",
-  "current_evidence_id": "E.FUNCTION_FIRST.BOTTLE_CONTACT_WRENCH_RANK.20260927T091125291Z",
+  "current_evidence_id": "E.FUNCTION_FIRST.BOTTLE_LATERAL_CONTACT_MANIFOLD.20260927T091837877Z",
   "current_architecture_id": "IXOR_FUNCTION_FIRST_BOTTLE_HANDLING_REFERENCE"
 }

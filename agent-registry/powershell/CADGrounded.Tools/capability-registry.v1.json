@@ -297,6 +297,30 @@
       ]
     },
     {
+      "id": "cg.product.finite-contact-rank",
+      "command": "Get-CGBottleFiniteContactRank",
+      "status": "IMPLEMENTED",
+      "category": "product_handling",
+      "engineering_question": "When the exact current lateral B-rep contacts are finite tangent generator-line segments rather than isolated samples, what is the 6-DOF maintained frictionless contact-constraint rank and does only bottle wrap-axis rotation remain free?",
+      "execution_kind": "deterministic_calculation",
+      "primitive": "admitted live lateral contact-manifold evidence + cg.product.contact-constraint-map + endpoint-spanned finite-line wrench rank/nullspace calculation",
+      "write_authority": "NONE",
+      "remote_queue_authorized": false,
+      "establishes": [
+        "rank and nullity of the current maintained frictionless finite-line-contact constraint model",
+        "whether finite axial line-contact extent supplies an independent first-order tilt constraint missing from the sampled point-normal model",
+        "whether pure bound bottle wrap-axis rotation is the sole instantaneous null mode at the recorded pose"
+      ],
+      "does_not_establish": [
+        "unilateral contact maintenance, preload, compliance, or force closure",
+        "friction/traction, driven wrap torque, pressure, stiffness, force or load capacity",
+        "gravity/up semantics",
+        "interval-wide restraint or reachable-state behavior",
+        "mechanism selection",
+        "mechanical acceptance"
+      ]
+    },
+    {
       "id": "cg.product.support",
       "future_command": "Get-CGProductSupportEvidence",
       "status": "PLANNED",
