@@ -1,0 +1,23 @@
+name: CADGrounded worktree governance
+
+on:
+  pull_request:
+    paths:
+      - 'agent-registry/powershell/CADGrounded.Worktrees/**'
+      - 'agent-registry/tests/Test-CADGrounded-Worktrees-Contract.ps1'
+      - '.github/workflows/cadgrounded-worktrees-contract.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'agent-registry/powershell/CADGrounded.Worktrees/**'
+      - 'agent-registry/tests/Test-CADGrounded-Worktrees-Contract.ps1'
+      - '.github/workflows/cadgrounded-worktrees-contract.yml'
+
+jobs:
+  worktree-contract:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate sparse creation and evidence-preserving retirement
+        shell: pwsh
+        run: .\agent-registry\tests\Test-CADGrounded-Worktrees-Contract.ps1
