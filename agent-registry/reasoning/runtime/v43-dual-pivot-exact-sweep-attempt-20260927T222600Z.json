@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "record_type": "read_only_verification_attempt",
+  "attempt_id": "ATTEMPT.PLAN-0011.V43_DUAL_PIVOT_EXACT_SWEEP.20260927T222600Z",
+  "plan_id": "PLAN-0011",
+  "step_id": "P0011.4",
+  "candidate_preflight_id": "PF.PLAN-0011.V43_PRISM_DUAL_PIVOT_OPEN_ENVELOPE.V1.20260927T221310Z",
+  "test_id": "TEST_POP_V43_PRISM_DUAL_PIVOT_EXACT_HYPOTHETICAL_SWEEP",
+  "attempted_at_utc": "2026-09-27T22:26:00Z",
+  "intended_method": "Freshly bind live v43, then run temporary-body/no-mutation B-rep checks over CLOSED, intermediate and OPEN candidate transforms without modifying live component transforms.",
+  "execution_result": "BLOCKED_BEFORE_GEOMETRY_EVALUATION",
+  "ambiguity_buckets": [
+    "STALE_STATE",
+    "CAD_READ_REQUIRED"
+  ],
+  "live_cad_attempts": [
+    {
+      "operation": "sw_status + sw_query_components parallel fresh-state read",
+      "result": "TIMEOUT",
+      "error": "SOLIDWORKS bridge timed out after 8000 ms."
+    },
+    {
+      "operation": "sw_status standalone fresh-state read",
+      "result": "TIMEOUT",
+      "error": "SOLIDWORKS bridge timed out after 8000 ms."
+    }
+  ],
+  "supporting_infrastructure_observation": {
+    "source": "Remote Desktop Commander connected device DESKTOP-6U1851R",
+    "result": "No SLDWORKS.exe process was present in the returned process inventory.",
+    "authority_boundary": "This auxiliary device/process observation is not sufficient to identify the SOLIDWORKS host or prove application state on another host. It is supporting infrastructure evidence only."
+  },
+  "admitted_project_state": [
+    "No exact hypothetical B-rep sweep was executed.",
+    "No OPEN or intermediate-state clearance/interference claim was produced.",
+    "The prior analytic dual-pivot preflight remains unchanged.",
+    "The current live CAD state could not be freshly rebound, so stale geometry was not used as if current."
+  ],
+  "explicitly_not_claimed": [
+    "This blocked read does not weaken or disprove the dual-pivot motion hypothesis.",
+    "It does not establish any collision, clearance, contact, DOF, actuation, reaction path, or mechanical acceptance result.",
+    "It does not establish that SOLIDWORKS is closed on the authoritative CAD host."
+  ],
+  "write_authority": "NONE",
+  "model_mutation": false,
+  "mechanical_acceptance_granted": false,
+  "resume_condition": "Obtain a successful fresh sw_status read bound to IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE and re-read exact target identities before executing the no-mutation hypothetical sweep."
+}
