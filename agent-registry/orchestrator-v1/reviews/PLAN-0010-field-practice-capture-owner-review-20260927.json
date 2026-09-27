@@ -1,0 +1,113 @@
+{
+  "schema_version": 1,
+  "record_type": "bounded_process_and_source_boundary_review",
+  "review_id": "R.PLAN-0010.FIELD_PRACTICE_AND_CAPTURE_OWNER_SOURCE_BOUNDARY.20260927T214246Z",
+  "plan_id": "PLAN-0010",
+  "reviewed_at_utc": "2026-09-27T21:42:46Z",
+  "review_state": "PROJECT_STATE_RECONCILIATION_ONLY",
+  "purpose": "Record packaging-machine field-practice research and a fresh v43 read-only capture-owner inventory without promoting external process references or project FITCHECK geometry into mechanical evidence.",
+  "live_solidworks_binding": {
+    "source_authority": "SOLIDWORKS_LIVE_STATE",
+    "source_classification": "verified_from_solidworks_api",
+    "bridge_version": "0.3.0",
+    "document_title_exact": "IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE",
+    "document_path_exact": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE.SLDASM",
+    "document_type": "assembly",
+    "write_performed": false
+  },
+  "fresh_capture_owner_inventory_observation": {
+    "tool_scope": "sw_query_components(top_level_only=true)",
+    "observed_project_candidate_components": [
+      "FITCHECK_DRIVEN_WRAP_BELT_5x160x93_V25-1",
+      "FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25-1",
+      "FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25-2",
+      "FITCHECK_PRISM_CARRIER_SLIDER_15x80x60_V43-1",
+      "FITCHECK_PRISM_GUIDE_RAIL_100x10x10_V43-1",
+      "FITCHECK_PRISM_GUIDE_RAIL_100x10x10_V43-2",
+      "FITCHECK_PRISM_LINK_15x10x25_V43-1",
+      "FITCHECK_PRISM_LINK_15x10x25_V43-2",
+      "FITCHECK_PRISM_ARM1_33p0824x10x5_V43-1",
+      "FITCHECK_PRISM_ARM2_18p6806x10x5_V43-1",
+      "FITCHECK_PRISM_REACTION_BASE_70x120x20_V43-1",
+      "FITCHECK_PRISM_ACTUATOR_ENVELOPE_45x35x35_V43-1"
+    ],
+    "bounded_interpretation": [
+      "The visible v43 closure-like chain is project FITCHECK geometry, not identified OEM capture-owner hardware.",
+      "FITCHECK_PRISM_ACTUATOR_ENVELOPE_45x35x35_V43-1 is an actuator envelope by project identity; it is not evidence of a specific actuator.",
+      "The fresh top-level inventory does not identify an authoritative project/OEM component that owns bottle-centering closure, maintained contact, rotation input, reaction support, and release."
+    ],
+    "explicitly_not_claimed": [
+      "Absence of an identified owner in the top-level inventory does not prove that no mechanism exists in a nested assembly, feature, configuration, external integration package, or unavailable source.",
+      "Component fixed/floating state is not a mechanical degree-of-freedom proof.",
+      "No candidate mechanism is selected or rejected by this inventory observation.",
+      "No mechanical acceptance is granted."
+    ]
+  },
+  "industry_process_references": [
+    {
+      "source_id": "PMMI.ACHIEVING_VERTICAL_STARTUPS.2023",
+      "source_role": "INDUSTRY_PROCESS_REFERENCE",
+      "url": "https://www.pmmi.org/report/2023-achieving-vertical-startups",
+      "bounded_paraphrase": "PMMI highlights project ownership and scope definition, technical validation and FATs that replicate production conditions, equipment capability verification, training, and documentation as recurring vertical-startup concerns.",
+      "authority_boundary": "Process-development precedent only; no CAB/v43 geometry, mechanism, or acceptance authority."
+    },
+    {
+      "source_id": "ZARPAC.PROOF_OF_PRINCIPLE.CUSTOM_PACKAGING",
+      "source_role": "MACHINE_BUILDER_PROCESS_REFERENCE",
+      "url": "https://www.zarpac.com/products/automated-packaging-equipment-for-completely-new-to-the-market-products/",
+      "bounded_paraphrase": "Zarpac describes stage-gate custom machine development and Proof of Principle testing intended to reject infeasible concepts and empirically prove proposed automation before capital build.",
+      "authority_boundary": "Custom-machine development precedent only; no CAB/v43 mechanism identity or geometry authority."
+    },
+    {
+      "source_id": "CKC.MACHINE_BUILD_COMMISSIONING",
+      "source_role": "MACHINE_BUILDER_PROCESS_REFERENCE",
+      "url": "https://ckcautomation.com/machine/",
+      "bounded_paraphrase": "CKC describes machine delivery from concept through mechanical/electrical design, fabrication and assembly, followed by power-on, electrical debug, mechanical debug, controls bring-up, FAT, installation, SAT, and startup support.",
+      "authority_boundary": "Lifecycle precedent only; no project-specific mechanical evidence."
+    },
+    {
+      "source_id": "PACKAGING_WORLD.VERTICAL_STARTUP.FAT",
+      "source_role": "INDUSTRY_PROCESS_REFERENCE",
+      "url": "https://www.packworld.com/home/article/22911008/key-factors-to-ensure-a-successful-vertical-startup",
+      "bounded_paraphrase": "Packaging World reports PMMI-derived industry feedback emphasizing comprehensive FATs using actual product at rate and production-like conditions, plus SAT and post-install support.",
+      "authority_boundary": "Testing-process precedent only; no candidate mechanism verification."
+    }
+  ],
+  "process_pattern_effect": {
+    "supported_project_methodology": [
+      "Bind product-handling requirements before privileging a mechanism family.",
+      "Treat uncertain product-handling physics as a proof-of-principle problem before detailed capital-machine commitment.",
+      "Separate mechanical debug from controls bring-up; controls success does not establish missing mechanical ownership.",
+      "Use representative product/material and operating conditions for later FAT/POP validation."
+    ],
+    "engineering_state_unchanged": [
+      "CAPTURE_KINEMATIC_OWNER remains UNRESOLVED / OEM_SOURCE_REQUIRED.",
+      "H_STATIC_FIT_IS_SUFFICIENT_FOR_CAPTURE remains DISPROVEN / EXHAUSTED.",
+      "H_CAPTURE_CLOSURE_OWNER remains UNRESOLVED / ACTIVE.",
+      "No candidate family receives a new evidence-state promotion from field-practice research."
+    ]
+  },
+  "narrowed_next_evidence_target": {
+    "target": "Integration-level bottle-centering / roller-prism source",
+    "acceptable_source_classes": [
+      "OEM CAD or accessory assembly",
+      "OEM integration or installation drawing/manual",
+      "machine-builder/integrator project drawing or BOM tied to this project",
+      "accepted deterministic specification explicitly defining the engineered owner"
+    ],
+    "required_binding_fields": [
+      "exact owner/component identity",
+      "mounting and reaction support",
+      "open/indexed/capture/release state relationship",
+      "closure/release motion and limits",
+      "contact-maintenance or compliance/preload method when required",
+      "bottle rotation input and direction",
+      "reaction-force path"
+    ],
+    "source_search_exhaustion_rule": "If authoritative integration-source discovery is deliberately exhausted without finding the owner, do not infer one. Reconcile PLAN-0010 into an explicit mechanism-engineering / proof-of-principle phase in which Candidate A v43 Prism and other candidate families are engineered and tested as project proposals rather than treated as discovered OEM intent."
+  },
+  "selection_status": "NOT_SELECTED",
+  "claim_verification_authority": "NONE_FOR_INDUSTRY_PROCESS_REFERENCES",
+  "cad_write_authority": "NONE",
+  "mechanical_acceptance_granted": false
+}
