@@ -158,6 +158,20 @@ function Get-ExactComponent {
     return $rows[0]
 }
 
+
+function Get-OptionalJsonPropertyValue {
+    param(
+        [Parameter(Mandatory=$true)]$Object,
+        [Parameter(Mandatory=$true)][string]$Name
+    )
+
+    $property = $Object.PSObject.Properties[$Name]
+    if ($null -eq $property) {
+        return $null
+    }
+    return $property.Value
+}
+
 function Assert-VectorNear {
     param(
         [Parameter(Mandatory=$true)]$Actual,
@@ -329,10 +343,10 @@ foreach ($fraction in $SampleFractions) {
                 a_name_exact = $mover
                 b_name_exact = $obstacle
                 classification = [string]$data.classification
-                intersection_body_count = $data.intersection_body_count
-                intersection_volume_mm3 = $data.intersection_volume_mm3
-                minimum_distance_mm = $data.minimum_distance_mm
-                api_distance = [string]$data.api_distance
+                intersection_body_count = Get-OptionalJsonPropertyValue -Object $data -Name 'intersection_body_count'
+                intersection_volume_mm3 = Get-OptionalJsonPropertyValue -Object $data -Name 'intersection_volume_mm3'
+                minimum_distance_mm = Get-OptionalJsonPropertyValue -Object $data -Name 'minimum_distance_mm'
+                api_distance = [string](Get-OptionalJsonPropertyValue -Object $data -Name 'api_distance')
             }
             $pairRows.Add($row)
             if ([string]$data.classification -ceq 'physical_interference') {
@@ -355,10 +369,10 @@ foreach ($fraction in $SampleFractions) {
             a_name_exact = $a
             b_name_exact = $b
             classification = [string]$data.classification
-            intersection_body_count = $data.intersection_body_count
-            intersection_volume_mm3 = $data.intersection_volume_mm3
-            minimum_distance_mm = $data.minimum_distance_mm
-            api_distance = [string]$data.api_distance
+            intersection_body_count = Get-OptionalJsonPropertyValue -Object $data -Name 'intersection_body_count'
+            intersection_volume_mm3 = Get-OptionalJsonPropertyValue -Object $data -Name 'intersection_volume_mm3'
+            minimum_distance_mm = Get-OptionalJsonPropertyValue -Object $data -Name 'minimum_distance_mm'
+            api_distance = [string](Get-OptionalJsonPropertyValue -Object $data -Name 'api_distance')
         }
         $pairRows.Add($row)
         if ([string]$data.classification -ceq 'physical_interference') {
