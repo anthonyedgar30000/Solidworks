@@ -185,6 +185,31 @@
       ]
     },
     {
+      "id": "cg.product.current-contacts",
+      "command": "Get-CGCurrentBottleContacts",
+      "status": "IMPLEMENTED",
+      "category": "product_handling",
+      "engineering_question": "What exact current-pose contact, clearance, or interference observations exist between the bound bottle and an explicitly supplied bounded set of candidate components?",
+      "execution_kind": "composition",
+      "primitive": "cg.contact.pair",
+      "write_authority": "NONE",
+      "remote_queue_authorized": false,
+      "establishes": [
+        "exact current-pose pair classifications across an explicit bounded component set",
+        "exact current live bottle/candidate identity binding",
+        "per-pair no-mutation verification inherited from cg.contact.pair"
+      ],
+      "does_not_establish": [
+        "functional necessity of an observed contact",
+        "support direction or contact normal",
+        "restraint sufficiency",
+        "friction/traction sufficiency",
+        "candidate mechanism selection",
+        "interval-wide contact behavior",
+        "mechanical acceptance"
+      ]
+    },
+    {
       "id": "cg.product.support",
       "future_command": "Get-CGProductSupportEvidence",
       "status": "PLANNED",
