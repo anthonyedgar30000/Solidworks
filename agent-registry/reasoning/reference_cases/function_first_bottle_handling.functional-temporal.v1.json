@@ -90,7 +90,7 @@
       "id": "BOTTLE_REQUIRED_DOF_BOUND",
       "owner_subsystem_id": "CAPTURE_AND_ROTATION",
       "description": "The bottle degrees of freedom required to be restrained, supported, or intentionally permitted during indexing, capture, label transfer, wrap, and release are explicitly defined before mechanism selection.",
-      "verification_state": "UNRESOLVED",
+      "verification_state": "VERIFIED",
       "ambiguity_bucket": "MEASUREMENT_REQUIRED",
       "criticality": 5,
       "resolution_cost": 1,
@@ -99,7 +99,9 @@
         "DETERMINISTIC_CALCULATION",
         "SOLIDWORKS_LIVE_STATE"
       ],
-      "evidence_refs": [],
+      "evidence_refs": [
+        "E.FUNCTION_FIRST.BOTTLE_DOF.20260927T075043247Z"
+      ],
       "depends_on_requirement_ids": [
         "PRODUCT_POSITION_STABLE"
       ],
@@ -1173,8 +1175,8 @@
       "id": "H_FUNCTION_FIRST_REQUIRED_DOF",
       "description": "A realistic wrap-labeling station can be specified first by bottle support/restraint and permitted bottle motion requirements without committing to the current v43 Prism mechanism.",
       "prior": "COMMON",
-      "evidence_state": "UNRESOLVED",
-      "investigation_state": "ACTIVE",
+      "evidence_state": "SUPPORTED",
+      "investigation_state": "EXHAUSTED",
       "related_requirement_ids": [
         "BOTTLE_REQUIRED_DOF_BOUND",
         "BOTTLE_RESTRAINT_THROUGHOUT_CAPTURE",
@@ -1188,7 +1190,7 @@
         "RELEASE"
       ],
       "required_evidence": [
-        "A deterministic state-by-state DOF/restraint analysis grounded in the D48 bottle, conveyor support, CAB label-presentation relationship, and required wrap rotation; current fit-check contacts may inform the analysis but cannot define requirements by themselves."
+        "Satisfied for the current requirement model by E.FUNCTION_FIRST.BOTTLE_DOF.20260927T075043247Z. Future changes to product geometry, state semantics, or function-first requirement policy require a fresh derivation."
       ]
     },
     {
@@ -1753,24 +1755,193 @@
           "configuration_exact": "V43_WRAP"
         }
       }
+    },
+    {
+      "schema_version": 1,
+      "record_type": "evidence",
+      "evidence_id": "E.FUNCTION_FIRST.BOTTLE_DOF.20260927T075043247Z",
+      "evidence_type": "deterministic_calculation",
+      "evidence_state": "MEASURED_CALCULATED",
+      "source_authority": "DETERMINISTIC_CALCULATION",
+      "source_classification": "function_first_requirement_derivation_v1",
+      "subject": {
+        "subject_type": "mechanism_neutral_bottle_dof_requirement_derivation",
+        "identity_exact": "CADGROUNDED.IXOR.FUNCTION_FIRST_BOTTLE_DOF.V1; BENCH_BOTTLE_D48_H180-2; BENCH_CONVEYOR_L900_W82_H950-1",
+        "document_title_exact": "IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE",
+        "document_path_exact": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE.SLDASM"
+      },
+      "provenance": {
+        "recorded_at": "2026-09-27T07:50:43.2477895Z",
+        "source_ref": "User-supplied Windows PowerShell transcript of Get-CGRequiredBottleDOF -AsJson; transcript SHA-256 8aba1edc18ca383177965a245eb0f4b49cdddc5c1818c75f83364fcaaec82231",
+        "sha256": "8aba1edc18ca383177965a245eb0f4b49cdddc5c1818c75f83364fcaaec82231",
+        "tool_path": "CADGrounded.Tools/Get-CGRequiredBottleDOF"
+      },
+      "dependencies": [
+        "PLAN-0010",
+        "CADGROUNDED.IXOR.FUNCTION_FIRST_BOTTLE_DOF.V1"
+      ],
+      "geometry_state": "NOT_APPLICABLE",
+      "temporal_scope": {
+        "coverage": "THROUGHOUT_SCOPE",
+        "validity_state": "CURRENT",
+        "state_ids": [
+          "INDEXED",
+          "CAPTURE_AND_ROTATION",
+          "LABEL_TRANSFER_INTERVAL",
+          "WRAP_ACTIVE",
+          "RELEASE"
+        ],
+        "transition_ids": [
+          "INDEXED_TO_CAPTURE",
+          "CAPTURE_TO_RELEASE"
+        ]
+      },
+      "ambiguity_bucket": "MEASUREMENT_REQUIRED",
+      "mechanical_acceptance_granted": false,
+      "payload": {
+        "method": "Mechanism-neutral rigid-body DOF requirement derivation with fresh exact live bottle/conveyor identity binding.",
+        "inputs": [
+          "agent-registry/reasoning/requirements/function-first-bottle-dof.v1.json @ Git blob e20b75de4f4d9d57b2cd2e9785652a1421aa15d7",
+          "Get-CGRequiredBottleDOF -AsJson at 2026-09-27T07:50:43.2477895Z",
+          "active document IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE / V43_WRAP",
+          "BENCH_BOTTLE_D48_H180-2",
+          "BENCH_CONVEYOR_L900_W82_H950-1"
+        ],
+        "result": {
+          "command_result": "PASS",
+          "source_classification": "function_first_requirement_derivation_v1",
+          "live_binding": {
+            "solidworks_process_id": "7488",
+            "active_configuration": "V43_WRAP",
+            "save_flag": false,
+            "bottle": {
+              "name2": "BENCH_BOTTLE_D48_H180-2",
+              "path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\BENCH_BOTTLE_D48_H180.SLDPRT",
+              "fixed": false,
+              "suppressed": false,
+              "translation_mm": [
+                -153.42061528267112,
+                -214,
+                950
+              ],
+              "rotation9": [
+                0,
+                1,
+                0,
+                -1,
+                0,
+                0,
+                0,
+                0,
+                1
+              ]
+            },
+            "conveyor": {
+              "name2": "BENCH_CONVEYOR_L900_W82_H950-1",
+              "path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\BENCH_CONVEYOR_L900_W82_H950.SLDPRT",
+              "fixed": true,
+              "suppressed": false,
+              "translation_mm": [
+                -153.75,
+                -224,
+                950
+              ],
+              "rotation9": [
+                0,
+                1,
+                0,
+                -1,
+                0,
+                0,
+                0,
+                0,
+                1
+              ]
+            }
+          },
+          "functional_axes": {
+            "translation_flow": "Along product transport path; CAD-axis binding unresolved by this model.",
+            "translation_cross_flow": "Horizontal transverse to product flow; CAD-axis binding unresolved by this model.",
+            "translation_vertical": "Vertical relative to product support plane; CAD-axis binding unresolved by this model.",
+            "rotation_wrap_axis": "Bottle upright longitudinal-axis rotation for circumferential wrapping; CAD-axis binding unresolved by this model.",
+            "rotation_tilt_flow": "Bottle tilt in vertical/flow plane.",
+            "rotation_tilt_cross_flow": "Bottle tilt in vertical/cross-flow plane."
+          },
+          "state_requirements": {
+            "INDEXED": {
+              "translation_flow": "RESTRAIN_OR_POSITION",
+              "translation_cross_flow": "BOUND_POSITION",
+              "translation_vertical": "SUPPORT",
+              "rotation_wrap_axis": "UNRESOLVED_NOT_YET_FUNCTIONALLY_REQUIRED",
+              "rotation_tilt_flow": "STABILIZE",
+              "rotation_tilt_cross_flow": "STABILIZE"
+            },
+            "CAPTURE_AND_ROTATION": {
+              "translation_flow": "RESTRAIN_OR_BOUND",
+              "translation_cross_flow": "RESTRAIN_OR_BOUND",
+              "translation_vertical": "SUPPORT",
+              "rotation_wrap_axis": "INTENTIONALLY_PERMIT_AND_CONTROL",
+              "rotation_tilt_flow": "STABILIZE",
+              "rotation_tilt_cross_flow": "STABILIZE"
+            },
+            "LABEL_TRANSFER_INTERVAL": {
+              "translation_flow": "RESTRAIN_OR_SYNCHRONIZE",
+              "translation_cross_flow": "RESTRAIN_OR_BOUND",
+              "translation_vertical": "SUPPORT",
+              "rotation_wrap_axis": "INTENTIONALLY_PERMIT_AND_CONTROL",
+              "rotation_tilt_flow": "STABILIZE",
+              "rotation_tilt_cross_flow": "STABILIZE"
+            },
+            "WRAP_ACTIVE": {
+              "translation_flow": "RESTRAIN_OR_SYNCHRONIZE",
+              "translation_cross_flow": "RESTRAIN_OR_BOUND",
+              "translation_vertical": "SUPPORT",
+              "rotation_wrap_axis": "INTENTIONALLY_PERMIT_AND_CONTROL",
+              "rotation_tilt_flow": "STABILIZE",
+              "rotation_tilt_cross_flow": "STABILIZE"
+            },
+            "RELEASE": {
+              "translation_flow": "INTENTIONALLY_PERMIT_TOWARD_EXIT",
+              "translation_cross_flow": "GUIDE_OR_BOUND",
+              "translation_vertical": "SUPPORT",
+              "rotation_wrap_axis": "NO_WRAP_ROTATION_REQUIREMENT; RESIDUAL_BEHAVIOR_UNRESOLVED",
+              "rotation_tilt_flow": "STABILIZE",
+              "rotation_tilt_cross_flow": "STABILIZE"
+            }
+          },
+          "admitted_claims": [
+            "The mechanism-neutral bottle rigid-body DOF requirement model is defined across INDEXED, CAPTURE_AND_ROTATION, LABEL_TRANSFER_INTERVAL, WRAP_ACTIVE, and RELEASE.",
+            "During CAPTURE_AND_ROTATION and WRAP_ACTIVE, wrap-axis rotation is intentionally permitted and controlled while translation and tilt behavior remains bounded/supported/stabilized as specified.",
+            "Vertical support is required in every scoped state.",
+            "Release intentionally restores translation freedom toward product exit while retaining vertical support and lateral guidance/bounding.",
+            "The command freshly bound the exact benchmark bottle and conveyor identities in V43_WRAP without mutation."
+          ],
+          "explicitly_not_established": [
+            "which mechanism supplies restraint or support",
+            "which current CAD contacts are functionally required versus incidental",
+            "exact CAD-axis mapping of the mechanism-neutral functional axes",
+            "capture force or preload",
+            "friction or traction sufficiency",
+            "roller or belt ownership",
+            "entry/exit reachable clearance",
+            "label-transfer timing",
+            "mechanical acceptance"
+          ]
+        }
+      }
     }
   ],
   "next_tests": [
     {
-      "id": "TEST_FUNCTION_FIRST_BOTTLE_SUPPORT_RESTRAINT_DOF",
-      "question": "Before selecting any capture mechanism, what degrees of freedom must a D48 upright bottle have restrained or supported at INDEXED, CAPTURE_AND_ROTATION, LABEL_TRANSFER_INTERVAL, WRAP_ACTIVE, and RELEASE, and which rotation must remain intentionally available for label wrapping, and what functional rotation-source relationship will a later candidate need to provide? Bind the current deterministic support/contact set from conveyor, bottle, wrap-contact, and any presently adjacent geometry, but distinguish current-pose contacts from required functional contacts. The result must not assume the v43 Prism slider/links/arms are required.",
+      "id": "TEST_FUNCTION_FIRST_CURRENT_CONTACT_SET",
+      "question": "With BOTTLE_REQUIRED_DOF_BOUND now verified, observe the exact current-pose relationship between BENCH_BOTTLE_D48_H180-2 and an explicit bounded set of nearby candidate geometry: conveyor, driven wrap belt, both support rollers, and both index-stop fingers. Record contact/coincidence, clearance, or interference for every exact pair with no mutation. Treat these as current contact observations only: do not infer that a current contact is functionally required, that a clearance is invalid, or that any component supplies sufficient support/restraint. If surface/normal or other directional evidence is still missing, preserve BOTTLE_SUPPORT_CONTACT_SET_BOUND as UNRESOLVED and identify the next required primitive.",
       "resolves_requirement_ids": [
-        "BOTTLE_REQUIRED_DOF_BOUND",
-        "BOTTLE_SUPPORT_CONTACT_SET_BOUND",
-        "BOTTLE_RESTRAINT_THROUGHOUT_CAPTURE",
-        "WRAP_CONTACT_THROUGHOUT_CAPTURE",
-        "BOTTLE_ROTATION_SOURCE_BOUND"
+        "BOTTLE_SUPPORT_CONTACT_SET_BOUND"
       ],
       "hypothesis_ids": [
-        "H_FUNCTION_FIRST_REQUIRED_DOF",
         "H_FUNCTION_FIRST_CONTACT_SET"
       ],
-      "discrimination_power": 1,
+      "discrimination_power": 0.99,
       "evidence_confidence": 0.95,
       "unresolved_relevance": 1,
       "cost": 1
