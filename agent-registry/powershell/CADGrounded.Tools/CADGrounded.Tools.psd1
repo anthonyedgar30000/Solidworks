@@ -20,6 +20,7 @@
         'Get-CGBottleContactConstraintMap',
         'Get-CGBottleContactWrenchRank',
         'Get-CGContactMaintenanceRequirements',
+        'Get-CGMechanismCandidates',
         'Get-CGCurrentPlan',
         'Get-CGInvestigationFrontier',
         'Invoke-CGRegisteredVerifier'
