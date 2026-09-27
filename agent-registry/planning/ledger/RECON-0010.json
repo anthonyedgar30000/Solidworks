@@ -1,0 +1,51 @@
+{
+  "record_type": "plan_reconciliation",
+  "schema_version": 1,
+  "record_id": "RECON-0010",
+  "project_id": "CADGROUNDED.IXOR",
+  "reconciled_at_utc": "2026-09-27T06:31:40.2840566Z",
+  "plan_id": "PLAN-0007",
+  "revised_plan_id": "PLAN-0008",
+  "raw_observation_ids": [
+    "E.V43.PRISM.ARM_ROLLER_CONTACT.20260927T063140284Z"
+  ],
+  "actual_actions": [
+    {
+      "action_id": "ACT_V43_PRISM_ARM_ROLLER_CONTACT_VERIFIER",
+      "write_authority": "NONE",
+      "result_id": "E.V43.PRISM.ARM_ROLLER_CONTACT.20260927T063140284Z",
+      "reason": "The exact V43_WRAP all-four arm-to-support-roller verifier passed with exact pair results, SHA-bound artifact provenance, and no-mutation comparison."
+    },
+    {
+      "action_id": "ACT_BIND_V43_PRISM_ARM_ROLLER_ARTIFACT_SHA256",
+      "write_authority": "NONE",
+      "result": "COMPLETED",
+      "reason": "Bound verification-summary.json to SHA-256 cc416e64d1faceaf98edd794b99ee0224f8e2b96b9bbd2e995791c99a17095ce."
+    }
+  ],
+  "step_outcomes": [
+    {
+      "step_id": "P0007.1",
+      "outcome": "COMPLETED",
+      "evidence_id": "E.V43.PRISM.ARM_ROLLER_CONTACT.20260927T063140284Z"
+    },
+    {
+      "step_id": "P0007.2",
+      "outcome": "COMPLETED",
+      "evidence_id": "E.V43.PRISM.ARM_ROLLER_CONTACT.20260927T063140284Z"
+    },
+    {
+      "step_id": "P0007.3",
+      "outcome": "COMPLETED_ADMITTED",
+      "evidence_id": "E.V43.PRISM.ARM_ROLLER_CONTACT.20260927T063140284Z"
+    },
+    {
+      "step_id": "P0007.4",
+      "outcome": "COMPLETED_REPLANNED",
+      "evidence_id": "E.V43.PRISM.ARM_ROLLER_CONTACT.20260927T063140284Z"
+    }
+  ],
+  "conclusion": "PLAN-0007 is provenance-complete. At the recorded exact V43_WRAP point, Arm-1 is adjacent to Roller-1 and Arm-2 is adjacent to Roller-2 at 0 mm with zero intersection volume; crossed arm-roller pairs are positively clear. Combined with prior admitted topology, a complete two-branch current-pose physical adjacency chain exists from the guided slider through links and arms to both support rollers. Motion, joint type, DOF, stroke, force/preload, capture/release timing, and mechanical acceptance remain unresolved.",
+  "mechanical_acceptance_granted": false,
+  "write_authority": "NONE"
+}
