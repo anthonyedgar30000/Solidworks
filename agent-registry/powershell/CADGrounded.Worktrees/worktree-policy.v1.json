@@ -1,0 +1,32 @@
+{
+  "schema_version": "cadgrounded.worktree-policy.v1",
+  "purpose": "Prevent CAD-heavy temporary Git worktrees from multiplying repository storage while preserving evidence and Git history before retirement.",
+  "permanent_worktree_names": [
+    "Solidworks",
+    "Solidworks-main-current"
+  ],
+  "temporary_worktree_defaults": {
+    "sparse_paths": [
+      "agent-registry",
+      ".github"
+    ],
+    "maximum_count": 3,
+    "minimum_free_gb": 100,
+    "stale_after_days": 7
+  },
+  "retirement": {
+    "automatic_deletion": false,
+    "explicit_approval_required": true,
+    "tracked_changes": "block_for_manual_review",
+    "untracked_files": "archive_and_sha256_verify_before_removal",
+    "ignored_files": "block_unless_explicitly_discarded",
+    "unreachable_head": "require_named_preservation_ref",
+    "protected_worktrees": "never_remove"
+  },
+  "authority": {
+    "git_history": "GitHub/versioned Git refs",
+    "live_geometry": "SOLIDWORKS",
+    "mechanical_acceptance_granted": false,
+    "cad_write_authority": "NONE"
+  }
+}
