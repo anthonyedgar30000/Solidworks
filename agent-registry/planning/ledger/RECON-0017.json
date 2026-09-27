@@ -1,0 +1,42 @@
+{
+  "record_type": "plan_reconciliation",
+  "schema_version": 1,
+  "record_id": "RECON-0017",
+  "project_id": "CADGROUNDED.IXOR",
+  "reconciled_at_utc": "2026-09-27T22:40:59Z",
+  "plan_id": "PLAN-0011",
+  "revised_plan_id": "PLAN-0011",
+  "raw_observation_ids": [
+    "ATTEMPT.PLAN-0011.V43_LIVE_REBIND.20260927T224059Z"
+  ],
+  "actual_actions": [
+    {
+      "action_id": "ACT_REBIND_LIVE_V43_SOLIDWORKS",
+      "write_authority": "NONE",
+      "result": "SUCCESS",
+      "reason": "Fresh sw_status returned the exact v43 PRISM operating-candidate document from the live SOLIDWORKS API."
+    },
+    {
+      "action_id": "ACT_REREAD_V43_REQUIRED_TOP_LEVEL_IDENTITIES",
+      "write_authority": "NONE",
+      "result": "SUCCESS_58_TOP_LEVEL_REQUIRED_TARGETS_PRESENT",
+      "reason": "A fresh sw_query_components(top_level_only=true) returned 58 top-level components and all identities required by the dual-pivot preflight obstacle/target set were present."
+    },
+    {
+      "action_id": "ACT_CLEAR_STALE_STATE_BLOCK_ONLY",
+      "write_authority": "NONE",
+      "result": "LIVE_REBIND_RESUME_CONDITION_SATISFIED",
+      "reason": "The prior blocked attempt failed only because live CAD could not be freshly rebound. That evidence-acquisition blocker is now cleared. No swept-state geometry result is inferred."
+    }
+  ],
+  "step_outcomes": [
+    {
+      "step_id": "P0011.4",
+      "outcome": "LIVE_V43_REBOUND_EXACT_HYPOTHETICAL_SWEEP_READY_NOT_EXECUTED",
+      "artifact": "agent-registry/reasoning/runtime/v43-live-rebind-20260927T224059Z.json"
+    }
+  ],
+  "conclusion": "PLAN-0011 remains at P0011.4. The live v43 PRISM assembly and required target identities have been freshly rebound from the SOLIDWORKS API, clearing the STALE_STATE/CAD_READ_REQUIRED blocker recorded in RECON-0016. The independent dual-pivot POP variant remains hypothetical: no OPEN/intermediate exact B-rep sweep has yet been executed, no CAD write is authorized, and mechanical acceptance remains false. The next engineering action is the bounded read-only exact hypothetical sweep already defined on main.",
+  "mechanical_acceptance_granted": false,
+  "write_authority": "NONE"
+}
