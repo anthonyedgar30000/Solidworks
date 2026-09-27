@@ -8,7 +8,8 @@ from functional_temporal import evaluate_architecture, validate_architecture
 HERE = Path(__file__).resolve().parent
 REFERENCE = HERE / "reference_cases" / "v43_prism_capture_and_rotation.functional-temporal.v1.json"
 GUIDE_VERIFIER = HERE.parent / "workers" / "CadGrounded.SolidWorksWorker" / "Verify-ClassifyContact-V43-Prism-GuideRails.ps1"
-SLIDER_LINK_VERIFIER = HERE.parent / "workers" / "CadGrounded.SolidWorksWorker" / "Verify-ClassifyContact-V43-Prism-SliderLinks.ps1"\nLINK_ARM_VERIFIER = HERE.parent / "workers" / "CadGrounded.SolidWorksWorker" / "Verify-ClassifyContact-V43-Prism-LinkArms.ps1"
+SLIDER_LINK_VERIFIER = HERE.parent / "workers" / "CadGrounded.SolidWorksWorker" / "Verify-ClassifyContact-V43-Prism-SliderLinks.ps1"
+LINK_ARM_VERIFIER = HERE.parent / "workers" / "CadGrounded.SolidWorksWorker" / "Verify-ClassifyContact-V43-Prism-LinkArms.ps1"
 
 def load_case():
     return json.loads(REFERENCE.read_text(encoding="utf-8"))
@@ -23,7 +24,8 @@ class V43PrismRegistrationTests(unittest.TestCase):
         evidence_ids = set(indexes["evidence"])
         self.assertIn("E.V43.PRISM.MATE_BINDING.ARCH_PROJECTION.20260926", evidence_ids)
         self.assertIn("E.V43.PRISM.LINK1_REACTION_BASE.ARCH_PROJECTION.20260926", evidence_ids)
-        self.assertIn("E.V43.PRISM.GUIDE_CONTACT.ARCH_PROJECTION.20260927", evidence_ids)\n        self.assertIn("E.V43.PRISM.SLIDER_LINK_CONTACT.ARCH_PROJECTION.20260927", evidence_ids)
+        self.assertIn("E.V43.PRISM.GUIDE_CONTACT.ARCH_PROJECTION.20260927", evidence_ids)
+        self.assertIn("E.V43.PRISM.SLIDER_LINK_CONTACT.ARCH_PROJECTION.20260927", evidence_ids)
         report = evaluate_architecture(case)
         self.assertEqual(report["machine_acceptance_state"], "MECHANICAL_ACCEPTANCE_BLOCKED")
         self.assertFalse(report["mechanical_acceptance_granted"])
