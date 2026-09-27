@@ -280,6 +280,20 @@
       "write_authority": "NONE"
     },
     {
+      "id": "cg.provenance.kinematic-source",
+      "future_command": "Get-CGKinematicSourceProvenance",
+      "status": "PLANNED",
+      "category": "provenance_kinematics",
+      "engineering_question": "What authoritative or accepted deterministic source defines the candidate mechanism's intended kinematic relationships, actuator attachment, motion axis/pivots, stroke, and endpoints?",
+      "required_primitives": [
+        "cg.component.bind",
+        "source artifact/sidecar/commit provenance binding",
+        "OEM CAD/documentation evidence lookup",
+        "explicit source classification and unresolved preservation"
+      ],
+      "write_authority": "NONE"
+    },
+    {
       "id": "cg.motion.candidate",
       "future_command": "New-CGMotionCandidate",
       "status": "PLANNED",
