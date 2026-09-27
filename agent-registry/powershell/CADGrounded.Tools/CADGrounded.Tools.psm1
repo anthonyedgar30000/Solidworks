@@ -1411,6 +1411,80 @@ function Get-CGContactMaintenanceRequirements {
     Write-CGOutput -Value $result -AsJson:$AsJson
 }
 
+function Get-CGMechanismCandidates {
+    [CmdletBinding()]
+    param([switch]$AsJson)
+
+    $requirements = Get-CGContactMaintenanceRequirements
+    if ([string]$requirements.result -cne 'PASS') {
+        throw "Contact-maintenance requirement projection did not PASS."
+    }
+
+    $registryPath = Join-Path $script:RepositoryRoot 'agent-registry\reasoning\candidates\function-first-maintenance-candidates.v1.json'
+    if (-not (Test-Path -LiteralPath $registryPath -PathType Leaf)) {
+        throw "Mechanism candidate registry not found: $registryPath"
+    }
+
+    $registry = Get-Content -LiteralPath $registryPath -Raw | ConvertFrom-Json
+    if ([string]$registry.registry_id -cne 'CADGROUNDED.IXOR.MAINTENANCE_CANDIDATES.V1') {
+        throw "Unexpected mechanism candidate registry id '$($registry.registry_id)'."
+    }
+    if ([string]$registry.selection_status -cne 'NOT_SELECTED') {
+        throw "Mechanism candidate registry must not select an architecture."
+    }
+    if ([string]$registry.basis_requirement_model_id -cne [string]$requirements.data.requirement_model_id) {
+        throw "Mechanism candidate registry requirement-model binding does not match contact-maintenance requirements."
+    }
+
+    $forbiddenPropertyNames = @('rank','ranking','score','winner','selected','preferred')
+    foreach ($candidate in @($registry.candidates)) {
+        foreach ($property in @($candidate.PSObject.Properties.Name)) {
+            if ($forbiddenPropertyNames -contains ([string]$property).ToLowerInvariant()) {
+                throw "Mechanism candidate '$($candidate.candidate_id)' contains forbidden evaluative property '$property'."
+            }
+        }
+        if ([string]$candidate.eligibility_state -cne 'ELIGIBLE') {
+            throw "Active mechanism candidate '$($candidate.candidate_id)' is not ELIGIBLE."
+        }
+        if ([string]$candidate.provenance_state -cne 'FUNCTION_FIRST_HYPOTHESIS_ONLY') {
+            throw "Mechanism candidate '$($candidate.candidate_id)' has unexpected provenance state."
+        }
+    }
+
+    $candidateIds = @($registry.candidates | ForEach-Object { [string]$_.candidate_id })
+    if ($candidateIds.Count -ne (@($candidateIds | Select-Object -Unique)).Count) {
+        throw "Mechanism candidate ids are not unique."
+    }
+
+    $data = [ordered]@{
+        registry_id = [string]$registry.registry_id
+        selection_status = [string]$registry.selection_status
+        basis_requirement_model_id = [string]$registry.basis_requirement_model_id
+        basis_evidence_ids = @($registry.basis_evidence_ids)
+        candidates = @($registry.candidates)
+        excluded_or_dormant = @($registry.excluded_or_dormant)
+        requirement_projection = [ordered]@{
+            capability_id = [string]$requirements.capability_id
+            requirement_model_id = [string]$requirements.data.requirement_model_id
+            unresolved_quantities = @($requirements.data.unresolved_quantities)
+        }
+    }
+
+    $result = New-CGEnvelope -CapabilityId 'cg.mechanism.candidates' -Result 'PASS' -Data $data -SourceAuthority 'DETERMINISTIC_CALCULATION' -SourceClassification 'function_first_mechanism_candidate_registry_v1' -AmbiguityBucket 'MULTIPLE_PLAUSIBLE_HYPOTHESES' -Establishes @(
+        'four explicit mechanism families are eligible for bounded investigation under the current contact-maintenance requirements',
+        'each eligible family carries stated assumptions, required bindings, unresolved quantitative inputs, and function-first provenance',
+        'V43 Prism Candidate A and pneumatic capture remain excluded/dormant under the current evidence state',
+        'no architecture has been selected'
+    ) -DoesNotEstablish @(
+        'which eligible mechanism family is mechanically preferable',
+        'candidate geometry, axis, pivot, stroke, force, preload, stiffness, friction, timing, or reaction capacity',
+        'interval-wide feasibility',
+        'mechanical acceptance'
+    )
+
+    Write-CGOutput -Value $result -AsJson:$AsJson
+}
+
 function Get-CGCurrentPlan {
     [CmdletBinding()]
     param([switch]$AsJson)
@@ -1526,6 +1600,7 @@ Export-ModuleMember -Function @(
     'Get-CGBottleContactConstraintMap',
     'Get-CGBottleContactWrenchRank',
     'Get-CGContactMaintenanceRequirements',
+    'Get-CGMechanismCandidates',
     'Get-CGCurrentPlan',
     'Get-CGInvestigationFrontier',
     'Invoke-CGRegisteredVerifier'

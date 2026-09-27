@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "record_type": "evidence",
+  "evidence_id": "E.FUNCTION_FIRST.MAINTENANCE_CANDIDATE_REGISTRY.20260927T151927324Z",
+  "evidence_type": "deterministic_calculation",
+  "evidence_state": "MEASURED_CALCULATED",
+  "source_authority": "DETERMINISTIC_CALCULATION",
+  "source_classification": "function_first_candidate_registry_projection_v1",
+  "subject": {
+    "subject_type": "function_first_contact_maintenance_candidate_registry",
+    "identity_exact": "CANDIDATE_TRANSLATING_ROLLER_CARRIER; CANDIDATE_PIVOTING_ROLLER_CARRIER; CANDIDATE_MOVING_WRAP_BELT_ASSEMBLY; CANDIDATE_SPRING_OR_COMPLIANT_PRELOAD"
+  },
+  "provenance": {
+    "recorded_at": "2026-09-27T15:19:27.324Z",
+    "source_ref": "agent-registry/reasoning/candidates/function-first-maintenance-candidates.v1.json",
+    "tool_path": "Get-CGMechanismCandidates / deterministic candidate-registry projection"
+  },
+  "dependencies": [
+    "E.FUNCTION_FIRST.CONTACT_MAINTENANCE_SOURCE_PROBE.20260927T150842223Z",
+    "E.FUNCTION_FIRST.BOTTLE_FINITE_LINE_RESTRAINT_RANK.20260927T100903861Z",
+    "PLAN-0010"
+  ],
+  "geometry_state": "NOT_APPLICABLE",
+  "temporal_scope": {
+    "coverage": "POINT_ONLY",
+    "validity_state": "CURRENT",
+    "state_ids": [],
+    "transition_ids": []
+  },
+  "ambiguity_bucket": "MULTIPLE_PLAUSIBLE_HYPOTHESES",
+  "mechanical_acceptance_granted": false,
+  "payload": {
+    "method": "Project candidate eligibility from CADGROUNDED.IXOR.CONTACT_MAINTENANCE.V1 plus current function-first hypothesis states, preserving weakened/dormant candidates and prohibiting ranking or selection.",
+    "inputs": [
+      "CADGROUNDED.IXOR.CONTACT_MAINTENANCE.V1",
+      "E.FUNCTION_FIRST.CONTACT_MAINTENANCE_SOURCE_PROBE.20260927T150842223Z",
+      "current function-first hypothesis registry"
+    ],
+    "result": {
+      "registry_id": "CADGROUNDED.IXOR.MAINTENANCE_CANDIDATES.V1",
+      "selection_status": "NOT_SELECTED",
+      "eligible_candidates": [
+        "CANDIDATE_TRANSLATING_ROLLER_CARRIER",
+        "CANDIDATE_PIVOTING_ROLLER_CARRIER",
+        "CANDIDATE_MOVING_WRAP_BELT_ASSEMBLY",
+        "CANDIDATE_SPRING_OR_COMPLIANT_PRELOAD"
+      ],
+      "excluded_or_dormant": [
+        {
+          "hypothesis_id": "H_CANDIDATE_A_V43_PRISM",
+          "state": "WEAKENED_DORMANT"
+        },
+        {
+          "hypothesis_id": "H_PNEUMATIC_CAPTURE_ACTUATOR",
+          "state": "WEAKENED_DORMANT"
+        }
+      ],
+      "admitted_claims": [
+        "Four explicit mechanism families are eligible for bounded investigation under the current contact-maintenance requirements.",
+        "The spring/compliant-preload candidate is an augmentation class, not a complete kinematic architecture by itself.",
+        "Current V43 Prism Candidate A and pneumatic capture remain weakened/dormant under the admitted evidence state.",
+        "No candidate is ranked, selected, preferred, or mechanically accepted."
+      ],
+      "explicitly_not_claimed": [
+        "Eligibility does not establish geometry, force, preload, travel, stiffness, friction, timing, reaction capacity, interval-wide feasibility, or mechanical acceptance.",
+        "No candidate family is declared superior or chosen for CAD implementation."
+      ]
+    }
+  }
+}

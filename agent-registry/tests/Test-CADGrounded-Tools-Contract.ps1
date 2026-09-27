@@ -17,12 +17,14 @@ $modulePath = Join-Path $moduleRoot 'CADGrounded.Tools.psm1'
 $registryPath = Join-Path $moduleRoot 'capability-registry.v1.json'
 $requiredDofPath = Join-Path $repoRoot 'agent-registry\reasoning\requirements\function-first-bottle-dof.v1.json'
 $contactMaintenancePath = Join-Path $repoRoot 'agent-registry\reasoning\requirements\function-first-contact-maintenance.v1.json'
+$candidateRegistryPath = Join-Path $repoRoot 'agent-registry\reasoning\candidates\function-first-maintenance-candidates.v1.json'
 
 Assert-True (Test-Path -LiteralPath $manifestPath -PathType Leaf) 'Module manifest is missing.'
 Assert-True (Test-Path -LiteralPath $modulePath -PathType Leaf) 'Module source is missing.'
 Assert-True (Test-Path -LiteralPath $registryPath -PathType Leaf) 'Capability registry is missing.'
 Assert-True (Test-Path -LiteralPath $requiredDofPath -PathType Leaf) 'Function-first bottle DOF requirement model is missing.'
 Assert-True (Test-Path -LiteralPath $contactMaintenancePath -PathType Leaf) 'Contact-maintenance requirement model is missing.'
+Assert-True (Test-Path -LiteralPath $candidateRegistryPath -PathType Leaf) 'Mechanism candidate registry is missing.'
 
 Import-Module $manifestPath -Force
 
@@ -57,6 +59,7 @@ $expectedCommands = @(
     'Get-CGBottleContactConstraintMap',
     'Get-CGBottleContactWrenchRank',
     'Get-CGContactMaintenanceRequirements',
+    'Get-CGMechanismCandidates',
     'Get-CGCurrentPlan',
     'Get-CGInvestigationFrontier',
     'Invoke-CGRegisteredVerifier'
@@ -81,6 +84,7 @@ $requiredImplemented = @(
     'cg.product.contact-constraint-map',
     'cg.product.contact-wrench-rank',
     'cg.requirements.contact-maintenance',
+    'cg.mechanism.candidates',
     'cg.frontier.read',
     'cg.verifier.v43.full-chain-mates',
     'cg.verifier.function-first.bottle-support-contact',
@@ -116,7 +120,6 @@ $requiredPlanned = @(
     'cg.visualization.gate',
     'cg.requirements.functional',
     'cg.requirements.rotation',
-    'cg.mechanism.candidates',
     'cg.mechanism.screen'
 )
 foreach ($id in $requiredPlanned) {
@@ -176,6 +179,21 @@ Assert-True ([string]$contactMaintenance.data.source_probe.evidence_id -ceq 'E.F
 Assert-True ([int]$contactMaintenance.data.source_probe.component_inventory_count -eq 64) 'Contact-maintenance source-probe component count is incorrect.'
 Assert-True (@($contactMaintenance.data.unresolved_quantities).Count -gt 0) 'Contact-maintenance requirements must preserve unresolved quantitative inputs.'
 Assert-True ($contactMaintenance.mechanical_acceptance_granted -eq $false) 'Contact-maintenance requirements must not grant mechanical acceptance.'
+
+$mechanismCandidates = Get-CGMechanismCandidates
+Assert-True ([string]$mechanismCandidates.capability_id -ceq 'cg.mechanism.candidates') 'Mechanism-candidate capability id is incorrect.'
+Assert-True ([string]$mechanismCandidates.result -ceq 'PASS') 'Mechanism-candidate registry did not PASS.'
+Assert-True ([string]$mechanismCandidates.data.registry_id -ceq 'CADGROUNDED.IXOR.MAINTENANCE_CANDIDATES.V1') 'Mechanism candidate registry id is incorrect.'
+Assert-True ([string]$mechanismCandidates.data.selection_status -ceq 'NOT_SELECTED') 'Mechanism candidate registry must not select a winner.'
+Assert-True (@($mechanismCandidates.data.candidates).Count -eq 4) 'Expected exactly four eligible maintenance candidate families.'
+foreach ($candidate in @($mechanismCandidates.data.candidates)) {
+    Assert-True ([string]$candidate.eligibility_state -ceq 'ELIGIBLE') "Candidate '$($candidate.candidate_id)' is not ELIGIBLE."
+    Assert-True ([string]$candidate.provenance_state -ceq 'FUNCTION_FIRST_HYPOTHESIS_ONLY') "Candidate '$($candidate.candidate_id)' has unexpected provenance."
+    foreach ($forbiddenProperty in @('rank','ranking','score','winner','selected','preferred')) {
+        Assert-True (-not ($candidate.PSObject.Properties.Name -contains $forbiddenProperty)) "Candidate '$($candidate.candidate_id)' contains forbidden evaluative property '$forbiddenProperty'."
+    }
+}
+Assert-True ($mechanismCandidates.mechanical_acceptance_granted -eq $false) 'Mechanism candidate registry must not grant mechanical acceptance.'
 
 $currentPlan = Get-CGCurrentPlan
 Assert-True (-not [string]::IsNullOrWhiteSpace([string]$currentPlan.current_plan_id)) 'CURRENT_PLAN has no current_plan_id.'
