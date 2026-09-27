@@ -5,9 +5,10 @@
   "previous_plan_id": "PLAN-0010",
   "latest_divergence_id": "DIV-0002",
   "latest_reconciliation_id": "RECON-0014",
-  "updated_at_utc": "2026-09-27T21:48:22Z",
-  "status": "ACTIVE_INVESTIGATION_MECHANISM_ENGINEERING_POP_REQUIREMENTS_PROJECTED",
+  "updated_at_utc": "2026-09-27T21:55:00Z",
+  "status": "ACTIVE_INVESTIGATION_POP_ENVELOPE_FROZEN_CANDIDATE_CONTRACTS_NEXT",
   "authority_note": "GitHub project-state pointer only. SOLIDWORKS remains the authority for live geometry and active document state.",
-  "current_evidence_id": "E.FUNCTION_FIRST.MECHANISM_REFERENCE_SOURCE_BOUNDARY.20260927T212442Z",
-  "current_architecture_id": "IXOR_FUNCTION_FIRST_BOTTLE_HANDLING_REFERENCE"
+  "current_evidence_id": "E.FUNCTION_FIRST.BOTTLE_LATERAL_CONTACT_MANIFOLD.20260927T214833Z",
+  "current_architecture_id": "IXOR_FUNCTION_FIRST_BOTTLE_HANDLING_REFERENCE",
+  "current_requirement_id": "CADGROUNDED.IXOR.FUNCTION_FIRST_POP_ACCEPTANCE_ENVELOPE.V1"
 }
