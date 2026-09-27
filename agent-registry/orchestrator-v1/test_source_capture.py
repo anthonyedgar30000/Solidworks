@@ -71,6 +71,19 @@ class SourceCaptureTests(unittest.TestCase):
         self.assertEqual(second["status"], "PARTIAL_BLOCKED")
         self.assertIn("IMMUTABLE_RECORD_DRIFT", second["results"][0]["reason"])
 
+    def test_legacy_pdf_record_remains_immutable_and_reusable(self):
+        result = capture_all(self.state, fetch=fake_fetch)
+        path = Path(result["results"][0]["record"])
+        legacy = json.loads(path.read_text())
+        legacy.pop("content_sha256")
+        legacy.pop("content_fingerprint_kind")
+        path.write_text(json.dumps(legacy), encoding="utf-8")
+        before = path.read_bytes()
+        second = capture_all(self.state, fetch=fake_fetch)
+        self.assertEqual(second["status"], "CAPTURED")
+        self.assertFalse(second["results"][0]["new"])
+        self.assertEqual(path.read_bytes(), before)
+
     def test_partial_source_failure_does_not_promote_other_sources(self):
         def failing(row):
             if row["source_id"] == "HERMA.152C.PRODUCT_PAGE":

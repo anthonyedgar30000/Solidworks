@@ -143,8 +143,13 @@ def capture_one(row: dict, state_dir: Path, fetch=fetch_source) -> dict:
     destination = state_dir / "source_candidates" / row["source_id"] / f"{content_digest}.json"
     if destination.exists():
         prior = json.loads(destination.read_text(encoding="utf-8"))
+        # A PDF captured by the initial raw-byte keyed version has the same
+        # filename but predates the explicit content_sha256 field.
+        prior_content_matches = prior.get("content_sha256") == content_digest or (
+            not is_html and "content_sha256" not in prior and prior.get("raw_sha256") == digest
+        )
         if (prior.get("source_id") != row["source_id"] or prior.get("source_url") != row["url"]
-                or prior.get("content_sha256") != content_digest or prior.get("source_role") != row["source_role"]
+                or not prior_content_matches or prior.get("source_role") != row["source_role"]
                 or prior.get("evidence_state") != "UNADMITTED"
                 or prior.get("claim_verification_authority") != "NONE"
                 or prior.get("mechanical_acceptance_granted") is not False):
@@ -192,7 +197,8 @@ def capture_all(state_dir: Path, fetch=fetch_source, registry_path: Path = REGIS
         for row in entries:
             try:
                 status["results"].append(capture_one(row, state_dir, fetch))
-            except (CaptureBlocked, OSError, TimeoutError, UnicodeError) as exc:
+            except (CaptureBlocked, OSError, TimeoutError, UnicodeError,
+                    json.JSONDecodeError, KeyError, TypeError) as exc:
                 status["results"].append({"source_id": row["source_id"], "status": "BLOCKED",
                                           "reason": f"{type(exc).__name__}: {exc}"})
         status["status"] = "CAPTURED" if all("record" in row for row in status["results"]) else "PARTIAL_BLOCKED"
