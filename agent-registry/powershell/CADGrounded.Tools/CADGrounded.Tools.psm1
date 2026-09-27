@@ -1047,7 +1047,7 @@ function Get-CGBottleContactWrenchRank {
     $matrix = New-Object 'double[,]' $rowCount,$columnCount
     for ($r = 0; $r -lt $rowCount; $r++) {
         for ($col = 0; $col -lt $columnCount; $col++) {
-            $matrix[$r,$col] = [double]$rows[$r].row[$col]
+            $matrix[$r,$col] = [double]($rows[$r].row[$col])
         }
     }
 
@@ -1064,7 +1064,7 @@ function Get-CGBottleContactWrenchRank {
         $bestRow = -1
         $bestAbs = 0.0
         for ($r = $pivotRow; $r -lt $rowCount; $r++) {
-            $candidateAbs = [Math]::Abs([double]$rref[$r,$col])
+            $candidateAbs = [Math]::Abs([double]($rref[$r,$col]))
             if ($candidateAbs -gt $bestAbs) {
                 $bestAbs = $candidateAbs
                 $bestRow = $r
@@ -1077,24 +1077,24 @@ function Get-CGBottleContactWrenchRank {
 
         if ($bestRow -ne $pivotRow) {
             for ($j = 0; $j -lt $columnCount; $j++) {
-                $tmp = [double]$rref[$pivotRow,$j]
-                $rref[$pivotRow,$j] = [double]$rref[$bestRow,$j]
+                $tmp = [double]($rref[$pivotRow,$j])
+                $rref[$pivotRow,$j] = [double]($rref[$bestRow,$j])
                 $rref[$bestRow,$j] = $tmp
             }
         }
 
-        $pivotValue = [double]$rref[$pivotRow,$col]
+        $pivotValue = [double]($rref[$pivotRow,$col])
         for ($j = 0; $j -lt $columnCount; $j++) {
-            $rref[$pivotRow,$j] = [double]$rref[$pivotRow,$j] / $pivotValue
+            $rref[$pivotRow,$j] = [double]($rref[$pivotRow,$j]) / $pivotValue
         }
 
         for ($r = 0; $r -lt $rowCount; $r++) {
             if ($r -eq $pivotRow) { continue }
-            $factor = [double]$rref[$r,$col]
+            $factor = [double]($rref[$r,$col])
             if ([Math]::Abs($factor) -le $Tolerance) { continue }
             for ($j = 0; $j -lt $columnCount; $j++) {
-                $currentValue = [double]$rref[$r,$j]
-                $pivotValueForColumn = [double]$rref[$pivotRow,$j]
+                $currentValue = [double]($rref[$r,$j])
+                $pivotValueForColumn = [double]($rref[$pivotRow,$j])
                 $rref[$r,$j] = $currentValue - ($factor * $pivotValueForColumn)
             }
         }
@@ -1114,7 +1114,7 @@ function Get-CGBottleContactWrenchRank {
 
         for ($i = 0; $i -lt $pivotColumns.Count; $i++) {
             $pivotCol = [int]$pivotColumns[$i]
-            $vector[$pivotCol] = -[double]$rref[$i,$free]
+            $vector[$pivotCol] = -[double]($rref[$i,$free])
         }
 
         $nullspaceBasis += ,@($vector)
@@ -1141,7 +1141,7 @@ function Get-CGBottleContactWrenchRank {
     for ($r = 0; $r -lt $rowCount; $r++) {
         $rowValues = @()
         for ($col = 0; $col -lt $columnCount; $col++) {
-            $value = [double]$rref[$r,$col]
+            $value = [double]($rref[$r,$col])
             if ([Math]::Abs($value) -le $Tolerance) { $value = 0.0 }
             $rowValues += $value
         }
