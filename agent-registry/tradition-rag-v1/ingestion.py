@@ -4,6 +4,7 @@ import argparse
 import hashlib
 import json
 import re
+import ssl
 import sys
 import time
 import urllib.error
@@ -244,16 +245,91 @@ def extract_feed_text(decoded: str) -> tuple[str, str]:
     return feed_title, normalize_text("\n\n".join(parts))
 
 
+def extract_json_text(decoded: str) -> tuple[str, str]:
+    payload = json.loads(decoded)
+    items = payload.get("items")
+    if not isinstance(items, list):
+        return "JSON source", normalize_text(decoded)
+
+    parts = []
+    for item in items:
+        title = html_fragment_text(str(item.get("title") or ""))
+        body = html_fragment_text(str(item.get("body") or ""))
+        link = str(item.get("link") or "")
+        owner = item.get("owner") or {}
+        author = str(owner.get("display_name") or "")
+        tags = ", ".join(str(tag) for tag in (item.get("tags") or []))
+        license_name = str(item.get("content_license") or "")
+        activity = item.get("last_activity_date")
+        if isinstance(activity, (int, float)):
+            activity_text = iso_z(datetime.fromtimestamp(activity, timezone.utc))
+        else:
+            activity_text = ""
+
+        entry_parts = [
+            f"Question: {title}" if title else "",
+            body,
+            f"Author: {author}" if author else "",
+            f"Tags: {tags}" if tags else "",
+            f"Link: {link}" if link else "",
+            f"License: {license_name}" if license_name else "",
+            f"Updated: {activity_text}" if activity_text else "",
+        ]
+        entry_text = "\n".join(value for value in entry_parts if value)
+        if entry_text:
+            parts.append(entry_text)
+
+    quota_remaining = payload.get("quota_remaining")
+    quota_line = (
+        f"API quota remaining at capture: {quota_remaining}"
+        if quota_remaining is not None
+        else ""
+    )
+    text = normalize_text("\n\n".join(parts))
+    if quota_line:
+        text = normalize_text(text + "\n" + quota_line)
+    return "Stack Exchange API", text
+
+
 def extract_visible_text(raw: bytes, content_type: str, headers) -> tuple[str, str]:
     decoded = decode_body(raw, headers)
     if content_type == "text/plain":
         return "", normalize_text(decoded)
+    if content_type == "application/json":
+        return extract_json_text(decoded)
     if content_type in {"application/atom+xml", "application/rss+xml", "application/xml", "text/xml"}:
         return extract_feed_text(decoded)
     parser = VisibleTextParser()
     parser.feed(decoded)
     parser.close()
     return normalize_text(parser.title), normalize_text(parser.text())
+
+
+_TLS_CONTEXT = None
+
+
+def verified_tls_context() -> ssl.SSLContext:
+    global _TLS_CONTEXT
+    if _TLS_CONTEXT is not None:
+        return _TLS_CONTEXT
+
+    context = ssl.create_default_context()
+    if sys.platform == "win32" and hasattr(ssl, "enum_certificates"):
+        for store_name in ("ROOT", "CA"):
+            try:
+                certificates = ssl.enum_certificates(store_name)
+            except OSError:
+                continue
+            for certificate, encoding, trust in certificates:
+                if encoding != "x509_asn":
+                    continue
+                try:
+                    context.load_verify_locations(cadata=certificate)
+                except (ssl.SSLError, ValueError):
+                    continue
+
+    _TLS_CONTEXT = context
+    return context
 
 
 def read_bounded(response, limit: int) -> bytes:
@@ -301,6 +377,7 @@ def fetch_source(source: dict, policy: dict, data_root: Path) -> dict:
         response = urllib.request.urlopen(
             request,
             timeout=int(policy["network"]["timeout_seconds"]),
+            context=verified_tls_context(),
         )
     except urllib.error.HTTPError as exc:
         if exc.code == 304 and latest:

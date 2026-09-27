@@ -245,3 +245,22 @@ Default lane refresh windows are:
 - FIELD_CHATTER: 7 days.
 
 Automatic `--all-safe` refreshes respect the most recent check, including blocked/failed observations, so inaccessible sources are not hammered repeatedly. An explicit single-source fetch remains an operator-directed probe.
+
+### Source recovery notes
+
+The NUC uses Python's verified default TLS context augmented with the Windows ROOT/CA certificate stores when available. This preserves certificate verification while aligning Python with the host trust store; it does **not** disable TLS validation.
+
+That recovered:
+- Sandvik Coromant Metal Cutting Technology as PROFESSIONAL_PRACTICE;
+- SMRP Exchange recent discussions as FIELD_CHATTER.
+
+For browser-protected forums:
+- Eng-Tips remains challenge-blocked;
+- PLCtalk and Control.com remain direct-fetch blocked;
+- their registered identities and seed cards remain available, but the fetcher does not impersonate a browser or bypass challenges.
+
+Additional live chatter is supplied through official machine-readable interfaces:
+- Stack Exchange API mechanical-engineering questions;
+- Stack Exchange API PLC questions.
+
+Stack Exchange captures preserve question author, link, tags, last-activity time, and the per-item content license in normalized text.

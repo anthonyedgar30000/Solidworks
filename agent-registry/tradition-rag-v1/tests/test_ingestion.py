@@ -55,6 +55,38 @@ class IngestionTests(unittest.TestCase):
         self.assertNotIn("ignore menu", text)
         self.assertNotIn("bad()", text)
 
+    def test_stackexchange_json_preserves_attribution_and_license(self):
+        raw = json.dumps(
+            {
+                "items": [
+                    {
+                        "title": "PLC &amp; interlock question",
+                        "body": "<p>How should this interlock be diagnosed?</p>",
+                        "link": "https://electronics.stackexchange.com/q/123",
+                        "owner": {"display_name": "Example User"},
+                        "tags": ["plc", "industrial"],
+                        "content_license": "CC BY-SA 4.0",
+                        "last_activity_date": 1790540000,
+                    }
+                ],
+                "quota_remaining": 299,
+            }
+        ).encode("utf-8")
+
+        class Headers:
+            def get_content_charset(self):
+                return "utf-8"
+
+        title, text = ingestion.extract_visible_text(
+            raw, "application/json", Headers()
+        )
+        self.assertEqual("Stack Exchange API", title)
+        self.assertIn("PLC & interlock question", text)
+        self.assertIn("How should this interlock be diagnosed?", text)
+        self.assertIn("Author: Example User", text)
+        self.assertIn("License: CC BY-SA 4.0", text)
+        self.assertIn("https://electronics.stackexchange.com/q/123", text)
+
     def test_atom_feed_extracts_entries_and_links(self):
         raw = b"""<?xml version='1.0' encoding='UTF-8'?>
         <feed xmlns='http://www.w3.org/2005/Atom'>
