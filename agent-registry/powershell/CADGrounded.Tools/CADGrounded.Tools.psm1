@@ -401,6 +401,7 @@ function Get-CGState {
         'stable assembly file SHA-256 across status readback',
         'worker read-only authority state'
     ) -DoesNotEstablish @(
+        'that an unsaved in-memory SOLIDWORKS model matches the on-disk assembly SHA-256',
         'mechanical correctness',
         'geometry acceptance',
         'operating sequence'
