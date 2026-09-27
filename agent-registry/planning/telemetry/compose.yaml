@@ -1,7 +1,17 @@
 services:
+  volume-init:
+    image: alpine:3.24
+    command: ["sh", "-c", "chown -R 10001:10001 /data && chmod 0700 /data"]
+    volumes:
+      - freshness-logs:/data
+    network_mode: none
+    restart: "no"
   collector:
     image: otel/opentelemetry-collector:0.161.0
     command: ["--config=/etc/otelcol/config.yaml"]
+    depends_on:
+      volume-init:
+        condition: service_completed_successfully
     volumes:
       - ./collector.yaml:/etc/otelcol/config.yaml:ro
       - freshness-logs:/data

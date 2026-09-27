@@ -179,8 +179,9 @@ from `agent-registry/planning`.
 ### Local OTLP receiver
 
 `telemetry/compose.yaml` starts a pinned OpenTelemetry Collector with only an
-OTLP/HTTP logs receiver. The host port is bound to `127.0.0.1:4318`. The logs
-pipeline writes OTLP JSON to a Docker named volume using a file exporter with
+OTLP/HTTP logs receiver. A one-shot container makes the named volume writable
+by the Collector's UID 10001 before it starts. The host port is bound to
+`127.0.0.1:4318`. The logs pipeline writes OTLP JSON to that volume with
 1 MB rotation, three days of retention, and three backup files. It does not
 configure traces, metrics, remote exporters, or a schedule.
 
@@ -208,5 +209,9 @@ lane only in a trusted local environment. No collector is run by the sender.
 
 Focused regression: `python -m unittest -v test_source_freshness_send.py`
 from `agent-registry/planning`. It exercises an in-process loopback receiver;
-it does not establish that a Docker Collector is running or that a file has
-been exported.
+the `collector-smoke` CI job also starts the pinned Docker Collector, posts a
+synthetic unverified observation, and checks the rotating file export for the
+bounded event and false acceptance flag. The CI job deletes its test volume
+afterward. A passing CI job verifies this Collector image and configuration on
+the Ubuntu runner; it does not prove that any particular Windows host has
+started a collector or observed live source freshness.
