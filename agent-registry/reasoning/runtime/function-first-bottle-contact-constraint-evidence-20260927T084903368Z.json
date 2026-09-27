@@ -1,0 +1,147 @@
+{
+  "schema_version": 1,
+  "record_type": "evidence",
+  "evidence_id": "E.FUNCTION_FIRST.BOTTLE_CONTACT_CONSTRAINT.20260927T084903368Z",
+  "evidence_type": "deterministic_calculation",
+  "evidence_state": "MEASURED_CALCULATED",
+  "source_authority": "DETERMINISTIC_CALCULATION",
+  "source_classification": "measured_calculated_from_admitted_solidworks_observation",
+  "subject": {
+    "subject_type": "function_first_bottle_current_pose_contact_constraint_projection",
+    "identity_exact": "BENCH_BOTTLE_D48_H180-2 current-pose constraint projection from conveyor, driven wrap belt, support roller 1, and support roller 2 contact-normal evidence",
+    "document_title_exact": "IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE",
+    "document_path_exact": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE.SLDASM"
+  },
+  "provenance": {
+    "recorded_at": "2026-09-27T08:49:03.3684711Z",
+    "source_ref": "C:\\ChatGPT\\CADGrounded-verifier-runs\\constraint-map-92ec7c2d970d\\constraint-map-result.json",
+    "sha256": "ae55d2bfb1c2f316017966b9592dad2f1ea61f04ffd5f05ed17aad9f9e282621",
+    "tool_path": "Get-CGBottleContactConstraintMap at git 92ec7c2d970da7f0cc4cfd9eaa60433890ad2d4c"
+  },
+  "dependencies": [
+    "E.FUNCTION_FIRST.BOTTLE_DOF.20260927T075043247Z",
+    "E.FUNCTION_FIRST.BOTTLE_CONTACT_NORMAL_MAP.20260927T082707281Z",
+    "PLAN-0010"
+  ],
+  "geometry_state": "CANDIDATE_OPERATING",
+  "temporal_scope": {
+    "coverage": "POINT_ONLY",
+    "validity_state": "CURRENT",
+    "state_ids": [],
+    "transition_ids": []
+  },
+  "ambiguity_bucket": "KINEMATIC_STATE_UNRESOLVED",
+  "mechanical_acceptance_granted": false,
+  "payload": {
+    "method": "2D line-concurrence, positive-span, radial-geometry, and normal-reaction moment calculation over admitted bottle contact points/normals, gated by live document/configuration and assembly-file SHA256 match",
+    "inputs": [
+      "E.FUNCTION_FIRST.BOTTLE_CONTACT_NORMAL_MAP.20260927T082707281Z",
+      "live V43_WRAP document/configuration match",
+      "assembly file SHA256 dcd53467d2693283bb6617bdde1d4da8c19790615385e307671690ddce84b32a",
+      "cg.product.contact-constraint-map implementation at git 92ec7c2d970da7f0cc4cfd9eaa60433890ad2d4c"
+    ],
+    "result": {
+      "freshness": {
+        "mode": "LIVE_ASSEMBLY_FILE_MATCH_REQUIRED",
+        "live_match": true,
+        "observed_file_sha256": "dcd53467d2693283bb6617bdde1d4da8c19790615385e307671690ddce84b32a",
+        "expected_file_sha256": "dcd53467d2693283bb6617bdde1d4da8c19790615385e307671690ddce84b32a"
+      },
+      "common_axis_candidate": {
+        "point_xy_mm": [
+          -153.42061528267115,
+          -214
+        ],
+        "direction_assembly": [
+          0,
+          0,
+          1
+        ],
+        "max_pairwise_intersection_spread_mm": 2.842170943040401e-14,
+        "max_normal_line_residual_mm": 1.7763568394002505e-14
+      },
+      "radial_geometry": {
+        "radii_mm": [
+          24.00000000000003,
+          23.999999999999975,
+          23.99999999999997
+        ],
+        "min_radius_mm": 23.99999999999997,
+        "max_radius_mm": 24.00000000000003,
+        "radius_spread_mm": 5.684341886080802e-14
+      },
+      "lateral_normal_closure": {
+        "state": "SUPPORTED_CURRENT_POSE_FRICTIONLESS_NORMAL_MODEL",
+        "positive_span": true,
+        "normalized_positive_equilibrium_coefficients": [
+          1.5449110240089492,
+          1,
+          1.4557874348977298
+        ],
+        "equilibrium_residual_xy": [
+          2.220446049250313e-16,
+          0
+        ]
+      },
+      "normal_reaction_moment_about_common_axis": {
+        "torque_per_unit_reaction_mm": [
+          0,
+          1.7763568394002505e-14,
+          8.881784197001252e-15
+        ],
+        "max_abs_torque_per_unit_reaction_mm": 1.7763568394002505e-14,
+        "state": "APPROX_ZERO_CURRENT_POSE"
+      },
+      "non_lateral_contact": {
+        "pair_id": "conveyor",
+        "bottle_normal_assembly": [
+          0,
+          0,
+          -1
+        ],
+        "selected_opposing_normal_assembly": [
+          0,
+          0,
+          1
+        ],
+        "contact_point_mm": [
+          -153.42061528267112,
+          -214,
+          950
+        ]
+      },
+      "functional_projection": {
+        "assembly_xy_translation": "NORMAL_CLOSURE_SUPPORTED_CURRENT_POSE",
+        "rotation_about_common_axis": "NOT_RESTRAINED_BY_FRICTIONLESS_NORMAL_REACTIONS_CURRENT_POSE",
+        "assembly_z_contact_direction": "OPPOSED_NORMAL_CONTACT_OBSERVED",
+        "tilt_restraint": "UNRESOLVED",
+        "frictional_wrap_torque": "UNRESOLVED",
+        "preload_and_contact_maintenance": "UNRESOLVED",
+        "interval_wide_validity": "UNRESOLVED_POINT_POSE_ONLY"
+      }
+    },
+    "admitted_claims": [
+      "At the recorded V43_WRAP pose, the three selected lateral bottle-side normal lines are concurrent at XY [-153.42061528267115, -214] mm within numerical residuals below 3e-14 mm.",
+      "At that pose, the three compressive lateral normal directions positively span the assembly XY plane in the frictionless normal model.",
+      "The three frictionless normal reaction lines produce approximately zero moment about the derived assembly +Z common-axis candidate.",
+      "An opposed assembly-Z contact-normal pair is observed at the bottle/conveyor contact.",
+      "The deterministic calculation passed its live assembly/configuration and assembly-file SHA256 freshness gate."
+    ],
+    "explicitly_not_claimed": [
+      "The derived assembly +Z common-axis candidate is not yet authoritatively bound to the functional bottle wrap axis.",
+      "Assembly Z is not yet bound to gravity/up semantics or vertical load capacity.",
+      "Tilt restraint and full six-DOF bottle restraint remain unresolved.",
+      "Friction, traction, preload, compliance, force, stiffness, pressure, and reaction capacity remain unresolved.",
+      "Point-pose closure does not establish interval-wide capture, label-transfer, wrap, release, or reachable-state behavior.",
+      "No current V43 component is thereby required in the final mechanism.",
+      "Mechanical acceptance is not granted."
+    ],
+    "corroborating_fresh_verifier": {
+      "artifact_ref": "C:\\ChatGPT\\CADGrounded-verifier-runs\\function-first-normals-be85abdae67a\\agent-registry\\workers\\CadGrounded.SolidWorksWorker\\verification-output\\function-first-bottle-contact-normals\\verification-summary.json",
+      "artifact_sha256": "482965b97974998875e395f13f5b493c558398259bbfcf9baf01084e0e2a51ee",
+      "result": "PASS",
+      "executed_at_utc": "2026-09-27T08:45:08.8123104Z",
+      "note": "Independent fresh execution of the registered four-pair normal verifier against the same active V43_WRAP assembly; retained as corroboration, not as the calculation input record."
+    }
+  }
+}
