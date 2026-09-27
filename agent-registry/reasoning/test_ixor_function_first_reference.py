@@ -23,6 +23,7 @@ class IXORFunctionFirstReferenceTests(unittest.TestCase):
         indexes = validate_architecture(case)
         self.assertEqual(case["architecture_id"], "IXOR_FUNCTION_FIRST_BOTTLE_LABELER_REFERENCE")
         self.assertIn("CAPTURE_KINEMATIC_OWNER", indexes["obligations"])
+        self.assertIn("BOTTLE_ROTATION_SOURCE_BOUND", indexes["obligations"])
         report = evaluate_architecture(case)
         self.assertEqual(report["machine_acceptance_state"], "MECHANICAL_ACCEPTANCE_BLOCKED")
         self.assertFalse(report["mechanical_acceptance_granted"])
@@ -75,6 +76,9 @@ class IXORFunctionFirstReferenceTests(unittest.TestCase):
             "H_CANDIDATE_A_V43_PRISM",
             "H_OTHER_EXPLICIT_CLOSURE_MECHANISM",
         }
+        rotation = by_id(case["obligations"], "BOTTLE_ROTATION_SOURCE_BOUND")
+        self.assertIn("drive source", rotation["description"])
+        self.assertIn("DETERMINISTIC_CALCULATION", rotation["expected_authority"])
         self.assertTrue(expected.issubset(hypothesis_ids))
 
     def test_next_frontier_is_requirements_then_candidates_then_screen(self):
