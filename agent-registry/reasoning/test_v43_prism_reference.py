@@ -30,6 +30,7 @@ class V43PrismRegistrationTests(unittest.TestCase):
         self.assertIn("E.V43.PRISM.SLIDER_LINK_CONTACT.ARCH_PROJECTION.20260927", evidence_ids)
         self.assertIn("E.V43.PRISM.LINK_ARM_CONTACT.ARCH_PROJECTION.20260927", evidence_ids)
         self.assertIn("E.V43.PRISM.ARM_ROLLER_CONTACT.ARCH_PROJECTION.20260927", evidence_ids)
+        self.assertIn("E.V43.PRISM.FULL_CHAIN_MATE_BINDING.ARCH_PROJECTION.20260927", evidence_ids)
         report = evaluate_architecture(case)
         self.assertEqual(report["machine_acceptance_state"], "MECHANICAL_ACCEPTANCE_BLOCKED")
         self.assertFalse(report["mechanical_acceptance_granted"])
@@ -38,29 +39,37 @@ class V43PrismRegistrationTests(unittest.TestCase):
         case = load_case()
         expected = {
             "H_V43_PRISM_GUIDED_SLIDER": "SUPPORTED",
-            "H_V43_PRISM_LINKS_AND_ARMS_TRANSFER_CLOSURE": "SUPPORTED",
+            "H_V43_PRISM_LINKS_AND_ARMS_TRANSFER_CLOSURE": "WEAKENED",
             "H_V43_PRISM_REACTION_BASE_CARRIES_LOAD": "WEAKENED",
             "H_V43_PRISM_ACTUATOR_DRIVES_CLOSURE": "UNRESOLVED",
         }
         for hypothesis_id, state in expected.items():
             self.assertEqual(by_id(case["hypotheses"], hypothesis_id)["evidence_state"], state)
 
-    def test_completed_arm_roller_test_is_replaced_by_full_chain_mate_binding_test(self):
+    def test_completed_full_chain_mate_test_is_replaced_by_kinematic_source_provenance_test(self):
         case = load_case()
         ids = {item["id"] for item in case["next_tests"]}
-        self.assertNotIn("TEST_V43_PRISM_ARM_ROLLER_CONTACT_TOPOLOGY", ids)
-        test = by_id(case["next_tests"], "TEST_V43_PRISM_FULL_CHAIN_MATE_BINDING")
+        self.assertNotIn("TEST_V43_PRISM_FULL_CHAIN_MATE_BINDING", ids)
+        test = by_id(case["next_tests"], "TEST_V43_PRISM_KINEMATIC_SOURCE_PROVENANCE")
         for token in (
-            "FITCHECK_PRISM_CARRIER_SLIDER_15x80x60_V43-1",
-            "both Prism links",
-            "both Prism arms",
-            "both named support rollers",
+            "FITCHECK_PRISM",
+            "zero-mate full-chain result",
+            "slider axis",
+            "pivot relationships",
+            "actuator attachment",
+            "stroke",
             "KINEMATIC_STATE_UNRESOLVED",
+            "OEM_SOURCE_REQUIRED",
         ):
             self.assertIn(token, test["question"])
-        self.assertNotIn("cad_request", test)
-        self.assertNotIn("native_read_candidates", test)
-        self.assertEqual(test["hypothesis_ids"], ["H_V43_PRISM_LINKS_AND_ARMS_TRANSFER_CLOSURE"])
+        self.assertEqual(
+            test["hypothesis_ids"],
+            [
+                "H_V43_PRISM_LINKS_AND_ARMS_TRANSFER_CLOSURE",
+                "H_V43_PRISM_ACTUATOR_DRIVES_CLOSURE",
+                "H_V43_PRISM_GUIDED_SLIDER",
+            ],
+        )
 
     def test_guide_verifier_preserves_bounded_read_only_contract(self):
         source = GUIDE_VERIFIER.read_text(encoding="utf-8")
