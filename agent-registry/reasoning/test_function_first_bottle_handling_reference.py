@@ -101,32 +101,42 @@ class FunctionFirstBottleHandlingTests(unittest.TestCase):
         self.assertEqual(candidate_a["evidence_state"], "WEAKENED")
         self.assertIn("zero-mate", candidate_a["description"])
 
-    def test_active_frontier_routes_to_contact_constraint_projection(self):
+    def test_active_frontier_routes_to_bottle_common_axis_binding(self):
         case = load_case()
         ids = [item["id"] for item in case["next_tests"]]
-        self.assertEqual(ids, ["TEST_FUNCTION_FIRST_CONTACT_CONSTRAINT_PROJECTION"])
-        test = by_id(case["next_tests"], "TEST_FUNCTION_FIRST_CONTACT_CONSTRAINT_PROJECTION")
+        self.assertEqual(ids, ["TEST_FUNCTION_FIRST_BOTTLE_COMMON_AXIS_BINDING"])
+        test = by_id(case["next_tests"], "TEST_FUNCTION_FIRST_BOTTLE_COMMON_AXIS_BINDING")
         for token in (
-            "Get-CGBottleContactConstraintMap",
-            "current live assembly/configuration and file-hash match",
-            "positively close assembly-XY translation",
-            "normal lines are concurrent",
-            "moment about the derived common-axis candidate",
-            "Do not claim gravity/up semantics",
+            "assembly direction [0,0,1]",
+            "BENCH_BOTTLE_D48_H180-2 longitudinal/cylindrical axis",
+            "functional rotation_wrap_axis",
+            "assembly-Z vertical/gravity semantics",
+            "do not infer gravity from viewport orientation",
+            "tilt restraint",
+            "interval-wide validity",
         ):
             self.assertIn(token, test["question"])
 
         support = by_id(case["obligations"], "BOTTLE_SUPPORT_CONTACT_SET_BOUND")
         self.assertIn("E.FUNCTION_FIRST.BOTTLE_CONTACT_NORMAL_MAP.20260927T082707281Z", support["evidence_refs"])
+        self.assertIn("E.FUNCTION_FIRST.BOTTLE_CONTACT_CONSTRAINT.20260927T084903368Z", support["evidence_refs"])
         self.assertEqual(support["verification_state"], "UNRESOLVED")
+        self.assertEqual(support["ambiguity_bucket"], "KINEMATIC_STATE_UNRESOLVED")
 
         evidence = by_id(
             case["evidence_catalog"],
-            "E.FUNCTION_FIRST.BOTTLE_CONTACT_NORMAL_MAP.20260927T082707281Z",
+            "E.FUNCTION_FIRST.BOTTLE_CONTACT_CONSTRAINT.20260927T084903368Z",
             field="evidence_id",
         )
-        self.assertEqual(evidence["evidence_state"], "VERIFIED")
+        self.assertEqual(evidence["evidence_type"], "deterministic_calculation")
+        self.assertEqual(evidence["evidence_state"], "MEASURED_CALCULATED")
+        self.assertEqual(evidence["source_authority"], "DETERMINISTIC_CALCULATION")
         self.assertFalse(evidence["mechanical_acceptance_granted"])
+        self.assertTrue(evidence["payload"]["result"]["lateral_normal_closure"]["positive_span"])
+        self.assertEqual(
+            evidence["payload"]["result"]["functional_projection"]["rotation_about_common_axis"],
+            "NOT_RESTRAINED_BY_FRICTIONLESS_NORMAL_REACTIONS_CURRENT_POSE",
+        )
 
         for item_id in (
             "H_TRANSLATING_ROLLER_CARRIER_OR_SLIDE",
