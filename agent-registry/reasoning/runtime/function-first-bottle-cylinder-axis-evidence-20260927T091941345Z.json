@@ -1,0 +1,138 @@
+{
+  "schema_version": 1,
+  "record_type": "evidence",
+  "evidence_id": "E.FUNCTION_FIRST.BOTTLE_CYLINDER_AXIS.20260927T091941345Z",
+  "evidence_type": "solidworks_observation",
+  "evidence_state": "VERIFIED",
+  "source_authority": "SOLIDWORKS_LIVE_STATE",
+  "source_classification": "verified_from_solidworks_api",
+  "subject": {
+    "subject_type": "exact_bottle_cylindrical_axis_observation",
+    "identity_exact": "BENCH_BOTTLE_D48_H180-2",
+    "document_title_exact": "IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE",
+    "document_path_exact": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE.SLDASM"
+  },
+  "provenance": {
+    "recorded_at": "2026-09-27T09:19:41.3455912Z",
+    "source_ref": "Fresh read-only live SOLIDWORKS B-rep inspection of BENCH_BOTTLE_D48_H180-2 via sw_execute_code; source program hash recorded in sha256.",
+    "sha256": "907054c577798ca0f54f1d1b78a92ef41b3574afa6ca54636fb47e8a03d4f9ca",
+    "tool_path": "CADGrounded SOLIDWORKS sw_execute_code -> IComponent2.GetBodies3 -> IBody2.Copy/ApplyTransform -> ISurface.CylinderParams"
+  },
+  "dependencies": [],
+  "geometry_state": "CANDIDATE_OPERATING",
+  "temporal_scope": {
+    "coverage": "POINT_ONLY",
+    "validity_state": "CURRENT",
+    "state_ids": [],
+    "transition_ids": []
+  },
+  "mechanical_acceptance_granted": false,
+  "payload": {
+    "observation_kind": "exact_bottle_cylindrical_axis_observation",
+    "document": {
+      "title": "IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE",
+      "path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE.SLDASM",
+      "active_configuration": "V43_WRAP",
+      "save_flag": false
+    },
+    "component": {
+      "name2": "BENCH_BOTTLE_D48_H180-2",
+      "path": "C:\\ChatGPT\\Solidworks\\IXOR\\CAB_IXOR_6130800\\BENCH_BOTTLE_D48_H180.SLDPRT",
+      "referenced_configuration": "Default",
+      "fixed_component": false,
+      "suppressed": false,
+      "transform_array": [
+        0,
+        1,
+        0,
+        -1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        -0.15342061528267112,
+        -0.214,
+        0.95,
+        1,
+        0,
+        0,
+        0
+      ]
+    },
+    "solid_body_count": 4,
+    "cylindrical_face_count": 3,
+    "cylinders": [
+      {
+        "observation_local_body_index": 3,
+        "observation_local_face_index": 2,
+        "radius_mm": 24,
+        "diameter_mm": 48,
+        "axis_point_assembly_mm": [
+          -153.42061528267112,
+          -214,
+          950
+        ],
+        "axis_direction_assembly": [
+          0,
+          0,
+          1
+        ],
+        "face_area_mm2": 21111.502632123393
+      },
+      {
+        "observation_local_body_index": 2,
+        "observation_local_face_index": 2,
+        "radius_mm": 16,
+        "diameter_mm": 32,
+        "axis_point_assembly_mm": [
+          -153.42061528267112,
+          -214,
+          1111.9999999999998
+        ],
+        "axis_direction_assembly": [
+          0,
+          0,
+          1
+        ],
+        "face_area_mm2": 1809.5573684677224
+      },
+      {
+        "observation_local_body_index": 0,
+        "observation_local_face_index": 2,
+        "radius_mm": 14,
+        "diameter_mm": 28,
+        "axis_point_assembly_mm": [
+          -153.42061528267112,
+          -214,
+          1105
+        ],
+        "axis_direction_assembly": [
+          0,
+          0,
+          1
+        ],
+        "face_area_mm2": 615.7521601035902
+      }
+    ],
+    "identity_scope_note": "body/face indices are observation-local on transformed temporary body copies and are not persistent CAD face identities",
+    "model_mutation": false,
+    "write_authority": "NONE",
+    "post_readback": {
+      "active_document_unchanged": true,
+      "bottle_transform_unchanged": true
+    },
+    "admitted_claims": [
+      "The exact bottle component contains a main cylindrical face of radius 24 mm (diameter 48 mm).",
+      "The main D48 cylinder axis is assembly direction [0,0,1] through XY [-153.42061528267112,-214] mm.",
+      "The observed D32 and D28 cylindrical bottle features are coaxial with the same assembly axis.",
+      "The inspection used transformed temporary body copies only; model_mutation=false and write_authority=NONE.",
+      "A subsequent live readback preserved the same active document and exact bottle component transform/state."
+    ],
+    "explicitly_not_claimed": [
+      "assembly +Z gravity/up semantics",
+      "rotation drive source, speed, torque, friction, or traction",
+      "tilt restraint, preload, interval-wide contact, mechanism selection, or mechanical acceptance"
+    ]
+  }
+}
