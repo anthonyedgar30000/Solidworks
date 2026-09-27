@@ -1,0 +1,23 @@
+name: CADGrounded PowerShell capabilities
+
+on:
+  pull_request:
+    paths:
+      - 'agent-registry/powershell/CADGrounded.Tools/**'
+      - 'agent-registry/tests/Test-CADGrounded-Tools-Contract.ps1'
+      - '.github/workflows/cadgrounded-tools-contract.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'agent-registry/powershell/CADGrounded.Tools/**'
+      - 'agent-registry/tests/Test-CADGrounded-Tools-Contract.ps1'
+      - '.github/workflows/cadgrounded-tools-contract.yml'
+
+jobs:
+  authority-contract:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate CADGrounded.Tools module and capability authority
+        shell: pwsh
+        run: .\agent-registry\tests\Test-CADGrounded-Tools-Contract.ps1
