@@ -1,0 +1,216 @@
+{
+  "schema_version": 1,
+  "requirement_model_id": "CADGROUNDED.IXOR.FUNCTION_FIRST_BOTTLE_DOF.V1",
+  "scope": "Mechanism-neutral bottle-handling functional requirements for an upright D48 x H180 benchmark bottle. This model defines required or intentionally permitted rigid-body DOF behavior; it does not claim that current CAD geometry satisfies it.",
+  "source_basis": {
+    "current_plan": "PLAN-0010",
+    "architecture_id": "IXOR_FUNCTION_FIRST_BOTTLE_HANDLING_REFERENCE",
+    "live_binding_required": true,
+    "bottle_identity_default": "BENCH_BOTTLE_D48_H180-2",
+    "conveyor_identity_default": "BENCH_CONVEYOR_L900_W82_H950-1",
+    "dimensional_identity_note": "D48_H180 is encoded in the deterministic benchmark part identity; this requirements model does not independently remeasure those dimensions.",
+    "mechanism_assumption": "NONE"
+  },
+  "functional_axes": {
+    "translation_flow": {
+      "kind": "translation",
+      "definition": "Along the product transport path through the label-application station.",
+      "cad_axis_binding": "UNRESOLVED_BY_THIS_MODEL"
+    },
+    "translation_cross_flow": {
+      "kind": "translation",
+      "definition": "Horizontal displacement transverse to product flow at the application station.",
+      "cad_axis_binding": "UNRESOLVED_BY_THIS_MODEL"
+    },
+    "translation_vertical": {
+      "kind": "translation",
+      "definition": "Vertical displacement relative to the product support plane.",
+      "cad_axis_binding": "UNRESOLVED_BY_THIS_MODEL"
+    },
+    "rotation_wrap_axis": {
+      "kind": "rotation",
+      "definition": "Rotation about the bottle's upright longitudinal axis used for circumferential label wrapping.",
+      "cad_axis_binding": "UNRESOLVED_BY_THIS_MODEL"
+    },
+    "rotation_tilt_flow": {
+      "kind": "rotation",
+      "definition": "Bottle tilt in the vertical/flow plane.",
+      "cad_axis_binding": "UNRESOLVED_BY_THIS_MODEL"
+    },
+    "rotation_tilt_cross_flow": {
+      "kind": "rotation",
+      "definition": "Bottle tilt in the vertical/cross-flow plane.",
+      "cad_axis_binding": "UNRESOLVED_BY_THIS_MODEL"
+    }
+  },
+  "state_requirements": [
+    {
+      "state_id": "INDEXED",
+      "rationale": "One intended bottle must remain positioned at the application station before capture is authorized.",
+      "dof": {
+        "translation_flow": {
+          "requirement": "RESTRAIN_OR_POSITION",
+          "reason": "Prevent uncontrolled departure from the indexed application position."
+        },
+        "translation_cross_flow": {
+          "requirement": "BOUND_POSITION",
+          "reason": "Keep the bottle within a defined lateral application-position tolerance; exact tolerance remains unresolved."
+        },
+        "translation_vertical": {
+          "requirement": "SUPPORT",
+          "reason": "Maintain the upright bottle on a support plane against gravity."
+        },
+        "rotation_wrap_axis": {
+          "requirement": "UNRESOLVED_NOT_YET_FUNCTIONALLY_REQUIRED",
+          "reason": "Wrap rotation is not required merely to be indexed; whether it is held or free before capture is architecture-dependent."
+        },
+        "rotation_tilt_flow": {
+          "requirement": "STABILIZE",
+          "reason": "Prevent loss of upright product stability while indexed."
+        },
+        "rotation_tilt_cross_flow": {
+          "requirement": "STABILIZE",
+          "reason": "Prevent loss of upright product stability while indexed."
+        }
+      }
+    },
+    {
+      "state_id": "CAPTURE_AND_ROTATION",
+      "rationale": "The bottle must remain spatially captured while the mechanism establishes controlled bottle rotation.",
+      "dof": {
+        "translation_flow": {
+          "requirement": "RESTRAIN_OR_BOUND",
+          "reason": "Prevent uncontrolled transport through the station during controlled capture/rotation."
+        },
+        "translation_cross_flow": {
+          "requirement": "RESTRAIN_OR_BOUND",
+          "reason": "Maintain the required capture/contact relationship transverse to product flow."
+        },
+        "translation_vertical": {
+          "requirement": "SUPPORT",
+          "reason": "Maintain vertical product support throughout capture."
+        },
+        "rotation_wrap_axis": {
+          "requirement": "INTENTIONALLY_PERMIT_AND_CONTROL",
+          "reason": "Circumferential bottle rotation is the functional motion required for wrap labeling."
+        },
+        "rotation_tilt_flow": {
+          "requirement": "STABILIZE",
+          "reason": "Avoid tip/lean that would invalidate label-transfer and support relationships."
+        },
+        "rotation_tilt_cross_flow": {
+          "requirement": "STABILIZE",
+          "reason": "Avoid tip/lean that would invalidate label-transfer and support relationships."
+        }
+      }
+    },
+    {
+      "state_id": "LABEL_TRANSFER_INTERVAL",
+      "rationale": "The bottle must remain in a controlled pose while label media transfers from the presentation region to the bottle.",
+      "dof": {
+        "translation_flow": {
+          "requirement": "RESTRAIN_OR_SYNCHRONIZE",
+          "reason": "Bottle motion must not invalidate the label-transfer relationship; exact allowable synchronized motion is unresolved."
+        },
+        "translation_cross_flow": {
+          "requirement": "RESTRAIN_OR_BOUND",
+          "reason": "Maintain the required bottle-to-presentation/contact geometry."
+        },
+        "translation_vertical": {
+          "requirement": "SUPPORT",
+          "reason": "Maintain label-height relationship and upright support."
+        },
+        "rotation_wrap_axis": {
+          "requirement": "INTENTIONALLY_PERMIT_AND_CONTROL",
+          "reason": "Rotation may be required during transfer and must remain compatible with label presentation; exact phase relation remains unresolved."
+        },
+        "rotation_tilt_flow": {
+          "requirement": "STABILIZE",
+          "reason": "Maintain usable transfer geometry."
+        },
+        "rotation_tilt_cross_flow": {
+          "requirement": "STABILIZE",
+          "reason": "Maintain usable transfer geometry."
+        }
+      }
+    },
+    {
+      "state_id": "WRAP_ACTIVE",
+      "rationale": "The bottle undergoes controlled circumferential rotation while required wrap contact remains valid.",
+      "dof": {
+        "translation_flow": {
+          "requirement": "RESTRAIN_OR_SYNCHRONIZE",
+          "reason": "Prevent uncontrolled axial product motion that would break wrap/contact geometry."
+        },
+        "translation_cross_flow": {
+          "requirement": "RESTRAIN_OR_BOUND",
+          "reason": "Maintain required normal/contact relationship to the selected wrap mechanism."
+        },
+        "translation_vertical": {
+          "requirement": "SUPPORT",
+          "reason": "Maintain stable vertical support through the wrap interval."
+        },
+        "rotation_wrap_axis": {
+          "requirement": "INTENTIONALLY_PERMIT_AND_CONTROL",
+          "reason": "This is the required product rotation for circumferential wrapping."
+        },
+        "rotation_tilt_flow": {
+          "requirement": "STABILIZE",
+          "reason": "Maintain bottle uprightness and label-path coherence."
+        },
+        "rotation_tilt_cross_flow": {
+          "requirement": "STABILIZE",
+          "reason": "Maintain bottle uprightness and label-path coherence."
+        }
+      }
+    },
+    {
+      "state_id": "RELEASE",
+      "rationale": "The completed bottle must cease being captured and become able to leave the station without an uncontrolled fall or blocked path.",
+      "dof": {
+        "translation_flow": {
+          "requirement": "INTENTIONALLY_PERMIT_TOWARD_EXIT",
+          "reason": "The bottle must regain transport freedom needed to leave the station."
+        },
+        "translation_cross_flow": {
+          "requirement": "GUIDE_OR_BOUND",
+          "reason": "Prevent uncontrolled lateral escape while allowing the exit path."
+        },
+        "translation_vertical": {
+          "requirement": "SUPPORT",
+          "reason": "Maintain stable support during release/exit handoff."
+        },
+        "rotation_wrap_axis": {
+          "requirement": "NO_WRAP_ROTATION_REQUIREMENT; RESIDUAL_BEHAVIOR_UNRESOLVED",
+          "reason": "Wrap rotation is no longer functionally required after completion; whether residual rotation is allowed or actively stopped is unresolved."
+        },
+        "rotation_tilt_flow": {
+          "requirement": "STABILIZE",
+          "reason": "Maintain upright product stability during release."
+        },
+        "rotation_tilt_cross_flow": {
+          "requirement": "STABILIZE",
+          "reason": "Maintain upright product stability during release."
+        }
+      }
+    }
+  ],
+  "cross_state_invariants": [
+    "No mechanism family is implied by this DOF model.",
+    "The bottle must not lose required vertical support in any scoped state.",
+    "The wrap-axis rotation is intentionally available only as controlled functional motion where wrapping/transfer requires it; point contact alone does not establish control.",
+    "Restraint requirements describe needed behavior, not proof that a current contact, roller, belt, wall, stop, or Prism component provides it.",
+    "Exact tolerances, forces, friction coefficients, contact pressure, compliance, drive speed, acceleration, and phase timing remain unresolved until separately evidenced."
+  ],
+  "explicitly_not_established": [
+    "which mechanism supplies any restraint",
+    "which current CAD contacts are required versus incidental",
+    "exact CAD-axis mapping of the mechanism-neutral functional axes",
+    "capture force or preload",
+    "friction/traction sufficiency",
+    "roller or belt ownership",
+    "entry/exit reachable clearance",
+    "label-transfer timing",
+    "mechanical acceptance"
+  ]
+}
