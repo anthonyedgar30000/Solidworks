@@ -194,17 +194,20 @@ function Multiply-Rotation3RowMajor {
         [Parameter(Mandatory=$true)][double[]]$B
     )
     if ($A.Count -ne 9 -or $B.Count -ne 9) { throw 'Rotation matrices must have 9 entries.' }
-    $C = New-Object double[] 9
+    $C = [double[]]@(0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0)
     for ($r=0; $r -lt 3; $r++) {
         for ($c=0; $c -lt 3; $c++) {
             $sum = 0.0
             for ($k=0; $k -lt 3; $k++) {
-                $sum += $A[$r*3+$k] * $B[$k*3+$c]
+                $ia = [int](($r * 3) + $k)
+                $ib = [int](($k * 3) + $c)
+                $sum += [double]$A.GetValue($ia) * [double]$B.GetValue($ib)
             }
-            $C[$r*3+$c] = $sum
+            $ic = [int](($r * 3) + $c)
+            $C.SetValue([double]$sum, $ic)
         }
     }
-    return $C
+    return ,$C
 }
 
 function Get-RotationZRowMajor {
