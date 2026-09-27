@@ -101,31 +101,30 @@ class FunctionFirstBottleHandlingTests(unittest.TestCase):
         self.assertEqual(candidate_a["evidence_state"], "WEAKENED")
         self.assertIn("zero-mate", candidate_a["description"])
 
-    def test_active_frontier_routes_to_contact_constraint_projection(self):
+    def test_active_frontier_routes_to_contact_wrench_rank(self):
         case = load_case()
         ids = [item["id"] for item in case["next_tests"]]
-        self.assertEqual(ids, ["TEST_FUNCTION_FIRST_CONTACT_CONSTRAINT_PROJECTION"])
-        test = by_id(case["next_tests"], "TEST_FUNCTION_FIRST_CONTACT_CONSTRAINT_PROJECTION")
+        self.assertEqual(ids, ["TEST_FUNCTION_FIRST_CONTACT_WRENCH_RANK"])
+        test = by_id(case["next_tests"], "TEST_FUNCTION_FIRST_CONTACT_WRENCH_RANK")
         for token in (
-            "Get-CGBottleContactConstraintMap",
-            "current live assembly/configuration and file-hash match",
-            "positively close assembly-XY translation",
-            "normal lines are concurrent",
-            "moment about the derived common-axis candidate",
-            "Do not claim gravity/up semantics",
+            "Get-CGBottleContactWrenchRank",
+            "6-DOF contact-wrench/constraint matrix rank and nullity",
+            "pure common-axis rotation is a null mode",
+            "additional independent instantaneous mode",
+            "Five independent constraints are required",
         ):
             self.assertIn(token, test["question"])
 
         support = by_id(case["obligations"], "BOTTLE_SUPPORT_CONTACT_SET_BOUND")
-        self.assertIn("E.FUNCTION_FIRST.BOTTLE_CONTACT_NORMAL_MAP.20260927T082707281Z", support["evidence_refs"])
+        self.assertIn("E.FUNCTION_FIRST.BOTTLE_CONTACT_CONSTRAINT_MAP.20260927T085204547Z", support["evidence_refs"])
         self.assertEqual(support["verification_state"], "UNRESOLVED")
 
         evidence = by_id(
             case["evidence_catalog"],
-            "E.FUNCTION_FIRST.BOTTLE_CONTACT_NORMAL_MAP.20260927T082707281Z",
+            "E.FUNCTION_FIRST.BOTTLE_CONTACT_CONSTRAINT_MAP.20260927T085204547Z",
             field="evidence_id",
         )
-        self.assertEqual(evidence["evidence_state"], "VERIFIED")
+        self.assertEqual(evidence["evidence_state"], "MEASURED_CALCULATED")
         self.assertFalse(evidence["mechanical_acceptance_granted"])
 
         for item_id in (
