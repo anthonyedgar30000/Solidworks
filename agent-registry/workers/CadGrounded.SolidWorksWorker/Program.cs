@@ -2897,13 +2897,7 @@ internal sealed class SolidWorksSession : IDisposable
             }
         }
 
-        return rows
-            .OrderBy(row =>
-            {
-                var prop = row.GetType().GetProperty("point_residual_m");
-                return prop?.GetValue(row) as double? ?? double.PositiveInfinity;
-            })
-            .ToArray();
+        return rows.ToArray();
     }
 
     private static bool TryNormalizeVector3(
