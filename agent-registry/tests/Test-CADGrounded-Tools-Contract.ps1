@@ -15,12 +15,33 @@ $moduleRoot = Join-Path $repoRoot 'agent-registry\powershell\CADGrounded.Tools'
 $manifestPath = Join-Path $moduleRoot 'CADGrounded.Tools.psd1'
 $modulePath = Join-Path $moduleRoot 'CADGrounded.Tools.psm1'
 $registryPath = Join-Path $moduleRoot 'capability-registry.v1.json'
+$requiredDofPath = Join-Path $repoRoot 'agent-registry\reasoning\requirements\function-first-bottle-dof.v1.json'
 
 Assert-True (Test-Path -LiteralPath $manifestPath -PathType Leaf) 'Module manifest is missing.'
 Assert-True (Test-Path -LiteralPath $modulePath -PathType Leaf) 'Module source is missing.'
 Assert-True (Test-Path -LiteralPath $registryPath -PathType Leaf) 'Capability registry is missing.'
+Assert-True (Test-Path -LiteralPath $requiredDofPath -PathType Leaf) 'Function-first bottle DOF requirement model is missing.'
 
 Import-Module $manifestPath -Force
+
+$dofModel = Get-Content -LiteralPath $requiredDofPath -Raw | ConvertFrom-Json
+Assert-True ([string]$dofModel.requirement_model_id -ceq 'CADGROUNDED.IXOR.FUNCTION_FIRST_BOTTLE_DOF.V1') 'Bottle DOF requirement model id is incorrect.'
+$axisNames = @($dofModel.functional_axes.PSObject.Properties.Name)
+foreach ($axis in @('translation_flow','translation_cross_flow','translation_vertical','rotation_wrap_axis','rotation_tilt_flow','rotation_tilt_cross_flow')) {
+    Assert-True ($axisNames -contains $axis) "Bottle DOF requirement model is missing axis '$axis'."
+}
+$stateIds = @($dofModel.state_requirements | ForEach-Object { [string]$_.state_id })
+foreach ($state in @('INDEXED','CAPTURE_AND_ROTATION','LABEL_TRANSFER_INTERVAL','WRAP_ACTIVE','RELEASE')) {
+    Assert-True ($stateIds -contains $state) "Bottle DOF requirement model is missing state '$state'."
+}
+$wrap = @($dofModel.state_requirements | Where-Object { [string]$_.state_id -ceq 'WRAP_ACTIVE' })
+Assert-True ($wrap.Count -eq 1) 'WRAP_ACTIVE bottle DOF row must resolve uniquely.'
+Assert-True ([string]$wrap[0].dof.rotation_wrap_axis.requirement -ceq 'INTENTIONALLY_PERMIT_AND_CONTROL') 'WRAP_ACTIVE must intentionally permit and control wrap-axis rotation.'
+$modelText = Get-Content -LiteralPath $requiredDofPath -Raw
+foreach ($forbiddenMechanismToken in @('FITCHECK_PRISM_CARRIER','FITCHECK_PRISM_LINK','FITCHECK_PRISM_ARM','translating roller carrier is required','pivoting roller arm is required')) {
+    Assert-True (-not $modelText.Contains($forbiddenMechanismToken)) "Bottle DOF requirements improperly hard-code mechanism token '$forbiddenMechanismToken'."
+}
+
 
 $expectedCommands = @(
     'Get-CGCapabilityCatalog',
@@ -30,6 +51,7 @@ $expectedCommands = @(
     'Test-CGContactPair',
     'Test-CGTopologyChain',
     'Get-CGMateBinding',
+    'Get-CGRequiredBottleDOF',
     'Get-CGCurrentPlan',
     'Get-CGInvestigationFrontier',
     'Invoke-CGRegisteredVerifier'
@@ -50,6 +72,7 @@ $requiredImplemented = @(
     'cg.contact.pair',
     'cg.topology.chain',
     'cg.mates.bind',
+    'cg.product.required-dof',
     'cg.frontier.read',
     'cg.verifier.v43.full-chain-mates'
 )
@@ -65,7 +88,6 @@ foreach ($capability in $implemented) {
 }
 
 $requiredPlanned = @(
-    'cg.product.required-dof',
     'cg.product.support',
     'cg.product.restraint',
     'cg.product.entry-path',
@@ -88,6 +110,13 @@ foreach ($id in $requiredPlanned) {
     Assert-True ($matches[0].PSObject.Properties.Name -contains 'future_command') "Planned capability '$id' must name its future semantic command."
     Assert-True (-not ($matches[0].PSObject.Properties.Name -contains 'command')) "Planned capability '$id' must not masquerade as an implemented command."
 }
+
+
+$requiredDof = Get-CGCapability -Id 'cg.product.required-dof'
+Assert-True ([string]$requiredDof.status -ceq 'IMPLEMENTED') 'Bottle DOF capability must be IMPLEMENTED.'
+Assert-True ([string]$requiredDof.command -ceq 'Get-CGRequiredBottleDOF') 'Bottle DOF capability command binding is incorrect.'
+Assert-True ([string]$requiredDof.execution_kind -ceq 'deterministic_requirement_derivation') 'Bottle DOF capability execution kind is incorrect.'
+Assert-True ([string]$requiredDof.write_authority -ceq 'NONE') 'Bottle DOF capability must remain read-only.'
 
 $currentPlan = Get-CGCurrentPlan
 Assert-True (-not [string]::IsNullOrWhiteSpace([string]$currentPlan.current_plan_id)) 'CURRENT_PLAN has no current_plan_id.'
