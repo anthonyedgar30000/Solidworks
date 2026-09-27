@@ -33,7 +33,8 @@
         "success/failure observables for maintained contact, restraint, rotation, reaction path and clearance",
         "unknown friction, preload, force, stiffness and tolerance inputs preserved as MEASUREMENT_REQUIRED rather than guessed"
       ],
-      "status": "PROJECTED"
+      "status": "COMPLETED",
+      "completed_output": "agent-registry/reasoning/requirements/function-first-pop-acceptance-envelope.v1.json"
     },
     {
       "step_id": "P0011.2",
@@ -60,7 +61,7 @@
       "augmentation_classes": [
         "CANDIDATE_SPRING_OR_COMPLIANT_PRELOAD"
       ],
-      "status": "PROJECTED"
+      "status": "READY"
     },
     {
       "step_id": "P0011.3",
@@ -113,5 +114,10 @@
   ],
   "source_discovery_reopen_rule": "Any new authoritative OEM/integrator source that names the actual product-centering owner reopens source binding and is evaluated before further candidate commitment.",
   "acceptance_gate": "No candidate progresses because it looks plausible in a static pose. A POP candidate must have explicit closure/release ownership, maintained contact, rotation input, reaction support, limits, reachable-state clearance, and label-transfer coherence. POP success still does not equal mechanically accepted production geometry.",
-  "no_write_boundary": "This plan authorizes planning, source review, calculations and read-only CAD inspection only. No SOLIDWORKS geometry creation, transform, mate, insertion, suppression change, rebuild or save is authorized without a separate explicit write authorization and fresh preflight."
+  "no_write_boundary": "This plan authorizes planning, source review, calculations and read-only CAD inspection only. No SOLIDWORKS geometry creation, transform, mate, insertion, suppression change, rebuild or save is authorized without a separate explicit write authorization and fresh preflight.",
+  "progress": {
+    "current_step_id": "P0011.2",
+    "last_completed_step_id": "P0011.1",
+    "note": "Mechanism-independent POP acceptance envelope frozen; candidate mechanism contracts may now be defined without selecting or ranking a production design."
+  }
 }
