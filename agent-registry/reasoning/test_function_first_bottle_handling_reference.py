@@ -108,7 +108,7 @@ class FunctionFirstBottleHandlingTests(unittest.TestCase):
         owner = by_id(case["obligations"], "CAPTURE_KINEMATIC_OWNER")
         self.assertIn(registry["evidence_id"], owner["evidence_refs"])
         self.assertEqual(owner["verification_state"], "UNRESOLVED")
-        self.assertEqual(owner["ambiguity_bucket"], "MULTIPLE_PLAUSIBLE_HYPOTHESES")
+        self.assertEqual(owner["ambiguity_bucket"], "OEM_SOURCE_REQUIRED")
 
         closure_owner = by_id(case["hypotheses"], "H_CAPTURE_CLOSURE_OWNER")
         self.assertEqual(closure_owner["investigation_state"], "ACTIVE")
@@ -128,36 +128,88 @@ class FunctionFirstBottleHandlingTests(unittest.TestCase):
             self.assertEqual(by_id(case["hypotheses"], item_id)["investigation_state"], "DORMANT")
             self.assertEqual(by_id(case["hypotheses"], item_id)["evidence_state"], "WEAKENED")
 
-    def test_candidate_registry_routes_to_nonranking_screen_contract(self):
+    def test_nonranking_screen_is_admitted_and_routes_to_reference_source_acquisition(self):
         case = load_case()
 
+        screen = by_id(
+            case["evidence_catalog"],
+            "E.FUNCTION_FIRST.MECHANISM_SCREEN.20260927T153026706Z",
+            field="evidence_id",
+        )
+        self.assertEqual(screen["evidence_type"], "deterministic_calculation")
+        self.assertEqual(screen["evidence_state"], "MEASURED_CALCULATED")
+        self.assertEqual(screen["payload"]["result"]["selection_status"], "NOT_SELECTED")
+        self.assertFalse(screen["mechanical_acceptance_granted"])
+
+        by_candidate = {
+            item["candidate_id"]: item
+            for item in screen["payload"]["result"]["candidates"]
+        }
+        for candidate_id in (
+            "CANDIDATE_TRANSLATING_ROLLER_CARRIER",
+            "CANDIDATE_PIVOTING_ROLLER_CARRIER",
+            "CANDIDATE_MOVING_WRAP_BELT_ASSEMBLY",
+        ):
+            self.assertEqual(
+                by_candidate[candidate_id]["definition_layer"]["standalone_kinematic_architecture_class"],
+                "PASS",
+            )
+            self.assertTrue(
+                all(
+                    status == "UNRESOLVED"
+                    for status in by_candidate[candidate_id]["engineering_evidence_layer"].values()
+                )
+            )
+
+        spring = by_candidate["CANDIDATE_SPRING_OR_COMPLIANT_PRELOAD"]
+        self.assertEqual(
+            spring["definition_layer"]["standalone_kinematic_architecture_class"],
+            "FAIL",
+        )
+        self.assertTrue(
+            all(
+                status == "UNRESOLVED"
+                for status in spring["engineering_evidence_layer"].values()
+            )
+        )
+
+        owner = by_id(case["obligations"], "CAPTURE_KINEMATIC_OWNER")
+        self.assertIn(screen["evidence_id"], owner["evidence_refs"])
+        self.assertEqual(owner["verification_state"], "UNRESOLVED")
+        self.assertEqual(owner["ambiguity_bucket"], "OEM_SOURCE_REQUIRED")
+
         ids = [item["id"] for item in case["next_tests"]]
-        self.assertEqual(ids, ["TEST_FUNCTION_FIRST_MECHANISM_SCREEN_CONTRACT"])
-        test = by_id(case["next_tests"], "TEST_FUNCTION_FIRST_MECHANISM_SCREEN_CONTRACT")
+        self.assertEqual(ids, ["TEST_FUNCTION_FIRST_MECHANISM_REFERENCE_SOURCE_ACQUISITION"])
+        test = by_id(
+            case["next_tests"],
+            "TEST_FUNCTION_FIRST_MECHANISM_REFERENCE_SOURCE_ACQUISITION",
+        )
 
         for token in (
-            "cg.mechanism.screen",
-            "Test-CGMechanismCandidate",
-            "Get-CGMechanismCandidates",
-            "closure owner",
-            "open/capture/release motion definition",
-            "contact-maintenance law",
-            "bottle-contact interval",
-            "wrap-axis preservation",
-            "reaction path",
-            "release behavior",
-            "PASS only when explicitly established",
-            "FAIL only when contradicted",
-            "otherwise UNRESOLVED",
-            "MAINTENANCE_LAW_AUGMENTATION",
-            "Do not rank, score, prefer, select",
-            "Do not rank, score, prefer, select, or create/move CAD geometry",
+            "CAB/OEM documentation",
+            "machine OEM/integrator documentation",
+            "trusted third-party CAD/manual evidence",
+            "general vendor/web references",
+            "translating carriers",
+            "pivoting carriers",
+            "moving wrap-belt assemblies",
+            "compliant/preload augmentation",
+            "mechanism-pattern precedent from project-specific geometry",
+            "do not use generative imagery as evidence",
+            "do not rank, prefer, select",
+            "Do not infer hidden springs/actuators from appearance, do not use generative imagery as evidence, and do not rank, prefer, select, or create/move CAD geometry.",
         ):
             self.assertIn(token, test["question"])
 
-        preload = by_id(case["hypotheses"], "H_CAPTURE_COMPLIANCE_OR_PRELOAD")
-        self.assertEqual(preload["evidence_state"], "UNRESOLVED")
-        self.assertEqual(preload["investigation_state"], "ACTIVE")
+        for item_id in (
+            "H_TRANSLATING_ROLLER_CARRIER_OR_SLIDE",
+            "H_PIVOTING_ROLLER_ARM_OR_CARRIER",
+            "H_MOVING_WRAP_BELT_ASSEMBLY",
+            "H_SPRING_OR_COMPLIANT_PRELOAD_MECHANISM",
+        ):
+            hypothesis = by_id(case["hypotheses"], item_id)
+            self.assertEqual(hypothesis["investigation_state"], "ELIGIBLE")
+            self.assertEqual(hypothesis["evidence_state"], "UNRESOLVED")
 
     def test_static_fit_remains_disproven_as_operating_proof(self):
         case = load_case()

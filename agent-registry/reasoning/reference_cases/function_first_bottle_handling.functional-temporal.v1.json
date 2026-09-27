@@ -247,7 +247,7 @@
       "owner_subsystem_id": "CAPTURE_AND_ROTATION",
       "description": "After function-first bottle requirements are bound and candidate families are screened, the selected physical architecture has an explicit owner for closure/guidance, rotation input, limits, compliance/preload when required, reaction support, and release.",
       "verification_state": "UNRESOLVED",
-      "ambiguity_bucket": "MULTIPLE_PLAUSIBLE_HYPOTHESES",
+      "ambiguity_bucket": "OEM_SOURCE_REQUIRED",
       "criticality": 5,
       "resolution_cost": 1,
       "expected_authority": [
@@ -265,7 +265,8 @@
         "E.V43.PRISM.ARM_ROLLER_CONTACT.ARCH_PROJECTION.20260927",
         "E.V43.PRISM.FULL_CHAIN_MATES.ARCH_PROJECTION.20260927",
         "E.FUNCTION_FIRST.CONTACT_MAINTENANCE_SOURCE_PROBE.20260927T150842223Z",
-        "E.FUNCTION_FIRST.MAINTENANCE_CANDIDATE_REGISTRY.20260927T151927324Z"
+        "E.FUNCTION_FIRST.MAINTENANCE_CANDIDATE_REGISTRY.20260927T151927324Z",
+        "E.FUNCTION_FIRST.MECHANISM_SCREEN.20260927T153026706Z"
       ],
       "depends_on_requirement_ids": [
         "BOTTLE_REQUIRED_DOF_BOUND",
@@ -1280,7 +1281,7 @@
         "WRAP_ACTIVE"
       ],
       "required_evidence": [
-        "The mechanism registry now contains four eligible function-first families with no selection. Screen each candidate against the common contact-maintenance obligations and preserve PASS/FAIL/UNRESOLVED per requirement. Candidate screening must not invent geometry or quantitative inputs."
+        "The nonranking mechanism screen leaves all candidate-specific engineering-evidence rows UNRESOLVED. Acquire authoritative or provenance-bound reference evidence for real bottle-wrap capture architectures before defining candidate geometry: closure motion/owner, contact-maintenance method, contact interval, reaction path, release behavior, and rotation-drive relationship. Reference evidence may establish a mechanism pattern but cannot select a project architecture or establish project geometry."
       ]
     },
     {
@@ -3466,17 +3467,161 @@
           ]
         }
       }
+    },
+    {
+      "schema_version": 1,
+      "record_type": "evidence",
+      "evidence_id": "E.FUNCTION_FIRST.MECHANISM_SCREEN.20260927T153026706Z",
+      "evidence_type": "deterministic_calculation",
+      "evidence_state": "MEASURED_CALCULATED",
+      "source_authority": "DETERMINISTIC_CALCULATION",
+      "source_classification": "function_first_mechanism_screen_v1",
+      "subject": {
+        "subject_type": "function_first_nonranking_maintenance_candidate_screen",
+        "identity_exact": "CANDIDATE_TRANSLATING_ROLLER_CARRIER; CANDIDATE_PIVOTING_ROLLER_CARRIER; CANDIDATE_MOVING_WRAP_BELT_ASSEMBLY; CANDIDATE_SPRING_OR_COMPLIANT_PRELOAD"
+      },
+      "provenance": {
+        "recorded_at": "2026-09-27T15:30:26.706Z",
+        "source_ref": "CADGrounded PowerShell capability CI run 36329672487; merged implementation a60370091c54910e0ecf06e1c61b24342c0cf49c",
+        "tool_path": "Test-CGMechanismCandidate -All / CADGROUNDED.IXOR.MECHANISM_SCREEN.V1"
+      },
+      "dependencies": [
+        "E.FUNCTION_FIRST.MAINTENANCE_CANDIDATE_REGISTRY.20260927T151927324Z",
+        "E.FUNCTION_FIRST.CONTACT_MAINTENANCE_SOURCE_PROBE.20260927T150842223Z",
+        "PLAN-0010"
+      ],
+      "geometry_state": "NOT_APPLICABLE",
+      "temporal_scope": {
+        "coverage": "POINT_ONLY",
+        "validity_state": "CURRENT",
+        "state_ids": [],
+        "transition_ids": []
+      },
+      "ambiguity_bucket": "OEM_SOURCE_REQUIRED",
+      "mechanical_acceptance_granted": false,
+      "payload": {
+        "method": "Execute the versioned nonranking mechanism screen contract against all four eligible candidate-registry entries. Definition-layer PASS/FAIL is bounded to registry semantics; all physical engineering-evidence rows remain UNRESOLVED unless separately admitted evidence exists.",
+        "inputs": [
+          "CADGROUNDED.IXOR.MAINTENANCE_CANDIDATES.V1",
+          "CADGROUNDED.IXOR.CONTACT_MAINTENANCE.V1",
+          "CADGROUNDED.IXOR.MECHANISM_SCREEN.V1",
+          "E.FUNCTION_FIRST.MAINTENANCE_CANDIDATE_REGISTRY.20260927T151927324Z"
+        ],
+        "result": {
+          "selection_status": "NOT_SELECTED",
+          "candidates": [
+            {
+              "candidate_id": "CANDIDATE_TRANSLATING_ROLLER_CARRIER",
+              "definition_layer": {
+                "candidate_registered": "PASS",
+                "eligibility_state": "PASS",
+                "provenance_stated": "PASS",
+                "standalone_kinematic_architecture_class": "PASS"
+              },
+              "engineering_evidence_layer": {
+                "contact_maintenance_owner_bound": "UNRESOLVED",
+                "open_capture_release_motion_bound": "UNRESOLVED",
+                "contact_maintenance_law_bound": "UNRESOLVED",
+                "bottle_contact_interval_proven": "UNRESOLVED",
+                "wrap_axis_preservation_proven": "UNRESOLVED",
+                "reaction_path_bound": "UNRESOLVED",
+                "release_behavior_proven": "UNRESOLVED",
+                "tangential_drive_separation_bound": "UNRESOLVED",
+                "quantitative_inputs_bound": "UNRESOLVED",
+                "limits_and_interference_proven": "UNRESOLVED"
+              }
+            },
+            {
+              "candidate_id": "CANDIDATE_PIVOTING_ROLLER_CARRIER",
+              "definition_layer": {
+                "candidate_registered": "PASS",
+                "eligibility_state": "PASS",
+                "provenance_stated": "PASS",
+                "standalone_kinematic_architecture_class": "PASS"
+              },
+              "engineering_evidence_layer": {
+                "contact_maintenance_owner_bound": "UNRESOLVED",
+                "open_capture_release_motion_bound": "UNRESOLVED",
+                "contact_maintenance_law_bound": "UNRESOLVED",
+                "bottle_contact_interval_proven": "UNRESOLVED",
+                "wrap_axis_preservation_proven": "UNRESOLVED",
+                "reaction_path_bound": "UNRESOLVED",
+                "release_behavior_proven": "UNRESOLVED",
+                "tangential_drive_separation_bound": "UNRESOLVED",
+                "quantitative_inputs_bound": "UNRESOLVED",
+                "limits_and_interference_proven": "UNRESOLVED"
+              }
+            },
+            {
+              "candidate_id": "CANDIDATE_MOVING_WRAP_BELT_ASSEMBLY",
+              "definition_layer": {
+                "candidate_registered": "PASS",
+                "eligibility_state": "PASS",
+                "provenance_stated": "PASS",
+                "standalone_kinematic_architecture_class": "PASS"
+              },
+              "engineering_evidence_layer": {
+                "contact_maintenance_owner_bound": "UNRESOLVED",
+                "open_capture_release_motion_bound": "UNRESOLVED",
+                "contact_maintenance_law_bound": "UNRESOLVED",
+                "bottle_contact_interval_proven": "UNRESOLVED",
+                "wrap_axis_preservation_proven": "UNRESOLVED",
+                "reaction_path_bound": "UNRESOLVED",
+                "release_behavior_proven": "UNRESOLVED",
+                "tangential_drive_separation_bound": "UNRESOLVED",
+                "quantitative_inputs_bound": "UNRESOLVED",
+                "limits_and_interference_proven": "UNRESOLVED"
+              }
+            },
+            {
+              "candidate_id": "CANDIDATE_SPRING_OR_COMPLIANT_PRELOAD",
+              "definition_layer": {
+                "candidate_registered": "PASS",
+                "eligibility_state": "PASS",
+                "provenance_stated": "PASS",
+                "standalone_kinematic_architecture_class": "FAIL"
+              },
+              "engineering_evidence_layer": {
+                "contact_maintenance_owner_bound": "UNRESOLVED",
+                "open_capture_release_motion_bound": "UNRESOLVED",
+                "contact_maintenance_law_bound": "UNRESOLVED",
+                "bottle_contact_interval_proven": "UNRESOLVED",
+                "wrap_axis_preservation_proven": "UNRESOLVED",
+                "reaction_path_bound": "UNRESOLVED",
+                "release_behavior_proven": "UNRESOLVED",
+                "tangential_drive_separation_bound": "UNRESOLVED",
+                "quantitative_inputs_bound": "UNRESOLVED",
+                "limits_and_interference_proven": "UNRESOLVED"
+              },
+              "bounded_fail_interpretation": "FAIL applies only to standalone kinematic-architecture completeness. This candidate remains eligible as a MAINTENANCE_LAW_AUGMENTATION when paired with a separately defined parent architecture."
+            }
+          ],
+          "admitted_claims": [
+            "The translating carrier, pivoting carrier, and moving wrap-belt families are valid definition-level standalone kinematic architecture classes under the current registry.",
+            "The spring/compliant-preload family is explicitly not a standalone kinematic architecture and remains an augmentation class.",
+            "No candidate has admitted physical evidence binding closure owner, motion/limits, maintenance law, interval-wide contact, wrap-axis preservation, reaction path, release behavior, tangential drive, quantitative inputs, or reachable-state interference.",
+            "The screen does not rank, score, prefer, or select any candidate."
+          ],
+          "explicitly_not_claimed": [
+            "Definition-layer PASS does not establish physical feasibility or geometry.",
+            "No candidate mechanism is preferred or selected.",
+            "No quantitative force, travel, stiffness, friction, timing, reaction-capacity, or interval-wide feasibility value is established.",
+            "Mechanical acceptance remains false."
+          ]
+        }
+      }
     }
   ],
   "next_tests": [
     {
-      "id": "TEST_FUNCTION_FIRST_MECHANISM_SCREEN_CONTRACT",
-      "question": "Implement and execute cg.mechanism.screen / Test-CGMechanismCandidate against each candidate returned by Get-CGMechanismCandidates. For every candidate, evaluate the common contact-maintenance bindings—closure owner, open/capture/release motion definition, contact-maintenance law, bottle-contact interval, wrap-axis preservation, reaction path, release behavior, and quantitative inputs—as PASS only when explicitly established by the candidate definition, FAIL only when contradicted by the candidate class, and otherwise UNRESOLVED. The spring/compliant-preload candidate must be treated as a MAINTENANCE_LAW_AUGMENTATION rather than a complete standalone kinematic architecture. Do not rank, score, prefer, select, or create/move CAD geometry. Preserve all unresolved force/travel/stiffness/friction values.",
+      "id": "TEST_FUNCTION_FIRST_MECHANISM_REFERENCE_SOURCE_ACQUISITION",
+      "question": "Search authoritative sources in project authority order for real bottle wrap-labeling/contact-maintenance mechanism references relevant to the currently eligible families: (1) CAB/OEM documentation, CAD, manuals, application examples or integration material; (2) identified machine OEM/integrator documentation or photographs with traceable provenance; (3) trusted third-party CAD/manual evidence; and only then general vendor/web references. For translating carriers, pivoting carriers, moving wrap-belt assemblies, and compliant/preload augmentation, record only source-supported closure motion/owner, contact-maintenance method, bottle-contact interval, reaction path, release behavior, and rotation-drive relationship. Distinguish mechanism-pattern precedent from project-specific geometry. Do not infer hidden springs/actuators from appearance, do not use generative imagery as evidence, and do not rank, prefer, select, or create/move CAD geometry.",
       "resolves_requirement_ids": [
         "CAPTURE_KINEMATIC_OWNER",
         "BOTTLE_RESTRAINT_THROUGHOUT_CAPTURE",
         "WRAP_CONTACT_THROUGHOUT_CAPTURE",
-        "CAPTURE_REACTION_FORCE_PATH"
+        "CAPTURE_REACTION_FORCE_PATH",
+        "BOTTLE_ROTATION_SOURCE_BOUND"
       ],
       "hypothesis_ids": [
         "H_CAPTURE_CLOSURE_OWNER",
@@ -3485,10 +3630,10 @@
         "H_MOVING_WRAP_BELT_ASSEMBLY",
         "H_SPRING_OR_COMPLIANT_PRELOAD_MECHANISM"
       ],
-      "discrimination_power": 0.96,
-      "evidence_confidence": 0.99,
+      "discrimination_power": 0.98,
+      "evidence_confidence": 0.9,
       "unresolved_relevance": 1,
-      "cost": 1
+      "cost": 2
     }
   ]
 }
