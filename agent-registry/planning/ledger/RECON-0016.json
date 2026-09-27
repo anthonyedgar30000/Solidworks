@@ -1,0 +1,34 @@
+{
+  "record_type": "plan_reconciliation",
+  "schema_version": 1,
+  "record_id": "RECON-0016",
+  "project_id": "CADGROUNDED.IXOR",
+  "reconciled_at_utc": "2026-09-27T22:26:00Z",
+  "plan_id": "PLAN-0011",
+  "revised_plan_id": "PLAN-0011",
+  "raw_observation_ids": [],
+  "actual_actions": [
+    {
+      "action_id": "ACT_ATTEMPT_V43_DUAL_PIVOT_EXACT_SWEEP",
+      "write_authority": "NONE",
+      "result": "BLOCKED_STALE_STATE_CAD_READ_REQUIRED",
+      "reason": "Two fresh CAD bridge reads timed out before any geometry evaluation. The project failed closed rather than executing the temporary-body sweep against stale transforms."
+    },
+    {
+      "action_id": "ACT_PRESERVE_DUAL_PIVOT_PREFLIGHT_PENDING_REBIND",
+      "write_authority": "NONE",
+      "result": "HYPOTHESIS_STATE_UNCHANGED",
+      "reason": "The unavailable live read is infrastructure/evidence-acquisition failure, not negative mechanical evidence against the candidate."
+    }
+  ],
+  "step_outcomes": [
+    {
+      "step_id": "P0011.4",
+      "outcome": "BLOCKED_PENDING_FRESH_LIVE_SOLIDWORKS_REBIND",
+      "artifact": "agent-registry/reasoning/runtime/v43-dual-pivot-exact-sweep-attempt-20260927T222600Z.json"
+    }
+  ],
+  "conclusion": "PLAN-0011 remains at P0011.4. The dual-pivot analytic preflight survives unchanged, but exact hypothetical swept B-rep verification cannot proceed until live SOLIDWORKS is freshly reachable and rebound. No stale geometry is promoted, no mechanical result is inferred, and no CAD write is authorized.",
+  "mechanical_acceptance_granted": false,
+  "write_authority": "NONE"
+}
