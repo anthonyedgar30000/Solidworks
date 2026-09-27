@@ -25,6 +25,11 @@ from frontier_binding import (
     load_current_frontier,
     render_frontier_catalog,
 )
+from frontier_state import (
+    FrontierStateError,
+    evaluate_frontier_state,
+    render_frontier_state,
+)
 
 
 BASE_DIR = Path(r"C:\CADGrounded\reasoning-node")
@@ -48,7 +53,7 @@ REPO_ROOT = Path(
 
 app = FastAPI(
     title="CADGrounded Reasoning Node",
-    version="0.7.0",
+    version="0.8.0",
 )
 
 
@@ -169,6 +174,7 @@ class ReasonResponse(BaseModel):
     frontier_binding_applied: bool = False
     frontier_admitted: bool | None = None
     frontier_snapshot: dict[str, Any] | None = None
+    frontier_state: dict[str, Any] | None = None
     frontier_bindings: list[dict[str, Any]] = Field(default_factory=list)
 
     result: AdvisoryPayload
@@ -279,6 +285,10 @@ HYPOTHESIS GENERATION CONTRACT:
   CLOSURE_KINEMATICS, COMPLIANCE_PRELOAD, ACTUATION_DRIVE,
   SEQUENCE_CONTROL, SOURCE_BOUNDARY, OTHER_EXPLICIT_MECHANISM.
 - Generated hypotheses MUST use distinct hypothesis_class values; do not produce modal paraphrases of the same explanation.
+- Treat the supplied investigation frontier and deterministic frontier state as read-only project memory.
+- Do not regenerate DISPROVEN or EXHAUSTED frontier explanations.
+- If COMMON_FRONTIER_OPEN, COMMON_FRONTIER_SUPPORTED_PRESENT, or COMMON_FRONTIER_DORMANT_REMAINS is reported, do not widen merely for novelty; prefer a distinct explanation already represented in the modeled COMMON frontier when the evidence supports it.
+- Do not claim that a frontier hypothesis changed evidence_state or investigation_state.
 - Class meanings:
   CLOSURE_KINEMATICS = carrier/slide/pivot/roller/belt/closure geometry or motion ownership.
   COMPLIANCE_PRELOAD = spring/compliance/preload/flex/deflection behavior.
@@ -363,10 +373,16 @@ def semantic_repair_prompt(
     original_raw: str,
     violations: list[str],
     frontier_catalog_text: str = "",
+    frontier_state_text: str = "",
 ) -> str:
     frontier_section = (
         "\n" + frontier_catalog_text + "\n"
         if frontier_catalog_text
+        else ""
+    )
+    frontier_state_section = (
+        "\n" + frontier_state_text + "\n"
+        if frontier_state_text
         else ""
     )
     return f"""
@@ -386,6 +402,7 @@ SUPPLIED EVIDENCE:
 DETERMINISTIC GROUNDING CATALOG:
 {grounding_catalog(request.task, request.evidence)}
 {frontier_section}
+{frontier_state_section}
 PREVIOUS SCHEMA-VALID PROPOSAL:
 {original_raw}
 
@@ -430,6 +447,21 @@ def append_log(record: dict):
         )
 
 
+def frontier_context_fields(
+    frontier_snapshot: dict[str, Any] | None,
+    frontier_state_projection: dict[str, Any] | None,
+) -> dict[str, Any]:
+    if frontier_snapshot is None:
+        return {}
+
+    return {
+        "frontier_snapshot": frontier_snapshot_metadata(
+            frontier_snapshot
+        ),
+        "frontier_state": frontier_state_projection,
+    }
+
+
 @app.get("/healthz")
 def healthz():
 
@@ -448,15 +480,17 @@ def healthz():
         frontier = load_current_frontier(REPO_ROOT)
         frontier_status = "bound"
         frontier_meta = frontier_snapshot_metadata(frontier)
+        frontier_state_projection = evaluate_frontier_state(frontier)
         frontier_error = None
     except Exception as exc:
         frontier_status = "unavailable"
         frontier_meta = None
+        frontier_state_projection = None
         frontier_error = f"{type(exc).__name__}:{exc}"
 
     return {
         "status": "ok",
-        "version": "0.7.0",
+        "version": "0.8.0",
         "node_id": NODE_ID,
         "role": "bounded_reasoning_node",
         "ollama": ollama,
@@ -472,10 +506,49 @@ def healthz():
             "authority": "NONE",
         },
         "frontier_binding_policy": "fail_closed",
+        "frontier_state_policy": "deterministic_read_only",
         "frontier_repository_root": str(REPO_ROOT),
         "frontier_status": frontier_status,
         "frontier_snapshot": frontier_meta,
+        "frontier_state": frontier_state_projection,
         "frontier_error": frontier_error,
+    }
+
+
+@app.get("/frontierz")
+def frontierz():
+    try:
+        frontier = load_current_frontier(REPO_ROOT)
+        state = evaluate_frontier_state(frontier)
+    except (FrontierBindingError, FrontierStateError) as exc:
+        raise HTTPException(
+            status_code=422,
+            detail={
+                "status": "REJECTED_FRONTIER_STATE",
+                "violations": list(exc.violations),
+            },
+        )
+    except Exception as exc:
+        raise HTTPException(
+            status_code=422,
+            detail={
+                "status": "REJECTED_FRONTIER_STATE",
+                "message": f"{type(exc).__name__}:{exc}",
+            },
+        )
+
+    return {
+        "status": "ok",
+        "version": "0.8.0",
+        "frontier_snapshot": frontier_snapshot_metadata(frontier),
+        "frontier_state": state,
+        "authority": {
+            "frontier_state_mutation": "NONE",
+            "solidworks_geometry": "NONE",
+            "cad_write": "NONE",
+            "mechanical_acceptance": "NONE",
+            "evidence_verification": "NONE",
+        },
     }
 
 
@@ -486,13 +559,21 @@ def reason(request: ReasonRequest):
     timestamp = utc_now()
     evidence_hash = sha256_text(request.evidence)
     frontier_snapshot = None
+    frontier_state_projection = None
     frontier_catalog_text = ""
+    frontier_state_text = ""
 
     if request.task == "hypothesis_generation":
         try:
             frontier_snapshot = load_current_frontier(REPO_ROOT)
+            frontier_state_projection = evaluate_frontier_state(
+                frontier_snapshot
+            )
             frontier_catalog_text = render_frontier_catalog(
                 frontier_snapshot
+            )
+            frontier_state_text = render_frontier_state(
+                frontier_state_projection
             )
         except Exception as exc:
             failure_record = {
@@ -529,6 +610,11 @@ def reason(request: ReasonRequest):
         if frontier_catalog_text
         else ""
     )
+    frontier_state_prompt_section = (
+        "\n" + frontier_state_text + "\n"
+        if frontier_state_text
+        else ""
+    )
 
     prompt = f"""
 {SYSTEM_BOUNDARY}
@@ -547,6 +633,7 @@ SUPPLIED EVIDENCE:
 DETERMINISTIC GROUNDING CATALOG:
 {grounding_catalog(request.task, request.evidence)}
 {frontier_prompt_section}
+{frontier_state_prompt_section}
 Return only the required JSON object.
 """
 
@@ -598,6 +685,10 @@ Return only the required JSON object.
             },
         }
 
+        failure_record.update(frontier_context_fields(
+            frontier_snapshot,
+            frontier_state_projection,
+        ))
         append_log(failure_record)
 
         raise HTTPException(
@@ -681,6 +772,7 @@ Return only the required JSON object.
                         raw_result,
                         initial_violations,
                         frontier_catalog_text,
+                        frontier_state_text,
                     ),
                     "stream": False,
                     "format": AdvisoryPayload.model_json_schema(),
@@ -737,6 +829,10 @@ Return only the required JSON object.
                 },
             }
 
+            failure_record.update(frontier_context_fields(
+                frontier_snapshot,
+                frontier_state_projection,
+            ))
             append_log(failure_record)
 
             raise HTTPException(
@@ -798,6 +894,10 @@ Return only the required JSON object.
                 },
             }
 
+            failure_record.update(frontier_context_fields(
+                frontier_snapshot,
+                frontier_state_projection,
+            ))
             append_log(failure_record)
 
             raise HTTPException(
@@ -859,6 +959,7 @@ Return only the required JSON object.
                 "frontier_binding_applied": True,
                 "frontier_admitted": False,
                 "frontier_snapshot": frontier_meta,
+                "frontier_state": frontier_state_projection,
                 "frontier_bindings": frontier_bindings,
                 "violations": list(exc.violations),
                 "authority": {
@@ -893,6 +994,7 @@ Return only the required JSON object.
         frontier_binding_applied=frontier_binding_applied,
         frontier_admitted=frontier_admitted,
         frontier_snapshot=frontier_meta,
+        frontier_state=frontier_state_projection,
         frontier_bindings=frontier_bindings,
         result=validated,
     )
@@ -915,6 +1017,7 @@ Return only the required JSON object.
         "frontier_binding_applied": frontier_binding_applied,
         "frontier_admitted": frontier_admitted,
         "frontier_snapshot": frontier_meta,
+        "frontier_state": frontier_state_projection,
         "frontier_bindings": frontier_bindings,
         "authority": {
             "solidworks_geometry": "NONE",

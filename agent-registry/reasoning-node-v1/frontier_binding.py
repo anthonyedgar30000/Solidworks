@@ -6,6 +6,8 @@ import re
 from pathlib import Path
 from typing import Any, Mapping
 
+from frontier_state import evaluate_frontier_state
+
 
 CURRENT_PLAN_RELATIVE = Path("agent-registry/planning/CURRENT_PLAN.json")
 ARCHITECTURE_PATHS = {
@@ -22,15 +24,6 @@ VALID_EVIDENCE_STATES = {
 VALID_INVESTIGATION_STATES = {
     "DORMANT", "ELIGIBLE", "ACTIVE", "EXHAUSTED",
 }
-
-MECHANISM_ESCALATION_BLOCKER_IDS = frozenset({
-    "H_CAPTURE_CLOSURE_OWNER",
-    "H_CAPTURE_COMPLIANCE_OR_PRELOAD",
-    "H_TRANSLATING_ROLLER_CARRIER_OR_SLIDE",
-    "H_PIVOTING_ROLLER_ARM_OR_CARRIER",
-    "H_MOVING_WRAP_BELT_ASSEMBLY",
-    "H_SPRING_OR_COMPLIANT_PRELOAD_MECHANISM",
-})
 
 
 class FrontierBindingError(ValueError):
@@ -82,6 +75,10 @@ def load_current_frontier(repo_root: Path) -> dict[str, Any]:
         bool(plan.get("current_plan_id")),
         "CURRENT_PLAN_ID_MISSING",
     )
+    _require(
+        bool(plan.get("current_evidence_id")),
+        "CURRENT_EVIDENCE_ID_MISSING",
+    )
 
     hypotheses = frontier.get("hypotheses")
     _require(isinstance(hypotheses, list), "FRONTIER_HYPOTHESES_NOT_LIST")
@@ -121,15 +118,45 @@ def load_current_frontier(repo_root: Path) -> dict[str, Any]:
         )
         index[hypothesis_id] = hypothesis
 
+    next_tests = frontier.get("next_tests") or []
+    _require(
+        isinstance(next_tests, list),
+        "FRONTIER_NEXT_TESTS_NOT_LIST",
+    )
+
+    next_test_index: dict[str, dict[str, Any]] = {}
+    for position, test in enumerate(next_tests):
+        _require(
+            isinstance(test, dict),
+            f"FRONTIER_NEXT_TEST_NOT_OBJECT:{position}",
+        )
+        test_id = test.get("id")
+        _require(
+            isinstance(test_id, str) and bool(test_id),
+            f"FRONTIER_NEXT_TEST_ID_MISSING:{position}",
+        )
+        _require(
+            test_id not in next_test_index,
+            f"FRONTIER_NEXT_TEST_ID_DUPLICATE:{test_id}",
+        )
+        for hypothesis_id in test.get("hypothesis_ids") or []:
+            _require(
+                hypothesis_id in index,
+                f"FRONTIER_NEXT_TEST_HYPOTHESIS_UNKNOWN:{test_id}:{hypothesis_id}",
+            )
+        next_test_index[test_id] = test
+
     return {
         "current_plan_id": plan["current_plan_id"],
         "current_plan_status": plan["status"],
+        "current_evidence_id": plan.get("current_evidence_id"),
         "current_architecture_id": architecture_id,
         "current_plan_path": str(CURRENT_PLAN_RELATIVE).replace("\\", "/"),
         "current_plan_sha256": plan_sha256,
         "frontier_path": str(frontier_relative).replace("\\", "/"),
         "frontier_sha256": frontier_sha256,
         "hypotheses": index,
+        "next_tests": next_test_index,
     }
 
 
@@ -137,6 +164,7 @@ def render_frontier_catalog(snapshot: Mapping[str, Any]) -> str:
     lines = [
         "CURRENT INVESTIGATION FRONTIER:",
         f"plan_id: {snapshot['current_plan_id']}",
+        f"current_evidence_id: {snapshot['current_evidence_id']}",
         f"architecture_id: {snapshot['current_architecture_id']}",
         f"frontier_sha256: {snapshot['frontier_sha256']}",
         "",
@@ -262,16 +290,6 @@ def _disposition(item: Mapping[str, Any]) -> str:
     return "KNOWN_ELIGIBLE"
 
 
-def _open_common_ids(snapshot: Mapping[str, Any]) -> list[str]:
-    return sorted(
-        hypothesis_id
-        for hypothesis_id, item in snapshot["hypotheses"].items()
-        if hypothesis_id in MECHANISM_ESCALATION_BLOCKER_IDS
-        and item["prior"] == "COMMON"
-        and item["investigation_state"] in {"ACTIVE", "ELIGIBLE"}
-        and item["evidence_state"] != "DISPROVEN"
-    )
-
 
 def _bind_one(
     hypothesis: Mapping[str, Any],
@@ -298,12 +316,18 @@ def _bind_one(
             match_rule = f"CLASS_FALLBACK:{hypothesis_class}"
 
     if matched_id is None:
-        blockers = _open_common_ids(snapshot)
-        disposition = (
-            "NOVEL_HELD_COMMON_FRONTIER_OPEN"
-            if blockers
-            else "NOVEL_CANDIDATE_REVIEW_REQUIRED"
-        )
+        state = evaluate_frontier_state(snapshot)
+        blockers = list(state["escalation_blockers"])
+
+        if state["common_frontier_state"] == "COMMON_FRONTIER_OPEN":
+            disposition = "NOVEL_HELD_COMMON_FRONTIER_OPEN"
+        elif state["common_frontier_state"] == "COMMON_FRONTIER_SUPPORTED_PRESENT":
+            disposition = "NOVEL_HELD_COMMON_FRONTIER_SUPPORTED"
+        elif state["common_frontier_state"] == "COMMON_FRONTIER_DORMANT_REMAINS":
+            disposition = "NOVEL_HELD_COMMON_FRONTIER_DORMANT"
+        else:
+            disposition = "NOVEL_CANDIDATE_REVIEW_REQUIRED"
+
         return ({
             "hypothesis_index": index,
             "statement_sha256": _statement_sha256(statement),
@@ -386,10 +410,12 @@ def frontier_snapshot_metadata(
     return {
         "current_plan_id": snapshot["current_plan_id"],
         "current_plan_status": snapshot["current_plan_status"],
+        "current_evidence_id": snapshot.get("current_evidence_id"),
         "current_architecture_id": snapshot["current_architecture_id"],
         "current_plan_path": snapshot["current_plan_path"],
         "current_plan_sha256": snapshot["current_plan_sha256"],
         "frontier_path": snapshot["frontier_path"],
         "frontier_sha256": snapshot["frontier_sha256"],
         "hypothesis_count": len(snapshot["hypotheses"]),
+        "next_test_count": len(snapshot.get("next_tests") or {}),
     }

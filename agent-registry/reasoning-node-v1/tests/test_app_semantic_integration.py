@@ -78,6 +78,48 @@ class FakeOllamaResponse:
 
 class SemanticIntegrationTests(unittest.TestCase):
 
+    def test_frontierz_projects_current_state_without_mutation(self):
+        result = app.frontierz()
+
+        self.assertEqual(result["status"], "ok")
+        self.assertEqual(result["version"], "0.8.0")
+        self.assertEqual(
+            result["frontier_snapshot"]["current_plan_id"],
+            "PLAN-0011",
+        )
+        self.assertEqual(
+            result["frontier_state"]["common_frontier_state"],
+            "COMMON_FRONTIER_OPEN",
+        )
+        self.assertEqual(
+            result["frontier_state"]["widening_state"],
+            "BLOCKED_BY_COMMON_OPEN",
+        )
+        self.assertEqual(
+            result["frontier_state"]["search_exhaustion_state"],
+            "COMMON_SEARCH_NOT_EXHAUSTED",
+        )
+        self.assertEqual(
+            result["frontier_state"]["next_action_mode"],
+            "RUN_DECLARED_COMMON_TESTS",
+        )
+        self.assertEqual(
+            result["frontier_state"]["uncommon_frontier_state"],
+            "UNCOMMON_FRONTIER_DORMANT_REMAINS",
+        )
+        self.assertFalse(
+            result["frontier_state"]["rare_review_eligible"]
+        )
+        self.assertEqual(
+            result["authority"]["frontier_state_mutation"],
+            "NONE",
+        )
+        self.assertEqual(result["authority"]["cad_write"], "NONE")
+        self.assertEqual(
+            result["authority"]["mechanical_acceptance"],
+            "NONE",
+        )
+
     @patch("app.append_log")
     @patch("app.requests.post")
     def test_grounded_classification_is_semantically_admitted(
@@ -297,6 +339,21 @@ class SemanticIntegrationTests(unittest.TestCase):
             result.frontier_bindings[0]["binding_disposition"],
             "KNOWN_ACTIVE",
         )
+        self.assertEqual(
+            result.frontier_state["common_frontier_state"],
+            "COMMON_FRONTIER_OPEN",
+        )
+        self.assertEqual(
+            result.frontier_state["widening_state"],
+            "BLOCKED_BY_COMMON_OPEN",
+        )
+        self.assertEqual(
+            result.frontier_state["declared_next_test_ids"],
+            [
+                "TEST_FUNCTION_FIRST_POP_ACCEPTANCE_ENVELOPE",
+                "TEST_POP_CANDIDATE_CONTRACT_SCREEN",
+            ],
+        )
         self.assertEqual(post.call_count, 1)
         self.assertEqual(result.cad_write_authority, "NONE")
         self.assertEqual(
@@ -317,6 +374,10 @@ class SemanticIntegrationTests(unittest.TestCase):
         self.assertEqual(record["semantic_repair_count"], 0)
         self.assertTrue(record["frontier_binding_applied"])
         self.assertTrue(record["frontier_admitted"])
+        self.assertEqual(
+            record["frontier_state"]["common_frontier_state"],
+            "COMMON_FRONTIER_OPEN",
+        )
         self.assertEqual(
             record["frontier_bindings"][0]["frontier_hypothesis_id"],
             "H_CAPTURE_CLOSURE_OWNER",
@@ -345,6 +406,18 @@ class SemanticIntegrationTests(unittest.TestCase):
         )
         self.assertIn(
             "evidence=DISPROVEN",
+            prompt,
+        )
+        self.assertIn(
+            "DETERMINISTIC FRONTIER STATE",
+            prompt,
+        )
+        self.assertIn(
+            "common_frontier_state: COMMON_FRONTIER_OPEN",
+            prompt,
+        )
+        self.assertIn(
+            "widening_state: BLOCKED_BY_COMMON_OPEN",
             prompt,
         )
         self.assertIn(
@@ -561,6 +634,14 @@ class SemanticIntegrationTests(unittest.TestCase):
         )
         self.assertIn(
             "HYPOTHESIS_CLASS_DUPLICATE:1:CLOSURE_KINEMATICS",
+            repair_prompt,
+        )
+        self.assertIn(
+            "DETERMINISTIC FRONTIER STATE",
+            repair_prompt,
+        )
+        self.assertIn(
+            "common_frontier_state: COMMON_FRONTIER_OPEN",
             repair_prompt,
         )
 
