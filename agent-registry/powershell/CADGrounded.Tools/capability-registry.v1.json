@@ -341,6 +341,75 @@
         "visualization policy"
       ],
       "write_authority": "NONE"
+    },
+    {
+      "id": "cg.requirements.functional",
+      "future_command": "Get-CGFunctionalRequirements",
+      "status": "PLANNED",
+      "category": "requirements",
+      "engineering_question": "What mechanism-independent operating requirements are currently bound for the bottle-labeling station?",
+      "required_primitives": [
+        "cg.component.bind",
+        "authoritative source binding",
+        "requirement/evidence projection",
+        "UNKNOWN preservation"
+      ],
+      "write_authority": "NONE"
+    },
+    {
+      "id": "cg.requirements.capture",
+      "future_command": "Get-CGCaptureRequirements",
+      "status": "PLANNED",
+      "category": "requirements",
+      "engineering_question": "What support, restraint, capture, release, compliance, and reaction-path obligations must any bottle-handling mechanism satisfy?",
+      "required_primitives": [
+        "cg.requirements.functional",
+        "contact/support evidence",
+        "temporal obligation extraction"
+      ],
+      "write_authority": "NONE"
+    },
+    {
+      "id": "cg.requirements.rotation",
+      "future_command": "Get-CGRotationRequirements",
+      "status": "PLANNED",
+      "category": "requirements",
+      "engineering_question": "What bottle rotation source, direction, speed/relative-motion, wrap-contact, and label-transfer relationships must a candidate architecture satisfy?",
+      "required_primitives": [
+        "cg.requirements.functional",
+        "CAB presentation binding",
+        "product geometry",
+        "wrap/contact evidence"
+      ],
+      "write_authority": "NONE"
+    },
+    {
+      "id": "cg.mechanism.candidates",
+      "future_command": "Get-CGMechanismCandidates",
+      "status": "PLANNED",
+      "category": "architecture_selection",
+      "engineering_question": "Which explicit mechanism families are currently registered as plausible candidates for the bound requirements, with assumptions and provenance stated?",
+      "required_primitives": [
+        "cg.requirements.capture",
+        "cg.requirements.rotation",
+        "hypothesis registry",
+        "candidate provenance contract"
+      ],
+      "write_authority": "NONE"
+    },
+    {
+      "id": "cg.mechanism.screen",
+      "future_command": "Test-CGMechanismCandidate",
+      "status": "PLANNED",
+      "category": "architecture_selection",
+      "engineering_question": "For one explicit candidate, which common bottle-labeler obligations PASS, FAIL, or remain UNRESOLVED based on deterministic evidence?",
+      "required_primitives": [
+        "cg.mechanism.candidates",
+        "requirement matrix",
+        "candidate-specific geometry/evidence bindings",
+        "negative-evidence retention"
+      ],
+      "write_authority": "NONE"
     }
   ]
 }
