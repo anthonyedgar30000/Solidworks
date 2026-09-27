@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "record_type": "candidate_result_review",
+  "review_id": "R.PLAN-0011.V43_DUAL_PIVOT_GUIDE_RAIL_INTERFERENCE.20260927T232600Z",
+  "plan_id": "PLAN-0011",
+  "step_id": "P0011.4",
+  "reviewed_at_utc": "2026-09-27T23:26:00Z",
+  "evidence_id": "E.V43.PRISM.DUAL_PIVOT_GUIDE_RAIL_INTERFERENCE.20260927T231617920Z",
+  "candidate_id": "CANDIDATE_V43_PRISM_AS_PROJECT_PROPOSAL",
+  "motion_variant_id": "CANDIDATE_V43_PRISM_DUAL_INDEPENDENT_PIVOT_ARMS_V1",
+  "result_summary": {
+    "disposition": "EXACT_TESTED_MOTION_PATH_DISPROVEN",
+    "investigation_state": "EXHAUSTED_FOR_THIS_EXACT_PATH",
+    "reason": [
+      "Corrected-convention temporary-body B-rep verification found Roller-1 intersecting fixed Guide-Rail-1 by 36.87005661597739 mm^3 at arm1=-37.932118385834364 degrees.",
+      "The same verification found Roller-2 intersecting fixed Guide-Rail-2 by 229.78798686025416 mm^3 at arm2=16.093399159748614 degrees.",
+      "Both boolean operations returned zero error codes and the live assembly remained unchanged."
+    ]
+  },
+  "bounded_hypothesis_effects": [
+    {
+      "target": "CANDIDATE_V43_PRISM_DUAL_INDEPENDENT_PIVOT_ARMS_V1",
+      "evidence_state": "DISPROVEN",
+      "investigation_state": "EXHAUSTED",
+      "scope": "Exact tested pivot locations, rotation convention, arm/roller geometry and fixed guide-rail arrangement only."
+    },
+    {
+      "target": "CANDIDATE_PIVOTING_ROLLER_CARRIER",
+      "evidence_state": "UNRESOLVED",
+      "investigation_state": "ELIGIBLE",
+      "scope": "Broader pivoting architecture class remains open because different pivot locations, arm geometry, guide layout or carrier topology were not tested."
+    },
+    {
+      "target": "CANDIDATE_V43_PRISM_AS_PROJECT_PROPOSAL",
+      "evidence_state": "WEAKENED",
+      "investigation_state": "ACTIVE",
+      "scope": "Candidate A retains useful closed contact topology, but one explicit re-authored open/close motion law is now disproven."
+    }
+  ],
+  "retained_positive_evidence": [
+    "The current closed bottle/belt/two-roller topology remains an admitted exact current-pose contact baseline.",
+    "The ideal maintained-contact finite-line model remains rank 5 / nullity 1 with wrap-axis rotation as the null mode."
+  ],
+  "negative_evidence_recorded": [
+    "The exact tested dual-independent-pivot path cannot pass through the current fixed guide-rail geometry without physical interference.",
+    "The earlier ideal planar screen was insufficient because it did not capture the exact fixed guide-rail B-rep intersections."
+  ],
+  "next_test_selection": {
+    "decision": "DO_NOT_CONTINUE_DENSIFYING_THIS_EXACT_DUAL_PIVOT_SWEEP",
+    "reason": "Decisive physical interference already invalidates the tested path; more samples along the same path have low diagnostic value.",
+    "recommended_frontier": [
+      "Re-author a different pivot architecture with pivot/guide geometry chosen to avoid the fixed rail interference, or",
+      "test a distinct translating-carrier or moving-wrap-belt architecture against the same frozen POP acceptance envelope."
+    ],
+    "immediate_high_value_question": "Can a modified pivot architecture preserve the admitted closed roller contact points while moving the roller centers through an interference-free open trajectory without relying on the current guide-rail locations as immutable mechanism geometry?"
+  },
+  "authority": {
+    "source_authority": "SOLIDWORKS_LIVE_STATE_PLUS_DETERMINISTIC_BREP",
+    "write_authority": "NONE",
+    "mechanical_acceptance_granted": false
+  }
+}
