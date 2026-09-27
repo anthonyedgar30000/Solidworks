@@ -1,0 +1,23 @@
+﻿node_id: CADGROUNDED-REASONING-01
+role: bounded_reasoning_node
+host: REPLACE_WITH_REASONING_NODE_HOST
+ipv4: REPLACE_WITH_REASONING_NODE_IPV4
+cad_host_ipv4: REPLACE_WITH_CAD_HOST_IPV4
+
+authority:
+  solidworks_geometry: NONE
+  cad_write: NONE
+  mechanical_acceptance: NONE
+  evidence_verification: NONE
+
+permitted_roles:
+  - ambiguity_classification
+  - hypothesis_generation
+  - hypothesis_categorization
+  - investigation_planning
+  - next_test_proposal
+  - search_exhaustion_detection
+
+ollama:
+  endpoint: http://127.0.0.1:11434
+  initial_model: qwen2.5:3b
