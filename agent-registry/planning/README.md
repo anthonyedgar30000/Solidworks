@@ -60,3 +60,56 @@ Focused regression:
 cd agent-registry/planning
 python -m unittest -v test_stale_evidence_replanning.py
 ```
+
+## Cross-source checkpoint freshness
+
+`source_freshness.py` compares one explicitly collected, timestamped snapshot
+of live SOLIDWORKS identity, an admitted GitHub evidence record's document
+binding, and the Drive canonical identity document's checkpoint. It emits a
+JSON observability event on stdout. It does not call any connector, poll a
+service, change an EvidenceRecord, or update the ledger. Feed the result to a
+telemetry collector only after provenance has been captured for all three
+inputs; a GitHub branch head or Drive mirror activity is not a checkpoint
+identity.
+
+Example input structure (source refs and times are illustrative, not current
+observations):
+
+```json
+{
+  "schema_version": 1,
+  "solidworks": {
+    "retrieval_state": "OK", "source_ref": "OBS:exact-status-read",
+    "observed_at": "2026-09-27T01:00:00Z",
+    "document_title_exact": "IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE",
+    "document_path_exact": "C:\\path\\IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE.SLDASM"
+  },
+  "github": {
+    "retrieval_state": "OK", "reference_kind": "admitted_evidence",
+    "source_ref": "E:exact-evidence-id@commit-sha", "observed_at": "2026-09-27T01:01:00Z",
+    "document_title_exact": "IXOR_Benchmark_v43_PRISM_OPERATING_CANDIDATE_PORTABLE"
+  },
+  "google_drive": {
+    "retrieval_state": "OK", "reference_kind": "canonical_identity",
+    "source_ref": "drive:exact-file-id-or-revision", "observed_at": "2026-09-27T01:02:00Z",
+    "document_title_exact": "IXOR_Benchmark_v42_ROLLER_GUIDE_HARDSTOP_FIT_CHECK_PORTABLE"
+  }
+}
+```
+
+Run `python agent-registry/planning/source_freshness.py snapshot.json` from the
+repository root. An unavailable source is represented by
+`{"retrieval_state":"UNAVAILABLE"}`; a missing live SOLIDWORKS anchor is an
+error. `STALE_REFERENCE` means that a reference names an older checkpoint
+generation than the live anchor. `SOURCE_CONFLICT` means that a reference
+names a different identity at the same or newer generation or contradicts a
+bound path/configuration. `UNKNOWN` keeps unavailable references unresolved.
+`ALIGNED_AT_CHECKPOINT_LEVEL` means only that the names match at those recorded
+instants. None of these states verifies geometry, proves continuing freshness,
+or grants mechanical acceptance. The comparator does not authenticate the
+caller-supplied references; its output marks them `CALLER_SUPPLIED_UNVERIFIED`.
+This event is suitable for later OpenTelemetry
+export, but introduces no telemetry service dependency.
+
+Focused regression: `python -m unittest -v test_source_freshness.py` from
+`agent-registry/planning`.

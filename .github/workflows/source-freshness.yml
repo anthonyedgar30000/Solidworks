@@ -1,0 +1,28 @@
+name: Cross-source checkpoint freshness
+
+on:
+  pull_request:
+    paths:
+      - "agent-registry/planning/source_freshness.py"
+      - "agent-registry/planning/test_source_freshness.py"
+      - "agent-registry/planning/README.md"
+      - ".github/workflows/source-freshness.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "agent-registry/planning/source_freshness.py"
+      - "agent-registry/planning/test_source_freshness.py"
+      - ".github/workflows/source-freshness.yml"
+
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Verify source-freshness classifications
+        working-directory: agent-registry/planning
+        run: python -m unittest -v test_source_freshness.py
