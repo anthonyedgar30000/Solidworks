@@ -30,6 +30,7 @@ $expectedCommands = @(
     'Test-CGContactPair',
     'Test-CGTopologyChain',
     'Get-CGMateBinding',
+    'Get-CGRequiredBottleDOF',
     'Get-CGCurrentPlan',
     'Get-CGInvestigationFrontier',
     'Invoke-CGRegisteredVerifier'
@@ -50,6 +51,7 @@ $requiredImplemented = @(
     'cg.contact.pair',
     'cg.topology.chain',
     'cg.mates.bind',
+    'cg.product.required-dof',
     'cg.frontier.read',
     'cg.verifier.v43.full-chain-mates'
 )
@@ -65,7 +67,6 @@ foreach ($capability in $implemented) {
 }
 
 $requiredPlanned = @(
-    'cg.product.required-dof',
     'cg.product.support',
     'cg.product.restraint',
     'cg.product.entry-path',
@@ -88,6 +89,13 @@ foreach ($id in $requiredPlanned) {
     Assert-True ($matches[0].PSObject.Properties.Name -contains 'future_command') "Planned capability '$id' must name its future semantic command."
     Assert-True (-not ($matches[0].PSObject.Properties.Name -contains 'command')) "Planned capability '$id' must not masquerade as an implemented command."
 }
+
+
+$requiredDof = Get-CGCapability -Id 'cg.product.required-dof'
+Assert-True ([string]$requiredDof.status -ceq 'IMPLEMENTED') 'Bottle DOF capability must be IMPLEMENTED.'
+Assert-True ([string]$requiredDof.command -ceq 'Get-CGRequiredBottleDOF') 'Bottle DOF capability command binding is incorrect.'
+Assert-True ([string]$requiredDof.execution_kind -ceq 'deterministic_requirement_derivation') 'Bottle DOF capability execution kind is incorrect.'
+Assert-True ([string]$requiredDof.write_authority -ceq 'NONE') 'Bottle DOF capability must remain read-only.'
 
 $currentPlan = Get-CGCurrentPlan
 Assert-True (-not [string]::IsNullOrWhiteSpace([string]$currentPlan.current_plan_id)) 'CURRENT_PLAN has no current_plan_id.'
