@@ -938,6 +938,259 @@ function Get-CGBottleContactConstraintMap {
     Write-CGOutput -Value $result -AsJson:$AsJson
 }
 
+function Get-CGBottleContactWrenchRank {
+    [CmdletBinding()]
+    param(
+        [double]$Tolerance = 1e-9,
+        [switch]$EvidenceOnly,
+        [switch]$AsJson
+    )
+
+    if ($Tolerance -le 0) { throw 'Tolerance must be greater than zero.' }
+
+    $constraint = if ($EvidenceOnly) {
+        Get-CGBottleContactConstraintMap -EvidenceOnly
+    } else {
+        Get-CGBottleContactConstraintMap
+    }
+
+    if ([string]$constraint.result -cne 'PASS') {
+        throw "Bottle contact constraint map did not PASS. Actual='$($constraint.result)'."
+    }
+
+    $common = @($constraint.data.common_axis_candidate.point_xy_mm | ForEach-Object { [double]$_ })
+    $axialPoint = @($constraint.data.non_lateral_contact.contact_point_mm | ForEach-Object { [double]$_ })
+    if ($common.Count -ne 2 -or $axialPoint.Count -ne 3) {
+        throw 'Constraint-map common-axis or axial contact point shape is invalid.'
+    }
+
+    $referencePoint = @([double]$common[0],[double]$common[1],[double]$axialPoint[2])
+
+    function Get-Cross3Local {
+        param([double[]]$A,[double[]]$B)
+        return @(
+            ([double]$A[1] * [double]$B[2]) - ([double]$A[2] * [double]$B[1]),
+            ([double]$A[2] * [double]$B[0]) - ([double]$A[0] * [double]$B[2]),
+            ([double]$A[0] * [double]$B[1]) - ([double]$A[1] * [double]$B[0])
+        )
+    }
+
+    function New-ConstraintRowLocal {
+        param(
+            [string]$PairId,
+            [double[]]$Point,
+            [double[]]$Reaction
+        )
+
+        if ($Point.Count -ne 3 -or $Reaction.Count -ne 3) {
+            throw "Pair '$PairId' point/reaction must be 3D."
+        }
+
+        $arm = @(
+            [double]$Point[0] - [double]$referencePoint[0],
+            [double]$Point[1] - [double]$referencePoint[1],
+            [double]$Point[2] - [double]$referencePoint[2]
+        )
+        $moment = Get-Cross3Local -A $arm -B $Reaction
+        return [pscustomobject][ordered]@{
+            pair_id = $PairId
+            contact_point_mm = @($Point)
+            compressive_normal_direction = @($Reaction)
+            moment_arm_mm = @($arm)
+            moment_per_unit_normal_mm = @($moment)
+            row = @(
+                [double]$Reaction[0],
+                [double]$Reaction[1],
+                [double]$Reaction[2],
+                [double]$moment[0],
+                [double]$moment[1],
+                [double]$moment[2]
+            )
+        }
+    }
+
+    $rows = @()
+
+    $axialReaction = @($constraint.data.non_lateral_contact.selected_opposing_normal_assembly | ForEach-Object { [double]$_ })
+    $rows += New-ConstraintRowLocal -PairId ([string]$constraint.data.non_lateral_contact.pair_id) -Point $axialPoint -Reaction $axialReaction
+
+    foreach ($lateral in @($constraint.data.lateral_contacts)) {
+        $point = @(
+            [double]$lateral.contact_point_xy_mm[0],
+            [double]$lateral.contact_point_xy_mm[1],
+            [double]$lateral.contact_point_z_mm
+        )
+        $reaction = @(
+            [double]$lateral.compressive_reaction_direction_xy[0],
+            [double]$lateral.compressive_reaction_direction_xy[1],
+            0.0
+        )
+        $rows += New-ConstraintRowLocal -PairId ([string]$lateral.pair_id) -Point $point -Reaction $reaction
+    }
+
+    if ($rows.Count -ne 4) {
+        throw "Expected four maintained point-normal constraints. Actual=$($rows.Count)."
+    }
+
+    $rowCount = $rows.Count
+    $columnCount = 6
+    $matrix = New-Object 'double[,]' $rowCount,$columnCount
+    for ($r = 0; $r -lt $rowCount; $r++) {
+        for ($col = 0; $col -lt $columnCount; $col++) {
+            $matrix[$r,$col] = [double]$rows[$r].row[$col]
+        }
+    }
+
+    $rref = New-Object 'double[,]' $rowCount,$columnCount
+    for ($r = 0; $r -lt $rowCount; $r++) {
+        for ($col = 0; $col -lt $columnCount; $col++) {
+            $rref[$r,$col] = $matrix[$r,$col]
+        }
+    }
+
+    $pivotColumns = @()
+    $pivotRow = 0
+    for ($col = 0; $col -lt $columnCount -and $pivotRow -lt $rowCount; $col++) {
+        $bestRow = -1
+        $bestAbs = 0.0
+        for ($r = $pivotRow; $r -lt $rowCount; $r++) {
+            $candidateAbs = [Math]::Abs([double]$rref[$r,$col])
+            if ($candidateAbs -gt $bestAbs) {
+                $bestAbs = $candidateAbs
+                $bestRow = $r
+            }
+        }
+
+        if ($bestRow -lt 0 -or $bestAbs -le $Tolerance) {
+            continue
+        }
+
+        if ($bestRow -ne $pivotRow) {
+            for ($j = 0; $j -lt $columnCount; $j++) {
+                $tmp = [double]$rref[$pivotRow,$j]
+                $rref[$pivotRow,$j] = [double]$rref[$bestRow,$j]
+                $rref[$bestRow,$j] = $tmp
+            }
+        }
+
+        $pivotValue = [double]$rref[$pivotRow,$col]
+        for ($j = 0; $j -lt $columnCount; $j++) {
+            $rref[$pivotRow,$j] = [double]$rref[$pivotRow,$j] / $pivotValue
+        }
+
+        for ($r = 0; $r -lt $rowCount; $r++) {
+            if ($r -eq $pivotRow) { continue }
+            $factor = [double]$rref[$r,$col]
+            if ([Math]::Abs($factor) -le $Tolerance) { continue }
+            for ($j = 0; $j -lt $columnCount; $j++) {
+                $rref[$r,$j] = [double]$rref[$r,$j] - $factor * [double]$rref[$pivotRow,$j]
+            }
+        }
+
+        $pivotColumns += $col
+        $pivotRow++
+    }
+
+    $rank = $pivotColumns.Count
+    $nullity = $columnCount - $rank
+    $freeColumns = @(0..($columnCount-1) | Where-Object { $pivotColumns -notcontains $_ })
+
+    $nullspaceBasis = @()
+    foreach ($free in $freeColumns) {
+        $vector = New-Object double[] $columnCount
+        $vector[$free] = 1.0
+
+        for ($i = 0; $i -lt $pivotColumns.Count; $i++) {
+            $pivotCol = [int]$pivotColumns[$i]
+            $vector[$pivotCol] = -[double]$rref[$i,$free]
+        }
+
+        $nullspaceBasis += ,@($vector)
+    }
+
+    $wrapTwist = @(0.0,0.0,0.0,0.0,0.0,1.0)
+    $wrapResiduals = @()
+    foreach ($row in $rows) {
+        $sum = 0.0
+        for ($j = 0; $j -lt $columnCount; $j++) {
+            $sum += [double]$row.row[$j] * [double]$wrapTwist[$j]
+        }
+        $wrapResiduals += $sum
+    }
+    $maxWrapResidual = ($wrapResiduals | ForEach-Object { [Math]::Abs([double]$_) } | Measure-Object -Maximum).Maximum
+    $wrapRotationIsNullMode = ([double]$maxWrapResidual -le $Tolerance)
+
+    $requiredRankForOnlyWrapRotationFree = 5
+    $additionalNullModes = if ($wrapRotationIsNullMode) { [Math]::Max(0,$nullity - 1) } else { $nullity }
+
+    $rrefRows = @()
+    for ($r = 0; $r -lt $rowCount; $r++) {
+        $rowValues = @()
+        for ($col = 0; $col -lt $columnCount; $col++) {
+            $value = [double]$rref[$r,$col]
+            if ([Math]::Abs($value) -le $Tolerance) { $value = 0.0 }
+            $rowValues += $value
+        }
+        $rrefRows += ,$rowValues
+    }
+
+    $data = [ordered]@{
+        source_constraint_map = [ordered]@{
+            capability_id = [string]$constraint.capability_id
+            evidence_id = [string]$constraint.data.evidence_id
+            freshness = $constraint.data.freshness
+        }
+        model = [ordered]@{
+            name = 'CURRENT_POSE_MAINTAINED_FRICTIONLESS_POINT_NORMAL_CONSTRAINT_MODEL'
+            twist_coordinate_order = @('vx','vy','vz','omega_x','omega_y','omega_z')
+            wrench_row_order = @('Fx','Fy','Fz','Mx','My','Mz')
+            reference_point_mm = $referencePoint
+            note = 'Each touching pair contributes one maintained frictionless point-normal constraint. This is an optimistic linearized point-contact model; real unilateral contact maintenance and finite contact manifolds require separate evidence.'
+        }
+        constraint_rows = $rows
+        matrix_rank = $rank
+        nullity = $nullity
+        pivot_columns_zero_based = $pivotColumns
+        free_columns_zero_based = $freeColumns
+        rref = $rrefRows
+        nullspace_basis_free_variable_one = $nullspaceBasis
+        wrap_axis_rotation_test = [ordered]@{
+            twist = $wrapTwist
+            residuals = $wrapResiduals
+            max_abs_residual = [double]$maxWrapResidual
+            is_null_mode = $wrapRotationIsNullMode
+        }
+        restraint_projection = [ordered]@{
+            required_rank_to_leave_only_one_free_twist = $requiredRankForOnlyWrapRotationFree
+            observed_rank = $rank
+            observed_nullity = $nullity
+            additional_independent_null_modes_beyond_common_axis_rotation = $additionalNullModes
+            five_dof_restraint_excluding_common_axis_rotation = if ($rank -ge $requiredRankForOnlyWrapRotationFree -and $wrapRotationIsNullMode) { 'SUPPORTED_BY_POINT_NORMAL_RANK_MODEL' } else { 'NOT_SUPPORTED_BY_CURRENT_FOUR_POINT_NORMAL_MODEL' }
+            interpretation = if ($rank -lt $requiredRankForOnlyWrapRotationFree) {
+                'Even under the optimistic maintained frictionless point-normal model, the four observed contacts do not provide five independent normal constraints. At least one additional independent instantaneous mode remains beyond common-axis rotation.'
+            } else {
+                'The maintained point-normal rank is sufficient to leave at most one independent twist; additional unilateral/contact-maintenance checks are still required.'
+            }
+        }
+    }
+
+    $result = New-CGEnvelope -CapabilityId 'cg.product.contact-wrench-rank' -Result 'PASS' -Data $data -SourceAuthority 'DETERMINISTIC_CALCULATION' -SourceClassification 'measured_calculated_from_contact_constraint_map' -AmbiguityBucket 'KINEMATIC_STATE_UNRESOLVED' -Establishes @(
+        'rank and nullity of the current four-contact maintained frictionless point-normal constraint matrix',
+        'whether pure rotation about the derived common axis is a null mode of that matrix',
+        'whether the current four point-normal constraints can provide five independent constraint directions while leaving only common-axis rotation free'
+    ) -DoesNotEstablish @(
+        'finite line/surface contact constraint effects beyond the sampled point normals',
+        'unilateral contact maintenance, preload, compliance, or force closure',
+        'friction or traction and driven wrap torque',
+        'gravity/up semantics or load capacity',
+        'interval-wide restraint or reachable-state behavior',
+        'that any current V43 component is required in the final mechanism',
+        'mechanism selection or mechanical acceptance'
+    )
+
+    Write-CGOutput -Value $result -AsJson:$AsJson
+}
+
 function Get-CGCurrentPlan {
     [CmdletBinding()]
     param([switch]$AsJson)
