@@ -88,6 +88,7 @@ foreach ($capability in $implemented) {
 }
 
 $requiredPlanned = @(
+    'cg.contact.surface-normal',
     'cg.product.support',
     'cg.product.restraint',
     'cg.product.entry-path',
