@@ -33,7 +33,11 @@ $required = @(
     'pair_results = $pairRows.ToArray()',
     'physical_interferences = $interferenceRows.ToArray()',
     'indeterminate_results = $indeterminateRows.ToArray()',
-    'samples = $sampleRows.ToArray()'
+    'samples = $sampleRows.ToArray()',
+    'serve-stdio',
+    'Get-WorkerServer',
+    'Read-WorkerServerEnvelope',
+    'Stop-WorkerServer'
 )
 
 foreach ($needle in $required) {
