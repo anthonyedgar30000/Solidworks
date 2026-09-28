@@ -876,6 +876,14 @@ class SemanticIntegrationTests(unittest.TestCase):
         prompt = post.call_args.kwargs["json"]["prompt"]
         self.assertIn("TRADITION RAG ADVISORY CONTEXT", prompt)
         self.assertIn("RAG_ONLY_SERVICEABILITY_CONCERN", prompt)
+        self.assertIn(
+            "A hypothesis is a physical mechanism explanation",
+            prompt,
+        )
+        self.assertIn(
+            "CLOSURE_KINEMATICS -> statement must explicitly name",
+            prompt,
+        )
 
         record = append_log.call_args.args[0]
         self.assertTrue(record["tradition_context_applied"])
