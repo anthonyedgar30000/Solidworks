@@ -460,6 +460,14 @@ DETERMINISTIC GROUNDING CATALOG:
 {frontier_section}
 {frontier_state_section}
 {tradition_context_section}
+FINAL DETERMINISTIC ADMISSION GATE:
+{grounding_catalog(request.task, request.evidence)}
+- claims_used and every anchor_claim MUST be copied exactly from the allowed bucket/claim pairs above.
+- Tradition-RAG excerpts are NEVER claims_used or anchor_claims unless the exact same text independently appears in SUPPLIED EVIDENCE and the allowed catalog.
+- For hypothesis_generation: inferences MUST be []; next_tests MUST be []; notes MUST be [].
+- Do not add MULTIPLE_PLAUSIBLE_HYPOTHESES or any routing/gate bucket as a hypothesis anchor.
+- Every hypothesis statement MUST begin with "Hypothesis: " and use tentative language.
+- Every hypothesis MUST remain UNTESTED and ELIGIBLE.
 PREVIOUS SCHEMA-VALID PROPOSAL:
 {original_raw}
 
@@ -793,6 +801,14 @@ DETERMINISTIC GROUNDING CATALOG:
 {frontier_prompt_section}
 {frontier_state_prompt_section}
 {tradition_prompt_section}
+FINAL DETERMINISTIC ADMISSION GATE:
+{grounding_catalog(request.task, request.evidence)}
+- claims_used and every anchor_claim MUST be copied exactly from the allowed bucket/claim pairs above.
+- Tradition-RAG excerpts are NEVER claims_used or anchor_claims unless the exact same text independently appears in SUPPLIED EVIDENCE and the allowed catalog.
+- For hypothesis_generation: inferences MUST be []; next_tests MUST be []; notes MUST be [].
+- Do not add MULTIPLE_PLAUSIBLE_HYPOTHESES or any routing/gate bucket as a hypothesis anchor.
+- Every hypothesis statement MUST begin with "Hypothesis: " and use tentative language.
+- Every hypothesis MUST remain UNTESTED and ELIGIBLE.
 Return only the required JSON object.
 """
 

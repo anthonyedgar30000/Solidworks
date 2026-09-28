@@ -25,11 +25,26 @@ SUPPORTED_PLAN_PROFILE = {
 }
 
 DEFAULT_LIMITS = {
-    "authoritative": 2,
+    "authoritative": 1,
     "professional": 1,
     "chatter": 1,
-    "excerpt_chars": 520,
+    "excerpt_chars": 320,
 }
+
+FIELD_CHATTER_PROJECT_TERMS = (
+    "bottle",
+    "label",
+    "packaging",
+    "conveyor",
+    "roller",
+    "belt",
+    "wrap",
+    "capture",
+    "product handling",
+    "product flow",
+    "in-running nip",
+    "pinch",
+)
 
 TRADITION_QUERY_LENSES = {
     "MACHINE_DESIGN": (
@@ -133,6 +148,18 @@ def _bounded_excerpt(value: str, limit: int) -> str:
     if len(normalized) <= limit:
         return normalized
     return normalized[: max(0, limit - 1)].rstrip() + "…"
+
+
+def _field_chatter_is_project_relevant(hit: Mapping[str, Any]) -> bool:
+    haystack = " ".join(
+        str(value or "")
+        for value in (
+            hit.get("title"),
+            hit.get("body"),
+        )
+    ).lower()
+    normalized = " ".join(haystack.split())
+    return any(term in normalized for term in FIELD_CHATTER_PROJECT_TERMS)
 
 
 def _selected_traditions(
@@ -333,6 +360,11 @@ def load_tradition_context(
                 score = float(hit.get("retrieval_score") or 0.0)
                 source_id = str(hit.get("source_id") or "")
                 if score <= 0.0 or not source_id:
+                    continue
+                if (
+                    lane == "FIELD_CHATTER"
+                    and not _field_chatter_is_project_relevant(hit)
+                ):
                     continue
                 if source_id in seen_sources:
                     continue

@@ -61,7 +61,7 @@ def fake_bundle(tradition_id: str):
                     "chunk_id": f"{tradition_id}:C1",
                     "source_id": "CHAT.TEST",
                     "authority_class": "TEST_CHATTER",
-                    "body": "Practitioner chatter suggests a pivot alternative.",
+                    "body": "Practitioner chatter suggests a roller capture pivot alternative.",
                     "source_uri": "https://example.test/chat",
                     "retrieval_score": 1.0,
                     "permitted_effect": "HYPOTHESIS_ONLY",
@@ -136,7 +136,7 @@ class TraditionContextTests(unittest.TestCase):
             ):
                 self.assertEqual(data_root, data)
                 self.assertIn("bottle capture", question)
-                self.assertEqual((authoritative, professional, chatter), (6, 3, 3))
+                self.assertEqual((authoritative, professional, chatter), (3, 3, 3))
                 seen_queries[tradition_id] = question
                 return fake_bundle(tradition_id)
 
@@ -187,6 +187,60 @@ class TraditionContextTests(unittest.TestCase):
                 ["AUTHORITATIVE", "PROFESSIONAL_PRACTICE", "FIELD_CHATTER"],
             )
             self.assertEqual(first[2]["permitted_effect"], "HYPOTHESIS_ONLY")
+
+    def test_irrelevant_field_chatter_is_filtered(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            code, data = self.runtime_fixture(root)
+
+            def retrieve(
+                data_root,
+                tradition_id,
+                question,
+                authoritative,
+                professional,
+                chatter,
+            ):
+                bundle = fake_bundle(tradition_id)
+                bundle["hits"]["AUTHORITATIVE"] = []
+                bundle["hits"]["PROFESSIONAL_PRACTICE"] = []
+                bundle["hits"]["FIELD_CHATTER"] = [
+                    {
+                        "chunk_id": f"{tradition_id}:IRRELEVANT",
+                        "source_id": "CHAT.UNRELATED",
+                        "authority_class": "OPEN_COMMUNITY",
+                        "body": (
+                            "A reversing motor capacitor discussion about "
+                            "CW and CCW terminals."
+                        ),
+                        "title": "Single phase motor reversing",
+                        "source_uri": "https://example.test/unrelated",
+                        "retrieval_score": 9.0,
+                        "permitted_effect": "HYPOTHESIS_ONLY",
+                        "chunk_kind": "NETWORK_SOURCE",
+                        "source_record_id": "SRCREC.UNRELATED",
+                        "observed_at_utc": "2026-09-27T00:00:00Z",
+                    }
+                ]
+                return bundle
+
+            snapshot = tc.load_tradition_context(
+                repo_root=root,
+                code_root=code,
+                data_root=data,
+                evidence="- Capture motion is unresolved.",
+                frontier_snapshot=FRONTIER,
+                tree_resolver=lambda _: "tree123",
+                retriever=retrieve,
+            )
+
+            self.assertEqual(snapshot["total_hits"], 0)
+            self.assertTrue(
+                all(
+                    not row["hits"]
+                    for row in snapshot["traditions"]
+                )
+            )
 
     def test_runtime_tree_mismatch_fails_closed(self):
         with tempfile.TemporaryDirectory() as tmp:
