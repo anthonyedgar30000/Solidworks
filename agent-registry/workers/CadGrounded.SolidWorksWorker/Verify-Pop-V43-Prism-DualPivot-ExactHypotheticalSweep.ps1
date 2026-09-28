@@ -86,6 +86,8 @@ $ExpectedCurrentTranslationsMm = @{
     'FITCHECK_WRAP_SUPPORT_ROLLER_D30_H93_V25-2' = @(-183.81939742953654,-189.56817558934128,995.0)
 }
 
+$script:WorkerServer = $null
+
 function Invoke-WorkerJson {
     param([Parameter(Mandatory=$true)][string[]]$Arguments)
     $text = (& $WorkerExe @Arguments | Out-String).Trim()
@@ -103,20 +105,76 @@ function Invoke-WorkerJson {
     return $envelope
 }
 
+function Get-WorkerServer {
+    if ($null -ne $script:WorkerServer -and -not $script:WorkerServer.HasExited) {
+        return $script:WorkerServer
+    }
+
+    $startInfo = New-Object System.Diagnostics.ProcessStartInfo
+    $startInfo.FileName = $WorkerExe
+    $startInfo.Arguments = 'serve-stdio'
+    $startInfo.UseShellExecute = $false
+    $startInfo.RedirectStandardInput = $true
+    $startInfo.RedirectStandardOutput = $true
+    $startInfo.RedirectStandardError = $true
+    $startInfo.CreateNoWindow = $true
+
+    $process = New-Object System.Diagnostics.Process
+    $process.StartInfo = $startInfo
+    if (-not $process.Start()) {
+        throw 'Failed to start persistent read-only worker server.'
+    }
+    $script:WorkerServer = $process
+    return $process
+}
+
+function Read-WorkerServerEnvelope {
+    param([Parameter(Mandatory=$true)][System.Diagnostics.Process]$Process)
+
+    $lines = [System.Collections.Generic.List[string]]::new()
+    while ($true) {
+        $line = $Process.StandardOutput.ReadLine()
+        if ($null -eq $line) {
+            $stderr = $Process.StandardError.ReadToEnd()
+            throw "Persistent worker closed stdout before returning a JSON envelope. ExitCode=$($Process.ExitCode) Error=$stderr"
+        }
+        [void]$lines.Add($line)
+        $text = [string]::Join([Environment]::NewLine, $lines.ToArray())
+        try {
+            return ($text | ConvertFrom-Json -ErrorAction Stop)
+        }
+        catch {
+            if ($Process.HasExited -and $Process.StandardOutput.EndOfStream) {
+                $stderr = $Process.StandardError.ReadToEnd()
+                throw "Persistent worker exited before returning a complete JSON envelope. ExitCode=$($Process.ExitCode) Error=$stderr"
+            }
+        }
+    }
+}
+
+function Stop-WorkerServer {
+    if ($null -eq $script:WorkerServer) {
+        return
+    }
+    try { $script:WorkerServer.StandardInput.Close() } catch {}
+    try {
+        if (-not $script:WorkerServer.WaitForExit(2000)) {
+            $script:WorkerServer.Kill()
+        }
+    } catch {}
+    try { $script:WorkerServer.Dispose() } catch {}
+    $script:WorkerServer = $null
+}
+
 function Invoke-WorkerRequest {
     param([Parameter(Mandatory=$true)]$Request)
     $requestJson = $Request | ConvertTo-Json -Depth 30 -Compress
-    $text = ($requestJson | & $WorkerExe execute-json | Out-String).Trim()
-    $exitCode = $LASTEXITCODE
-    if ([string]::IsNullOrWhiteSpace($text)) {
-        throw "Worker execute-json returned no JSON. ExitCode=$exitCode"
-    }
-    $envelope = $text | ConvertFrom-Json
+    $worker = Get-WorkerServer
+    $worker.StandardInput.WriteLine($requestJson)
+    $worker.StandardInput.Flush()
+    $envelope = Read-WorkerServerEnvelope -Process $worker
     if (-not [bool]$envelope.ok) {
         throw "Worker returned ok=false. Command=$($envelope.command_id) ErrorType=$($envelope.error.type) Error=$($envelope.error.message)"
-    }
-    if ($exitCode -ne 0) {
-        throw "Worker returned ok=true with nonzero exit code. ExitCode=$exitCode"
     }
     return $envelope
 }
@@ -322,16 +380,17 @@ foreach ($name in $MoverNames) {
 }
 $targetStateBefore = Get-TargetState -ComponentsEnvelope $componentsBefore -TargetComponents $AllTrackedNames
 
-$sampleRows = New-Object System.Collections.Generic.List[object]
-$interferenceRows = New-Object System.Collections.Generic.List[object]
-$indeterminateRows = New-Object System.Collections.Generic.List[object]
+$sampleRows = [System.Collections.Generic.List[object]]::new()
+$interferenceRows = [System.Collections.Generic.List[object]]::new()
+$indeterminateRows = [System.Collections.Generic.List[object]]::new()
 
+try {
 foreach ($fraction in $SampleFractions) {
     $transformMap = Get-MoverTransformMap -ComponentsEnvelope $componentsBefore -Fraction ([double]$fraction)
     $angle1 = [double]$Branch1.open_angle_deg * [double]$fraction
     $angle2 = [double]$Branch2.open_angle_deg * [double]$fraction
 
-    $pairRows = New-Object System.Collections.Generic.List[object]
+    $pairRows = [System.Collections.Generic.List[object]]::new()
 
     foreach ($mover in $MoverNames) {
         foreach ($obstacle in $StaticObstacleNames) {
@@ -393,8 +452,12 @@ foreach ($fraction in $SampleFractions) {
         indeterminate_count = @($pairRows | Where-Object { $_.classification -match '^indeterminate_' }).Count
         nonintersecting_contact_or_clearance_unresolved_count = @($pairRows | Where-Object { $_.classification -ceq 'noninterfering_contact_or_clearance_unresolved' }).Count
         current_pose_contact_or_coincidence_count = @($pairRows | Where-Object { $_.classification -ceq 'contact_or_coincidence_within_tolerance' }).Count
-        pair_results = @($pairRows)
+        pair_results = $pairRows.ToArray()
     })
+}
+}
+finally {
+    Stop-WorkerServer
 }
 
 $componentsAfter = Invoke-WorkerJson -Arguments @('components','--all')
@@ -459,9 +522,9 @@ $verification = [ordered]@{
     file_after = $fileAfter
     tracked_state_before = $targetStateBefore
     tracked_state_after = $targetStateAfter
-    physical_interferences = @($interferenceRows)
-    indeterminate_results = @($indeterminateRows)
-    samples = @($sampleRows)
+    physical_interferences = $interferenceRows.ToArray()
+    indeterminate_results = $indeterminateRows.ToArray()
+    samples = $sampleRows.ToArray()
     evidence_contract = [ordered]@{
         status = 'OBSERVATION_READY_ONLY'
         establishes = @(
