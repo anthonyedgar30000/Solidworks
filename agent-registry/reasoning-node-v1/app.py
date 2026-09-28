@@ -468,6 +468,14 @@ FINAL DETERMINISTIC ADMISSION GATE:
 - Do not add MULTIPLE_PLAUSIBLE_HYPOTHESES or any routing/gate bucket as a hypothesis anchor.
 - Every hypothesis statement MUST begin with "Hypothesis: " and use tentative language.
 - Every hypothesis MUST remain UNTESTED and ELIGIBLE.
+- A hypothesis is a physical mechanism explanation, NOT a request for further investigation and NOT a restatement that ownership is unresolved.
+- Class/statement coupling is mandatory:
+  CLOSURE_KINEMATICS -> statement must explicitly name closure, capture, carrier, slide, pivot, roller, belt, translation, or arm.
+  COMPLIANCE_PRELOAD -> statement must explicitly name spring, compliance, preload, deflection, flex, or elasticity.
+  ACTUATION_DRIVE -> statement must explicitly name actuator, cylinder, pneumatic, motor, servo, or drive.
+  SEQUENCE_CONTROL -> statement must explicitly name timing, phase, sensor, control, index, trigger, state transition, or release.
+  SOURCE_BOUNDARY -> statement must explicitly name nested, external, unmodeled, configuration, assembly boundary, or feature boundary.
+  OTHER_EXPLICIT_MECHANISM -> statement must explicitly name linkage, cam, follower, clamp, guide, restraint, or lever.
 PREVIOUS SCHEMA-VALID PROPOSAL:
 {original_raw}
 
@@ -809,6 +817,14 @@ FINAL DETERMINISTIC ADMISSION GATE:
 - Do not add MULTIPLE_PLAUSIBLE_HYPOTHESES or any routing/gate bucket as a hypothesis anchor.
 - Every hypothesis statement MUST begin with "Hypothesis: " and use tentative language.
 - Every hypothesis MUST remain UNTESTED and ELIGIBLE.
+- A hypothesis is a physical mechanism explanation, NOT a request for further investigation and NOT a restatement that ownership is unresolved.
+- Class/statement coupling is mandatory:
+  CLOSURE_KINEMATICS -> statement must explicitly name closure, capture, carrier, slide, pivot, roller, belt, translation, or arm.
+  COMPLIANCE_PRELOAD -> statement must explicitly name spring, compliance, preload, deflection, flex, or elasticity.
+  ACTUATION_DRIVE -> statement must explicitly name actuator, cylinder, pneumatic, motor, servo, or drive.
+  SEQUENCE_CONTROL -> statement must explicitly name timing, phase, sensor, control, index, trigger, state transition, or release.
+  SOURCE_BOUNDARY -> statement must explicitly name nested, external, unmodeled, configuration, assembly boundary, or feature boundary.
+  OTHER_EXPLICIT_MECHANISM -> statement must explicitly name linkage, cam, follower, clamp, guide, restraint, or lever.
 Return only the required JSON object.
 """
 
